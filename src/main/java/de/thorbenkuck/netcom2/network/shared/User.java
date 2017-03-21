@@ -1,54 +1,27 @@
 package de.thorbenkuck.netcom2.network.shared;
 
-import de.thorbenkuck.netcom2.interfaces.SendBridge;
+import de.thorbenkuck.netcom2.network.server.ClientSendBridge;
+import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.util.Properties;
 
-public class User {
+public interface User {
 
-	private final SendBridge sendBridge;
-	private volatile boolean identified = false;
-	private volatile String identifier = "";
-	private volatile Properties properties = new Properties();
-
-	public User(SendBridge sendBridge) {
-		this.sendBridge = sendBridge;
+	static User get(Client client) {
+		return new UserImpl(new ClientSendBridge(client));
 	}
 
-	@Override
-	public String toString() {
-		return "User{" +
-				"identified=" + identified +
-				", identifier='" + identifier + '\'' +
-				", properties=" + properties +
-				'}';
-	}
+	boolean isIdentified();
 
-	public boolean isIdentified() {
-		return identified;
-	}
+	void setIdentified(boolean identified);
 
-	public void setIdentified(boolean identified) {
-		this.identified = identified;
-	}
+	String getIdentifier();
 
-	public String getIdentifier() {
-		return identifier;
-	}
+	void setIdentifier(String identifier);
 
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
+	Properties getProperties();
 
-	public Properties getProperties() {
-		return properties;
-	}
+	void setProperties(Properties properties);
 
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
-
-	public void send(Object o) {
-		sendBridge.send(o);
-	}
+	void send(Object o);
 }

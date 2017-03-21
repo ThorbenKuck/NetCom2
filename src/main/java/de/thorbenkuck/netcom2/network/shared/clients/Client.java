@@ -43,7 +43,6 @@ public class Client {
 		this.communicationRegistration = communicationRegistration;
 		setMainSerializationAdapter(new JavaSerializationAdapter());
 		setMainDeSerializationAdapter(new JavaDeSerializationAdapter());
-		setUser(new User(this::send));
 	}
 
 	public void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {

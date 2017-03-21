@@ -14,7 +14,7 @@ public class DistributorRegistration {
 
 	public void addRegistration(Class s, User user) {
 		getAndCreate(s).add(user);
-		LoggingUtil.getLogging().debug("User " + user + " registered for " + s);
+		LoggingUtil.getLogging().debug("UserImpl " + user + " registered for " + s);
 	}
 
 	private Set<User> getAndCreate(Class s) {
@@ -25,7 +25,7 @@ public class DistributorRegistration {
 	public void removeRegistration(Class s, User user) {
 		Set<User> set = get(s);
 		set.remove(user);
-		LoggingUtil.getLogging().debug("User " + user + " unregistered from " + s);
+		LoggingUtil.getLogging().debug("UserImpl " + user + " unregistered from " + s);
 		if (set.isEmpty()) {
 			registration.remove(s);
 			LoggingUtil.getLogging().debug("No registration left for " + s);

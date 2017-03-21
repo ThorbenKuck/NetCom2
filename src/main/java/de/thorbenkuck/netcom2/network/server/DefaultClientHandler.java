@@ -30,7 +30,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		this.socket = socket;
 		try {
 			client.invoke();
-			client.setUser(new User(new ClientSendBridge(client)));
+			client.setUser(User.get(client));
 			clientList.add(client);
 		} catch (IOException e) {
 			e.printStackTrace();

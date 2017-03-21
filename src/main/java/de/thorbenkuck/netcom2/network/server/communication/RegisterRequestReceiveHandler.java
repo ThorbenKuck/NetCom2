@@ -1,7 +1,5 @@
 package de.thorbenkuck.netcom2.network.server.communication;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.DistributorRegistration;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -13,7 +11,6 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 
 	private DistributorRegistration distributorRegistration;
-	private Logging logging = LoggingUtil.getLogging();
 	private Cache cache;
 
 	public RegisterRequestReceiveHandler(DistributorRegistration distributorRegistration, Cache cache) {
