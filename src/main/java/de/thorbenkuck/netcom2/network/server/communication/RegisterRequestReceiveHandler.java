@@ -23,13 +23,11 @@ public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest>
 		Class<?> clazz = o.getCorrespondingClass();
 		distributorRegistration.addRegistration(clazz, user);
 		user.send(new RegisterResponse(o, true));
-		cache.get(clazz).ifPresent(object -> {
-			user.send(new CachePush(object));
-		});
+		cache.get(clazz).ifPresent(object -> user.send(new CachePush(object)));
 	}
 
 	@Override
 	public String toString() {
-		return "RegisterRequestReceiveHandler{Handling internal Registrations}";
+		return "RegisterRequestReceiveHandler{Handling internal client-registrations}";
 	}
 }

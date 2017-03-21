@@ -6,4 +6,10 @@ public interface OnReceive<O> {
 
 	void run(User user, O o);
 
+	default void onUnRegistration() {
+	}
+
+	default void onRegistration() {
+	}
+
 }

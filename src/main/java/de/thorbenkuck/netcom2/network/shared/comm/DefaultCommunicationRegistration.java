@@ -12,7 +12,7 @@ import java.util.Map;
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, OnReceive> mapping = new HashMap<>();
-	private Logging logging = new LoggingUtil();
+	private final Logging logging = new LoggingUtil();
 
 	@Override
 	public <T> void register(Class<T> clazz, OnReceive<T> onReceive) throws CommunicationAlreadySpecifiedException {
@@ -21,6 +21,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 		LoggingUtil.getLogging().debug("Registered for Class " + clazz + " = " + onReceive);
 		mapping.put(clazz, onReceive);
+		onReceive.onRegistration();
 	}
 
 	@Override
@@ -31,7 +32,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 
 		LoggingUtil.getLogging().debug("Unregistered OnReceive for Class " + clazz);
-		mapping.remove(clazz);
+		mapping.remove(clazz).onUnRegistration();
 	}
 
 	@Override

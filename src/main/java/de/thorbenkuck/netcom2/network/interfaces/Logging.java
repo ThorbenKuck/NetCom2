@@ -1,6 +1,12 @@
 package de.thorbenkuck.netcom2.network.interfaces;
 
+import de.thorbenkuck.netcom2.logging.LoggingUtil;
+
 public interface Logging {
+	static Logging access() {
+		return new LoggingUtil();
+	}
+
 	void catching(Throwable throwable);
 
 	void debug(String s);

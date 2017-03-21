@@ -21,9 +21,8 @@ public class ServerStartTest {
 		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
 
 		register();
+		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 0, 2, TimeUnit.SECONDS);
 		start();
-
-		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 3, 1, TimeUnit.SECONDS);
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
@@ -35,13 +34,11 @@ public class ServerStartTest {
 
 	private static void start() throws StartFailedException {
 		serverStart.launch();
-		new Thread(() -> {
-			try {
-				serverStart.acceptClients();
-			} catch (ClientConnectionFailedException e) {
-				e.printStackTrace();
-			}
-		}).start();
+		try {
+			serverStart.acceptClients();
+		} catch (ClientConnectionFailedException e) {
+			throw new StartFailedException(e);
+		}
 	}
 
 	private static void send() {

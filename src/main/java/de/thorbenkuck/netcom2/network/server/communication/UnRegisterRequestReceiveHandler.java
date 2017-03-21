@@ -22,6 +22,6 @@ public class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequ
 
 	@Override
 	public String toString() {
-		return "UnRegisterRequestReceiveHandler{Handling internal Registrations}";
+		return "UnRegisterRequestReceiveHandler{Handling internal client-registrations}";
 	}
 }
