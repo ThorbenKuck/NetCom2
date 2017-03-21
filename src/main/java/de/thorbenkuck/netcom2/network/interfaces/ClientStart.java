@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.network.interfaces;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.client.ClientStartImpl;
 import de.thorbenkuck.netcom2.network.client.Sender;
+import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import de.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -26,6 +27,8 @@ public interface ClientStart extends Launch, Loggable {
 	void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter);
 
 	void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+
+	void addDisconnectedHandler(DisconnectedHandler disconnectedHandler);
 
 	CommunicationRegistration getCommunicationRegistration();
 

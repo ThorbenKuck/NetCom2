@@ -10,13 +10,13 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 
-public class RegisterRequestReceive implements OnReceive<RegisterRequest> {
+public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 
 	private DistributorRegistration distributorRegistration;
 	private Logging logging = LoggingUtil.getLogging();
 	private Cache cache;
 
-	public RegisterRequestReceive(DistributorRegistration distributorRegistration, Cache cache) {
+	public RegisterRequestReceiveHandler(DistributorRegistration distributorRegistration, Cache cache) {
 		this.distributorRegistration = distributorRegistration;
 		this.cache = cache;
 	}
@@ -29,5 +29,10 @@ public class RegisterRequestReceive implements OnReceive<RegisterRequest> {
 		cache.get(clazz).ifPresent(object -> {
 			user.send(new CachePush(object));
 		});
+	}
+
+	@Override
+	public String toString() {
+		return "RegisterRequestReceiveHandler{Handling internal Registrations}";
 	}
 }

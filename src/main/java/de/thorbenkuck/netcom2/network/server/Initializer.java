@@ -3,8 +3,8 @@ package de.thorbenkuck.netcom2.network.server;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceive;
-import de.thorbenkuck.netcom2.network.server.communication.UnRegisterRequestReceive;
+import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceiveHandler;
+import de.thorbenkuck.netcom2.network.server.communication.UnRegisterRequestReceiveHandler;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
@@ -35,12 +35,12 @@ class Initializer {
 
 	private void register() {
 		try {
-			communicationRegistration.register(RegisterRequest.class, new RegisterRequestReceive(distributor.getDistributorRegistration(), cache));
+			communicationRegistration.register(RegisterRequest.class, new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache));
 		} catch (CommunicationAlreadySpecifiedException e) {
 			logging.warn("Overriding the default-behaviour for the Cache-Registration is NOT recommended!");
 		}
 		try {
-			communicationRegistration.register(UnRegisterRequest.class, new UnRegisterRequestReceive(distributor.getDistributorRegistration()));
+			communicationRegistration.register(UnRegisterRequest.class, new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()));
 		} catch (CommunicationAlreadySpecifiedException e) {
 			logging.warn("Overriding the default-behaviour for the Cache-Registration is NOT recommended!");
 		}

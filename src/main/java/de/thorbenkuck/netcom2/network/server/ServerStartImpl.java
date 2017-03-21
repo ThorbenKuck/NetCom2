@@ -7,6 +7,7 @@ import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
@@ -79,16 +80,13 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	private void handle(Socket socket) {
-		clientConnectedHandlers.forEach(clientConnectedHandler -> clientConnectedHandler.handle(socket));
-		clientList.get(socket).ifPresent(client -> {
-			try {
-				client.invoke();
-			} catch (IOException e) {
-				logging.catching(e);
-				logging.error("Encountered an error while invoking Client " + client);
-				clientList.remove(client);
+		Client client = null;
+		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
+			if (client == null) {
+				client = clientConnectedHandler.create(socket);
 			}
-		});
+			clientConnectedHandler.handle(client);
+		}
 	}
 
 	@Override

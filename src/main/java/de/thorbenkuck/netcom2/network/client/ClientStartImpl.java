@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
@@ -20,15 +21,11 @@ public class ClientStartImpl implements ClientStart {
 	private SocketFactory socketFactory;
 	private ClientConnector clientConnector;
 	private CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
-	private int port;
-	private String address;
 	private Client client;
 	private Sender sender;
 	private LoggingUtil logging = new LoggingUtil();
 
 	public ClientStartImpl(String address, int port) {
-		this.port = port;
-		this.address = address;
 		clientConnector = new ClientConnector(address, port);
 		setSocketFactory((port1, address1) -> {
 			try {
@@ -97,6 +94,11 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
+	}
+
+	@Override
+	public void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
+		client.addDisconnectedHandler(disconnectedHandler);
 	}
 
 	@Override

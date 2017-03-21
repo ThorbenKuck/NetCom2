@@ -14,10 +14,11 @@ public class ServerStartTest {
 
 	private static int port = 46091;
 	private static ServerStart serverStart;
-	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
+	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) throws StartFailedException, ClientConnectionFailedException, CommunicationAlreadySpecifiedException {
 		serverStart = ServerStart.of(port);
+		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
 
 		register();
 		start();

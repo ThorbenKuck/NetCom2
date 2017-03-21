@@ -7,8 +7,8 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ack;
 import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 import de.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
 
@@ -64,7 +64,7 @@ class Initializer {
 
 	public void awaitHandshake() throws StartFailedException {
 		logging.trace("Pinging Server ..");
-		client.send(new Ack());
+		client.send(new Ping());
 		logging.trace("Awaiting ping from Server ..");
 		try {
 			client.getPrimed().await();

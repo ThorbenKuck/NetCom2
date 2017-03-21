@@ -33,7 +33,9 @@ public class ClientStartTest {
 
 	private static void start() throws StartFailedException {
 		clientStart.launch();
-		clientStart.send().object(new TestObject("Hello"));
+		clientStart.addFallBackDeSerialization(new TestDeSerializer());
+		clientStart.addFallBackSerialization(new TestSerializer());
+		clientStart.addDisconnectedHandler(client -> System.out.println("Byebye"));
 	}
 }
 

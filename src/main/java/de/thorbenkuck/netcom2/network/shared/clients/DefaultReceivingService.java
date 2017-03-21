@@ -8,7 +8,7 @@ import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ack;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -57,6 +57,7 @@ class DefaultReceivingService implements ReceivingService {
 			try {
 				String string = in.nextLine();
 				Object object = deserialize(string);
+				logging.debug("Received: " + object);
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
 				e.printStackTrace();
@@ -86,9 +87,8 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void trigger(Object object) {
-		logging.debug("Received object " + object);
-		if (object.getClass().equals(Ack.class)) {
-			logging.trace("Detected ping from Server!");
+		if (object.getClass().equals(Ping.class)) {
+			logging.trace("Ping requested");
 			onAck.run();
 		} else {
 			try {
