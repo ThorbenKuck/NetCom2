@@ -1,0 +1,47 @@
+package de.thorbenkuck.netcom2.network.server;
+
+import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
+
+import java.util.function.Predicate;
+
+public class Distributor {
+
+	private ClientList clientList;
+	private DistributorRegistration distributorRegistration;
+
+	public Distributor(ClientList clientList, DistributorRegistration distributorRegistration) {
+		this.clientList = clientList;
+		this.distributorRegistration = distributorRegistration;
+	}
+
+	public void toAll(Object o) {
+		to(o);
+	}
+
+	@SafeVarargs
+	public synchronized final void to(Object o, Predicate<User>... predicates) {
+		clientList.stream()
+				.filter(User::isIdentified)
+				.filter(user -> testAgainst(user, predicates))
+				.forEach(client -> client.send(o));
+	}
+
+	@SafeVarargs
+	private final boolean testAgainst(User user, Predicate<User>... predicates) {
+		for (Predicate<User> predicate : predicates) {
+			if (! predicate.test(user)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void toRegistered(Object o) {
+		distributorRegistration.getRegistered(o.getClass()).forEach(user -> user.send(new CachePush(o)));
+	}
+
+	DistributorRegistration getDistributorRegistration() {
+		return distributorRegistration;
+	}
+}
