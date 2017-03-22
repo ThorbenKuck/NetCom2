@@ -1,58 +1,33 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Observer;
 import java.util.Optional;
 
-public class Cache extends Observable {
-
-	private Map<Class<?>, Object> internals = new HashMap<>();
-
-	public void addAndOverride(Object object) {
-		internals.put(object.getClass(), object);
-		notifyAboutChangedEntry(object);
+public interface Cache {
+	@NotNull
+	static Cache get() {
+		return new CacheImpl();
 	}
 
-	private void notifyAboutChangedEntry(Object newEntry) {
-		sendNotify(new NewEntryEvent(newEntry));
-	}
+	void update(Object object);
 
-	private synchronized void sendNotify(Object o) {
-		setChanged();
-		notifyObservers(o);
-		clearChanged();
-	}
+	void addNew(Object object);
 
-	public void add(Object object) {
-		if (! isSet(object.getClass())) {
-			internals.put(object.getClass(), object);
-			notifyAboutChangedEntry(object);
-		}
-	}
+	void addAndOverride(Object object);
 
-	public boolean isSet(Class<?> clazz) {
-		return get(clazz).isPresent();
-	}
+	void remove(Class clazz);
 
-	@SuppressWarnings ("unchecked")
-	public <T> Optional<T> get(Class<T> clazz) {
-		Object retrieved = internals.get(clazz);
-		if (retrieved != null && retrieved.getClass().equals(clazz)) {
-			return Optional.of((T) internals.get(clazz));
-		}
-		return Optional.empty();
-	}
+	boolean isSet(Class<?> clazz);
 
-	public void remove(Class clazz) {
-		if (isSet(clazz)) {
-			internals.remove(clazz);
-			notifyAboutRemovedEntry(clazz);
-		}
-	}
+	<T> Optional<T> get(Class<T> clazz);
 
-	private void notifyAboutRemovedEntry(Class clazz) {
-		sendNotify(new DeletedEntryEvent(clazz));
-	}
+	void addCacheObserver(CacheObserver cacheObserver);
 
+	void removeCacheObserver(CacheObserver cacheObserver);
+
+	void addGeneralObserver(Observer observer);
+
+	void removeGeneralObserver(Observer observer);
 }

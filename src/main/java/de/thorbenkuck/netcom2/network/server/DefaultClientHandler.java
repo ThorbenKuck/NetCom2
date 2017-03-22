@@ -15,13 +15,15 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private final ClientList clientList;
 	private final Distributor distributor;
 	private final CommunicationRegistration communicationRegistration;
+	private final DistributorRegistration distributorRegistration;
 	private Socket socket;
 	private LoggingUtil logging = new LoggingUtil();
 
-	DefaultClientHandler(ClientList clientList, Distributor distributor, CommunicationRegistration communicationRegistration) {
+	DefaultClientHandler(ClientList clientList, Distributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
+		this.distributorRegistration = distributorRegistration;
 	}
 
 	@Override
@@ -33,7 +35,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 			client.setUser(User.get(client));
 			clientList.add(client);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		}
 		return client;
 	}
@@ -49,12 +51,13 @@ class DefaultClientHandler implements ClientConnectedHandler {
 			client.send(new Ping());
 			logging.trace("Handshake complete with " + socket.getInetAddress() + ":" + socket.getPort());
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		}
 	}
 
 	private void clearClient(Client client) {
 		logging.debug("disconnected " + client + " ");
 		clientList.remove(client);
+		distributorRegistration.removeRegistration(client.getUser());
 	}
 }

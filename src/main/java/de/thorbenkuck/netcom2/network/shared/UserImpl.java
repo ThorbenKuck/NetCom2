@@ -11,13 +11,13 @@ public class UserImpl implements User {
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
 
-	public UserImpl(SendBridge sendBridge) {
+	UserImpl(SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
 	}
 
 	@Override
 	public String toString() {
-		return "UserImpl{" +
+		return "User{" +
 				"identified=" + identified +
 				", identifier='" + identifier + '\'' +
 				", properties=" + properties +

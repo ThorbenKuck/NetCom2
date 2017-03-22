@@ -60,8 +60,9 @@ class DefaultReceivingService implements ReceivingService {
 				logging.debug("Received: " + object);
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			} catch (Throwable throwable) {
+				logging.catching(throwable);
 				softStop();
 			}
 		}
@@ -94,7 +95,7 @@ class DefaultReceivingService implements ReceivingService {
 			try {
 				communicationRegistration.trigger(object.getClass(), getUser.create(), object);
 			} catch (CommunicationNotSpecifiedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		}
 	}

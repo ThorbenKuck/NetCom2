@@ -1,6 +1,5 @@
 package test;
 
-import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
@@ -9,22 +8,22 @@ import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 	private static ClientStart clientStart;
 	private static int port = 46091;
 
 
-	public static void main(String[] args) throws StartFailedException, ClientConnectionFailedException, CommunicationAlreadySpecifiedException, InterruptedException {
+	public static void main(String[] args) {
 		clientStart = ClientStart.of("localhost", port);
 
-		register();
-		start();
-
-		Thread.sleep(TimeUnit.SECONDS.toMillis(2));
-
-		clientStart.send().registration(TestObjectTwo.class, new TestObserver());
+		try {
+			register();
+			start();
+			clientStart.send().registration(TestObjectTwo.class, new TestObserver());
+		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {

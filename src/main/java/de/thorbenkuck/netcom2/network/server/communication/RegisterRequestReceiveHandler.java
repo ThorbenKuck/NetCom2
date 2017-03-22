@@ -11,11 +11,11 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 
 	private DistributorRegistration distributorRegistration;
-	private Cache cache;
+	private Cache Cache;
 
-	public RegisterRequestReceiveHandler(DistributorRegistration distributorRegistration, Cache cache) {
+	public RegisterRequestReceiveHandler(DistributorRegistration distributorRegistration, Cache Cache) {
 		this.distributorRegistration = distributorRegistration;
-		this.cache = cache;
+		this.Cache = Cache;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest>
 		Class<?> clazz = o.getCorrespondingClass();
 		distributorRegistration.addRegistration(clazz, user);
 		user.send(new RegisterResponse(o, true));
-		cache.get(clazz).ifPresent(object -> user.send(new CachePush(object)));
+		Cache.get(clazz).ifPresent(object -> user.send(new CachePush(object)));
 	}
 
 	@Override

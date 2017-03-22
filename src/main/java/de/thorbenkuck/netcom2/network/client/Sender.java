@@ -13,11 +13,11 @@ public class Sender {
 
 	private Client client;
 	private Map<Class, Observer> observers = new HashMap<>();
-	private Cache cache;
+	private Cache Cache;
 
-	public Sender(Client client, Cache cache) {
+	public Sender(Client client, Cache Cache) {
 		this.client = client;
-		this.cache = cache;
+		this.Cache = Cache;
 	}
 
 	public void object(Object o) {

@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
@@ -38,7 +39,10 @@ public class Distributor {
 	}
 
 	public void toRegistered(Object o) {
-		distributorRegistration.getRegistered(o.getClass()).forEach(user -> user.send(new CachePush(o)));
+		distributorRegistration.getRegistered(o.getClass()).forEach(user -> {
+			LoggingUtil.getLogging().trace("Sending cache-update of " + o.getClass() + " to " + user);
+			user.send(new CachePush(o));
+		});
 	}
 
 	DistributorRegistration getDistributorRegistration() {

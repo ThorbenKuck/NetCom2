@@ -27,7 +27,7 @@ class Initializer {
 		this.sender = sender;
 	}
 
-	public void init() throws StartFailedException {
+	void init() throws StartFailedException {
 		register();
 		awaitHandshake();
 	}
@@ -36,33 +36,33 @@ class Initializer {
 		try {
 			communicationRegistration.register(RegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.addObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});
 		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the Cache-Registration is NOT recommended!");
+			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
 		}
 
 		try {
 			communicationRegistration.register(UnRegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.deleteObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});
 		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the Cache-UnRegistration is NOT recommended!");
+			logging.warn("Overriding the default-behaviour for the CacheImpl-UnRegistration is NOT recommended!");
 		}
 
 		try {
 			communicationRegistration.register(CachePush.class, (user, o) -> cache.addAndOverride(o.getObject()));
 		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the Cache-UnRegistration is NOT recommended!");
+			logging.warn("Overriding the default-behaviour for the CacheImpl-UnRegistration is NOT recommended!");
 		}
 	}
 
-	public void awaitHandshake() throws StartFailedException {
+	private void awaitHandshake() throws StartFailedException {
 		logging.trace("Pinging Server ..");
 		client.send(new Ping());
 		logging.trace("Awaiting ping from Server ..");

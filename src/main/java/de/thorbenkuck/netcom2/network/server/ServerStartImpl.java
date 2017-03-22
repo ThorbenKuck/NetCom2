@@ -26,7 +26,7 @@ class ServerStartImpl implements ServerStart {
 	private final ClientList clientList = new ClientList();
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final Distributor distributor = new Distributor(clientList, registration);
-	private final Cache cache = new Cache();
+	private final Cache cache = Cache.get();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
@@ -34,12 +34,12 @@ class ServerStartImpl implements ServerStart {
 
 	ServerStartImpl(ServerConnector serverConnector) {
 		this.serverConnector = serverConnector;
-		clientConnectedHandlers.add(new DefaultClientHandler(clientList, distributor, communicationRegistration));
+		clientConnectedHandlers.add(new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
 		setSocketFactory(integer -> {
 			try {
 				return new ServerSocket(integer);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logging.catching(e);
 				return null;
 			}
 		});
@@ -68,7 +68,7 @@ class ServerStartImpl implements ServerStart {
 				logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
 				threadPool.execute(() -> handle(socket));
 			} catch (IOException e) {
-				logging.error("Client-Connection failed! Aborting!");
+				logging.error("Client-Connection failed! Aborting!", e);
 				throw new ClientConnectionFailedException(e);
 			}
 		}

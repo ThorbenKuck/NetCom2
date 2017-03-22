@@ -4,6 +4,7 @@ import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.shared.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DistributorRegistration {
 
@@ -20,6 +21,13 @@ public class DistributorRegistration {
 	private Set<User> getAndCreate(Class s) {
 		registration.computeIfAbsent(s, k -> new HashSet<>());
 		return registration.get(s);
+	}
+
+	public void removeRegistration(User user) {
+		final List<Class> keys = registration.keySet().stream()
+				.filter(clazz -> registration.get(clazz).contains(user))
+				.collect(Collectors.toList());
+		keys.forEach(clazz -> removeRegistration(clazz, user));
 	}
 
 	public void removeRegistration(Class s, User user) {

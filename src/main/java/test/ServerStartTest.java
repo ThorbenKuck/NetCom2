@@ -16,13 +16,23 @@ public class ServerStartTest {
 	private static ServerStart serverStart;
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
-	public static void main(String[] args) throws StartFailedException, ClientConnectionFailedException, CommunicationAlreadySpecifiedException {
+	public static void main(String[] args) {
 		serverStart = ServerStart.of(port);
 		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
 
-		register();
-		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 0, 2, TimeUnit.SECONDS);
-		start();
+		try {
+			register();
+			new Thread(() -> {
+				try {
+					start();
+				} catch (StartFailedException e) {
+					e.printStackTrace();
+				}
+			}).start();
+			scheduledExecutorService.scheduleAtFixedRate(() -> send(), 10, 2, TimeUnit.SECONDS);
+		} catch (CommunicationAlreadySpecifiedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {

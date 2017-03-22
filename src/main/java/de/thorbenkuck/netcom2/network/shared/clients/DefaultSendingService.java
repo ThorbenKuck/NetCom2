@@ -44,7 +44,7 @@ class DefaultSendingService implements SendingService {
 			} catch (InterruptedException e) {
 				logging.catching(e);
 			} catch (SerializationFailedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		}
 	}
