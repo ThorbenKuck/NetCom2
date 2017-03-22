@@ -45,6 +45,6 @@ public class DistributorRegistration {
 	}
 
 	public List<User> getRegistered(Class s) {
-		return new ArrayList<>(registration.get(s));
+		return registration.get(s) != null ? new ArrayList<>(registration.get(s)) : new ArrayList<>();
 	}
 }

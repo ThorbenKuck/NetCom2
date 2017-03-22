@@ -53,6 +53,10 @@ public class ServerStartTest {
 
 	private static void send() {
 		System.out.println("Sending TestObjectTwo to registered Clients ..");
-		serverStart.cache().addAndOverride(new TestObjectTwo(new Date().toString()));
+		try {
+			serverStart.cache().addAndOverride(new TestObjectTwo(new Date().toString()));
+		} catch (Throwable throwable) {
+			throwable.printStackTrace();
+		}
 	}
 }

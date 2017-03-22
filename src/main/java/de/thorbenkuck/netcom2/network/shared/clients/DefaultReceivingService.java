@@ -12,6 +12,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -61,6 +62,9 @@ class DefaultReceivingService implements ReceivingService {
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
 				logging.catching(e);
+			} catch (NoSuchElementException e) {
+				logging.trace("Client from " + socket.getInetAddress() + ":" + socket.getPort() + " disconnected");
+				softStop();
 			} catch (Throwable throwable) {
 				logging.catching(throwable);
 				softStop();
