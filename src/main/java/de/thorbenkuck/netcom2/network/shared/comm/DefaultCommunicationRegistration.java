@@ -13,6 +13,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, OnReceive> mapping = new HashMap<>();
 	private final Logging logging = new LoggingUtil();
+	private DefaultCommunicationHandler defaultCommunicationHandler;
 
 	@Override
 	public <T> void register(Class<T> clazz, OnReceive<T> onReceive) throws CommunicationAlreadySpecifiedException {
@@ -44,19 +45,38 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public <T> void trigger(Class<T> clazz, User user, Object o) throws CommunicationNotSpecifiedException {
 		logging.trace("Searching for Communication specification of " + clazz + " with instance " + o);
+		assertMatching(clazz, o);
 		if (! isRegistered(clazz)) {
-			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
-		}
-		if (o != null && clazz.equals(o.getClass())) {
+			handleNotRegistered(clazz, o);
+		} else {
 			LoggingUtil.getLogging().trace("Running OnReceived for " + clazz + " with user " + user + " and received Object " + o + " ..");
 			try {
 				mapping.get(clazz).run(user, o);
 			} catch (Throwable throwable) {
 				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
 			}
-		} else {
-			throw new CommunicationNotSpecifiedException("Incompatible types of " + clazz + " and " + o);
 		}
+	}
+
+	private void assertMatching(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
+		if (! (o != null && clazz.equals(o.getClass()))) {
+			throw new CommunicationNotSpecifiedException("Possible internal error!\n" +
+					"Incompatible types of " + clazz + " and " + o + "\n" +
+					"If you called CommunicationRegistration yourself, please make sure, the Object matches to the provided Class");
+		}
+	}
+
+	private void handleNotRegistered(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
+		if (defaultCommunicationHandler == null) {
+			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
+		} else {
+			defaultCommunicationHandler.handle(o);
+		}
+	}
+
+	@Override
+	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
+		this.defaultCommunicationHandler = defaultCommunicationHandler;
 	}
 
 	@Override

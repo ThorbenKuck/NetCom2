@@ -88,7 +88,7 @@ public class CacheImpl extends Observable implements Cache {
 	}
 
 	private void notifyAboutRemovedEntry(Class clazz) {
-		logging.trace("Removed CacheImpl-entry of " + clazz);
+		logging.trace("Removed Cache-entry of " + clazz);
 		sendNotify(new DeletedEntryEvent(clazz));
 	}
 
@@ -99,12 +99,12 @@ public class CacheImpl extends Observable implements Cache {
 	}
 
 	private void notifyAboutChangedEntry(Object updatedEntry) {
-		logging.trace("Updated CacheImpl-Entry of " + updatedEntry.getClass());
+		logging.trace("Updated Cache-Entry of " + updatedEntry.getClass());
 		sendNotify(new UpdatedEntryEvent(updatedEntry));
 	}
 
 	private void notifyAboutNewEntry(Object newEntry) {
-		logging.trace("Updated CacheImpl-Entry of " + newEntry.getClass());
+		logging.trace("Updated Cache-Entry of " + newEntry.getClass());
 		sendNotify(new NewEntryEvent(newEntry));
 	}
 

@@ -18,4 +18,6 @@ public interface CommunicationRegistration {
 
 	<T> void trigger(Class<T> clazz, User user, Object o) throws CommunicationNotSpecifiedException;
 
+	void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler);
+
 }
