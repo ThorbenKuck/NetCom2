@@ -8,6 +8,7 @@ import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 	private static ClientStart clientStart;
@@ -21,6 +22,12 @@ public class ClientStartTest {
 			register();
 			start();
 			clientStart.send().registration(TestObjectTwo.class, new TestObserver());
+			clientStart.send().object(new Login());
+			try {
+				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
 			e.printStackTrace();
 		}
@@ -28,6 +35,7 @@ public class ClientStartTest {
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
 		clientStart.getCommunicationRegistration().register(TestObject.class, (user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
+		clientStart.getCommunicationRegistration().register(TestObjectThree.class, (user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
 	}
 
 	private static void start() throws StartFailedException {

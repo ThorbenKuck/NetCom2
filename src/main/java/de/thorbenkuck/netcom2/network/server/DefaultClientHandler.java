@@ -12,14 +12,14 @@ import java.net.Socket;
 
 class DefaultClientHandler implements ClientConnectedHandler {
 
-	private final ClientList clientList;
+	private final IClientList clientList;
 	private final Distributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
 	private Socket socket;
 	private LoggingUtil logging = new LoggingUtil();
 
-	DefaultClientHandler(ClientList clientList, Distributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
+	DefaultClientHandler(IClientList clientList, Distributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;

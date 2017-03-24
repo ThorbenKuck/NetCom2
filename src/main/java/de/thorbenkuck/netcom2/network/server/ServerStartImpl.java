@@ -1,6 +1,7 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
+import de.thorbenkuck.netcom2.exceptions.ServerHasToBeStartedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
@@ -23,7 +24,7 @@ class ServerStartImpl implements ServerStart {
 	private final List<ClientConnectedHandler> clientConnectedHandlers = new ArrayList<>();
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
-	private final ClientList clientList = new ClientList();
+	private final IClientList clientList = IClientList.get();
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final Distributor distributor = new Distributor(clientList, registration);
 	private final Cache cache = Cache.get();
@@ -51,26 +52,18 @@ class ServerStartImpl implements ServerStart {
 		try {
 			new Initializer(distributor, communicationRegistration, cache).init();
 			serverConnector.establishConnection(serverSocketFactory);
-			running = true;
 			logging.debug("Opened ServerSocket!");
+			running = true;
 		} catch (IOException e) {
 			throw new StartFailedException(e);
 		}
 	}
 
 	@Override
-	public void acceptClients() throws ClientConnectionFailedException {
-		ServerSocket serverSocket = serverConnector.getServerSocket();
+	public void acceptAllNextClients() throws ClientConnectionFailedException {
+		assertStarted();
 		while (running()) {
-			try {
-				logging.debug("Awaiting new Clients ..");
-				Socket socket = serverSocket.accept();
-				logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
-				threadPool.execute(() -> handle(socket));
-			} catch (IOException e) {
-				logging.error("Client-Connection failed! Aborting!", e);
-				throw new ClientConnectionFailedException(e);
-			}
+			acceptNextClient();
 		}
 		try {
 			serverConnector.disconnect();
@@ -79,13 +72,18 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
-	private void handle(Socket socket) {
-		Client client = null;
-		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
-			if (client == null) {
-				client = clientConnectedHandler.create(socket);
-			}
-			clientConnectedHandler.handle(client);
+	@Override
+	public void acceptNextClient() throws ClientConnectionFailedException {
+		assertStarted();
+		ServerSocket serverSocket = serverConnector.getServerSocket();
+		try {
+			logging.debug("Awaiting new Clients ..");
+			Socket socket = serverSocket.accept();
+			logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
+			threadPool.execute(() -> handle(socket));
+		} catch (IOException e) {
+			logging.error("Client-Connection failed! Aborting!", e);
+			throw new ClientConnectionFailedException(e);
 		}
 	}
 
@@ -117,6 +115,22 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
+	}
+
+	private void assertStarted() {
+		if (! serverConnector.connected()) {
+			throw new ServerHasToBeStartedException();
+		}
+	}
+
+	private void handle(Socket socket) {
+		Client client = null;
+		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
+			if (client == null) {
+				client = clientConnectedHandler.create(socket);
+			}
+			clientConnectedHandler.handle(client);
+		}
 	}
 
 	@Override

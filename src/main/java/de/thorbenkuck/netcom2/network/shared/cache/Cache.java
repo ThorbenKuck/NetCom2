@@ -1,12 +1,10 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Observer;
 import java.util.Optional;
 
 public interface Cache {
-	@NotNull
+
 	static Cache get() {
 		return new CacheImpl();
 	}

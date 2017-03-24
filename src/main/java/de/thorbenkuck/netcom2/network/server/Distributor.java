@@ -8,10 +8,10 @@ import java.util.function.Predicate;
 
 public class Distributor {
 
-	private ClientList clientList;
+	private IClientList clientList;
 	private DistributorRegistration distributorRegistration;
 
-	public Distributor(ClientList clientList, DistributorRegistration distributorRegistration) {
+	public Distributor(IClientList clientList, DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributorRegistration = distributorRegistration;
 	}
@@ -22,7 +22,7 @@ public class Distributor {
 
 	@SafeVarargs
 	public synchronized final void to(Object o, Predicate<User>... predicates) {
-		clientList.stream()
+		clientList.userStream()
 				.filter(User::isIdentified)
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(client -> client.send(o));

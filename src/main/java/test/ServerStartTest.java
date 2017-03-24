@@ -5,6 +5,9 @@ import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,6 +20,7 @@ public class ServerStartTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
+		catching();
 		serverStart = ServerStart.of(port);
 		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
 
@@ -29,10 +33,20 @@ public class ServerStartTest {
 					e.printStackTrace();
 				}
 			}).start();
-			scheduledExecutorService.scheduleAtFixedRate(() -> send(), 10, 2, TimeUnit.SECONDS);
+			scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 10, 10, TimeUnit.SECONDS);
+			scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send2, 11, 11, TimeUnit.SECONDS);
 		} catch (CommunicationAlreadySpecifiedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void catching() {
+		Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			String stacktrace = sw.toString();
+			System.out.println(stacktrace);
+		});
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
@@ -40,12 +54,14 @@ public class ServerStartTest {
 			System.out.println("received " + o.getHello() + " from " + user);
 			user.send(new TestObject("World"));
 		});
+
+		serverStart.getCommunicationRegistration().register(Login.class, ((user, o) -> user.setIdentified(true)));
 	}
 
 	private static void start() throws StartFailedException {
 		serverStart.launch();
 		try {
-			serverStart.acceptClients();
+			serverStart.acceptAllNextClients();
 		} catch (ClientConnectionFailedException e) {
 			throw new StartFailedException(e);
 		}
@@ -58,5 +74,9 @@ public class ServerStartTest {
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 		}
+	}
+
+	private static void send2() {
+		serverStart.distribute().toAll(new TestObjectThree("It is now: " + LocalDateTime.now().toString()));
 	}
 }

@@ -17,7 +17,9 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable {
 		return new ServerStartImpl(new ServerConnector(port));
 	}
 
-	void acceptClients() throws ClientConnectionFailedException;
+	void acceptAllNextClients() throws ClientConnectionFailedException;
+
+	void acceptNextClient() throws ClientConnectionFailedException;
 
 	void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
 

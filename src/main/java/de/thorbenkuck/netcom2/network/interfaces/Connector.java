@@ -8,4 +8,6 @@ public interface Connector<Factory> {
 
 	void disconnect() throws IOException;
 
+	boolean connected();
+
 }

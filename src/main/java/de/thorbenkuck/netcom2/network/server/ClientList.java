@@ -1,17 +1,24 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
-import java.net.Socket;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ClientList extends Observable implements Iterable<Client> {
+class ClientList extends Observable implements IClientList {
 
 	private final List<Client> clients = new ArrayList<>();
+	private final Logging logging = new LoggingUtil();
 
+	ClientList() {
+	}
+
+	@Override
 	public void add(Client client) {
+		logging.trace("Added new Client(" + client + ") to ClientList");
 		clients.add(client);
 		notifyAboutClientList();
 	}
@@ -22,34 +29,42 @@ public class ClientList extends Observable implements Iterable<Client> {
 		clearChanged();
 	}
 
+	@Override
 	public void remove(Client client) {
-//		logging.debug("Removing Client " + client + " from ClientList");
+		logging.trace("Removing Client " + client + " from ClientList");
 		clients.remove(client);
 		notifyAboutClientList();
 	}
 
+	@Override
 	public void clear() {
+		logging.trace("Clearing the ClientList");
 		clients.clear();
 		notifyAboutClientList();
 	}
 
-	Optional<Client> get(Socket socket) {
-		return clients.stream()
-				.filter(client -> client.matchesWith(socket))
-				.findFirst();
-	}
-
-	public Stream<User> stream() {
-		List<User> users = new ArrayList<>();
+	@Override
+	public Stream<User> userStream() {
+		final List<User> users = new ArrayList<>();
 		clients.stream()
-				.filter(client -> client.getUser() == null)
+				.filter(client -> client.getUser() != null)
 				.forEach(client -> users.add(client.getUser()));
 		return users.stream();
 	}
 
 	@Override
+	public Stream<Client> stream() {
+		return clients.stream();
+	}
+
+	@Override
 	public Iterator<Client> iterator() {
 		return new ClientIterator(clients);
+	}
+
+	@Override
+	public String toString() {
+		return clients.toString();
 	}
 }
 
