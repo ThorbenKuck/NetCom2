@@ -17,7 +17,7 @@ import java.net.Socket;
 
 public class ClientStartImpl implements ClientStart {
 
-	private final Cache cache = Cache.get();
+	private final Cache cache = Cache.create();
 	private SocketFactory socketFactory;
 	private ClientConnector clientConnector;
 	private CommunicationRegistration communicationRegistration = CommunicationRegistration.create();

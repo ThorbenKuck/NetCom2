@@ -24,14 +24,14 @@ class ServerStartImpl implements ServerStart {
 	private final List<ClientConnectedHandler> clientConnectedHandlers = new ArrayList<>();
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
-	private final IClientList clientList = IClientList.get();
+	private final ClientList clientList = ClientList.create();
 	private final DistributorRegistration registration = new DistributorRegistration();
-	private final Distributor distributor = new Distributor(clientList, registration);
-	private final Cache cache = Cache.get();
-	private ServerConnector serverConnector;
+	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
+	private final Cache cache = Cache.create();
+	private final ServerConnector serverConnector;
+	private final LoggingUtil logging = new LoggingUtil();
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
-	private LoggingUtil logging = new LoggingUtil();
 
 	ServerStartImpl(ServerConnector serverConnector) {
 		this.serverConnector = serverConnector;
@@ -110,6 +110,11 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void setSocketFactory(Factory<Integer, ServerSocket> factory) {
 		serverSocketFactory = factory;
+	}
+
+	@Override
+	public ClientList clientList() {
+		return clientList;
 	}
 
 	@Override

@@ -17,26 +17,24 @@ public class ServerStartTest {
 
 	private static int port = 46091;
 	private static ServerStart serverStart;
+	private static Thread starter = new Thread(() -> {
+		try {
+			start();
+		} catch (StartFailedException e) {
+			throw new RuntimeException(e);
+		}
+	});
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
 		catching();
-		serverStart = ServerStart.of(port);
-		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
-
+		create();
+		schedule();
 		try {
 			register();
-			new Thread(() -> {
-				try {
-					start();
-				} catch (StartFailedException e) {
-					e.printStackTrace();
-				}
-			}).start();
-			scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 10, 10, TimeUnit.SECONDS);
-			scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send2, 11, 11, TimeUnit.SECONDS);
+			starter.start();
 		} catch (CommunicationAlreadySpecifiedException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -47,6 +45,16 @@ public class ServerStartTest {
 			String stacktrace = sw.toString();
 			System.out.println(stacktrace);
 		});
+	}
+
+	private static void create() {
+		serverStart = ServerStart.of(port);
+		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
+	}
+
+	private static void schedule() {
+		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 10, 10, TimeUnit.SECONDS);
+		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send2, 11, 11, TimeUnit.SECONDS);
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
@@ -68,12 +76,7 @@ public class ServerStartTest {
 	}
 
 	private static void send() {
-		System.out.println("Sending TestObjectTwo to registered Clients ..");
-		try {
-			serverStart.cache().addAndOverride(new TestObjectTwo(new Date().toString()));
-		} catch (Throwable throwable) {
-			throwable.printStackTrace();
-		}
+		serverStart.cache().addAndOverride(new TestObjectTwo(new Date().toString()));
 	}
 
 	private static void send2() {

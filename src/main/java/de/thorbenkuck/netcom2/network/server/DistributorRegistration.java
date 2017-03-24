@@ -1,6 +1,7 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.User;
 
 import java.util.*;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class DistributorRegistration {
 
+	private final Logging logging = new LoggingUtil();
 	private Map<Class, Set<User>> registration = new HashMap<>();
 
 	DistributorRegistration() {
@@ -15,7 +17,7 @@ public class DistributorRegistration {
 
 	public void addRegistration(Class s, User user) {
 		getAndCreate(s).add(user);
-		LoggingUtil.getLogging().debug("UserImpl " + user + " registered for " + s);
+		logging.debug("UserImpl " + user + " registered for " + s);
 	}
 
 	private Set<User> getAndCreate(Class s) {
@@ -33,10 +35,10 @@ public class DistributorRegistration {
 	public void removeRegistration(Class s, User user) {
 		Set<User> set = get(s);
 		set.remove(user);
-		LoggingUtil.getLogging().debug("UserImpl " + user + " unregistered from " + s);
+		logging.debug("UserImpl " + user + " unregistered from " + s);
 		if (set.isEmpty()) {
+			logging.debug("No registration left for " + s + ". Cleaning up...");
 			registration.remove(s);
-			LoggingUtil.getLogging().debug("No registration left for " + s);
 		}
 	}
 

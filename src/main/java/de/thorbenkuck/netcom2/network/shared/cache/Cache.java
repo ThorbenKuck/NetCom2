@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface Cache {
 
-	static Cache get() {
+	static Cache create() {
 		return new CacheImpl();
 	}
 

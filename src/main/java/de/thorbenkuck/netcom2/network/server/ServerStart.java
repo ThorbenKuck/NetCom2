@@ -31,5 +31,7 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable {
 
 	void setSocketFactory(Factory<Integer, ServerSocket> factory);
 
+	ClientList clientList();
+
 	CommunicationRegistration getCommunicationRegistration();
 }

@@ -1,97 +1,23 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
-import java.util.*;
 import java.util.stream.Stream;
 
-class ClientList extends Observable implements IClientList {
+public interface ClientList extends Iterable<Client> {
 
-	private final List<Client> clients = new ArrayList<>();
-	private final Logging logging = new LoggingUtil();
-
-	ClientList() {
+	static ClientList create() {
+		return new ClientListImpl();
 	}
 
-	@Override
-	public void add(Client client) {
-		logging.trace("Added new Client(" + client + ") to ClientList");
-		clients.add(client);
-		notifyAboutClientList();
-	}
+	void add(Client client);
 
-	private synchronized void notifyAboutClientList() {
-		setChanged();
-		notifyObservers(clients);
-		clearChanged();
-	}
+	void remove(Client client);
 
-	@Override
-	public void remove(Client client) {
-		logging.trace("Removing Client " + client + " from ClientList");
-		clients.remove(client);
-		notifyAboutClientList();
-	}
+	void clear();
 
-	@Override
-	public void clear() {
-		logging.trace("Clearing the ClientList");
-		clients.clear();
-		notifyAboutClientList();
-	}
+	Stream<User> userStream();
 
-	@Override
-	public Stream<User> userStream() {
-		final List<User> users = new ArrayList<>();
-		clients.stream()
-				.filter(client -> client.getUser() != null)
-				.forEach(client -> users.add(client.getUser()));
-		return users.stream();
-	}
-
-	@Override
-	public Stream<Client> stream() {
-		return clients.stream();
-	}
-
-	@Override
-	public Iterator<Client> iterator() {
-		return new ClientIterator(clients);
-	}
-
-	@Override
-	public String toString() {
-		return clients.toString();
-	}
-}
-
-class ClientIterator implements Iterator<Client> {
-
-	private Queue<Client> clients;
-	private List<Client> clientList;
-	private Client current;
-
-	public ClientIterator(List<Client> clientList) {
-		clients = new LinkedList<>(clientList);
-		this.clientList = clientList;
-	}
-
-	@Override
-	public boolean hasNext() {
-		return clients.peek() != null;
-	}
-
-	@Override
-	public Client next() {
-		current = clients.poll();
-		return current;
-	}
-
-	@Override
-	public void remove() {
-		clientList.remove(current);
-	}
+	Stream<Client> stream();
 }

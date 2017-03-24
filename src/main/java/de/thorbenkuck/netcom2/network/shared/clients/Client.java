@@ -45,15 +45,15 @@ public class Client {
 		setMainDeSerializationAdapter(new JavaDeSerializationAdapter());
 	}
 
-	public void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
+	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 	}
 
-	public void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public final void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
 	}
 
-	public void invoke() throws IOException {
+	public final void invoke() throws IOException {
 		if (invoked) {
 			return;
 		}
@@ -73,7 +73,7 @@ public class Client {
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "Client{" +
 				"user=" + user +
 				", address=" + socket.getInetAddress() + ":" + socket.getPort() +
@@ -99,35 +99,35 @@ public class Client {
 		primed.countDown();
 	}
 
-	public CountDownLatch getPrimed() {
+	public final CountDownLatch getPrimed() {
 		return primed;
 	}
 
-	public void send(Object object) {
+	public final void send(Object object) {
 		toSend.offer(object);
 	}
 
-	public User getUser() {
+	public final User getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public final void setUser(User user) {
 		this.user = user;
 	}
 
-	public void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
+	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
 		fallBackSerialization.add(serializationAdapter);
 	}
 
-	public void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
+	public final void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		fallBackDeSerialization.add(deSerializationAdapter);
 	}
 
-	public void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
+	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		disconnectedHandlers.add(disconnectedHandler);
 	}
 
-	public boolean matchesWith(Object o) {
+	public final boolean matchesWith(Object o) {
 		if (o == null) {
 			return false;
 		}

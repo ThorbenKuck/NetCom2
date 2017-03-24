@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public interface User {
 
-	static User get(Client client) {
+	static User createNew(final Client client) {
 		return new UserImpl(new ClientSendBridge(client));
 	}
 

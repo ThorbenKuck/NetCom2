@@ -14,12 +14,12 @@ import java.util.Observable;
 
 class Initializer {
 
-	private final Distributor distributor;
+	private final InternalDistributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
 	private Logging logging = new LoggingUtil();
 
-	Initializer(Distributor distributor, CommunicationRegistration communicationRegistration, Cache cache) {
+	Initializer(InternalDistributor distributor, CommunicationRegistration communicationRegistration, Cache cache) {
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;

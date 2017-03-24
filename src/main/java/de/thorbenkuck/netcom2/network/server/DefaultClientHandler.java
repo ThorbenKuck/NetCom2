@@ -12,14 +12,14 @@ import java.net.Socket;
 
 class DefaultClientHandler implements ClientConnectedHandler {
 
-	private final IClientList clientList;
-	private final Distributor distributor;
+	private final ClientList clientList;
+	private final InternalDistributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
 	private Socket socket;
 	private LoggingUtil logging = new LoggingUtil();
 
-	DefaultClientHandler(IClientList clientList, Distributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
+	DefaultClientHandler(ClientList clientList, InternalDistributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
@@ -32,7 +32,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		this.socket = socket;
 		try {
 			client.invoke();
-			client.setUser(User.get(client));
+			client.setUser(User.createNew(client));
 			clientList.add(client);
 		} catch (IOException e) {
 			logging.catching(e);
@@ -43,7 +43,6 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);
-		client.addDisconnectedHandler(this::clearClient);
 		logging.trace("Awaiting Ping of Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
 		try {
 			client.getPrimed().await();
@@ -53,11 +52,12 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
+		client.addDisconnectedHandler(this::clearClient);
 	}
 
 	private void clearClient(Client client) {
 		logging.debug("disconnected " + client + " ");
 		clientList.remove(client);
-		distributorRegistration.removeRegistration(client.getUser());
+//		distributorRegistration.removeRegistration(client.getUser());
 	}
 }

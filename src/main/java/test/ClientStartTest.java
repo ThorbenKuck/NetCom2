@@ -28,6 +28,7 @@ public class ClientStartTest {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			clientStart.send().unRegistration(TestObjectTwo.class);
 		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
 			e.printStackTrace();
 		}
