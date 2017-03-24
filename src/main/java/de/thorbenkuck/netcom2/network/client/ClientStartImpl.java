@@ -22,7 +22,7 @@ public class ClientStartImpl implements ClientStart {
 	private ClientConnector clientConnector;
 	private CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private Client client;
-	private Sender sender;
+	private InternalSender sender;
 	private LoggingUtil logging = new LoggingUtil();
 
 	public ClientStartImpl(String address, int port) {
@@ -51,7 +51,7 @@ public class ClientStartImpl implements ClientStart {
 		} catch (IOException e) {
 			throw new StartFailedException(e);
 		}
-		sender = new Sender(client, cache);
+		sender = InternalSender.create(client, cache);
 		new Initializer(client, communicationRegistration, cache, sender).init();
 		logging.debug("Connection successfully established!");
 	}

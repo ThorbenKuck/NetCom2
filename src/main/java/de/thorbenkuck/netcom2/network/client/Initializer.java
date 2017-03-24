@@ -18,13 +18,13 @@ class Initializer {
 	private CommunicationRegistration communicationRegistration;
 	private Logging logging = new LoggingUtil();
 	private Cache cache;
-	private Sender sender;
+	private InternalSender senderImpl;
 
-	Initializer(Client client, CommunicationRegistration communicationRegistration, Cache cache, Sender sender) {
+	Initializer(Client client, CommunicationRegistration communicationRegistration, Cache cache, InternalSender senderImpl) {
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
-		this.sender = sender;
+		this.senderImpl = senderImpl;
 	}
 
 	void init() throws StartFailedException {
@@ -36,7 +36,7 @@ class Initializer {
 		try {
 			communicationRegistration.register(RegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(senderImpl.getObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});
@@ -47,7 +47,7 @@ class Initializer {
 		try {
 			communicationRegistration.register(UnRegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(senderImpl.deleteObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});

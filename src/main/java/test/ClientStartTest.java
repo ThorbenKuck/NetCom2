@@ -21,14 +21,14 @@ public class ClientStartTest {
 		try {
 			register();
 			start();
-			clientStart.send().registration(TestObjectTwo.class, new TestObserver());
-			clientStart.send().object(new Login());
+			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
+			clientStart.send().objectToServer(new Login());
 			try {
 				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			clientStart.send().unRegistration(TestObjectTwo.class);
+			clientStart.send().unRegistrationToServer(TestObjectTwo.class);
 		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
 			e.printStackTrace();
 		}
