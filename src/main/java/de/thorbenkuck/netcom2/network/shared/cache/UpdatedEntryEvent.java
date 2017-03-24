@@ -11,4 +11,11 @@ public class UpdatedEntryEvent {
 	public Object getObject() {
 		return object;
 	}
+
+	@Override
+	public String toString() {
+		return "UpdatedEntryEvent{" +
+				"object=" + object +
+				'}';
+	}
 }

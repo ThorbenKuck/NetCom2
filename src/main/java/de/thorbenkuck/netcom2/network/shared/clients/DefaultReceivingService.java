@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.interfaces.SimpleFactory;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -28,7 +29,7 @@ class DefaultReceivingService implements ReceivingService {
 	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization;
 	private Scanner in;
 	private boolean running = false;
-	private LoggingUtil logging = new LoggingUtil();
+	private Logging logging = new LoggingUtil();
 
 	DefaultReceivingService(Socket socket, CommunicationRegistration communicationRegistration,
 							DeSerializationAdapter<String, Object> deSerializationAdapter,

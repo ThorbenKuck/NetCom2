@@ -108,4 +108,10 @@ public class CacheImpl extends Observable implements Cache {
 		sendNotify(new NewEntryEvent(newEntry));
 	}
 
+	@Override
+	public String toString() {
+		return "Cache{" +
+				"internals=" + internals +
+				'}';
+	}
 }

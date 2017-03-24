@@ -21,4 +21,10 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 		}
 		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
+
+	@Override
+	public String toString() {
+		return "JavaSerializationAdapter{Default SerializationAdapter requiring java.io.Serializable}";
+	}
+
 }

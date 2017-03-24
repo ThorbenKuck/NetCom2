@@ -20,4 +20,12 @@ public class RegisterResponse implements Serializable {
 	public RegisterRequest getRequest() {
 		return request;
 	}
+
+	@Override
+	public String toString() {
+		return "RegisterResponse{" +
+				"request=" + request +
+				", okay=" + okay +
+				'}';
+	}
 }

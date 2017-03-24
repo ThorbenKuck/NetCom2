@@ -58,4 +58,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			throw new CommunicationNotSpecifiedException("Incompatible types of " + clazz + " and " + o);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "DefaultCommunicationRegistration{" +
+				"mapping=" + mapping +
+				'}';
+	}
 }

@@ -73,4 +73,14 @@ class Initializer {
 		}
 		logging.trace("Handshake complete!");
 	}
+
+	@Override
+	public String toString() {
+		return "Initializer{" +
+				"client=" + client +
+				", communicationRegistration=" + communicationRegistration +
+				", cache=" + cache +
+				", senderImpl=" + senderImpl +
+				'}';
+	}
 }

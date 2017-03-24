@@ -20,4 +20,12 @@ public class UnRegisterResponse implements Serializable {
 	public UnRegisterRequest getRequest() {
 		return unRegisterRequest;
 	}
+
+	@Override
+	public String toString() {
+		return "UnRegisterResponse{" +
+				"unRegisterRequest=" + unRegisterRequest +
+				", okay=" + okay +
+				'}';
+	}
 }

@@ -64,7 +64,7 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public String toString() {
-		return clients.toString();
+		return "ClientList{" + clients.toString() + "}";
 	}
 }
 

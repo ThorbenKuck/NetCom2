@@ -52,4 +52,11 @@ public class DistributorImpl implements InternalDistributor {
 	public DistributorRegistration getDistributorRegistration() {
 		return distributorRegistration;
 	}
+
+	@Override
+	public String toString() {
+		return "Distributor{" +
+				"clientList=" + clientList +
+				'}';
+	}
 }

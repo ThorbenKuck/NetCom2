@@ -38,4 +38,13 @@ class ClientConnector implements Connector<SocketFactory> {
 	Socket getSocket() {
 		return socket;
 	}
+
+	@Override
+	public String toString() {
+		return "ClientConnector{" +
+				"address='" + address + '\'' +
+				", port=" + port +
+				", connected=" + connected +
+				'}';
+	}
 }

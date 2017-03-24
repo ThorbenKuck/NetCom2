@@ -18,12 +18,12 @@ import java.net.Socket;
 public class ClientStartImpl implements ClientStart {
 
 	private final Cache cache = Cache.create();
+	private final ClientConnector clientConnector;
+	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
+	private final Logging logging = new LoggingUtil();
 	private SocketFactory socketFactory;
-	private ClientConnector clientConnector;
-	private CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private Client client;
 	private InternalSender sender;
-	private LoggingUtil logging = new LoggingUtil();
 
 	public ClientStartImpl(String address, int port) {
 		clientConnector = new ClientConnector(address, port);
@@ -104,5 +104,15 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
+	}
+
+	@Override
+	public String toString() {
+		return "ClientStart{" +
+				"cache=" + cache +
+				", socketFactory=" + socketFactory +
+				", communicationRegistration=" + communicationRegistration +
+				", client=" + client +
+				'}';
 	}
 }

@@ -29,7 +29,7 @@ class ServerStartImpl implements ServerStart {
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
 	private final ServerConnector serverConnector;
-	private final LoggingUtil logging = new LoggingUtil();
+	private final Logging logging = new LoggingUtil();
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
@@ -152,5 +152,16 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void setLogging(Logging logging) {
 		LoggingUtil.setLogging(logging);
+	}
+
+	@Override
+	public String toString() {
+		return "ServerStart{" +
+				"clientConnectedHandlers=" + clientConnectedHandlers +
+				", communicationRegistration=" + communicationRegistration +
+				", clientList=" + clientList +
+				", cache=" + cache +
+				", running=" + running +
+				'}';
 	}
 }

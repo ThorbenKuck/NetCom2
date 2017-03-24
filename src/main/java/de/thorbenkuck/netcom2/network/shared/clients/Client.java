@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import de.thorbenkuck.netcom2.network.interfaces.SendingService;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
@@ -33,7 +34,7 @@ public class Client {
 	private Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
 	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
 	private ExecutorService threadPool;
-	private LoggingUtil logging = new LoggingUtil();
+	private Logging logging = new LoggingUtil();
 	private CountDownLatch primed = new CountDownLatch(1);
 	private boolean invoked = false;
 	private User user;

@@ -26,4 +26,9 @@ public abstract class AbstractCacheObserver implements CacheObserver {
 	public abstract void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable);
 
 	public abstract void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable);
+
+	@Override
+	public String toString() {
+		return AbstractCacheObserver.class + " implementation: " + getClass();
+	}
 }

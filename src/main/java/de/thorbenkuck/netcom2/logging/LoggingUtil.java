@@ -4,7 +4,7 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class LoggingUtil implements Logging {
 
-	private static Logging logging = new SysoLogging();
+	private static Logging logging = new SystemLogging();
 
 	@Override
 	public void catching(Throwable throwable) {
@@ -60,5 +60,10 @@ public class LoggingUtil implements Logging {
 	@Override
 	public void fatal(String s, Throwable throwable) {
 		getLogging().fatal(s, throwable);
+	}
+
+	@Override
+	public String toString() {
+		return "{Central Logging-Mechanism for NetCom2}";
 	}
 }

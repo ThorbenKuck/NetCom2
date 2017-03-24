@@ -8,7 +8,14 @@ public class DeletedEntryEvent {
 		this.aClass = aClass;
 	}
 
-	public Class getaClass() {
+	public Class getCorrespondingClass() {
 		return aClass;
+	}
+
+	@Override
+	public String toString() {
+		return "DeletedEntryEvent{" +
+				"aClass=" + aClass +
+				'}';
 	}
 }

@@ -15,4 +15,11 @@ public class RegisterRequest implements Serializable {
 	public Class<?> getCorrespondingClass() {
 		return aClass;
 	}
+
+	@Override
+	public String toString() {
+		return "RegisterRequest{" +
+				"class of interest=" + aClass +
+				'}';
+	}
 }

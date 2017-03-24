@@ -14,4 +14,11 @@ public class CachePush implements Serializable {
 	public Object getObject() {
 		return object;
 	}
+
+	@Override
+	public String toString() {
+		return "CachePush{" +
+				"object=" + object +
+				'}';
+	}
 }

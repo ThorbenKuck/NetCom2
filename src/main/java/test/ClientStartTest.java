@@ -23,6 +23,7 @@ public class ClientStartTest {
 			start();
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new TestObjectTwo("None"));
 			try {
 				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 			} catch (InterruptedException e) {
@@ -60,7 +61,7 @@ class TestObserver implements Observer {
 		if (arg.getClass().equals(NewEntryEvent.class)) {
 			System.out.println("Received push from Server about: " + ((NewEntryEvent) arg).getObject());
 		} else if (arg.getClass().equals(DeletedEntryEvent.class)) {
-			System.out.println("Entry deleted for" + ((DeletedEntryEvent) arg).getaClass());
+			System.out.println("Entry deleted for" + ((DeletedEntryEvent) arg).getCorrespondingClass());
 		}
 	}
 }

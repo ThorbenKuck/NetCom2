@@ -53,4 +53,13 @@ public class SenderImpl implements InternalSender {
 	public Observer getObserver(Class clazz) {
 		return observers.get(clazz);
 	}
+
+	@Override
+	public String toString() {
+		return "Sender{" +
+				"client=" + client +
+				", cache=" + cache +
+				", logging=" + logging +
+				'}';
+	}
 }

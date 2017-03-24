@@ -29,4 +29,9 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 		}
 		return o;
 	}
+
+	@Override
+	public String toString() {
+		return "JavaDeSerializationAdapter{Default DeSerializationAdapter requiring java.io.Serializable}";
+	}
 }
