@@ -23,14 +23,6 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 	@Override
-	@SafeVarargs
-	public synchronized final void toSpecific(Object o, Predicate<User>... predicates) {
-		clientList.userStream()
-				.filter(user -> testAgainst(user, predicates))
-				.forEach(client -> client.send(o));
-	}
-
-	@Override
 	public String toString() {
 		return "Distributor{" +
 				"clientList=" + clientList +
@@ -38,12 +30,23 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 	@Override
+	@SafeVarargs
+	public synchronized final void toSpecific(Object o, Predicate<User>... predicates) {
+		clientList.userStream()
+				.filter(user -> testAgainst(user, predicates))
+				.forEach(client -> client.send(o));
+	}
+
+
+
+	@Override
 	public final void toAllIdentified(Object o) {
 		toSpecific(o, User::isIdentified);
 	}
 
+	@SafeVarargs
 	@Override
-	public final void toAllIdentified(Object o, Predicate<User>[] predicates) {
+	public final void toAllIdentified(Object o, Predicate<User>... predicates) {
 		predicates[predicates.length] = User::isIdentified;
 		toSpecific(o, predicates);
 	}

@@ -29,15 +29,21 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	@Override
 	public Client create(Socket socket) {
+		String address = socket.getInetAddress() + ":" + socket.getPort();
+		logging.trace(toString() + " creating Client(" + address + ") ..");
 		Client client = new Client(socket, communicationRegistration);
 		this.socket = socket;
 		try {
+			logging.trace("Invoking freshly created Client(" + address + ") ..");
 			client.invoke();
+			logging.trace("Creating new User for freshly created Client(" + address + ") ..");
 			client.setUser(User.createNew(client));
+			logging.trace("Adding Client(" + address + ") to ClientList");
 			clientList.add(client);
 		} catch (IOException e) {
 			logging.catching(e);
 		}
+		logging.trace("Done");
 		return client;
 	}
 
@@ -56,17 +62,19 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		client.addDisconnectedHandler(this::clearClient);
 	}
 
-	private void clearClient(Client client) {
-		logging.debug("disconnected " + client + " ");
-		clientList.remove(client);
-//		distributorRegistration.removeRegistration(client.getUser());
-	}
-
 	@Override
 	public String toString() {
 		return "DefaultClientHandler{" +
 				"communicationRegistration=" + communicationRegistration +
 				", socket=" + socket +
 				'}';
+	}
+
+	private void clearClient(Client client) {
+		logging.info("disconnected " + client + " ");
+		logging.trace("Removing Client(" + client + ") from ClientList");
+		clientList.remove(client);
+		logging.trace("Cleaning dead registrations");
+		distributorRegistration.removeRegistration(client.getUser());
 	}
 }

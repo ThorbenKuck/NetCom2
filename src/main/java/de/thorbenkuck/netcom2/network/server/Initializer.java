@@ -26,6 +26,7 @@ class Initializer {
 	}
 
 	void init() {
+		logging.trace("Creating internal dependencies");
 		register();
 		setObserver();
 	}
@@ -33,41 +34,44 @@ class Initializer {
 	private void register() {
 		try {
 			communicationRegistration.register(RegisterRequest.class, new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache));
+			logging.trace("Successfully registered RegisterRequest");
 		} catch (CommunicationAlreadySpecifiedException e) {
 			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
 		}
 		try {
 			communicationRegistration.register(UnRegisterRequest.class, new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()));
+			logging.trace("Successfully registered UnRegisterRequest");
 		} catch (CommunicationAlreadySpecifiedException e) {
 			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
 		}
 	}
 
 	private void setObserver() {
+		logging.trace("Adding internal CacheObserver ..");
 		cache.addCacheObserver(new ObserverSender(distributor));
 	}
-}
 
-class ObserverSender extends AbstractCacheObserver {
+	private class ObserverSender extends AbstractCacheObserver {
 
-	private Distributor distributor;
+		private Distributor distributor;
 
-	ObserverSender(Distributor distributor) {
-		this.distributor = distributor;
-	}
+		ObserverSender(Distributor distributor) {
+			this.distributor = distributor;
+		}
 
-	@Override
-	public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-		distributor.toRegistered(newEntryEvent.getObject());
-	}
+		@Override
+		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
+			distributor.toRegistered(newEntryEvent.getObject());
+		}
 
-	@Override
-	public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-		distributor.toRegistered(updatedEntryEvent.getObject());
-	}
+		@Override
+		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
+			distributor.toRegistered(updatedEntryEvent.getObject());
+		}
 
-	@Override
-	public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-		LoggingUtil.getLogging().error("TODO");
+		@Override
+		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
+			LoggingUtil.getLogging().error("TODO");
+		}
 	}
 }

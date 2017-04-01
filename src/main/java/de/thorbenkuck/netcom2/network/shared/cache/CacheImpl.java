@@ -15,6 +15,7 @@ public class CacheImpl extends Observable implements Cache {
 		if (isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
+				logging.debug("Updated entry for " + object.getClass());
 			}
 			notifyAboutChangedEntry(object);
 		}
@@ -25,6 +26,7 @@ public class CacheImpl extends Observable implements Cache {
 		if (! isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
+				logging.debug("Added new entry for " + object.getClass());
 			}
 			notifyAboutNewEntry(object);
 		}
@@ -44,6 +46,7 @@ public class CacheImpl extends Observable implements Cache {
 		if (isSet(clazz)) {
 			synchronized (internals) {
 				internals.remove(clazz);
+				logging.debug("Removed entry for " + clazz);
 			}
 			notifyAboutRemovedEntry(clazz);
 		}
@@ -69,22 +72,34 @@ public class CacheImpl extends Observable implements Cache {
 
 	@Override
 	public void addCacheObserver(CacheObserver cacheObserver) {
-		addGeneralObserver(cacheObserver);
+		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
+		addObserver(cacheObserver);
 	}
 
 	@Override
 	public void removeCacheObserver(CacheObserver cacheObserver) {
-		removeGeneralObserver(cacheObserver);
+		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
+		deleteObserver(cacheObserver);
 	}
 
 	@Override
 	public void addGeneralObserver(Observer observer) {
+		logging.debug("Adding Observer(" + observer + ") to " + toString());
+		logging.info("It is recommended to use " + CacheObserver.class);
 		addObserver(observer);
 	}
 
 	@Override
 	public void removeGeneralObserver(Observer observer) {
+		logging.debug("Removing Observer(" + observer + ") from " + toString());
 		deleteObserver(observer);
+	}
+
+	@Override
+	public String toString() {
+		return "Cache{" +
+				"internals=" + internals +
+				'}';
 	}
 
 	private void notifyAboutRemovedEntry(Class clazz) {
@@ -106,12 +121,5 @@ public class CacheImpl extends Observable implements Cache {
 	private void notifyAboutNewEntry(Object newEntry) {
 		logging.trace("Updated Cache-Entry of " + newEntry.getClass());
 		sendNotify(new NewEntryEvent(newEntry));
-	}
-
-	@Override
-	public String toString() {
-		return "Cache{" +
-				"internals=" + internals +
-				'}';
 	}
 }

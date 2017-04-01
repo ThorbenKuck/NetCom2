@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server.communication;
 
+import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.server.DistributorRegistration;
 import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -20,6 +21,7 @@ public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest>
 
 	@Override
 	public void run(User user, RegisterRequest o) {
+		LoggingUtil.getLogging().debug("Trying to register " + user + " to " + o.getCorrespondingClass());
 		Class<?> clazz = o.getCorrespondingClass();
 		distributorRegistration.addRegistration(clazz, user);
 		user.send(new RegisterResponse(o, true));

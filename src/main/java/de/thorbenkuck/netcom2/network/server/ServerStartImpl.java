@@ -38,6 +38,7 @@ class ServerStartImpl implements ServerStart {
 		clientConnectedHandlers.add(new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
 		setSocketFactory(integer -> {
 			try {
+				logging.debug("Creating java.net.ServerSocket(" + integer + ")");
 				return new ServerSocket(integer);
 			} catch (IOException e) {
 				logging.catching(e);
@@ -52,7 +53,7 @@ class ServerStartImpl implements ServerStart {
 		try {
 			new Initializer(distributor, communicationRegistration, cache).init();
 			serverConnector.establishConnection(serverSocketFactory);
-			logging.debug("Opened ServerSocket!");
+			logging.debug("Established connection!");
 			running = true;
 		} catch (IOException e) {
 			throw new StartFailedException(e);
@@ -62,14 +63,19 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
 		assertStarted();
-		while (running()) {
-			acceptNextClient();
-		}
 		try {
-			serverConnector.disconnect();
-		} catch (IOException e) {
-			logging.catching(e);
+			while (running()) {
+				acceptNextClient();
+			}
+			logging.info("SoftStop detected. Disconnecting ...");
+		} catch (ClientConnectionFailedException e) {
+			throw new ClientConnectionFailedException(e);
+		} catch (Throwable t) {
+			logging.catching(t);
+			logging.error("Caught unexpected Throwable while accepting Clients!");
+			logging.debug("Trying to at least disconnect ..");
 		}
+		disconnect();
 	}
 
 	@Override
@@ -77,7 +83,7 @@ class ServerStartImpl implements ServerStart {
 		assertStarted();
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
-			logging.debug("Awaiting new Clients ..");
+			logging.info("Awaiting new Client ..");
 			Socket socket = serverSocket.accept();
 			logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
 			threadPool.execute(() -> handle(socket));
@@ -89,11 +95,13 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
+		logging.debug("Added ClientConnectedHandler " + clientConnectedHandler);
 		clientConnectedHandlers.add(clientConnectedHandler);
 	}
 
 	@Override
 	public void removeClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
+		logging.debug("Removing ClientConnectedHandler " + clientConnectedHandler);
 		clientConnectedHandlers.remove(clientConnectedHandler);
 	}
 
@@ -108,17 +116,31 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
+	public void disconnect() {
+		logging.trace("Trying to disconnect existing ServerSocket");
+		try {
+			serverConnector.disconnect();
+			softStop();
+		} catch (IOException e) {
+			logging.catching(e);
+		}
+	}
+
+	@Override
 	public void setSocketFactory(Factory<Integer, ServerSocket> factory) {
+		if (serverSocketFactory != null) {
+			logging.debug("Overriding existing Factory " + serverSocketFactory + " with " + factory);
+		}
 		serverSocketFactory = factory;
 	}
 
 	@Override
-	public ClientList clientList() {
+	public final ClientList clientList() {
 		return clientList;
 	}
 
 	@Override
-	public CommunicationRegistration getCommunicationRegistration() {
+	public final CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
 	}
 
@@ -140,12 +162,12 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void softStop() {
-		logging.debug("stopping ...");
+		logging.debug("Stopping ..");
 		running = false;
 	}
 
 	@Override
-	public boolean running() {
+	public final boolean running() {
 		return running;
 	}
 

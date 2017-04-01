@@ -58,11 +58,13 @@ public class Client {
 		if (invoked) {
 			return;
 		}
+		logging.trace("Entered Client#invoke");
 		receivingService = new DefaultReceivingService(socket, communicationRegistration, mainDeSerializationAdapter,
 				fallBackDeSerialization, decryptionAdapter, this::getUser, this::ack, this::disconnect);
 		sendingService = new DefaultSendingService(toSend, mainSerializationAdapter, fallBackSerialization,
 				new PrintWriter(socket.getOutputStream()), encryptionAdapter);
 		start();
+		logging.trace("Leaving Client#invoke");
 	}
 
 	private void start() {
@@ -70,7 +72,7 @@ public class Client {
 		threadPool.execute(receivingService);
 		threadPool.execute(sendingService);
 		invoked = true;
-		logging.trace(toString() + " successfully created!");
+		logging.debug(toString() + " successfully created!");
 	}
 
 	@Override
@@ -126,16 +128,5 @@ public class Client {
 
 	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		disconnectedHandlers.add(disconnectedHandler);
-	}
-
-	public final boolean matchesWith(Object o) {
-		if (o == null) {
-			return false;
-		}
-
-		if (Socket.class.equals(o.getClass())) {
-			return o.equals(socket);
-		}
-		return false;
 	}
 }

@@ -53,7 +53,8 @@ class DefaultReceivingService implements ReceivingService {
 
 	@Override
 	public void run() {
-		logging.trace("Started ReceivingService for " + socket.getInetAddress() + ":" + socket.getPort());
+		logging.trace("Entered ReceivingService#run");
+		logging.debug("Started ReceivingService for " + socket.getInetAddress() + ":" + socket.getPort());
 		running = true;
 		while (running()) {
 			try {
@@ -72,6 +73,7 @@ class DefaultReceivingService implements ReceivingService {
 			}
 		}
 		onDisconnect();
+		logging.trace("Leaving ReceivingService#run");
 	}
 
 	private Object deserialize(String string) throws DeSerializationFailedException {
@@ -94,7 +96,7 @@ class DefaultReceivingService implements ReceivingService {
 
 	private void trigger(Object object) {
 		if (object.getClass().equals(Ping.class)) {
-			logging.trace("Ping requested");
+			logging.debug("Ping requested");
 			onAck.run();
 		} else {
 			try {
@@ -110,12 +112,12 @@ class DefaultReceivingService implements ReceivingService {
 		running = false;
 	}
 
-	private void onDisconnect() {
-		onDisconnect.run();
-	}
-
 	@Override
 	public boolean running() {
 		return running;
+	}
+
+	private void onDisconnect() {
+		onDisconnect.run();
 	}
 }

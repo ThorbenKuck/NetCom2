@@ -26,7 +26,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>> {
 	@Override
 	public void establishConnection(Factory<Integer, ServerSocket> factory) throws IOException {
 		if (started) {
-			logging.warn("Tried to start an already started Server! Aborting..");
+			logging.warn("Tried to start an already started Server!");
 			return;
 		}
 		synchronized (logging) {
@@ -38,7 +38,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>> {
 	@Override
 	public void disconnect() throws IOException {
 		if (! started) {
-			logging.warn("Tried to stop an already stopped Server! Aborting..");
+			logging.warn("Tried to stop an already stopped Server!");
 			return;
 		}
 		synchronized (logging) {

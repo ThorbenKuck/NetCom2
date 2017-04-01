@@ -35,7 +35,7 @@ public class DistributorRegistration {
 	public void removeRegistration(Class s, User user) {
 		Set<User> set = get(s);
 		set.remove(user);
-		logging.debug("User " + user + " unregistered from " + s);
+		logging.debug("User " + user + " removed from " + s);
 		if (set.isEmpty()) {
 			logging.debug("No registration left for " + s + ". Cleaning up...");
 			registration.remove(s);

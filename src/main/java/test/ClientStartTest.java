@@ -9,7 +9,6 @@ import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
 
 import java.util.Observable;
-import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 
@@ -23,13 +22,7 @@ public class ClientStartTest {
 			register();
 			start();
 			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new TestObjectTwo("None"));
-			try {
-				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			clientStart.send().unRegistrationToServer(TestObjectTwo.class);
+			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
 			e.printStackTrace();
 		}
