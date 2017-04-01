@@ -20,7 +20,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		if (isRegistered(clazz)) {
 			throw new CommunicationAlreadySpecifiedException("Communication for " + clazz + " is already set");
 		}
-		LoggingUtil.getLogging().debug("Registered for Class " + clazz + " = " + onReceive);
+		LoggingUtil.getLogging().debug("Registered for " + clazz + " : " + onReceive);
 		mapping.put(clazz, onReceive);
 		onReceive.onRegistration();
 	}
@@ -32,7 +32,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			return;
 		}
 
-		LoggingUtil.getLogging().debug("Unregistered OnReceive for Class " + clazz);
+		LoggingUtil.getLogging().debug("Unregistered OnReceive for " + clazz);
 		mapping.remove(clazz).onUnRegistration();
 	}
 

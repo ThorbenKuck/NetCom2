@@ -17,7 +17,7 @@ public class DistributorRegistration {
 
 	public void addRegistration(Class s, User user) {
 		getAndCreate(s).add(user);
-		logging.debug("UserImpl " + user + " registered for " + s);
+		logging.debug("User " + user + " registered for " + s);
 	}
 
 	private Set<User> getAndCreate(Class s) {
@@ -27,7 +27,7 @@ public class DistributorRegistration {
 
 	public void removeRegistration(User user) {
 		final List<Class> keys = registration.keySet().stream()
-				.filter(clazz -> registration.get(clazz).contains(user))
+				.filter(clazz -> registration.get(clazz) != null && registration.get(clazz).contains(user))
 				.collect(Collectors.toList());
 		keys.forEach(clazz -> removeRegistration(clazz, user));
 	}
@@ -35,7 +35,7 @@ public class DistributorRegistration {
 	public void removeRegistration(Class s, User user) {
 		Set<User> set = get(s);
 		set.remove(user);
-		logging.debug("UserImpl " + user + " unregistered from " + s);
+		logging.debug("User " + user + " unregistered from " + s);
 		if (set.isEmpty()) {
 			logging.debug("No registration left for " + s + ". Cleaning up...");
 			registration.remove(s);

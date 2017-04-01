@@ -4,6 +4,7 @@ import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.User;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -18,16 +19,17 @@ class Initializer {
 	private CommunicationRegistration communicationRegistration;
 	private Logging logging = new LoggingUtil();
 	private Cache cache;
-	private InternalSender senderImpl;
+	private InternalSender sender;
 
-	Initializer(Client client, CommunicationRegistration communicationRegistration, Cache cache, InternalSender senderImpl) {
+	Initializer(Client client, CommunicationRegistration communicationRegistration, Cache cache, InternalSender sender) {
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
-		this.senderImpl = senderImpl;
+		this.sender = sender;
 	}
 
 	void init() throws StartFailedException {
+		client.setUser(User.createNew(client));
 		register();
 		awaitHandshake();
 	}
@@ -36,7 +38,7 @@ class Initializer {
 		try {
 			communicationRegistration.register(RegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.addGeneralObserver(senderImpl.getObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});
@@ -47,7 +49,7 @@ class Initializer {
 		try {
 			communicationRegistration.register(UnRegisterResponse.class, (user, o) -> {
 				if (o.isOkay()) {
-					cache.addGeneralObserver(senderImpl.deleteObserver(o.getRequest().getCorrespondingClass()));
+					cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
 					logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
 				}
 			});
@@ -80,7 +82,7 @@ class Initializer {
 				"client=" + client +
 				", communicationRegistration=" + communicationRegistration +
 				", cache=" + cache +
-				", senderImpl=" + senderImpl +
+				", sender=" + sender +
 				'}';
 	}
 }

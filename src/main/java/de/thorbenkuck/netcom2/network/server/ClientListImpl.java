@@ -18,7 +18,7 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public void add(Client client) {
-		logging.trace("Added new Client(" + client + ") to ClientListImpl");
+		logging.trace("Added new Client(" + client + ") to ClientList");
 		clients.add(client);
 		notifyAboutClientList();
 	}
@@ -31,14 +31,14 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public void remove(Client client) {
-		logging.trace("Removing Client " + client + " from ClientListImpl");
+		logging.trace("Removing Client " + client + " from ClientList");
 		clients.remove(client);
 		notifyAboutClientList();
 	}
 
 	@Override
 	public void clear() {
-		logging.trace("Clearing the ClientListImpl");
+		logging.trace("Clearing the ClientList");
 		clients.clear();
 		notifyAboutClientList();
 	}
@@ -66,32 +66,32 @@ class ClientListImpl extends Observable implements ClientList {
 	public String toString() {
 		return "ClientList{" + clients.toString() + "}";
 	}
-}
 
-class ClientIterator implements Iterator<Client> {
+	private class ClientIterator implements Iterator<Client> {
 
-	private Queue<Client> clients;
-	private List<Client> clientList;
-	private Client current;
+		private Queue<Client> clients;
+		private List<Client> clientList;
+		private Client current;
 
-	public ClientIterator(List<Client> clientList) {
-		clients = new LinkedList<>(clientList);
-		this.clientList = clientList;
-	}
+		public ClientIterator(List<Client> clientList) {
+			clients = new LinkedList<>(clientList);
+			this.clientList = clientList;
+		}
 
-	@Override
-	public boolean hasNext() {
-		return clients.peek() != null;
-	}
+		@Override
+		public boolean hasNext() {
+			return clients.peek() != null;
+		}
 
-	@Override
-	public Client next() {
-		current = clients.poll();
-		return current;
-	}
+		@Override
+		public Client next() {
+			current = clients.poll();
+			return current;
+		}
 
-	@Override
-	public void remove() {
-		clientList.remove(current);
+		@Override
+		public void remove() {
+			clientList.remove(current);
+		}
 	}
 }

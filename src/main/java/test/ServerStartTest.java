@@ -15,13 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 public class ServerStartTest {
 
-	private static int port = 46091;
+	private static int port = 44444;
 	private static ServerStart serverStart;
 	private static Thread starter = new Thread(() -> {
 		try {
 			start();
 		} catch (StartFailedException e) {
-			throw new RuntimeException(e);
+			System.exit(1);
 		}
 	});
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
@@ -39,7 +39,7 @@ public class ServerStartTest {
 	}
 
 	private static void catching() {
-		Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String stacktrace = sw.toString();
@@ -49,12 +49,12 @@ public class ServerStartTest {
 
 	private static void create() {
 		serverStart = ServerStart.of(port);
-		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println(client1 + " disconnected! ABORT!")));
+		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!")));
 	}
 
 	private static void schedule() {
-		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 10, 10, TimeUnit.SECONDS);
-		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send2, 11, 11, TimeUnit.SECONDS);
+		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::updateCache, 10, 10, TimeUnit.SECONDS);
+		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 11, 11, TimeUnit.SECONDS);
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
@@ -75,11 +75,11 @@ public class ServerStartTest {
 		}
 	}
 
-	private static void send() {
+	private static void updateCache() {
 		serverStart.cache().addAndOverride(new TestObjectTwo(new Date().toString()));
 	}
 
-	private static void send2() {
+	private static void send() {
 		serverStart.distribute().toAll(new TestObjectThree("It is now: " + LocalDateTime.now().toString()));
 	}
 }

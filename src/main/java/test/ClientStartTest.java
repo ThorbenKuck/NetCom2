@@ -3,17 +3,18 @@ package test;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
+import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
 
 import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
-	private static ClientStart clientStart;
-	private static int port = 46091;
 
+	private static ClientStart clientStart;
+	private static int port = 44444;
 
 	public static void main(String[] args) {
 		clientStart = ClientStart.of("localhost", port);
@@ -21,7 +22,6 @@ public class ClientStartTest {
 		try {
 			register();
 			start();
-			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 			clientStart.send().objectToServer(new Login());
 			clientStart.send().objectToServer(new TestObjectTwo("None"));
 			try {
@@ -44,24 +44,23 @@ public class ClientStartTest {
 		clientStart.launch();
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
-		clientStart.addDisconnectedHandler(client -> System.out.println("Byebye"));
+		clientStart.addDisconnectedHandler(client -> System.out.println("Bye bye lieber Server"));
 	}
 }
 
-class TestObserver implements Observer {
-
+class TestObserver extends AbstractCacheObserver {
 	@Override
-	public void update(Observable o, Object arg) {
-		if (arg != null) {
-			parse(arg);
-		}
+	public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
+		System.out.println("[NEW ENTRY] Received push from Server about: " + newEntryEvent.getObject());
 	}
 
-	private void parse(Object arg) {
-		if (arg.getClass().equals(NewEntryEvent.class)) {
-			System.out.println("Received push from Server about: " + ((NewEntryEvent) arg).getObject());
-		} else if (arg.getClass().equals(DeletedEntryEvent.class)) {
-			System.out.println("Entry deleted for" + ((DeletedEntryEvent) arg).getCorrespondingClass());
-		}
+	@Override
+	public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
+		System.out.println("[UPDATE] Received push from Server about: " + updatedEntryEvent.getObject());
+	}
+
+	@Override
+	public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
+		System.out.println("[DELETED] Received push from Server about: " + deletedEntryEvent.getCorrespondingClass());
 	}
 }
