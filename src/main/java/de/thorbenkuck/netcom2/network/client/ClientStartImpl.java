@@ -53,7 +53,7 @@ public class ClientStartImpl implements ClientStart {
 		}
 		sender = InternalSender.create(client, cache);
 		new Initializer(client, communicationRegistration, cache, sender).init();
-		logging.debug("Connection successfully established!");
+		logging.info("Connected to server at " + clientConnector.getSocket().toString());
 	}
 
 	@Override

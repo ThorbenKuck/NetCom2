@@ -49,7 +49,24 @@ public class ServerStartTest {
 
 	private static void create() {
 		serverStart = ServerStart.of(port);
-		serverStart.addClientConnectedHandler(client -> client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!")));
+		serverStart.addClientConnectedHandler(client -> {
+			client.addFallBackDeSerialization(new TestDeSerializer());
+			client.addFallBackSerialization(new TestSerializer());
+			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
+		});
+//		serverStart.setSocketFactory(integer -> {
+//			try {
+//				return SSLServerSocketFactory.getDefault().createServerSocket(integer);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			try {
+//				return new ServerSocket(integer);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			return null;
+//		});
 	}
 
 	private static void schedule() {
@@ -63,7 +80,9 @@ public class ServerStartTest {
 			user.send(new TestObject("World"));
 		});
 
-		serverStart.getCommunicationRegistration().register(Login.class, ((user, o) -> user.setIdentified(true)));
+		serverStart.getCommunicationRegistration().register(Login.class, (user, o) -> user.setIdentified(true));
+
+		serverStart.getCommunicationRegistration().addDefaultCommunicationHandler(object -> System.out.println("Haha, kenne nicht das Object: " + object));
 	}
 
 	private static void start() throws StartFailedException {

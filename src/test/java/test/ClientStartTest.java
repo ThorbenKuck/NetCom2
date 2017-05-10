@@ -17,6 +17,19 @@ public class ClientStartTest {
 
 	public static void main(String[] args) {
 		clientStart = ClientStart.of("localhost", port);
+//		clientStart.setSocketFactory((port, address) -> {
+//			try {
+//				return SSLSocketFactory.getDefault().createSocket(address, port);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			try {
+//				return new Socket(address, port);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			return null;
+//		});
 
 		try {
 			register();

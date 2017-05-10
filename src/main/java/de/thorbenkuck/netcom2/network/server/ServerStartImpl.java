@@ -28,8 +28,8 @@ class ServerStartImpl implements ServerStart {
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
-	private final ServerConnector serverConnector;
 	private final Logging logging = new LoggingUtil();
+	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
@@ -76,6 +76,11 @@ class ServerStartImpl implements ServerStart {
 			logging.debug("Trying to at least disconnect ..");
 		}
 		disconnect();
+	}
+
+	@Override
+	public void setPort(int port) {
+		serverConnector = new ServerConnector(port);
 	}
 
 	@Override

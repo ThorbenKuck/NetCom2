@@ -1,11 +1,13 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
+import com.sun.istack.internal.NotNull;
+
 import java.util.Observable;
 
 public abstract class AbstractCacheObserver implements CacheObserver {
 	@Override
-	public final void update(Observable o, Object arg) {
-		assertNotNull(o);
+	public final void update(@NotNull Observable o, @NotNull Object arg) {
+		assertNotNull(o, arg);
 		if (arg.getClass().equals(NewEntryEvent.class)) {
 			newEntry((NewEntryEvent) arg, o);
 		} else if (arg.getClass().equals(UpdatedEntryEvent.class)) {
@@ -15,9 +17,11 @@ public abstract class AbstractCacheObserver implements CacheObserver {
 		}
 	}
 
-	protected final void assertNotNull(Object o) {
-		if (o == null) {
-			throw new IllegalArgumentException("Given Object for AbstractCacheObserver can't be null!");
+	protected final void assertNotNull(Object... o) {
+		for (Object o2 : o) {
+			if (o2 == null) {
+				throw new IllegalArgumentException("Given Object for AbstractCacheObserver can't be null!");
+			}
 		}
 	}
 

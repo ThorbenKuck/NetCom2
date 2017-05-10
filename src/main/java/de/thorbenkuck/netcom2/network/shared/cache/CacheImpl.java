@@ -84,9 +84,13 @@ public class CacheImpl extends Observable implements Cache {
 
 	@Override
 	public void addGeneralObserver(Observer observer) {
-		logging.debug("Adding Observer(" + observer + ") to " + toString());
-		logging.info("It is recommended to use " + CacheObserver.class);
-		addObserver(observer);
+		if (observer instanceof CacheObserver) {
+			addCacheObserver((CacheObserver) observer);
+		} else {
+			logging.debug("Adding Observer(" + observer + ") to " + toString());
+			logging.info("It is recommended to use " + CacheObserver.class);
+			addObserver(observer);
+		}
 	}
 
 	@Override
