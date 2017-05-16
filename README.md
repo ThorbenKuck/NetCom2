@@ -10,6 +10,8 @@ NOTE: The documentation is still in Work!
 
 If you are searching for a easy to use framework, that gives you the option to fastly create a Server-Client-Communication, this is for you
 
+But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easyer to send Object to specific clients, that want those object. This framework is completly modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
+
 ----
 
 ## Getting started
@@ -19,30 +21,43 @@ Getting startet is easy. You should have basic knowledge about how a Client-Serv
 ### Creating a Server
 
 To create a server, you simply say:
-<code>ServerStart serverStart = ServerStart.of(/* your port number here */88888);</code>
+
+```java
+ServerStart serverStart = ServerStart.of(/* your port number here */88888);
+```
+
 With that done, you have to tell the ServerStart-Object to listen to Clients
-<code>
-serverStart.launch();
-try {
-  serverStart.acceptAllNextClients();
-} catch (ClientConnectionFailedException e) {
-  e.printStackTrace();
-  System.exit(1);
+
+```java
+serverStart.launch();    
+try {    
+  serverStart.acceptAllNextClients();    
+} catch (ClientConnectionFailedException e) {   
+  e.printStackTrace();    
+  System.exit(1);    
 }
-</code>
+```
+
 Launch creates internal dependencies and  acceptAllNextClients(); waits for the next clients to connect.
 
 ### Creating a Client
 
 You create a Client similiiar to a Server. You just say:
-<code>ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);</code>
+
+```java
+ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
+```
+
 Now, to connect, simply say:
-<code>clientStart.launch();</code>
+
+```java 
+clientStart.launch();
+```
 
 ### Sending Stuff
 
 Let's assume, you have an Object called Test in the Shared project, which looks like this:
-<code>
+```java
 public class Test implements Serializable {
   private String s;
   
@@ -54,17 +69,17 @@ public class Test implements Serializable {
     return this.s;
   }
 }
-</code>
+```
 
 Now we want to send this from the Client to the Server. We realize this by saying:
-<code>
+```java
 ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
 clientStart.send().objectToServer(new Test());
-</code>
+```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
-<code>
+```java
 ServerStart serverStart = ServerStart.of(88888);
 serverStart.launch();
 
@@ -80,7 +95,7 @@ try {
   e.printStackTrace();
   System.exit(1);
 }
-</code>
+```
 
 Now, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
