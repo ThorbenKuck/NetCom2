@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
+import de.thorbenkuck.netcom2.interfaces.Pipeline;
 import de.thorbenkuck.netcom2.network.shared.User;
 
 public interface CommunicationRegistration {
@@ -10,7 +10,7 @@ public interface CommunicationRegistration {
 		return new DefaultCommunicationRegistration();
 	}
 
-	<T> void register(Class<T> clazz, OnReceive<T> onReceive) throws CommunicationAlreadySpecifiedException;
+	<T> Pipeline<T> register(Class<T> clazz);
 
 	void unRegister(Class clazz);
 

@@ -42,8 +42,8 @@ public class ClientStartTest {
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
-		clientStart.getCommunicationRegistration().register(TestObject.class, (user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
-		clientStart.getCommunicationRegistration().register(TestObjectThree.class, (user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
+		clientStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
+		clientStart.getCommunicationRegistration().register(TestObjectThree.class).addLast((user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
 	}
 
 	private static void start() throws StartFailedException {

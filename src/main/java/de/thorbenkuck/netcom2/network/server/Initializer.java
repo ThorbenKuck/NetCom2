@@ -1,6 +1,5 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceiveHandler;
@@ -32,18 +31,11 @@ class Initializer {
 	}
 
 	private void register() {
-		try {
-			communicationRegistration.register(RegisterRequest.class, new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache));
+		communicationRegistration.register(RegisterRequest.class).addFirst(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache));
 			logging.trace("Successfully registered RegisterRequest");
-		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
-		}
-		try {
-			communicationRegistration.register(UnRegisterRequest.class, new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()));
+		communicationRegistration.register(UnRegisterRequest.class).addLast(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()));
 			logging.trace("Successfully registered UnRegisterRequest");
-		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
-		}
+
 	}
 
 	private void setObserver() {

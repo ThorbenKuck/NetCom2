@@ -1,6 +1,5 @@
 package de.thorbenkuck.netcom2.network.client;
 
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -35,33 +34,20 @@ class Initializer {
 	}
 
 	private void register() {
-		try {
-			communicationRegistration.register(RegisterResponse.class, (user, o) -> {
-				if (o.isOkay()) {
-					cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
-					logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
-				}
-			});
-		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the CacheImpl-Registration is NOT recommended!");
-		}
+		communicationRegistration.register(RegisterResponse.class).addFirst((user, o) -> {
+			if (o.isOkay()) {
+				cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
+			}
+		});
+		communicationRegistration.register(UnRegisterResponse.class).addFirst((user, o) -> {
+			if (o.isOkay()) {
+				cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
+			}
+		});
 
-		try {
-			communicationRegistration.register(UnRegisterResponse.class, (user, o) -> {
-				if (o.isOkay()) {
-					cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
-					logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
-				}
-			});
-		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the CacheImpl-UnRegistration is NOT recommended!");
-		}
-
-		try {
-			communicationRegistration.register(CachePush.class, (user, o) -> cache.addAndOverride(o.getObject()));
-		} catch (CommunicationAlreadySpecifiedException e) {
-			logging.warn("Overriding the default-behaviour for the CacheImpl-UnRegistration is NOT recommended!");
-		}
+		communicationRegistration.register(CachePush.class).addFirst((user, o) -> cache.addAndOverride(o.getObject()));
 	}
 
 	private void awaitHandshake() throws StartFailedException {

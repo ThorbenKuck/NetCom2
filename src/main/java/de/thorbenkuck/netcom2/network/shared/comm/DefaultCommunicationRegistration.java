@@ -1,7 +1,8 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
+import de.thorbenkuck.netcom2.QueuedPipeline;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
+import de.thorbenkuck.netcom2.interfaces.Pipeline;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.User;
@@ -11,18 +12,15 @@ import java.util.Map;
 
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
-	private final Map<Class, OnReceive> mapping = new HashMap<>();
+	private final Map<Class, Pipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new LoggingUtil();
 	private DefaultCommunicationHandler defaultCommunicationHandler;
 
 	@Override
-	public <T> void register(Class<T> clazz, OnReceive<T> onReceive) throws CommunicationAlreadySpecifiedException {
-		if (isRegistered(clazz)) {
-			throw new CommunicationAlreadySpecifiedException("Communication for " + clazz + " is already set");
-		}
-		LoggingUtil.getLogging().debug("Registered for " + clazz + " : " + onReceive);
-		mapping.put(clazz, onReceive);
-		onReceive.onRegistration();
+	public <T> Pipeline<T> register(Class<T> clazz) {
+		mapping.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
+		return (Pipeline<T>) mapping.get(clazz);
+		//, OnReceive<T> onReceive
 	}
 
 	@Override
@@ -33,7 +31,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 
 		LoggingUtil.getLogging().debug("Unregistered OnReceive for " + clazz);
-		mapping.remove(clazz).onUnRegistration();
+		//mapping.remove(clazz).onUnRegistration();
 	}
 
 	@Override

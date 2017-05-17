@@ -3,6 +3,7 @@ version 'Alpha 0.1'
 
 apply plugin: 'java'
 
+String root = file('.').toString()
 sourceCompatibility = 1.8
 
 repositories {
@@ -11,4 +12,5 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile fileTree(dir: root + '/libs/', include: ['*.jar'])
 }
