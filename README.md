@@ -83,7 +83,7 @@ on the ServerSide we have to say, how to handle this Object. We realize this by 
 ServerStart serverStart = ServerStart.of(88888);
 serverStart.launch();
 
-serverStart.getCommunicationRegistration().register(Test.class, (user, o) -> {
+serverStart.getCommunicationRegistration().register(Test.class).addFirst((user, o) -> {
   System.out.println("received " + o.getString() + " from " + user);
   o.setString("received");
   user.send(o);
