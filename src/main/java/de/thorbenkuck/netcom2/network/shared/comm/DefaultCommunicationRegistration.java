@@ -9,18 +9,19 @@ import de.thorbenkuck.netcom2.network.shared.User;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, Pipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new LoggingUtil();
-	private DefaultCommunicationHandler defaultCommunicationHandler;
+	private Queue<DefaultCommunicationHandler> defaultCommunicationHandlers;
 
+	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> Pipeline<T> register(Class<T> clazz) {
 		mapping.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
 		return (Pipeline<T>) mapping.get(clazz);
-		//, OnReceive<T> onReceive
 	}
 
 	@Override
@@ -47,7 +48,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		if (! isRegistered(clazz)) {
 			handleNotRegistered(clazz, o);
 		} else {
-			LoggingUtil.getLogging().trace("Running OnReceived for " + clazz + " with user " + user + " and received Object " + o + " ..");
+			logging.trace("Running OnReceived for " + clazz + " with user " + user + " and received Object " + o + " ..");
 			try {
 				mapping.get(clazz).run(user, o);
 			} catch (Throwable throwable) {
@@ -65,16 +66,22 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void handleNotRegistered(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
-		if (defaultCommunicationHandler == null) {
+		if (defaultCommunicationHandlers.isEmpty()) {
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
 		} else {
+			runDefaultCommunicationHandler(o);
+		}
+	}
+
+	private void runDefaultCommunicationHandler(Object o) {
+		for (DefaultCommunicationHandler defaultCommunicationHandler : defaultCommunicationHandlers) {
 			defaultCommunicationHandler.handle(o);
 		}
 	}
 
 	@Override
 	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
-		this.defaultCommunicationHandler = defaultCommunicationHandler;
+		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
 	@Override

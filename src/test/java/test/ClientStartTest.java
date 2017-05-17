@@ -1,6 +1,5 @@
 package test;
 
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
@@ -35,13 +34,14 @@ public class ClientStartTest {
 			register();
 			start();
 			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new TestObject("Hello"));
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
-		} catch (CommunicationAlreadySpecifiedException | StartFailedException e) {
+		} catch (StartFailedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void register() throws CommunicationAlreadySpecifiedException {
+	private static void register() {
 		clientStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
 		clientStart.getCommunicationRegistration().register(TestObjectThree.class).addLast((user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
 	}

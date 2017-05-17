@@ -75,10 +75,8 @@ public class ServerStartTest {
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
-		serverStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> {
-			System.out.println("received " + o.getHello() + " from " + user);
-			user.send(new TestObject("World"));
-		});
+		serverStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> System.out.println("received " + o.getHello() + " from " + user));
+		serverStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> user.send(new TestObject("World")));
 
 		serverStart.getCommunicationRegistration().register(Login.class).addLast((user, o) -> user.setIdentified(true));
 

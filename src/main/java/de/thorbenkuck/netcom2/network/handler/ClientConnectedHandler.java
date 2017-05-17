@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import java.net.Socket;
 import java.util.UUID;
 
+@FunctionalInterface
 public interface ClientConnectedHandler {
 	default Client create(Socket socket) {
 		return null;

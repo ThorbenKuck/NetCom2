@@ -13,4 +13,8 @@ public interface Pipeline<T> {
 	void clear();
 
 	void run(User user, Object e);
+
+	void close();
+
+	void open();
 }
