@@ -12,7 +12,7 @@ public class EchoServerTest {
 
 	public static void main(String[] args) {
 		// Create the Server at Port 8888
-		serverStart = ServerStart.of(8888);
+		serverStart = ServerStart.at(8888);
 
 		// And tell the Server, to always send back the Command, he received
 		register(serverStart.getCommunicationRegistration());
@@ -32,7 +32,9 @@ public class EchoServerTest {
 		// This will echo anything to all Clients.
 		// communicationRegistration.addDefaultCommunicationHandler(o -> serverStart.distribute().toAll(o));
 
-		communicationRegistration.register(TestObject.class).addFirst(User::send);
-		communicationRegistration.register(TestObject.class).addFirst((user, o) -> System.out.println("sending back: " + o));
+		communicationRegistration.register(TestObject.class)
+				.addFirst(User::send);
+		communicationRegistration.register(TestObject.class)
+				.addFirst((user, o) -> System.out.println("sending back: " + o));
 	}
 }

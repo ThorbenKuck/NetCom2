@@ -50,7 +50,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);
-		logging.trace("Awaiting Ping of Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
+		logging.trace("Awaiting Ping at Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
 		try {
 			client.getPrimed().await();
 			logging.trace("Ping received from " + socket.getInetAddress() + ":" + socket.getPort() + ". Sending ping back ..");

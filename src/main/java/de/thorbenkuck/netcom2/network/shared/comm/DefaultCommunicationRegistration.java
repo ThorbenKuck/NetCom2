@@ -1,13 +1,14 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
-import de.thorbenkuck.netcom2.QueuedPipeline;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.interfaces.Pipeline;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.pipeline.QueuedPipeline;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -15,7 +16,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, Pipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new LoggingUtil();
-	private Queue<DefaultCommunicationHandler> defaultCommunicationHandlers;
+	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
 
 	@SuppressWarnings ("unchecked")
 	@Override
@@ -31,8 +32,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			return;
 		}
 
-		LoggingUtil.getLogging().debug("Unregistered OnReceive for " + clazz);
-		//mapping.remove(clazz).onUnRegistration();
+		LoggingUtil.getLogging().debug("Unregistered Pipeline for " + clazz);
+		mapping.remove(clazz);
 	}
 
 	@Override
@@ -43,7 +44,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> void trigger(Class<T> clazz, User user, Object o) throws CommunicationNotSpecifiedException {
-		logging.trace("Searching for Communication specification of " + clazz + " with instance " + o);
+		logging.trace("Searching for Communication specification at " + clazz + " with instance " + o);
 		assertMatching(clazz, o);
 		if (! isRegistered(clazz)) {
 			handleNotRegistered(clazz, o);
@@ -60,7 +61,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	private void assertMatching(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
 		if (! (o != null && clazz.equals(o.getClass()))) {
 			throw new CommunicationNotSpecifiedException("Possible internal error!\n" +
-					"Incompatible types of " + clazz + " and " + o + "\n" +
+					"Incompatible types at " + clazz + " and " + o + "\n" +
 					"If you called CommunicationRegistration yourself, please make sure, the Object matches to the provided Class");
 		}
 	}

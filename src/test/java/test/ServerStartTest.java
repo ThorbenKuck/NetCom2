@@ -4,6 +4,7 @@ import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
+import de.thorbenkuck.netcom2.network.shared.User;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -48,7 +49,7 @@ public class ServerStartTest {
 	}
 
 	private static void create() {
-		serverStart = ServerStart.of(port);
+		serverStart = ServerStart.at(port);
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
@@ -75,8 +76,14 @@ public class ServerStartTest {
 	}
 
 	private static void register() throws CommunicationAlreadySpecifiedException {
-		serverStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> System.out.println("received " + o.getHello() + " from " + user));
-		serverStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> user.send(new TestObject("World")));
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addLast((user, o) -> System.out.println("------\nreceived " + o.getHello() + " from " + user + "\n-------"))
+				.withRequirement(User::isIdentified);
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addLast((user, o) -> user.send(new TestObject("World")))
+				.withRequirement(User::isIdentified);
 
 		serverStart.getCommunicationRegistration().register(Login.class).addLast((user, o) -> user.setIdentified(true));
 

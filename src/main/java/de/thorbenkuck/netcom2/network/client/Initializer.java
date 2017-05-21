@@ -37,13 +37,13 @@ class Initializer {
 		communicationRegistration.register(RegisterResponse.class).addFirst((user, o) -> {
 			if (o.isOkay()) {
 				cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
+				logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
 			}
 		});
 		communicationRegistration.register(UnRegisterResponse.class).addFirst((user, o) -> {
 			if (o.isOkay()) {
 				cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
+				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
 			}
 		});
 

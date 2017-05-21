@@ -18,7 +18,7 @@ public class EchoClientTest {
 
 	public static void main(String[] args) {
 		// Create the ClientStart
-		ClientStart clientStart = ClientStart.of("localhost", 8888);
+		ClientStart clientStart = ClientStart.at("localhost", 8888);
 
 		// Simply print out, what you received from the Server
 		register(clientStart.getCommunicationRegistration());
@@ -35,7 +35,8 @@ public class EchoClientTest {
 	}
 
 	private static void register(CommunicationRegistration communicationRegistration) {
-		communicationRegistration.register(TestObject.class).addFirst(((user, o) -> System.out.println("Server send: " + o.getHello())));
+		communicationRegistration.register(TestObject.class)
+				.addFirst(((user, o) -> System.out.println("Server send: " + o.getHello())));
 	}
 
 	private static void schedule(Sender send) {

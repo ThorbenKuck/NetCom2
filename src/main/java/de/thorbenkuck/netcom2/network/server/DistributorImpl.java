@@ -74,7 +74,7 @@ class DistributorImpl implements InternalDistributor {
 		distributorRegistration.getRegistered(o.getClass()).stream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {
-			LoggingUtil.getLogging().trace("Sending cache-update of " + o.getClass() + " to " + user);
+					LoggingUtil.getLogging().trace("Sending cache-update at " + o.getClass() + " to " + user);
 			user.send(new CachePush(o));
 		});
 	}

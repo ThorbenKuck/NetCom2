@@ -18,7 +18,7 @@ public class UnRegisterRequest implements Serializable {
 	@Override
 	public String toString() {
 		return "UnRegisterRequest{" +
-				"class of interest=" + aClass +
+				"class at interest=" + aClass +
 				'}';
 	}
 }

@@ -15,7 +15,7 @@ public class ClientStartTest {
 	private static int port = 44444;
 
 	public static void main(String[] args) {
-		clientStart = ClientStart.of("localhost", port);
+		clientStart = ClientStart.at("localhost", port);
 //		clientStart.setSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
@@ -33,8 +33,9 @@ public class ClientStartTest {
 		try {
 			register();
 			start();
+			clientStart.send().objectToServer(new TestObject("This should not come back"));
 			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new TestObject("Hello"));
+			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 		} catch (StartFailedException e) {
 			e.printStackTrace();
@@ -42,8 +43,12 @@ public class ClientStartTest {
 	}
 
 	private static void register() {
-		clientStart.getCommunicationRegistration().register(TestObject.class).addLast((user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
-		clientStart.getCommunicationRegistration().register(TestObjectThree.class).addLast((user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
+		clientStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addLast((user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
+		clientStart.getCommunicationRegistration()
+				.register(TestObjectThree.class)
+				.addLast((user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
 	}
 
 	private static void start() throws StartFailedException {
