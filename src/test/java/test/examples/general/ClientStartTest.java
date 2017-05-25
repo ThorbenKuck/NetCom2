@@ -1,4 +1,4 @@
-package test;
+package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
@@ -6,6 +6,7 @@ import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
+import test.examples.*;
 
 import java.util.Observable;
 

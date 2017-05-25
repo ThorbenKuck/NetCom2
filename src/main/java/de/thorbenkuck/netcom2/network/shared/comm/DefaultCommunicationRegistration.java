@@ -4,7 +4,7 @@ import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.interfaces.Pipeline;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.pipeline.QueuedPipeline;
 
 import java.util.HashMap;
@@ -43,15 +43,15 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> void trigger(Class<T> clazz, User user, Object o) throws CommunicationNotSpecifiedException {
+	public <T> void trigger(Class<T> clazz, Session session, Object o) throws CommunicationNotSpecifiedException {
 		logging.trace("Searching for Communication specification at " + clazz + " with instance " + o);
 		assertMatching(clazz, o);
 		if (! isRegistered(clazz)) {
 			handleNotRegistered(clazz, o);
 		} else {
-			logging.trace("Running OnReceived for " + clazz + " with user " + user + " and received Object " + o + " ..");
+			logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 			try {
-				mapping.get(clazz).run(user, o);
+				mapping.get(clazz).run(session, o);
 			} catch (Throwable throwable) {
 				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
 			}

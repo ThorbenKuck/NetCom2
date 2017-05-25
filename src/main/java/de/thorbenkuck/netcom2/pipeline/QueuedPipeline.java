@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.pipeline;
 
 import de.thorbenkuck.netcom2.interfaces.Pipeline;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
 import java.util.LinkedList;
@@ -54,14 +54,12 @@ public class QueuedPipeline<T> implements Pipeline<T> {
 	}
 
 	@Override
-	public void run(User user, Object t) {
+	public void run(Session session, Object t) {
 		synchronized (core) {
 			checkClosed();
-			core.forEach(pipelineReceiver -> {
-				if (pipelineReceiver.test(user)) {
-					pipelineReceiver.getOnReceive().run(user, (T) t);
-				}
-			});
+			core.stream()
+					.filter(PipelineReceiver -> PipelineReceiver.test(session))
+					.forEach(pipelineReceiver -> pipelineReceiver.getOnReceive().run(session, (T) t));
 		}
 	}
 

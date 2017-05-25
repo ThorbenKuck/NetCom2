@@ -1,10 +1,11 @@
-package test;
+package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
+import test.examples.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -79,11 +80,11 @@ public class ServerStartTest {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addLast((user, o) -> System.out.println("------\nreceived " + o.getHello() + " from " + user + "\n-------"))
-				.withRequirement(User::isIdentified);
+				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addLast((user, o) -> user.send(new TestObject("World")))
-				.withRequirement(User::isIdentified);
+				.withRequirement(Session::isIdentified);
 
 		serverStart.getCommunicationRegistration().register(Login.class).addLast((user, o) -> user.setIdentified(true));
 

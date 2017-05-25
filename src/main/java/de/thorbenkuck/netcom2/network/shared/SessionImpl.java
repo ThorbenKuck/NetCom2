@@ -4,20 +4,20 @@ import de.thorbenkuck.netcom2.interfaces.SendBridge;
 
 import java.util.Properties;
 
-public class UserImpl implements User {
+public class SessionImpl implements Session {
 
 	private final SendBridge sendBridge;
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
 
-	UserImpl(SendBridge sendBridge) {
+	SessionImpl(SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
 	}
 
 	@Override
 	public String toString() {
-		return "User{" +
+		return "Session{" +
 				"identified=" + identified +
 				", identifier='" + identifier + '\'' +
 				", properties=" + properties +

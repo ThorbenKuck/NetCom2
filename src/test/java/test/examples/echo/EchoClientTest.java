@@ -1,9 +1,10 @@
-package test;
+package test.examples.echo;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.client.Sender;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import test.examples.TestObject;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

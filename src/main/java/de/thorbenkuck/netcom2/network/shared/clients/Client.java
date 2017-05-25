@@ -7,7 +7,7 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import de.thorbenkuck.netcom2.network.interfaces.SendingService;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class Client {
 	private Logging logging = new LoggingUtil();
 	private CountDownLatch primed = new CountDownLatch(1);
 	private boolean invoked = false;
-	private User user;
+	private Session session;
 
 	public Client(Socket socket, CommunicationRegistration communicationRegistration) {
 		this.socket = socket;
@@ -60,7 +60,7 @@ public class Client {
 		}
 		logging.trace("Entered Client#invoke");
 		receivingService = new DefaultReceivingService(socket, communicationRegistration, mainDeSerializationAdapter,
-				fallBackDeSerialization, decryptionAdapter, this::getUser, this::ack, this::disconnect);
+				fallBackDeSerialization, decryptionAdapter, this::getSession, this::ack, this::disconnect);
 		sendingService = new DefaultSendingService(toSend, mainSerializationAdapter, fallBackSerialization,
 				new PrintWriter(socket.getOutputStream()), encryptionAdapter);
 		start();
@@ -78,7 +78,7 @@ public class Client {
 	@Override
 	public final String toString() {
 		return "Client{" +
-				"user=" + user +
+				"session=" + session +
 				", address=" + socket.getInetAddress() + ":" + socket.getPort() +
 				", mainSerializationAdapter=" + mainSerializationAdapter +
 				", mainDeSerializationAdapter=" + mainDeSerializationAdapter +
@@ -110,12 +110,12 @@ public class Client {
 		toSend.offer(object);
 	}
 
-	public final User getUser() {
-		return user;
+	public final Session getSession() {
+		return session;
 	}
 
-	public final void setUser(User user) {
-		this.user = user;
+	public final void setSession(Session session) {
+		this.session = session;
 	}
 
 	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {

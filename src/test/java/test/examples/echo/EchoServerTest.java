@@ -1,10 +1,11 @@
-package test;
+package test.examples.echo;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import test.examples.TestObject;
 
 public class EchoServerTest {
 
@@ -33,7 +34,7 @@ public class EchoServerTest {
 		// communicationRegistration.addDefaultCommunicationHandler(o -> serverStart.distribute().toAll(o));
 
 		communicationRegistration.register(TestObject.class)
-				.addFirst(User::send);
+				.addFirst(Session::send);
 		communicationRegistration.register(TestObject.class)
 				.addFirst((user, o) -> System.out.println("sending back: " + o));
 	}
