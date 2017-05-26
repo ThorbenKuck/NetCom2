@@ -1,4 +1,4 @@
-package test;
+package test.examples;
 
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;

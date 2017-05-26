@@ -7,7 +7,7 @@ import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
@@ -21,7 +21,7 @@ class DefaultReceivingService implements ReceivingService {
 
 	private final Socket socket;
 	private final DecryptionAdapter decryptionAdapter;
-	private final SimpleFactory<User> getUser;
+	private final SimpleFactory<Session> getUser;
 	private final Runnable onAck;
 	private final Runnable onDisconnect;
 	private CommunicationRegistration communicationRegistration;
@@ -34,7 +34,7 @@ class DefaultReceivingService implements ReceivingService {
 	DefaultReceivingService(Socket socket, CommunicationRegistration communicationRegistration,
 							DeSerializationAdapter<String, Object> deSerializationAdapter,
 							Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
-							DecryptionAdapter decryptionAdapter, SimpleFactory<User> getUser,
+							DecryptionAdapter decryptionAdapter, SimpleFactory<Session> getUser,
 							Runnable onAck, Runnable onDisconnect) {
 		this.socket = socket;
 		this.communicationRegistration = communicationRegistration;

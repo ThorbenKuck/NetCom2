@@ -2,7 +2,7 @@ package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.util.*;
@@ -44,12 +44,12 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	@Override
-	public Stream<User> userStream() {
-		final List<User> users = new ArrayList<>();
+	public Stream<Session> userStream() {
+		final List<Session> sessions = new ArrayList<>();
 		clients.stream()
-				.filter(client -> client.getUser() != null)
-				.forEach(client -> users.add(client.getUser()));
-		return users.stream();
+				.filter(client -> client.getSession() != null)
+				.forEach(client -> sessions.add(client.getSession()));
+		return sessions.stream();
 	}
 
 	@Override

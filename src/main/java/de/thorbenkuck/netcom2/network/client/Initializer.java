@@ -3,7 +3,7 @@ package de.thorbenkuck.netcom2.network.client;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -28,7 +28,7 @@ class Initializer {
 	}
 
 	void init() throws StartFailedException {
-		client.setUser(User.createNew(client));
+		client.setSession(Session.createNew(client));
 		register();
 		awaitHandshake();
 	}
@@ -37,13 +37,13 @@ class Initializer {
 		communicationRegistration.register(RegisterResponse.class).addFirst((user, o) -> {
 			if (o.isOkay()) {
 				cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Registered to Server-Push of " + o.getRequest().getCorrespondingClass());
+				logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
 			}
 		});
 		communicationRegistration.register(UnRegisterResponse.class).addFirst((user, o) -> {
 			if (o.isOkay()) {
 				cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Unregistered to Server-Push of " + o.getRequest().getCorrespondingClass());
+				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
 			}
 		});
 
