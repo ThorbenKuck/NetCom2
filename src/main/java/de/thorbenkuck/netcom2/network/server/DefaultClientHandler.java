@@ -3,7 +3,7 @@ package de.thorbenkuck.netcom2.network.server;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
@@ -36,8 +36,8 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		try {
 			logging.trace("Invoking freshly created Client(" + address + ") ..");
 			client.invoke();
-			logging.trace("Creating new User for freshly created Client(" + address + ") ..");
-			client.setUser(User.createNew(client));
+			logging.trace("Creating new Session for freshly created Client(" + address + ") ..");
+			client.setSession(Session.createNew(client));
 			logging.trace("Adding Client(" + address + ") to ClientList");
 			clientList.add(client);
 		} catch (IOException e) {
@@ -50,7 +50,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);
-		logging.trace("Awaiting Ping of Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
+		logging.trace("Awaiting Ping at Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
 		try {
 			client.getPrimed().await();
 			logging.trace("Ping received from " + socket.getInetAddress() + ":" + socket.getPort() + ". Sending ping back ..");
@@ -75,6 +75,6 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		logging.trace("Removing Client(" + client + ") from ClientList");
 		clientList.remove(client);
 		logging.trace("Cleaning dead registrations");
-		distributorRegistration.removeRegistration(client.getUser());
+		distributorRegistration.removeRegistration(client.getSession());
 	}
 }

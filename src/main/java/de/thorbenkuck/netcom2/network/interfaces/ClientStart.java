@@ -10,7 +10,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 public interface ClientStart extends Launch, Loggable {
 
-	static ClientStart of(String address, int port) {
+	static ClientStart at(String address, int port) {
 		return new ClientStartImpl(address, port);
 	}
 

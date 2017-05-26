@@ -18,7 +18,7 @@ public class LoggingUtil implements Logging {
 	public static void setLogging(Logging logging) {
 		if (logging == null) {
 			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
-					"Expected an implementation of " + Logging.class + " received: " + null);
+					"Expected an implementation at " + Logging.class + " received: " + null);
 		}
 		LoggingUtil.logging = logging;
 	}

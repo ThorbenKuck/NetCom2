@@ -107,19 +107,19 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	private void notifyAboutRemovedEntry(@NotNull Object deletedObject) {
-		logging.trace("Removed Cache-entry of " + deletedObject.getClass());
+		logging.trace("Removed Cache-entry at " + deletedObject.getClass());
 		setChanged();
 		deletedEntry(deletedObject);
 	}
 
 	private void notifyAboutChangedEntry(@NotNull Object updatedEntry) {
-		logging.trace("Updated Cache-Entry of " + updatedEntry.getClass());
+		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
 		setChanged();
 		updatedEntry(updatedEntry);
 	}
 
 	private void notifyAboutNewEntry(@NotNull Object newEntry) {
-		logging.trace("Updated Cache-Entry of " + newEntry.getClass());
+		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
 		setChanged();
 		newEntry(newEntry);
 	}

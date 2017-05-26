@@ -39,7 +39,7 @@ public class SenderImpl implements InternalSender {
 	public void unRegistrationToServer(Class clazz) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (observers.containsKey(clazz)) {
-			logging.debug("Sending unregister-Request of " + clazz + " to Server");
+			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			client.send(new UnRegisterRequest(clazz));
 		}
 	}

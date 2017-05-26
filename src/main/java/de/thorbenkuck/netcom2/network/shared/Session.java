@@ -5,10 +5,10 @@ import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.util.Properties;
 
-public interface User {
+public interface Session {
 
-	static User createNew(final Client client) {
-		return new UserImpl(new ClientSendBridge(client));
+	static Session createNew(final Client client) {
+		return new SessionImpl(new ClientSendBridge(client));
 	}
 
 	boolean isIdentified();

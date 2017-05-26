@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
-import de.thorbenkuck.netcom2.network.shared.User;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
 import java.util.Objects;
@@ -31,7 +31,7 @@ class DistributorImpl implements InternalDistributor {
 
 	@Override
 	@SafeVarargs
-	public synchronized final void toSpecific(Object o, Predicate<User>... predicates) {
+	public synchronized final void toSpecific(Object o, Predicate<Session>... predicates) {
 		clientList.userStream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(client -> client.send(o));
@@ -41,13 +41,13 @@ class DistributorImpl implements InternalDistributor {
 
 	@Override
 	public final void toAllIdentified(Object o) {
-		toSpecific(o, User::isIdentified);
+		toSpecific(o, Session::isIdentified);
 	}
 
 	@SafeVarargs
 	@Override
-	public final void toAllIdentified(Object o, Predicate<User>... predicates) {
-		predicates[predicates.length] = User::isIdentified;
+	public final void toAllIdentified(Object o, Predicate<Session>... predicates) {
+		predicates[predicates.length] = Session::isIdentified;
 		toSpecific(o, predicates);
 	}
 
@@ -57,7 +57,7 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 	@Override
-	public synchronized final void toAllExcept(Object o, Predicate<User>[] predicates) {
+	public synchronized final void toAllExcept(Object o, Predicate<Session>[] predicates) {
 		clientList.userStream()
 				.filter(user -> ! testAgainst(user, predicates))
 				.forEach(client -> client.send(o));
@@ -65,23 +65,23 @@ class DistributorImpl implements InternalDistributor {
 
 	@Override
 	public final void toRegistered(Object o) {
-		toRegistered(o, User::isIdentified);
+		toRegistered(o, Session::isIdentified);
 	}
 
 	@Override
 	@SafeVarargs
-	public final void toRegistered(Object o, Predicate<User>... predicates) {
+	public final void toRegistered(Object o, Predicate<Session>... predicates) {
 		distributorRegistration.getRegistered(o.getClass()).stream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {
-			LoggingUtil.getLogging().trace("Sending cache-update of " + o.getClass() + " to " + user);
+					LoggingUtil.getLogging().trace("Sending cache-update at " + o.getClass() + " to " + user);
 			user.send(new CachePush(o));
 		});
 	}
 
-	private boolean testAgainst(User user, Predicate<User>[] predicates) {
-		for (Predicate<User> predicate : predicates) {
-			if (! predicate.test(user)) {
+	private boolean testAgainst(Session session, Predicate<Session>[] predicates) {
+		for (Predicate<Session> predicate : predicates) {
+			if (! predicate.test(session)) {
 				return false;
 			}
 		}

@@ -13,7 +13,7 @@ import java.net.ServerSocket;
 
 public interface ServerStart extends Launch, SoftStoppable, Loggable {
 
-	static ServerStart of(int port) {
+	static ServerStart at(int port) {
 		return new ServerStartImpl(new ServerConnector(port));
 	}
 

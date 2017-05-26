@@ -19,7 +19,7 @@ public class RegisterRequest implements Serializable {
 	@Override
 	public String toString() {
 		return "RegisterRequest{" +
-				"class of interest=" + aClass +
+				"class at interest=" + aClass +
 				'}';
 	}
 }
