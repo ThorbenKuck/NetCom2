@@ -3,11 +3,7 @@ package test;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
-import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
-
-import java.util.Observable;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 
 public class ClientStartTest {
 
@@ -54,19 +50,23 @@ public class ClientStartTest {
 	}
 }
 
-class TestObserver extends AbstractCacheObserver {
-	@Override
-	public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-		System.out.println("[NEW ENTRY] Received push from Server about: " + newEntryEvent.getObject());
+class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
+	TestObserver() {
+		super(TestObjectTwo.class);
 	}
 
 	@Override
-	public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-		System.out.println("[UPDATE] Received push from Server about: " + updatedEntryEvent.getObject());
+	public void newEntry(TestObjectTwo newEntry, CacheObservable observable) {
+		System.out.println("[NEW ENTRY] Received push from Server about: " + newEntry);
 	}
 
 	@Override
-	public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-		System.out.println("[DELETED] Received push from Server about: " + deletedEntryEvent.getCorrespondingClass());
+	public void updatedEntry(TestObjectTwo updatedEntry, CacheObservable observable) {
+		System.out.println("[UPDATE] Received push from Server about: " + updatedEntry);
+	}
+
+	@Override
+	public void deletedEntry(TestObjectTwo deletedEntry, CacheObservable observable) {
+		System.out.println("[DELETED] Received push from Server about: " + deletedEntry);
 	}
 }

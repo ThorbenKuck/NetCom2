@@ -1,11 +1,14 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
+import com.sun.istack.internal.NotNull;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public class CacheImpl extends Observable implements Cache {
+public class CacheImpl extends CacheObservable implements Cache {
 
 	private final Map<Class<?>, Object> internals = new HashMap<>();
 	private Logging logging = new LoggingUtil();
@@ -44,11 +47,12 @@ public class CacheImpl extends Observable implements Cache {
 	@Override
 	public void remove(Class clazz) {
 		if (isSet(clazz)) {
+			Object o;
 			synchronized (internals) {
-				internals.remove(clazz);
+				o = internals.remove(clazz);
 				logging.debug("Removed entry for " + clazz);
 			}
-			notifyAboutRemovedEntry(clazz);
+			notifyAboutRemovedEntry(o);
 		}
 	}
 
@@ -71,30 +75,26 @@ public class CacheImpl extends Observable implements Cache {
 	}
 
 	@Override
-	public void addCacheObserver(CacheObserver cacheObserver) {
+	public <T> void addCacheObserver(CacheObserver<T> cacheObserver) {
 		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
 		addObserver(cacheObserver);
 	}
 
 	@Override
-	public void removeCacheObserver(CacheObserver cacheObserver) {
+	public void removeCacheObserver(CacheObserver<?> cacheObserver) {
 		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
 		deleteObserver(cacheObserver);
 	}
 
 	@Override
-	public void addGeneralObserver(Observer observer) {
-		if (observer instanceof CacheObserver) {
-			addCacheObserver((CacheObserver) observer);
-		} else {
+	public void addGeneralObserver(GeneralCacheObserver observer) {
 			logging.debug("Adding Observer(" + observer + ") to " + toString());
 			logging.info("It is recommended to use " + CacheObserver.class);
 			addObserver(observer);
-		}
 	}
 
 	@Override
-	public void removeGeneralObserver(Observer observer) {
+	public void removeGeneralObserver(GeneralCacheObserver observer) {
 		logging.debug("Removing Observer(" + observer + ") from " + toString());
 		deleteObserver(observer);
 	}
@@ -106,24 +106,21 @@ public class CacheImpl extends Observable implements Cache {
 				'}';
 	}
 
-	private void notifyAboutRemovedEntry(Class clazz) {
-		logging.trace("Removed Cache-entry of " + clazz);
-		sendNotify(new DeletedEntryEvent(clazz));
-	}
-
-	private synchronized void sendNotify(Object o) {
+	private void notifyAboutRemovedEntry(@NotNull Object deletedObject) {
+		logging.trace("Removed Cache-entry of " + deletedObject.getClass());
 		setChanged();
-		notifyObservers(o);
-		clearChanged();
+		deletedEntry(deletedObject);
 	}
 
-	private void notifyAboutChangedEntry(Object updatedEntry) {
+	private void notifyAboutChangedEntry(@NotNull Object updatedEntry) {
 		logging.trace("Updated Cache-Entry of " + updatedEntry.getClass());
-		sendNotify(new UpdatedEntryEvent(updatedEntry));
+		setChanged();
+		updatedEntry(updatedEntry);
 	}
 
-	private void notifyAboutNewEntry(Object newEntry) {
+	private void notifyAboutNewEntry(@NotNull Object newEntry) {
 		logging.trace("Updated Cache-Entry of " + newEntry.getClass());
-		sendNotify(new NewEntryEvent(newEntry));
+		setChanged();
+		newEntry(newEntry);
 	}
 }

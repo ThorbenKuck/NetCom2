@@ -3,18 +3,18 @@ package de.thorbenkuck.netcom2.network.client;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import de.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observer;
 
 public class SenderImpl implements InternalSender {
 
 	private Client client;
-	private Map<Class, Observer> observers = new HashMap<>();
+	private Map<Class, CacheObserver<?>> observers = new HashMap<>();
 	private Cache cache;
 	private Logging logging = new LoggingUtil();
 
@@ -29,7 +29,7 @@ public class SenderImpl implements InternalSender {
 	}
 
 	@Override
-	public void registrationToServer(Class clazz, Observer observer) {
+	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
 		observers.put(clazz, observer);
 		client.send(new RegisterRequest(clazz));
@@ -45,13 +45,13 @@ public class SenderImpl implements InternalSender {
 	}
 
 	@Override
-	public Observer deleteObserver(Class clazz) {
-		return observers.remove(clazz);
+	public <T> CacheObserver<T> deleteObserver(Class clazz) {
+		return (CacheObserver<T>) observers.remove(clazz);
 	}
 
 	@Override
-	public Observer getObserver(Class clazz) {
-		return observers.get(clazz);
+	public <T> CacheObserver<T> getObserver(Class clazz) {
+		return (CacheObserver<T>) observers.get(clazz);
 	}
 
 	@Override

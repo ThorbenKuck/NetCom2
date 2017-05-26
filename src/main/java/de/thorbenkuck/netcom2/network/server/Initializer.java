@@ -4,12 +4,12 @@ import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceiveHandler;
 import de.thorbenkuck.netcom2.network.server.communication.UnRegisterRequestReceiveHandler;
-import de.thorbenkuck.netcom2.network.shared.cache.*;
+import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
+import de.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import de.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
-
-import java.util.Observable;
 
 class Initializer {
 
@@ -40,10 +40,10 @@ class Initializer {
 
 	private void setObserver() {
 		logging.trace("Adding internal CacheObserver ..");
-		cache.addCacheObserver(new ObserverSender(distributor));
+		cache.addGeneralObserver(new ObserverSender(distributor));
 	}
 
-	private class ObserverSender extends AbstractCacheObserver {
+	private class ObserverSender implements GeneralCacheObserver {
 
 		private Distributor distributor;
 
@@ -52,17 +52,17 @@ class Initializer {
 		}
 
 		@Override
-		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-			distributor.toRegistered(newEntryEvent.getObject());
+		public void newEntry(Object newEntryEvent, CacheObservable observable) {
+			distributor.toRegistered(newEntryEvent);
 		}
 
 		@Override
-		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-			distributor.toRegistered(updatedEntryEvent.getObject());
+		public void updatedEntry(Object updatedEntryEvent, CacheObservable observable) {
+			distributor.toRegistered(updatedEntryEvent);
 		}
 
 		@Override
-		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
+		public void deletedEntry(Object deletedEntryEvent, CacheObservable observable) {
 			LoggingUtil.getLogging().error("TODO");
 		}
 	}

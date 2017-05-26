@@ -1,20 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import com.sun.istack.internal.NotNull;
+public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
-import java.util.Observable;
+	private Class<T> clazz;
 
-public abstract class AbstractCacheObserver implements CacheObserver {
-	@Override
-	public final void update(@NotNull Observable o, @NotNull Object arg) {
-		assertNotNull(o, arg);
-		if (arg.getClass().equals(NewEntryEvent.class)) {
-			newEntry((NewEntryEvent) arg, o);
-		} else if (arg.getClass().equals(UpdatedEntryEvent.class)) {
-			updatedEntry((UpdatedEntryEvent) arg, o);
-		} else if (arg.getClass().equals(DeletedEntryEvent.class)) {
-			deletedEntry((DeletedEntryEvent) arg, o);
-		}
+	protected AbstractCacheObserver(Class<T> clazz) {
+		this.clazz = clazz;
 	}
 
 	protected final void assertNotNull(Object... o) {
@@ -25,14 +16,13 @@ public abstract class AbstractCacheObserver implements CacheObserver {
 		}
 	}
 
-	public abstract void newEntry(NewEntryEvent newEntryEvent, Observable observable);
-
-	public abstract void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable);
-
-	public abstract void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable);
+	@Override
+	public boolean accept(Object o) {
+		return o != null && o.getClass().equals(clazz);
+	}
 
 	@Override
 	public String toString() {
-		return AbstractCacheObserver.class + " implementation: " + getClass();
+		return CacheObserver.class + " implementation: " + getClass();
 	}
 }
