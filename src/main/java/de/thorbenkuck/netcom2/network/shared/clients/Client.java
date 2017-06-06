@@ -33,7 +33,7 @@ public class Client {
 	private DeSerializationAdapter<String, Object> mainDeSerializationAdapter;
 	private Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
 	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
-	private ExecutorService threadPool;
+	private ExecutorService threadPool = Executors.newFixedThreadPool(2);
 	private Logging logging = new LoggingUtil();
 	private CountDownLatch primed = new CountDownLatch(1);
 	private boolean invoked = false;
@@ -42,8 +42,8 @@ public class Client {
 	public Client(Socket socket, CommunicationRegistration communicationRegistration) {
 		this.socket = socket;
 		this.communicationRegistration = communicationRegistration;
-		setMainSerializationAdapter(new JavaSerializationAdapter());
-		setMainDeSerializationAdapter(new JavaDeSerializationAdapter());
+		setMainSerializationAdapter(SerializationAdapter.getDefault());
+		setMainDeSerializationAdapter(DeSerializationAdapter.getDefault());
 	}
 
 	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
@@ -68,7 +68,6 @@ public class Client {
 	}
 
 	private void start() {
-		threadPool = Executors.newFixedThreadPool(2);
 		threadPool.execute(receivingService);
 		threadPool.execute(sendingService);
 		invoked = true;
@@ -91,10 +90,12 @@ public class Client {
 	}
 
 	private void disconnect() {
-		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
-		disconnectedHandlers.stream()
-				.filter(DisconnectedHandler::active)
-				.forEachOrdered(dh -> dh.handle(this));
+		synchronized (disconnectedHandlers) {
+			disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
+			disconnectedHandlers.stream()
+					.filter(DisconnectedHandler::active)
+					.forEachOrdered(dh -> dh.handle(this));
+		}
 	}
 
 	private void ack() {
@@ -127,6 +128,8 @@ public class Client {
 	}
 
 	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
-		disconnectedHandlers.add(disconnectedHandler);
+		synchronized (disconnectedHandlers) {
+			disconnectedHandlers.add(disconnectedHandler);
+		}
 	}
 }

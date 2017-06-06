@@ -4,7 +4,6 @@ import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
-
 import test.examples.*;
 
 public class ClientStartTest {
@@ -19,22 +18,26 @@ public class ClientStartTest {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
 //			} catch (IOException e) {
 //				e.printStackTrace();
+// 				try {
+//					return new Socket(address, port);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//					return null;
+//				}
 //			}
-//			try {
-//				return new Socket(address, port);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			return null;
 //		});
 
 		try {
 			register();
 			start();
-			clientStart.send().objectToServer(new TestObject("This should not come back"));
-			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
-			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
+			clientStart.send()
+					.objectToServer(new TestObject("This should not come back"));
+			clientStart.send()
+					.objectToServer(new Login());
+			clientStart.send()
+					.objectToServer(new TestObject("THIS SHOULD COME BACK!"));
+			clientStart.send()
+					.registrationToServer(TestObjectTwo.class, new TestObserver());
 		} catch (StartFailedException e) {
 			e.printStackTrace();
 		}
@@ -58,6 +61,7 @@ public class ClientStartTest {
 }
 
 class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
+
 	TestObserver() {
 		super(TestObjectTwo.class);
 	}
