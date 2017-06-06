@@ -1,6 +1,7 @@
 package test;
 
 import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
+import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -8,10 +9,11 @@ import java.util.concurrent.TimeUnit;
 public class HeartBeatTest {
 
 	private int i = 1;
+	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
 	@Test
 	public void testHeartBeatChain() throws Exception {
-		HeartBeat<Object> heartBeat = HeartBeat.getNew();
+		HeartBeat<String> heartBeat = heartBeatFactory.produce();
 
 		heartBeat.configure()
 				.tickRate()
