@@ -5,12 +5,14 @@ import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 class PipelineReceiverImpl<T> {
 
 	private final OnReceive<T> onReceive;
 	private final Queue<Predicate<Session>> predicates = new LinkedList<>();
+	private final Queue<BiPredicate<Session, T>> biPredicates = new LinkedList<>();
 
 	PipelineReceiverImpl(OnReceive<T> onReceive) {
 		this.onReceive = onReceive;
@@ -20,12 +22,25 @@ class PipelineReceiverImpl<T> {
 		predicates.add(userPredicate);
 	}
 
-	final boolean test(Session session) {
-		while (predicates.peek() != null) {
-			if (! predicates.remove().test(session)) {
+	final void addBiPredicate(BiPredicate<Session, T> biPredicate) {
+		biPredicates.add(biPredicate);
+	}
+
+	final boolean test(Session session, T t) {
+		Queue<Predicate<Session>> predicateTemp = new LinkedList<>(predicates);
+		while (predicateTemp.peek() != null) {
+			if (! predicateTemp.remove().test(session)) {
 				return false;
 			}
 		}
+
+		Queue<BiPredicate<Session, T>> biPredicateTemp = new LinkedList<>(biPredicates);
+		while (biPredicateTemp.peek() != null) {
+			if (! biPredicateTemp.remove().test(session, t)) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 

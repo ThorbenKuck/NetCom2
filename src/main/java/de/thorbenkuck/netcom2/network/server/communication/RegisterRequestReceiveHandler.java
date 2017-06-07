@@ -20,7 +20,7 @@ public class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest>
 	}
 
 	@Override
-	public void run(Session session, RegisterRequest o) {
+	public void accept(Session session, RegisterRequest o) {
 		LoggingUtil.getLogging().debug("Trying to register " + session + " to " + o.getCorrespondingClass());
 		Class<?> clazz = o.getCorrespondingClass();
 		distributorRegistration.addRegistration(clazz, session);

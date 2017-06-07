@@ -37,7 +37,7 @@ public class HeartBeatTest {
 				.run("Test");
 
 		i = 1;
-		System.out.println();
+		System.out.println("\n----\n");
 
 
 		heartBeat.configure()

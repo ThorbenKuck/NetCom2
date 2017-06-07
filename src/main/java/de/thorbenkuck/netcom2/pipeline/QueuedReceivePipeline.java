@@ -1,29 +1,29 @@
 package de.thorbenkuck.netcom2.pipeline;
 
-import de.thorbenkuck.netcom2.interfaces.Pipeline;
+import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class QueuedPipeline<T> implements Pipeline<T> {
+public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiverImpl<T>> core = new LinkedList<>();
 	private boolean closed = false;
 
 	@Override
-	public PipelineCondition<T> addLast(OnReceive<T> onReceive) {
+	public ReceivePipelineCondition<T> addLast(OnReceive<T> onReceive) {
 		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(onReceive);
 		synchronized (core) {
 			core.add(pipelineReceiver);
 		}
 		onReceive.onRegistration();
-		return new PipelineConditionImpl<>(pipelineReceiver);
+		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
 
 	@Override
-	public PipelineCondition<T> addFirst(OnReceive<T> onReceive) {
+	public ReceivePipelineCondition<T> addFirst(OnReceive<T> onReceive) {
 		Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
 		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(onReceive);
 		newCore.add(pipelineReceiver);
@@ -34,7 +34,7 @@ public class QueuedPipeline<T> implements Pipeline<T> {
 			core.addAll(newCore);
 		}
 		onReceive.onRegistration();
-		return new PipelineConditionImpl<>(pipelineReceiver);
+		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class QueuedPipeline<T> implements Pipeline<T> {
 		synchronized (core) {
 			checkClosed();
 			core.stream()
-					.filter(PipelineReceiver -> PipelineReceiver.test(session))
-					.forEach(pipelineReceiver -> pipelineReceiver.getOnReceive().run(session, (T) t));
+					.filter(PipelineReceiver -> PipelineReceiver.test(session, (T) t))
+					.forEachOrdered(pipelineReceiver -> pipelineReceiver.getOnReceive().accept(session, (T) t));
 		}
 	}
 
@@ -75,7 +75,7 @@ public class QueuedPipeline<T> implements Pipeline<T> {
 
 	private void checkClosed() {
 		if (closed) {
-			throw new RuntimeException("Cannot access a closed Pipeline!");
+			throw new RuntimeException("Cannot access a closed ReceivePipeline!");
 		}
 	}
 }

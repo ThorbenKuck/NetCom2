@@ -16,7 +16,7 @@ public class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequ
 	}
 
 	@Override
-	public void run(Session session, UnRegisterRequest o) {
+	public void accept(Session session, UnRegisterRequest o) {
 		LoggingUtil.getLogging().debug("Trying to unregister session " + session + " from " + o.getCorrespondingClass());
 		distributorRegistration.removeRegistration(o.getCorrespondingClass(), session);
 		session.send(new UnRegisterResponse(o, true));

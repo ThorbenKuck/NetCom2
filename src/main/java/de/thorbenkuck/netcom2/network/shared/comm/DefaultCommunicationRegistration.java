@@ -1,11 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
-import de.thorbenkuck.netcom2.interfaces.Pipeline;
+import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
-import de.thorbenkuck.netcom2.pipeline.QueuedPipeline;
+import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,15 +14,15 @@ import java.util.Queue;
 
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
-	private final Map<Class, Pipeline<?>> mapping = new HashMap<>();
+	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new LoggingUtil();
 	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> Pipeline<T> register(Class<T> clazz) {
-		mapping.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
-		return (Pipeline<T>) mapping.get(clazz);
+	public <T> ReceivePipeline<T> register(Class<T> clazz) {
+		mapping.computeIfAbsent(clazz, k -> new QueuedReceivePipeline<>());
+		return (ReceivePipeline<T>) mapping.get(clazz);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			return;
 		}
 
-		LoggingUtil.getLogging().debug("Unregistered Pipeline for " + clazz);
+		LoggingUtil.getLogging().debug("Unregistered ReceivePipeline for " + clazz);
 		mapping.remove(clazz);
 	}
 

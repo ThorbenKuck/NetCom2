@@ -2,10 +2,10 @@ package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.network.shared.Session;
 
-@FunctionalInterface
-public interface OnReceive<O> {
+import java.util.function.BiConsumer;
 
-	void run(Session session, O o);
+@FunctionalInterface
+public interface OnReceive<O> extends BiConsumer<Session, O> {
 
 	default void onUnRegistration() {
 	}

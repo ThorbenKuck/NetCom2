@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
-import de.thorbenkuck.netcom2.interfaces.Pipeline;
+import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.network.shared.Session;
 
 public interface CommunicationRegistration {
@@ -10,7 +10,7 @@ public interface CommunicationRegistration {
 		return new DefaultCommunicationRegistration();
 	}
 
-	<T> Pipeline<T> register(Class<T> clazz);
+	<T> ReceivePipeline<T> register(Class<T> clazz);
 
 	void unRegister(Class clazz);
 
