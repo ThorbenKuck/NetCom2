@@ -2,12 +2,17 @@ package de.thorbenkuck.netcom2.interfaces;
 
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import de.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 
 public interface ReceivePipeline<T> {
 	ReceivePipelineCondition<T> addLast(OnReceive<T> pipelineService);
 
+	ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> pipelineService);
+
 	ReceivePipelineCondition<T> addFirst(OnReceive<T> pipelineService);
+
+	ReceivePipelineCondition<T> addFirst(OnReceiveSingle<T> pipelineService);
 
 	void remove(OnReceive<T> pipelineService);
 

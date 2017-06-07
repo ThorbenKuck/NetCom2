@@ -39,7 +39,7 @@ public class EchoClientTest {
 
 	private static void register(CommunicationRegistration communicationRegistration) {
 		communicationRegistration.register(TestObject.class)
-				.addFirst(((user, o) -> System.out.println("Server send: " + o.getHello())));
+				.addFirst((o -> System.out.println("Server send: " + o.getHello())));
 	}
 
 	private static void schedule(Sender send) {

@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.pipeline;
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -23,6 +24,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
+	public ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> pipelineService) {
+		return addLast((OnReceive<T>) pipelineService);
+	}
+
+	@Override
 	public ReceivePipelineCondition<T> addFirst(OnReceive<T> onReceive) {
 		Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
 		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(onReceive);
@@ -35,6 +41,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 		onReceive.onRegistration();
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> addFirst(OnReceiveSingle<T> pipelineService) {
+		return addFirst((OnReceive<T>) pipelineService);
 	}
 
 	@Override
