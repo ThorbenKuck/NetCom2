@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
@@ -74,7 +74,7 @@ class DistributorImpl implements InternalDistributor {
 		distributorRegistration.getRegistered(o.getClass()).stream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {
-					LoggingUtil.getLogging().trace("Sending cache-update at " + o.getClass() + " to " + user);
+					NetComLogging.getLogging().trace("Sending cache-update at " + o.getClass() + " to " + user);
 			user.send(new CachePush(o));
 		});
 	}

@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.SendingService;
@@ -17,7 +17,7 @@ class DefaultSendingService implements SendingService {
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization;
 	private final PrintWriter printWriter;
 	private final EncryptionAdapter encryptionAdapter;
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 	private boolean running = false;
 
 	DefaultSendingService(LinkedBlockingQueue<Object> toSend,

@@ -2,7 +2,7 @@ package de.thorbenkuck.netcom2.logging;
 
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
-public class LoggingUtil implements Logging {
+public class NetComLogging implements Logging {
 
 	private static Logging logging = new SystemLogging();
 
@@ -20,7 +20,7 @@ public class LoggingUtil implements Logging {
 			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
 					"Expected an implementation at " + Logging.class + " received: " + null);
 		}
-		LoggingUtil.logging = logging;
+		NetComLogging.logging = logging;
 	}
 
 	@Override

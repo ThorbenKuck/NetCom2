@@ -3,6 +3,7 @@ package test.examples.general;
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import test.examples.*;
@@ -55,6 +56,17 @@ public class ServerStartTest {
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
 			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
+
+			Session session = client.getSession();
+			session.eventOf(Login.class)
+					.addFirst(login -> System.out.println("Du bist doch schon eingeloggt, du eumel!"))
+					.withRequirement(login -> session.isIdentified());
+
+			session.eventOf(Login.class)
+					.addLast(login -> {
+						System.out.println("Okay, ich logge dich ein...");
+						session.setIdentified(true);
+					}).withRequirement(login -> ! session.isIdentified());
 		});
 //		serverStart.setSocketFactory(integer -> {
 //			try {
@@ -69,6 +81,8 @@ public class ServerStartTest {
 //			}
 //			return null;
 //		});
+
+		serverStart.setLogging(Logging.getDisabled());
 	}
 
 	private static void schedule() {
@@ -79,14 +93,16 @@ public class ServerStartTest {
 	private static void register() throws CommunicationAlreadySpecifiedException {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> System.out.println("------\nreceived " + o.getHello() + " from " + user + "\n-------"))
+				.addLast((session, o) -> System.out.println("------\nreceived " + o.getHello() + " from " + session + "\n-------"))
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> user.send(new TestObject("World")))
+				.addLast((session, o) -> session.send(new TestObject("World")))
 				.withRequirement(Session::isIdentified);
 
-		serverStart.getCommunicationRegistration().register(Login.class).addLast((user, o) -> user.setIdentified(true));
+		serverStart.getCommunicationRegistration()
+				.register(Login.class)
+				.addLast((session, o) -> session.triggerEvent(Login.class, o));
 
 		serverStart.getCommunicationRegistration().addDefaultCommunicationHandler(object -> System.out.println("Haha, kenne nicht das Object: " + object));
 	}

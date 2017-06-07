@@ -1,5 +1,6 @@
 package test.examples.chat.server;
 
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -22,6 +23,7 @@ public class Instantiate {
 	}
 
 	public final void resolve() {
+		serverStart.setLogging(Logging.getDisabled());
 		clientHandlers();
 		communication();
 	}
@@ -47,26 +49,25 @@ public class Instantiate {
 					session.send(user);
 					serverStart.distribute().toAllIdentified(new Message("User " + user.getUserName() + " connected!", systemUser));
 					session.setIdentified(true);
-				});
+				}).withRequirement(session -> ! session.isIdentified());
 
 		communicationRegistration.register(Logout.class)
 				.addFirst((session, login) -> session.setIdentified(false))
-				.withRequirement((session, logout) -> session.isIdentified());
+				.withRequirement(Session::isIdentified);
 
 		// #############
 
 		communicationRegistration.register(Message.class)
 				.addFirst((session, message) -> {
 					Message toSend = new Message(" [" + LocalDateTime.now() + "]: " + message.getMessage(), message.getSender());
-					serverStart.distribute().toAllIdentified(toSend);
-				})
-				.withRequirement((session, logout) -> session.isIdentified());
+					serverStart.distribute()
+							.toAllIdentified(toSend);
+				}).withRequirement(Session::isIdentified);
 
 		communicationRegistration.register(Message.class)
 				.addLast((session, message) -> {
 					System.out.println("Session is unidentified: " + ! session.isIdentified());
 					session.send(new Message("! You have to be logged in, to send a message !", new User()));
-				})
-				.withRequirement((session, logout) -> ! session.isIdentified());
+				}).withRequirement(session -> ! session.isIdentified());
 	}
 }

@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -18,7 +18,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
 	private Socket socket;
-	private Logging logging = new LoggingUtil();
+	private Logging logging = new NetComLogging();
 
 	DefaultClientHandler(ClientList clientList, InternalDistributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;

@@ -4,7 +4,7 @@ import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.ServerHasToBeStartedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -28,7 +28,7 @@ class ServerStartImpl implements ServerStart {
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
@@ -178,7 +178,7 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void setLogging(Logging logging) {
-		LoggingUtil.setLogging(logging);
+		NetComLogging.setLogging(logging);
 	}
 
 	@Override

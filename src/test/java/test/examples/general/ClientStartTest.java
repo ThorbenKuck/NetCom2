@@ -2,6 +2,7 @@ package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
@@ -17,6 +18,7 @@ public class ClientStartTest {
 
 	public static void main(String[] args) {
 		clientStart = ClientStart.at("localhost", port);
+		clientStart.setLogging(Logging.getDisabled());
 //		clientStart.setSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
@@ -35,6 +37,9 @@ public class ClientStartTest {
 			register();
 			start();
 			clientStart.send().objectToServer(new TestObject("This should not come back"));
+			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new Login());
 			clientStart.send().objectToServer(new Login());
 			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());

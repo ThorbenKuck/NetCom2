@@ -2,6 +2,7 @@ package test.examples.echo;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -14,6 +15,7 @@ public class EchoServerTest {
 	public static void main(String[] args) {
 		// Create the Server at Port 8888
 		serverStart = ServerStart.at(8888);
+		serverStart.setLogging(Logging.getDisabled());
 
 		// And tell the Server, to always send back the Command, he received
 		register(serverStart.getCommunicationRegistration());
@@ -36,6 +38,6 @@ public class EchoServerTest {
 		communicationRegistration.register(TestObject.class)
 				.addFirst(Session::send);
 		communicationRegistration.register(TestObject.class)
-				.addFirst((user, o) -> System.out.println("sending back: " + o));
+				.addFirst((session, o) -> System.out.println("sending back: " + o.getHello()));
 	}
 }

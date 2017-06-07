@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceiveHandler;
 import de.thorbenkuck.netcom2.network.server.communication.UnRegisterRequestReceiveHandler;
@@ -16,7 +16,7 @@ class Initializer {
 	private final InternalDistributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
-	private Logging logging = new LoggingUtil();
+	private Logging logging = new NetComLogging();
 
 	Initializer(InternalDistributor distributor, CommunicationRegistration communicationRegistration, Cache cache) {
 		this.distributor = distributor;
@@ -63,7 +63,7 @@ class Initializer {
 
 		@Override
 		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-			LoggingUtil.getLogging().error("TODO");
+			NetComLogging.getLogging().error("TODO");
 		}
 	}
 }

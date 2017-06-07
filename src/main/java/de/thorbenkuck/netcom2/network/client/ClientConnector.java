@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.client;
 
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Connector;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
@@ -10,7 +10,7 @@ import java.net.Socket;
 
 class ClientConnector implements Connector<SocketFactory> {
 
-	private final Logging logging = LoggingUtil.getLogging();
+	private final Logging logging = NetComLogging.getLogging();
 	private Socket socket;
 	private String address;
 	private boolean connected;

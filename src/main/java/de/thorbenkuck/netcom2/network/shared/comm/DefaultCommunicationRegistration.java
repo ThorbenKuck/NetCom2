@@ -2,7 +2,7 @@ package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
@@ -15,7 +15,7 @@ import java.util.Queue;
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
 
 	@SuppressWarnings ("unchecked")
@@ -28,11 +28,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public void unRegister(Class clazz) {
 		if (! isRegistered(clazz)) {
-			LoggingUtil.getLogging().debug("Could not find OnReceive for Class " + clazz);
+			NetComLogging.getLogging().debug("Could not find OnReceive for Class " + clazz);
 			return;
 		}
 
-		LoggingUtil.getLogging().debug("Unregistered ReceivePipeline for " + clazz);
+		NetComLogging.getLogging().debug("Unregistered ReceivePipeline for " + clazz);
 		mapping.remove(clazz);
 	}
 

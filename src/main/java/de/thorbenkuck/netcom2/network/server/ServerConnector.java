@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.interfaces.Factory;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Connector;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
@@ -11,7 +11,7 @@ import java.net.ServerSocket;
 class ServerConnector implements Connector<Factory<Integer, ServerSocket>> {
 
 	private final int port;
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 	private ServerSocket serverSocket;
 	private boolean started;
 

@@ -47,7 +47,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 
 	protected final void assertClosed() {
 		if (closed) {
-			throw new RuntimeException("Cannot access closed Pipeline!");
+			throw new RuntimeException("Cannot getDefault closed Pipeline!");
 		}
 	}
 

@@ -75,7 +75,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private void checkClosed() {
 		if (closed) {
-			throw new RuntimeException("Cannot access a closed ReceivePipeline!");
+			throw new RuntimeException("Cannot getDefault a closed ReceivePipeline!");
 		}
 	}
 }

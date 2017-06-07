@@ -1,8 +1,8 @@
 package test.examples.chat.client;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.DisabledLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import test.examples.chat.common.Login;
 import test.examples.chat.common.User;
 
@@ -16,7 +16,7 @@ public class ChatRoomClient {
 	public static void main(String[] args) {
 		clientStart = ClientStart.at("localhost", 8000);
 		UserInput userInput = new UserInput();
-		clientStart.setLogging(new DisabledLogging());
+		clientStart.setLogging(Logging.getDisabled());
 
 		try {
 			clientStart.launch();

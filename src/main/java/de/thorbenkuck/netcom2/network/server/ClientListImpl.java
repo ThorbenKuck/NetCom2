@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 class ClientListImpl extends Observable implements ClientList {
 
 	private final List<Client> clients = new ArrayList<>();
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 
 	ClientListImpl() {
 	}

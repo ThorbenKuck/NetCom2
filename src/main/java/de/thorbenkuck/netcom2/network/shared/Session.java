@@ -24,4 +24,8 @@ public interface Session {
 	void setProperties(Properties properties);
 
 	void send(Object o);
+
+	<T> Pipeline<T> eventOf(Class<T> clazz);
+
+	<T> void triggerEvent(Class<T> clazz, T t);
 }

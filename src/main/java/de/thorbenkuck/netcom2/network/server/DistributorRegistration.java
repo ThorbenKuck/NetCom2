@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 
@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class DistributorRegistration {
 
-	private final Logging logging = new LoggingUtil();
+	private final Logging logging = new NetComLogging();
 	private Map<Class, Set<Session>> registration = new HashMap<>();
 
 	DistributorRegistration() {

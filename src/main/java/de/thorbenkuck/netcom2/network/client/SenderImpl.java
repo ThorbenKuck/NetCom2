@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -16,7 +16,7 @@ public class SenderImpl implements InternalSender {
 	private Client client;
 	private Map<Class, Observer> observers = new HashMap<>();
 	private Cache cache;
-	private Logging logging = new LoggingUtil();
+	private Logging logging = new NetComLogging();
 
 	public SenderImpl(Client client, Cache cache) {
 		this.client = client;
