@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class PipelineElement<T> {
+class PipelineElement<T> {
 
 	private final Consumer<T> consumer;
 	private final List<Predicate<T>> predicates = new ArrayList<>();
