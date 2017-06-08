@@ -64,7 +64,7 @@ class HeartBeatCore<T> implements Runnable {
 		consumer.accept(t);
 	}
 
-	private void shutdown() {
+	void shutdown() {
 		running = false;
 	}
 }

@@ -1,11 +1,11 @@
 package de.thorbenkuck.netcom2.network.interfaces;
 
 import de.thorbenkuck.netcom2.logging.DisabledLogging;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
+import de.thorbenkuck.netcom2.logging.SystemLogging;
 
 public interface Logging {
 	static Logging getDefault() {
-		return new NetComLogging();
+		return new SystemLogging();
 	}
 
 	static Logging getDisabled() {

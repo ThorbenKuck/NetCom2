@@ -48,6 +48,10 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		return changed || heartBeatConfig.changed();
 	}
 
+	HeartBeatConfig<T> getHeartBeatConfig() {
+		return heartBeatConfig;
+	}
+
 	@Override
 	public void run(T t) {
 		setup();
@@ -55,14 +59,17 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		heartBeatCore.run();
 	}
 
-	HeartBeatConfig<T> getHeartBeatConfig() {
-		return heartBeatConfig;
-	}
+
 
 	@Override
 	public void run(T t, Consumer<T> consumer) {
 		setConsumer(consumer);
 		run(t);
+	}
+
+	@Override
+	public void stop() {
+		heartBeatCore.shutdown();
 	}
 
 

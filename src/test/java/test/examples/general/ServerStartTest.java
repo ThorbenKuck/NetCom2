@@ -6,6 +6,9 @@ import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
+import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import test.examples.*;
 
 import java.io.PrintWriter;
@@ -67,6 +70,19 @@ public class ServerStartTest {
 						System.out.println("Okay, ich logge dich ein...");
 						session.setIdentified(true);
 					}).withRequirement(login -> ! session.isIdentified());
+
+
+			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();
+
+			heartBeat.configure()
+					.tickRate()
+					.times(1)
+					.in(1, TimeUnit.SECONDS)
+					.and()
+					.run()
+					.setAction(currentSession -> currentSession.send(new Ping()));
+
+			session.addHeartBeat(heartBeat);
 		});
 //		serverStart.setSocketFactory(integer -> {
 //			try {

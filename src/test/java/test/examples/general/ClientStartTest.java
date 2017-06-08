@@ -7,6 +7,7 @@ import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
 import java.util.Observable;
@@ -18,7 +19,7 @@ public class ClientStartTest {
 
 	public static void main(String[] args) {
 		clientStart = ClientStart.at("localhost", port);
-		clientStart.setLogging(Logging.getDisabled());
+		clientStart.setLogging(Logging.getDefault());
 //		clientStart.setSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
@@ -55,6 +56,10 @@ public class ClientStartTest {
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
 				.addLast((user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
+
+		clientStart.getCommunicationRegistration()
+				.register(Ping.class)
+				.addLast(ping -> System.out.println("Received Ping from Server!"));
 	}
 
 	private static void start() throws StartFailedException {

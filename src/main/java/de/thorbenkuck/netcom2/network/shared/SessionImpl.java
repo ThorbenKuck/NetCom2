@@ -1,15 +1,15 @@
 package de.thorbenkuck.netcom2.network.shared;
 
 import de.thorbenkuck.netcom2.interfaces.SendBridge;
+import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class SessionImpl implements Session {
 
 	private final SendBridge sendBridge;
 	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
+	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
@@ -75,6 +75,20 @@ public class SessionImpl implements Session {
 		Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
 		if (pipeline != null) {
 			pipeline.run(t);
+		}
+	}
+
+	@Override
+	public void addHeartBeat(HeartBeat<Session> heartBeat) {
+		heartBeats.add(heartBeat);
+		heartBeat.run(this);
+	}
+
+	@Override
+	public void removeHeartBeat(HeartBeat<Session> heartBeat) {
+		HeartBeat<Session> heartBeat1 = heartBeats.get(heartBeats.indexOf(heartBeat));
+		if (heartBeat1 != null) {
+			heartBeat1.stop();
 		}
 	}
 }

@@ -31,9 +31,14 @@ class Initializer {
 	}
 
 	private void register() {
-		communicationRegistration.register(RegisterRequest.class).addFirst(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache));
+		communicationRegistration.register(RegisterRequest.class)
+				.addFirst(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
+				.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Successfully registered RegisterRequest");
-		communicationRegistration.register(UnRegisterRequest.class).addLast(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()));
+		communicationRegistration.register(UnRegisterRequest.class)
+				.addLast(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
+				.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+		;
 			logging.trace("Successfully registered UnRegisterRequest");
 
 	}
