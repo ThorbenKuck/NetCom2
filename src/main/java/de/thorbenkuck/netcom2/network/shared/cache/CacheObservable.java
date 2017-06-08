@@ -23,10 +23,6 @@ public class CacheObservable {
 		obs.removeElement(cacheObserver);
 	}
 
-	public void addGeneralCacheObserver(GeneralCacheObserver generalCacheObserver) {
-
-	}
-
 	public void newEntry(Object o) {
 		Object[] observers = observersToArray();
 
