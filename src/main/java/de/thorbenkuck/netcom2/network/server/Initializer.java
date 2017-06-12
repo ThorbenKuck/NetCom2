@@ -86,7 +86,7 @@ class Initializer {
 						connection.setSession(client.getSession());
 						logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + newConnectionInitializer.getConnectionKey());
 						logging.trace("[" + identifier + "]: Acknowledging newly initialized Connection..");
-						connection.offerToSend(newConnectionInitializer);
+						connection.writeObject(newConnectionInitializer);
 						logging.trace("[" + identifier + "]: Removing duplicate..");
 						clients.remove(toDelete);
 					} else {

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
@@ -18,29 +17,21 @@ public interface Connection extends Loggable {
 
 	void close() throws IOException;
 
-	String getFormattedAddress();
+	Awaiting startListening();
 
-	boolean active();
+	Awaiting receivingOfClass(Class clazz);
 
 	PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer);
 
 	void removeOnDisconnectedConsumer(Consumer<Connection> consumer);
 
-	int getPort();
-
-	InetAddress getInetAddress();
+	void writeObject(Object object);
 
 	void addListener(Feasible<Class> feasible);
-
-	Awaiting startListening();
-
-	Awaiting receivingOfClass(Class clazz);
 
 	InputStream getInputStream() throws IOException;
 
 	OutputStream getOutputStream() throws IOException;
-
-	void offerToSend(Object object);
 
 	LinkedBlockingQueue<Object> getSendInterface();
 
@@ -48,6 +39,11 @@ public interface Connection extends Loggable {
 
 	void setSession(Session session);
 
-	// TODO Remove
-	Socket getSocket();
+	String getFormattedAddress();
+
+	int getPort();
+
+	InetAddress getInetAddress();
+
+	boolean active();
 }

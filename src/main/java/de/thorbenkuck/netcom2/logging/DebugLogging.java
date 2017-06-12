@@ -11,13 +11,13 @@ public class DebugLogging implements Logging {
 	}
 
 	@Override
-	public void info(String s) {
-		systemLogging.info(s);
+	public void debug(String s) {
+		systemLogging.debug(s);
 	}
 
 	@Override
-	public void debug(String s) {
-		systemLogging.debug(s);
+	public void info(String s) {
+		systemLogging.info(s);
 	}
 
 	@Override

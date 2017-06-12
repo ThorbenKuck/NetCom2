@@ -12,13 +12,13 @@ public class NetComLogging implements Logging {
 	}
 
 	@Override
-	public void info(String s) {
-		getLogging().info(s);
+	public void debug(String s) {
+		getLogging().debug(s);
 	}
 
 	@Override
-	public void debug(String s) {
-		getLogging().debug(s);
+	public void info(String s) {
+		getLogging().info(s);
 	}
 
 	@Override

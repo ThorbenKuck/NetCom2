@@ -38,7 +38,6 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 
-
 	@Override
 	public final void toAllIdentified(Object o) {
 		toSpecific(o, Session::isIdentified);
@@ -75,8 +74,8 @@ class DistributorImpl implements InternalDistributor {
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {
 					NetComLogging.getLogging().trace("Sending cache-update at " + o.getClass() + " to " + user);
-			user.send(new CachePush(o));
-		});
+					user.send(new CachePush(o));
+				});
 	}
 
 	private boolean testAgainst(Session session, Predicate<Session>[] predicates) {

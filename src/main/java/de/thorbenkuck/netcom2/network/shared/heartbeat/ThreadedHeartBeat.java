@@ -60,7 +60,6 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 	}
 
 
-
 	@Override
 	public void run(T t, Consumer<T> consumer) {
 		setConsumer(consumer);

@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class DefaultConnection implements InternalConnection {
+public class DefaultConnection implements Connection {
 
 	private final Socket socket;
 	private final LinkedBlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
@@ -67,51 +67,6 @@ public class DefaultConnection implements InternalConnection {
 		sendingService.softStop();
 		threadPool.shutdown();
 		socket.close();
-	}
-
-	@Override
-	public InetAddress getInetAddress() {
-		return socket.getInetAddress();
-	}
-
-	@Override
-	public String getFormattedAddress() {
-		return getInetAddress() + ":" + getPort();
-	}
-
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
-	}
-
-	@Override
-	public boolean active() {
-		return socket.isConnected();
-	}
-
-	@Override
-	public OutputStream getOutputStream() throws IOException {
-		return socket.getOutputStream();
-	}
-
-	@Override
-	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
-		return disconnectedPipeline.addLast(consumer);
-	}
-
-	@Override
-	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
-		disconnectedPipeline.remove(consumer);
-	}
-
-	@Override
-	public int getPort() {
-		return socket.getPort();
-	}
-
-	@Override
-	public void addListener(Feasible<Class> feasible) {
-		receivingService.addReceivingCallback(new ConnectionCallBack(feasible));
 	}
 
 	@Override
@@ -172,12 +127,37 @@ public class DefaultConnection implements InternalConnection {
 	}
 
 	@Override
-	public void offerToSend(Object object) {
+	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
+		return disconnectedPipeline.addLast(consumer);
+	}
+
+	@Override
+	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
+		disconnectedPipeline.remove(consumer);
+	}
+
+	@Override
+	public void writeObject(Object object) {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to send objects!");
 		}
 		logging.trace("Offering object " + object + " to Send");
 		toSend.offer(object);
+	}
+
+	@Override
+	public void addListener(Feasible<Class> feasible) {
+		receivingService.addReceivingCallback(new ConnectionCallBack(feasible));
+	}
+
+	@Override
+	public InputStream getInputStream() throws IOException {
+		return socket.getInputStream();
+	}
+
+	@Override
+	public OutputStream getOutputStream() throws IOException {
+		return socket.getOutputStream();
 	}
 
 	@Override
@@ -191,15 +171,30 @@ public class DefaultConnection implements InternalConnection {
 	}
 
 	@Override
-	public Socket getSocket() {
-		return socket;
-	}
-
-	@Override
 	public void setSession(Session session) {
 		logging.warn("Overriding Session!");
 		receivingService.setSession(session);
 		this.session = session;
+	}
+
+	@Override
+	public String getFormattedAddress() {
+		return getInetAddress() + ":" + getPort();
+	}
+
+	@Override
+	public int getPort() {
+		return socket.getPort();
+	}
+
+	@Override
+	public InetAddress getInetAddress() {
+		return socket.getInetAddress();
+	}
+
+	@Override
+	public boolean active() {
+		return socket.isConnected();
 	}
 
 	@Override
@@ -242,7 +237,6 @@ public class DefaultConnection implements InternalConnection {
 			return feasible.toString();
 		}
 	}
-
 
 	@Override
 	public String toString() {

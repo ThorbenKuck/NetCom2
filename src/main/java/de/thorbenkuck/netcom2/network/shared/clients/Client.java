@@ -142,7 +142,7 @@ public class Client {
 		if (connection == null) {
 			throw new NullPointerException();
 		}
-		connection.offerToSend(object);
+		connection.writeObject(object);
 
 		ListenAndExpect<Class> expectable = new Listener<>(object.getClass());
 		connection.addListener(expectable);

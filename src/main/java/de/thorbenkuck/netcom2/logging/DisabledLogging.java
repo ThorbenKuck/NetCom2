@@ -4,7 +4,7 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class DisabledLogging implements Logging {
 	@Override
-	public void catching(Throwable throwable) {
+	public void trace(String s) {
 
 	}
 
@@ -15,11 +15,6 @@ public class DisabledLogging implements Logging {
 
 	@Override
 	public void info(String s) {
-
-	}
-
-	@Override
-	public void trace(String s) {
 
 	}
 
@@ -45,6 +40,11 @@ public class DisabledLogging implements Logging {
 
 	@Override
 	public void fatal(String s, Throwable throwable) {
+
+	}
+
+	@Override
+	public void catching(Throwable throwable) {
 
 	}
 }

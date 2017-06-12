@@ -111,7 +111,7 @@ public class ServerStartTest {
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((connection, session, o) -> connection.offerToSend(new TestObject("World")))
+				.addLast((connection, session, o) -> connection.writeObject(new TestObject("World")))
 				.withRequirement(Session::isIdentified);
 
 		serverStart.getCommunicationRegistration()
