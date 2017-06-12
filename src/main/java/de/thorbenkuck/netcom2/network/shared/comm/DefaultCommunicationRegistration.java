@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 
 import java.util.HashMap;
@@ -43,7 +44,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> void trigger(Class<T> clazz, Session session, Object o) throws CommunicationNotSpecifiedException {
+	public <T> void trigger(Class<T> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException {
 		logging.trace("Searching for Communication specification at " + clazz + " with instance " + o);
 		assertMatching(clazz, o);
 		if (! isRegistered(clazz)) {
@@ -51,7 +52,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		} else {
 			logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 			try {
-				mapping.get(clazz).run(session, o);
+				mapping.get(clazz).run(connection, session, o);
 			} catch (Throwable throwable) {
 				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
 			}

@@ -3,10 +3,11 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class JavaDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
@@ -15,28 +16,35 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {
-		logging.trace("Entered JavaDeSerializationAdapter#get");
-		byte[] data = Base64.getDecoder().decode(s);
-		ObjectInputStream ois;
+		if (s.startsWith("Ping")) {
+			logging.warn("DeSerializing Ping!");
+			return deSerializePing(s);
+		}
 		Object o;
 		try {
-			ois = new ObjectInputStream(
+			logging.trace("DeSerialization of " + s);
+			byte[] data = Base64.getDecoder().decode(s.getBytes());
+			logging.trace("Decoded bytes " + Arrays.toString(data));
+			ObjectInputStream ois = new ObjectInputStream(
 					new ByteArrayInputStream(data));
+			logging.trace("Reading Object..");
 			o = ois.readObject();
+			logging.trace("Decoded Object: " + o);
 			ois.close();
-		} catch (IOException | ClassNotFoundException e) {
-			logging.trace("Leaving JavaDeSerializationAdapter#get");
-			throw new DeSerializationFailedException("Error while reading the given serialized NetComCommand .. " +
-					"\nGiven serialized NetComCommand: " + s, e);
+		} catch (Throwable e) {
+			throw new DeSerializationFailedException("Error while reading the given serialized Object.. " +
+					"\nGiven serialized Object: " + s, e);
 		}
 
 		if (o == null) {
-			logging.trace("Leaving JavaDeSerializationAdapter#get");
-			throw new DeSerializationFailedException("Error while reading the given serialized NetComCommand .. " +
-					"\nGiven serialized NetComCommand: " + s);
+			throw new DeSerializationFailedException("Error while reading the given serialized Object .. " +
+					"\nGiven serialized Object: " + s);
 		}
-		logging.trace("Entered JavaDeSerializationAdapter#get");
 		return o;
+	}
+
+	private Object deSerializePing(String s) {
+		return new Ping(ClientID.fromString(s.split("\\|")[1]));
 	}
 
 	@Override

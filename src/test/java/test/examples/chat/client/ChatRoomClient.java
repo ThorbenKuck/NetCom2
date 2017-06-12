@@ -1,6 +1,7 @@
 package test.examples.chat.client;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import test.examples.chat.common.Login;
@@ -14,18 +15,18 @@ public class ChatRoomClient {
 	private static User user;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.disabled());
 		clientStart = ClientStart.at("localhost", 8000);
 		UserInput userInput = new UserInput();
-		clientStart.setLogging(Logging.getDisabled());
 
 		try {
 			clientStart.launch();
 			new Instantiate(clientStart).resolve();
 			System.out.print("Please enter your UserName: ");
 			String userName = userInput.getNextLine();
-			clientStart.send().objectToServer(new Login(userName));
+			clientStart.send().objectToServer(new Login(userName)).andAwaitReceivingOfClass(User.class);
 			new InputSender(userInput, clientStart.send()).magic();
-		} catch (StartFailedException | IOException e) {
+		} catch (StartFailedException | IOException | InterruptedException e) {
 			System.out.println("Error");
 			e.printStackTrace(System.out);
 			System.exit(1);

@@ -4,6 +4,7 @@ import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
+import de.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -41,6 +42,16 @@ class ClientListImpl extends Observable implements ClientList {
 		logging.trace("Clearing the ClientList");
 		clients.clear();
 		notifyAboutClientList();
+	}
+
+	@Override
+	public Optional<Client> getClient(Session session) {
+		return clients.stream().filter(client -> client.getSession().equals(session)).findFirst();
+	}
+
+	@Override
+	public Optional<Client> getClient(ClientID id) {
+		return clients.stream().filter(client -> client.getID().equals(id)).findFirst();
 	}
 
 	@Override

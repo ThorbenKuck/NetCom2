@@ -1,76 +1,59 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
-import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
-import de.thorbenkuck.netcom2.network.interfaces.SendingService;
-import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
-import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.*;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import de.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * ToDo: Die EncryptionAdapter, DecryptionAdapter, Serialisation usw. müssen auch nach start einer Connection noch erhalten bleiben
+ * ToDo: Auf Client-Seite einen neuen Socket erstellen, auf ServerSeite einen neuen Socket requesten für einen Key.
+ */
 public class Client {
 
-	private final Socket socket;
-	private final CommunicationRegistration communicationRegistration;
-	private final LinkedBlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final List<DisconnectedHandler> disconnectedHandlers = new ArrayList<>();
-	private SendingService sendingService;
-	private EncryptionAdapter encryptionAdapter = s -> s;
-	private DecryptionAdapter decryptionAdapter = s -> s;
-	private ReceivingService receivingService;
+	private final Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
+	private final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
+	private final Map<Object, InternalConnection> connections = new HashMap<>();
+	private final List<ClientID> falseIDs = new ArrayList<>();
+	private EncryptionAdapter encryptionAdapter;
+	private DecryptionAdapter decryptionAdapter;
 	private SerializationAdapter<Object, String> mainSerializationAdapter;
 	private DeSerializationAdapter<String, Object> mainDeSerializationAdapter;
-	private Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
-	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
-	private ExecutorService threadPool;
-	private Logging logging = new NetComLogging();
-	private CountDownLatch primed = new CountDownLatch(1);
+	private Logging logging = Logging.unified();
 	private boolean invoked = false;
 	private Session session;
+	private CommunicationRegistration communicationRegistration;
+	private ClientID id = ClientID.empty();
 
-	public Client(Socket socket, CommunicationRegistration communicationRegistration) {
-		this.socket = socket;
+	public Client(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
-		setMainSerializationAdapter(new JavaSerializationAdapter());
-		setMainDeSerializationAdapter(new JavaDeSerializationAdapter());
+		setMainSerializationAdapter(SerializationAdapter.getDefault());
+		setMainDeSerializationAdapter(DeSerializationAdapter.getDefault());
+		encryptionAdapter = EncryptionAdapter.getDefault();
+		decryptionAdapter = DecryptionAdapter.getDefault();
+		session = Session.createNew(this);
 	}
 
-	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
-		this.mainSerializationAdapter = mainSerializationAdapter;
-	}
-
-	public final void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
-		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
-	}
-
+	@Deprecated
 	public final void invoke() throws IOException {
 		if (invoked) {
 			return;
 		}
-		logging.trace("Entered Client#invoke");
-		receivingService = new DefaultReceivingService(socket, communicationRegistration, mainDeSerializationAdapter,
-				fallBackDeSerialization, decryptionAdapter, this::getSession, this::ack, this::disconnect);
-		sendingService = new DefaultSendingService(toSend, mainSerializationAdapter, fallBackSerialization,
-				new PrintWriter(socket.getOutputStream()), encryptionAdapter);
+		logging.trace("Starting to invoke client...");
 		start();
-		logging.trace("Leaving Client#invoke");
+		logging.trace("Client was successfully invoked!");
 	}
 
-	private void start() {
-		threadPool = Executors.newFixedThreadPool(2);
-		threadPool.execute(receivingService);
-		threadPool.execute(sendingService);
+	private void start() throws IOException {
+		Connection connection = connections.get(DefaultConnection.class);
+		connection.startListening();
+
 		invoked = true;
 		logging.debug(toString() + " successfully created!");
 	}
@@ -79,7 +62,7 @@ public class Client {
 	public final String toString() {
 		return "Client{" +
 				"session=" + session +
-				", address=" + socket.getInetAddress() + ":" + socket.getPort() +
+				", connections=" + connections +
 				", mainSerializationAdapter=" + mainSerializationAdapter +
 				", mainDeSerializationAdapter=" + mainDeSerializationAdapter +
 				", fallBackSerialization=" + fallBackSerialization +
@@ -90,24 +73,30 @@ public class Client {
 				'}';
 	}
 
-	private void disconnect() {
+	public void disconnect() {
 		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
 		disconnectedHandlers.stream()
 				.filter(DisconnectedHandler::active)
 				.forEachOrdered(dh -> dh.handle(this));
+		connections.values().forEach(internalConnection -> {
+			try {
+				internalConnection.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
-	private void ack() {
-		logging.trace("Acknowledging");
-		primed.countDown();
+	public final void triggerPrimation() {
+		session.triggerPrimation();
 	}
 
-	public final CountDownLatch getPrimed() {
-		return primed;
+	public final Awaiting primed() {
+		return session.primed();
 	}
 
-	public final void send(Object object) {
-		toSend.offer(object);
+	public final void newPrimation() {
+		session.newPrimation();
 	}
 
 	public final Session getSession() {
@@ -115,7 +104,11 @@ public class Client {
 	}
 
 	public final void setSession(Session session) {
+		logging.warn("Overriding Client Session!");
 		this.session = session;
+		for (Connection connection : connections.values()) {
+			connection.setSession(session);
+		}
 	}
 
 	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
@@ -128,5 +121,92 @@ public class Client {
 
 	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		disconnectedHandlers.add(disconnectedHandler);
+	}
+
+	public final void addNewConnection(Class connectionKey) {
+		send(new NewConnectionRequest(connectionKey));
+	}
+
+	/**
+	 * ToDo: return Future to Sync requests.
+	 */
+	public final Expectable send(Object object) {
+		return send(DefaultConnection.class, object);
+	}
+
+	public final Expectable send(Class connectionKey, Object object) {
+		return send(connections.get(connectionKey), object);
+	}
+
+	public final Expectable send(Connection connection, Object object) {
+		if (connection == null) {
+			throw new NullPointerException();
+		}
+		connection.offerToSend(object);
+
+		ListenAndExpect<Class> expectable = new Listener<>(object.getClass());
+		connection.addListener(expectable);
+
+		return expectable;
+	}
+
+	public Optional<Connection> getConnection(Class connectionKey) {
+		return Optional.ofNullable(connections.get(connectionKey));
+	}
+
+	public ClientID getID() {
+		return this.id;
+	}
+
+	public void setID(ClientID id) {
+		this.id = id;
+	}
+
+	public void setConnection(Class key, Connection connection) {
+		connections.put(key, (InternalConnection) connection);
+	}
+
+	public CommunicationRegistration getCommunicationRegistration() {
+		return communicationRegistration;
+	}
+
+	public DeSerializationAdapter<String, Object> getMainDeSerializationAdapter() {
+		return mainDeSerializationAdapter;
+	}
+
+	public final void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
+	}
+
+	public Set<DeSerializationAdapter<String, Object>> getFallBackDeSerialization() {
+		return fallBackDeSerialization;
+	}
+
+	public DecryptionAdapter getDecryptionAdapter() {
+		return decryptionAdapter;
+	}
+
+	public SerializationAdapter<Object, String> getMainSerializationAdapter() {
+		return mainSerializationAdapter;
+	}
+
+	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
+		this.mainSerializationAdapter = mainSerializationAdapter;
+	}
+
+	public Set<SerializationAdapter<Object, String>> getFallBackSerialization() {
+		return fallBackSerialization;
+	}
+
+	public EncryptionAdapter getEncryptionAdapter() {
+		return encryptionAdapter;
+	}
+
+	public void addFalseID(ClientID clientID) {
+		falseIDs.add(clientID);
+	}
+
+	public List<ClientID> getFalseIDs() {
+		return new ArrayList<>(falseIDs);
 	}
 }

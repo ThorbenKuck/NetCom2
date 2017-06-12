@@ -33,4 +33,10 @@ public interface Session {
 	void addHeartBeat(HeartBeat<Session> heartBeat);
 
 	void removeHeartBeat(HeartBeat<Session> heartBeat);
+
+	void triggerPrimation();
+
+	Awaiting primed();
+
+	void newPrimation();
 }

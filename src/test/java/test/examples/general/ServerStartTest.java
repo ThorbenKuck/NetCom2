@@ -3,12 +3,10 @@ package test.examples.general;
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
-import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import test.examples.*;
 
 import java.io.PrintWriter;
@@ -54,6 +52,7 @@ public class ServerStartTest {
 	}
 
 	private static void create() {
+		NetComLogging.setLogging(Logging.getDefault());
 		serverStart = ServerStart.at(port);
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
@@ -72,17 +71,17 @@ public class ServerStartTest {
 					}).withRequirement(login -> ! session.isIdentified());
 
 
-			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();
-
-			heartBeat.configure()
-					.tickRate()
-					.times(1)
-					.in(1, TimeUnit.SECONDS)
-					.and()
-					.run()
-					.setAction(currentSession -> currentSession.send(new Ping()));
-
-			session.addHeartBeat(heartBeat);
+//			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();
+//
+//			heartBeat.configure()
+//					.tickRate()
+//					.times(1)
+//					.in(1, TimeUnit.SECONDS)
+//					.and()
+//					.run()
+//					.setAction(currentSession -> currentSession.send(new Ping()));
+//
+//			session.addHeartBeat(heartBeat);
 		});
 //		serverStart.setSocketFactory(integer -> {
 //			try {
@@ -97,8 +96,6 @@ public class ServerStartTest {
 //			}
 //			return null;
 //		});
-
-		serverStart.setLogging(Logging.getDisabled());
 	}
 
 	private static void schedule() {
@@ -118,9 +115,12 @@ public class ServerStartTest {
 
 		serverStart.getCommunicationRegistration()
 				.register(Login.class)
-				.addLast((session, o) -> session.triggerEvent(Login.class, o));
+				.addLast((session, o) ->
+						session.triggerEvent(Login.class, o)
+				);
 
-		serverStart.getCommunicationRegistration().addDefaultCommunicationHandler(object -> System.out.println("Haha, kenne nicht das Object: " + object));
+		serverStart.getCommunicationRegistration()
+				.addDefaultCommunicationHandler(object -> System.out.println("Haha, kenne nicht das Object: " + object));
 	}
 
 	private static void start() throws StartFailedException {

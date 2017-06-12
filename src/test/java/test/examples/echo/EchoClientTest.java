@@ -21,7 +21,7 @@ public class EchoClientTest {
 	public static void main(String[] args) {
 		// Create the ClientStart
 		ClientStart clientStart = ClientStart.at("localhost", 8888);
-		clientStart.setLogging(Logging.getDisabled());
+		clientStart.setLogging(Logging.debug());
 
 		// Simply print out, what you received from the Server
 		register(clientStart.getCommunicationRegistration());

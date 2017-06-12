@@ -2,12 +2,10 @@ package de.thorbenkuck.netcom2.network.interfaces;
 
 import java.io.IOException;
 
-public interface Connector<Factory> {
+public interface Connector<Factory, Return> {
 
-	void establishConnection(Factory factory) throws IOException;
+	Return establishConnection(Factory factory) throws IOException;
 
-	void disconnect() throws IOException;
-
-	boolean connected();
+	Return establishConnection(Class key, Factory factory) throws IOException;
 
 }

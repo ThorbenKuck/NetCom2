@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.network.interfaces;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.client.ClientStartImpl;
 import de.thorbenkuck.netcom2.network.client.Sender;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import de.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
@@ -13,6 +14,8 @@ public interface ClientStart extends Launch, Loggable {
 	static ClientStart at(String address, int port) {
 		return new ClientStartImpl(address, port);
 	}
+
+	Awaiting createNewConnection(Class key) throws InterruptedException;
 
 	void registerTo(Class clazz);
 

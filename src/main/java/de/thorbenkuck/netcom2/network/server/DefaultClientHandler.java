@@ -1,10 +1,12 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
+import de.thorbenkuck.netcom2.network.shared.clients.ClientID;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
+import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
@@ -17,10 +19,13 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private final InternalDistributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
-	private Socket socket;
-	private Logging logging = new NetComLogging();
+	private final ConnectionFactory connectionFactory = new ConnectionFactory();
+	private Connection connection;
+	private Logging logging = Logging.unified();
 
-	DefaultClientHandler(ClientList clientList, InternalDistributor distributor, CommunicationRegistration communicationRegistration, DistributorRegistration distributorRegistration) {
+	DefaultClientHandler(ClientList clientList, InternalDistributor distributor,
+						 CommunicationRegistration communicationRegistration,
+						 DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
@@ -29,44 +34,55 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	@Override
 	public Client create(Socket socket) {
-		String address = socket.getInetAddress() + ":" + socket.getPort();
-		logging.trace(toString() + " creating Client(" + address + ") ..");
-		Client client = new Client(socket, communicationRegistration);
-		this.socket = socket;
+		Client client = new Client(communicationRegistration);
+		Connection connection = connectionFactory.create(socket, client);
+		logging.trace(toString() + " created Client(" + connection.getFormattedAddress() + ") ..");
 		try {
-			logging.trace("Invoking freshly created Client(" + address + ") ..");
-			client.invoke();
-			logging.trace("Creating new Session for freshly created Client(" + address + ") ..");
-			client.setSession(Session.createNew(client));
-			logging.trace("Adding Client(" + address + ") to ClientList");
-			clientList.add(client);
-		} catch (IOException e) {
-			logging.catching(e);
+			logging.trace("Awaiting listening finalization of connection..");
+			connection.startListening().synchronize();
+		} catch (InterruptedException e) {
+			try {
+				connection.close();
+			} catch (IOException e1) {
+				e1.addSuppressed(e);
+				throw new Error(e1);
+			}
+			throw new IllegalStateException("Cannot continue!", e);
 		}
-		logging.trace("Done");
+		logging.trace("Connection is now listening!");
+
+		this.connection = connection;
+		logging.trace("Adding Client(" + connection.getFormattedAddress() + ") to InternalClientList");
+		clientList.add(client);
+
 		return client;
 	}
 
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);
-		logging.trace("Awaiting Ping at Client " + socket.getInetAddress() + ":" + socket.getPort() + " ..");
+		ClientID id = ClientID.create();
+		logging.trace("Setting new id to Client ..");
+		client.setID(id);
+		logging.trace("Pinging Client ..");
+		Awaiting awaiting = client.primed();
+		client.send(new Ping(id));
+		logging.trace("Adding disconnect routine");
+		client.addDisconnectedHandler(this::clearClient);
+		logging.trace("Awaiting Ping from Client@" + connection.getFormattedAddress() + " ..");
 		try {
-			client.getPrimed().await();
-			logging.trace("Ping received from " + socket.getInetAddress() + ":" + socket.getPort() + ". Sending ping back ..");
-			client.send(new Ping());
-			logging.trace("Handshake complete with " + socket.getInetAddress() + ":" + socket.getPort());
+			awaiting.synchronize();
+			logging.trace("Received Ping from Client@" + connection.getFormattedAddress());
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
-		client.addDisconnectedHandler(this::clearClient);
 	}
 
 	@Override
 	public String toString() {
 		return "DefaultClientHandler{" +
 				"communicationRegistration=" + communicationRegistration +
-				", socket=" + socket +
+				", connection=" + connection +
 				'}';
 	}
 

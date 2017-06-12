@@ -1,6 +1,5 @@
 package test.examples.chat.server;
 
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -23,7 +22,6 @@ public class Instantiate {
 	}
 
 	public final void resolve() {
-		serverStart.setLogging(Logging.getDisabled());
 		clientHandlers();
 		communication();
 	}
@@ -44,6 +42,7 @@ public class Instantiate {
 
 		communicationRegistration.register(Login.class)
 				.addFirst((session, login) -> {
+					System.out.println("received Login-request.. logging in!");
 					User user = userList.get(session);
 					user.setUserName(login.getUserName());
 					session.send(user);

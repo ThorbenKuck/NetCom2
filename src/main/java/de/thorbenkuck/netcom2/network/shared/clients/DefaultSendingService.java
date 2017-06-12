@@ -2,46 +2,55 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
+import de.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.SendingService;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import de.thorbenkuck.netcom2.network.shared.Synchronize;
 
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 class DefaultSendingService implements SendingService {
 
-	private final LinkedBlockingQueue<Object> toSend;
 	private final SerializationAdapter<Object, String> mainSerializationAdapter;
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization;
-	private final PrintWriter printWriter;
 	private final EncryptionAdapter encryptionAdapter;
 	private final Logging logging = new NetComLogging();
+	private final Synchronize synchronize = new DefaultSynchronize(1);
+	private PrintWriter printWriter;
+	private LinkedBlockingQueue<Object> toSend;
 	private boolean running = false;
+	private boolean setup = false;
 
-	DefaultSendingService(LinkedBlockingQueue<Object> toSend,
-						  SerializationAdapter<Object, String> mainSerializationAdapter,
-						  Set<SerializationAdapter<Object, String>> fallBackSerialization, PrintWriter printWriter,
+	DefaultSendingService(SerializationAdapter<Object, String> mainSerializationAdapter,
+						  Set<SerializationAdapter<Object, String>> fallBackSerialization,
 						  EncryptionAdapter encryptionAdapter) {
-		this.toSend = toSend;
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
-		this.printWriter = printWriter;
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
 	@Override
 	public void run() {
-		logging.trace("Started Sending Service!");
+		if (! setup) {
+			throw new Error("Setup required before run!");
+		}
 		running = true;
+		synchronize.goOn();
+		logging.debug("Started Sending Service");
 		while (running()) {
 			try {
 				Object o = toSend.take();
 				logging.debug("Sending " + o + " ..");
 				String toSend = serialize(o);
+				logging.trace("Sending: " + toSend);
 				printWriter.println(encryptionAdapter.get(toSend));
 				printWriter.flush();
+				logging.trace("Done with: " + toSend);
 			} catch (InterruptedException e) {
 				logging.catching(e);
 			} catch (SerializationFailedException e) {
@@ -76,5 +85,22 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public boolean running() {
 		return running;
+	}
+
+	@Override
+	public void overrideSendingQueue(LinkedBlockingQueue<Object> linkedBlockingQueue) {
+		this.toSend = linkedBlockingQueue;
+	}
+
+	@Override
+	public void setup(OutputStream outputStream, LinkedBlockingQueue<Object> toSendFrom) {
+		setup = true;
+		this.printWriter = new PrintWriter(outputStream);
+		this.toSend = toSendFrom;
+	}
+
+	@Override
+	public Awaiting started() {
+		return synchronize;
 	}
 }

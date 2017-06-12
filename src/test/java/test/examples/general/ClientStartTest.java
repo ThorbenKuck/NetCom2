@@ -1,8 +1,10 @@
 package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
 import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
@@ -18,8 +20,8 @@ public class ClientStartTest {
 	private static int port = 44444;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.getDefault());
 		clientStart = ClientStart.at("localhost", port);
-		clientStart.setLogging(Logging.getDefault());
 //		clientStart.setSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
@@ -38,12 +40,29 @@ public class ClientStartTest {
 			register();
 			start();
 			clientStart.send().objectToServer(new TestObject("This should not come back"));
-			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new Login());
-			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
+			try {
+				System.out.println("#1 Awaiting receive of Class TestObjectThree...");
+				clientStart.send()
+						.objectToServer(new Login())
+						.andAwaitReceivingOfClass(TestObjectThree.class);
+				System.out.println("#1 Received TestObjectThree.class!");
+				clientStart.send().objectToServer(new Login());
+				clientStart.send().objectToServer(new Login());
+				clientStart.send().objectToServer(new Login());
+				clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
+				Awaiting callBack = clientStart.createNewConnection(TestObject.class);
+				System.out.println("SomeStuff");
+				System.out.println("SomeMoreStuff");
+				System.out.println("Jetzt warte ich auf die neue Connection..");
+				callBack.synchronize();
+				System.out.println("Connection wurde aufgebaut! JUHU!");
+				System.out.println("Lass uns die neue Connection mal testen..");
+				clientStart.send().objectToServer(new Login(), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
+				System.out.println("Das lief doch gut!");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} catch (StartFailedException e) {
 			e.printStackTrace();
 		}
@@ -63,10 +82,10 @@ public class ClientStartTest {
 	}
 
 	private static void start() throws StartFailedException {
-		clientStart.launch();
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
 		clientStart.addDisconnectedHandler(client -> System.out.println("Bye bye lieber Server"));
+		clientStart.launch();
 	}
 }
 

@@ -2,74 +2,64 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
-import de.thorbenkuck.netcom2.interfaces.SimpleFactory;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
+import de.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import de.thorbenkuck.netcom2.network.shared.CallBack;
 import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.Synchronize;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 class DefaultReceivingService implements ReceivingService {
 
-	private final Socket socket;
 	private final DecryptionAdapter decryptionAdapter;
-	private final SimpleFactory<Session> getUser;
-	private final Runnable onAck;
 	private final Runnable onDisconnect;
+	private final List<CallBack<Object>> callBacks = new ArrayList<>();
+	private final Synchronize synchronize = new DefaultSynchronize(1);
+	private Connection connection;
+	private Session session;
+	private Scanner in;
 	private CommunicationRegistration communicationRegistration;
 	private DeSerializationAdapter<String, Object> deSerializationAdapter;
 	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization;
-	private Scanner in;
 	private boolean running = false;
-	private Logging logging = new NetComLogging();
+	private Logging logging = Logging.unified();
 
-	DefaultReceivingService(Socket socket, CommunicationRegistration communicationRegistration,
+	DefaultReceivingService(CommunicationRegistration communicationRegistration,
 							DeSerializationAdapter<String, Object> deSerializationAdapter,
 							Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
-							DecryptionAdapter decryptionAdapter, SimpleFactory<Session> getUser,
-							Runnable onAck, Runnable onDisconnect) {
-		this.socket = socket;
+							DecryptionAdapter decryptionAdapter) {
 		this.communicationRegistration = communicationRegistration;
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
 		this.decryptionAdapter = decryptionAdapter;
-		this.getUser = getUser;
-		this.onAck = onAck;
-		this.onDisconnect = onDisconnect;
-		try {
-			in = new Scanner(socket.getInputStream());
-		} catch (IOException e) {
-			throw new Error(e);
-		}
+		this.onDisconnect = () -> logging.info("Shutting down ReceivingService!");
 	}
 
 	@Override
 	public void run() {
-		logging.trace("Entered ReceivingService#run");
-		logging.debug("Started ReceivingService for " + socket.getInetAddress() + ":" + socket.getPort());
 		running = true;
-		while (running()) {
+		synchronize.goOn();
+		logging.debug("Started ReceivingService for " + connection.getFormattedAddress());
+		while (running() && in.hasNext()) {
 			try {
 				String string = in.nextLine();
+				logging.trace("Reading " + string);
 				Object object = deserialize(string);
 				logging.debug("Received: " + object);
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
 				logging.catching(e);
 			} catch (NoSuchElementException e) {
-				logging.trace("Client from " + socket.getInetAddress() + ":" + socket.getPort() + " disconnected");
+				logging.trace("Client from " + connection.getFormattedAddress() + " disconnected");
 				softStop();
 			} catch (Throwable throwable) {
-				logging.catching(throwable);
-				softStop();
+				logging.error("Encountered unexpected Throwable while reading nextLine!", throwable);
 			}
 		}
 		onDisconnect();
@@ -95,15 +85,11 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void trigger(Object object) {
-		if (object.getClass().equals(Ping.class)) {
-			logging.debug("Ping requested");
-			onAck.run();
-		} else {
-			try {
-				communicationRegistration.trigger(object.getClass(), getUser.create(), object);
-			} catch (CommunicationNotSpecifiedException e) {
-				logging.catching(e);
-			}
+		try {
+			communicationRegistration.trigger(object.getClass(), connection, session, object);
+			callBack(object);
+		} catch (CommunicationNotSpecifiedException e) {
+			logging.catching(e);
 		}
 	}
 
@@ -119,5 +105,49 @@ class DefaultReceivingService implements ReceivingService {
 
 	private void onDisconnect() {
 		onDisconnect.run();
+	}
+
+	private void callBack(Object object) {
+		List<CallBack<Object>> toRemove = new ArrayList<>();
+		synchronized (callBacks) {
+			callBacks.stream()
+					.filter(callBack -> callBack.acceptable(object))
+					.forEachOrdered(callBack -> {
+						callBack.accept(object);
+						if (callBack.remove()) {
+							toRemove.add(callBack);
+						}
+					});
+			toRemove.forEach(CallBack::onRemove);
+			callBacks.removeAll(toRemove);
+		}
+	}
+
+	@Override
+	public void addReceivingCallback(CallBack<Object> callBack) {
+		synchronized (callBacks) {
+			callBacks.add(callBack);
+		}
+	}
+
+	@Override
+	public void setup(Connection connection, Session session) {
+		this.connection = connection;
+		this.session = session;
+		try {
+			in = new Scanner(connection.getInputStream());
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+	}
+
+	@Override
+	public void setSession(Session session) {
+		this.session = session;
+	}
+
+	@Override
+	public Awaiting started() {
+		return synchronize;
 	}
 }

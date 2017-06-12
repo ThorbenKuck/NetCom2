@@ -1,7 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.ServerHasToBeStartedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
@@ -51,7 +50,7 @@ class ServerStartImpl implements ServerStart {
 	public void launch() throws StartFailedException {
 		logging.info("Starting server at port: " + serverConnector.getPort());
 		try {
-			new Initializer(distributor, communicationRegistration, cache).init();
+			new Initializer(distributor, communicationRegistration, cache, clientList).init();
 			serverConnector.establishConnection(serverSocketFactory);
 			logging.debug("Established connection!");
 			running = true;
@@ -62,7 +61,6 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
-		assertStarted();
 		try {
 			while (running()) {
 				acceptNextClient();
@@ -85,15 +83,14 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		assertStarted();
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
-			logging.info("Awaiting new Client ..");
+			logging.info("Awaiting new Connection ..");
 			Socket socket = serverSocket.accept();
-			logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
+			logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
 			threadPool.execute(() -> handle(socket));
 		} catch (IOException e) {
-			logging.error("Client-Connection failed! Aborting!", e);
+			logging.error("Connection establishment failed! Aborting!", e);
 			throw new ClientConnectionFailedException(e);
 		}
 	}
@@ -123,12 +120,7 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void disconnect() {
 		logging.trace("Trying to disconnect existing ServerSocket");
-		try {
-			serverConnector.disconnect();
-			softStop();
-		} catch (IOException e) {
-			logging.catching(e);
-		}
+		softStop();
 	}
 
 	@Override
@@ -147,12 +139,6 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public final CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
-	}
-
-	private void assertStarted() {
-		if (! serverConnector.connected()) {
-			throw new ServerHasToBeStartedException();
-		}
 	}
 
 	private void handle(Socket socket) {
@@ -191,4 +177,10 @@ class ServerStartImpl implements ServerStart {
 				", running=" + running +
 				'}';
 	}
+
+//	@Override
+//	public Awaiting createNewConnection(Client client, Class key) {
+//		// client.send(new NewConnectionRequest(key)).waitAt(NewConnectionResponse.class);
+//		return null;
+//	}
 }

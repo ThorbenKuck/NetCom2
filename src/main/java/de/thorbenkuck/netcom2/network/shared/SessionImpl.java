@@ -1,6 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared;
 
 import de.thorbenkuck.netcom2.interfaces.SendBridge;
+import de.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 
 import java.util.*;
@@ -10,12 +11,21 @@ public class SessionImpl implements Session {
 	private final SendBridge sendBridge;
 	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
 	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
+	private final UUID uuid;
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
+	private Synchronize synchronize = new DefaultSynchronize();
 
 	SessionImpl(SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
+		this.uuid = UUID.randomUUID();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj != null) System.out.println("Comparing " + uuid + " to " + ((SessionImpl) obj).uuid);
+		return obj != null && obj.getClass().equals(SessionImpl.class) && ((SessionImpl) obj).uuid.equals(uuid);
 	}
 
 	@Override
@@ -24,6 +34,8 @@ public class SessionImpl implements Session {
 				"identified=" + identified +
 				", identifier='" + identifier + '\'' +
 				", properties=" + properties +
+				", id=" + uuid +
+				", events=" + pipelines.keySet() +
 				'}';
 	}
 
@@ -90,5 +102,20 @@ public class SessionImpl implements Session {
 		if (heartBeat1 != null) {
 			heartBeat1.stop();
 		}
+	}
+
+	@Override
+	public final void triggerPrimation() {
+		synchronize.goOn();
+	}
+
+	@Override
+	public final Awaiting primed() {
+		return synchronize;
+	}
+
+	@Override
+	public final void newPrimation() {
+		synchronize.reset();
 	}
 }

@@ -15,7 +15,7 @@ public class EchoServerTest {
 	public static void main(String[] args) {
 		// Create the Server at Port 8888
 		serverStart = ServerStart.at(8888);
-		serverStart.setLogging(Logging.getDisabled());
+		serverStart.setLogging(Logging.debug());
 
 		// And tell the Server, to always send back the Command, he received
 		register(serverStart.getCommunicationRegistration());

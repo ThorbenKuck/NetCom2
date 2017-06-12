@@ -2,6 +2,7 @@ package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
+import de.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import de.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Launch;
@@ -11,7 +12,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.net.ServerSocket;
 
-public interface ServerStart extends Launch, SoftStoppable, Loggable {
+public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleConnections {
 
 	static ServerStart at(int port) {
 		return new ServerStartImpl(new ServerConnector(port));

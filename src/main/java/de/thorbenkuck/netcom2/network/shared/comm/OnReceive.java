@@ -1,16 +1,15 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.network.shared.Session;
-
-import java.util.function.BiConsumer;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 @FunctionalInterface
-public interface OnReceive<O> extends BiConsumer<Session, O> {
+public interface OnReceive<O> extends OnReceiveTriple<O> {
 
-	default void onUnRegistration() {
+	default void accept(Connection connection, Session session, O o) {
+		accept(session, o);
 	}
 
-	default void onRegistration() {
-	}
+	void accept(Session session, O o);
 
 }

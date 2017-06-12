@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,19 +16,41 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 
 	@Override
 	public String get(Object o) throws SerializationFailedException {
-		logging.trace("Entered JavaSerializationAdapter#get");
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos;
-		try {
-			oos = new ObjectOutputStream(baos);
-			oos.writeObject(o);
-			oos.close();
-		} catch (IOException e) {
-			logging.trace("Leaving JavaSerializationAdapter#get");
-			throw new SerializationFailedException(e);
+		if (o.getClass().equals(Ping.class)) {
+			logging.warn("Serializing Ping!");
+			return serializePing((Ping) o);
 		}
-		logging.trace("Leaving JavaSerializationAdapter#get");
-		return Base64.getEncoder().encodeToString(baos.toByteArray());
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = null;
+		try {
+			logging.trace("Creating ObjectOutputStream..");
+			oos = new ObjectOutputStream(baos);
+			logging.trace("Writing object..");
+			oos.writeObject(o);
+			logging.trace("Done!");
+		} catch (IOException e) {
+			throw new SerializationFailedException(e);
+		} finally {
+			if (oos != null) {
+				try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				baos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
+		logging.trace("Encoded " + o + " to " + toReturn);
+		return toReturn;
+	}
+
+	private String serializePing(Ping o) {
+		return "Ping|" + o.getId();
 	}
 
 	@Override

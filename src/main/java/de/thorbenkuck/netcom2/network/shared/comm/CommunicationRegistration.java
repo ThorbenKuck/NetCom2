@@ -3,6 +3,7 @@ package de.thorbenkuck.netcom2.network.shared.comm;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 public interface CommunicationRegistration {
 
@@ -16,7 +17,8 @@ public interface CommunicationRegistration {
 
 	boolean isRegistered(Class clazz);
 
-	<T> void trigger(Class<T> clazz, Session session, Object o) throws CommunicationNotSpecifiedException;
+	@SuppressWarnings ("unchecked")
+	<T> void trigger(Class<T> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException;
 
 	void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler);
 
