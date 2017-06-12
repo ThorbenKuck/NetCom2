@@ -17,7 +17,6 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 	@Override
 	public String get(Object o) throws SerializationFailedException {
 		if (o.getClass().equals(Ping.class)) {
-			logging.warn("Serializing Ping!");
 			return serializePing((Ping) o);
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

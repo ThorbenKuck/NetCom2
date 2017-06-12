@@ -23,6 +23,10 @@ public interface Logging {
 		return new CallerReflectionLoggin();
 	}
 
+	static Logging info() {
+		return new InfoLogging();
+	}
+
 	void trace(String s);
 
 	void debug(String s);

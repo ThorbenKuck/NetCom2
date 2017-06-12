@@ -62,13 +62,14 @@ class Initializer {
 
 		communicationRegistration.register(NewConnectionRequest.class)
 				.addLast((session, o) -> {
-					logging.info("Establishing new Connection for " + o.getKey());
+					logging.info("Received Request for new Connection for " + o.getKey());
 				});
 		communicationRegistration.register(NewConnectionInitializer.class)
 				.addLast((connection, session, o) -> {
-					System.out.println("Es wird Ernst!");
+					logging.info("Setting new Connection to Key " + o.getConnectionKey());
 					client.setConnection(o.getConnectionKey(), connection);
-				});
+				}).withRequirement((session, newConnectionInitializer) ->
+				client.getID().equals(newConnectionInitializer.getID()) && ! ClientID.isEmpty(newConnectionInitializer.getID()));
 
 		communicationRegistration.register(CachePush.class).addFirst((user, o) -> cache.addAndOverride(o.getObject()));
 	}

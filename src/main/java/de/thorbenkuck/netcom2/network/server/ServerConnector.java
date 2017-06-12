@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
 import de.thorbenkuck.netcom2.network.interfaces.Connector;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -26,15 +27,18 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 	}
 
 	@Override
-	public ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException {
+	public ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
 		if (this.serverSocket == null) {
 			this.serverSocket = factory.create(port);
+		}
+		if (serverSocket == null) {
+			throw new StartFailedException("Cannot create ServerSocket!");
 		}
 		return this.serverSocket;
 	}
 
 	@Override
-	public ServerSocket establishConnection(Class key, Factory<Integer, ServerSocket> integerServerSocketFactory) throws IOException {
+	public ServerSocket establishConnection(Class key, Factory<Integer, ServerSocket> integerServerSocketFactory) throws IOException, StartFailedException {
 		return establishConnection(integerServerSocketFactory);
 	}
 

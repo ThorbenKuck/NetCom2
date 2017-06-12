@@ -52,7 +52,7 @@ class ServerStartImpl implements ServerStart {
 		try {
 			new Initializer(distributor, communicationRegistration, cache, clientList).init();
 			serverConnector.establishConnection(serverSocketFactory);
-			logging.debug("Established connection!");
+			logging.info("Established connection!");
 			running = true;
 		} catch (IOException e) {
 			throw new StartFailedException(e);
@@ -72,6 +72,8 @@ class ServerStartImpl implements ServerStart {
 			logging.catching(t);
 			logging.error("Caught unexpected Throwable while accepting Clients!");
 			logging.debug("Trying to at least disconnect ..");
+			disconnect();
+			throw new ClientConnectionFailedException(t);
 		}
 		disconnect();
 	}
@@ -83,11 +85,15 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
+		if (! running) {
+			throw new ClientConnectionFailedException("Cannot accept Clients, if not started properly!");
+		}
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
 			logging.info("Awaiting new Connection ..");
 			Socket socket = serverSocket.accept();
 			logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
+			logging.trace("Handling new Connection ..");
 			threadPool.execute(() -> handle(socket));
 		} catch (IOException e) {
 			logging.error("Connection establishment failed! Aborting!", e);

@@ -17,7 +17,6 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {
 		if (s.startsWith("Ping")) {
-			logging.warn("DeSerializing Ping!");
 			return deSerializePing(s);
 		}
 		Object o;
