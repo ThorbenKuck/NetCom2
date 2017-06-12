@@ -58,7 +58,7 @@ public class ClientStartTest {
 				callBack.synchronize();
 				System.out.println("Connection wurde aufgebaut! JUHU!");
 				System.out.println("Lass uns die neue Connection mal testen..");
-				clientStart.send().objectToServer(new Login(), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
+				clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
 				System.out.println("Das lief doch gut!");
 			} catch (InterruptedException e) {
 				e.printStackTrace();

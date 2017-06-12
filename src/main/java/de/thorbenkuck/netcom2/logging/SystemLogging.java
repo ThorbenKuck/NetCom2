@@ -13,11 +13,8 @@ public class SystemLogging implements Logging {
 	}
 
 	@Override
-	public void catching(Throwable throwable) {
-		StringWriter sw = new StringWriter();
-		throwable.printStackTrace(new PrintWriter(sw));
-		String stacktrace = sw.toString();
-		System.out.println(stacktrace);
+	public void trace(String s) {
+		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") TRACE : " + s);
 	}
 
 	@Override
@@ -28,11 +25,6 @@ public class SystemLogging implements Logging {
 	@Override
 	public void info(String s) {
 		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") INFO : " + s);
-	}
-
-	@Override
-	public void trace(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") TRACE : " + s);
 	}
 
 	@Override
@@ -60,6 +52,14 @@ public class SystemLogging implements Logging {
 	public void fatal(String s, Throwable throwable) {
 		fatal(s);
 		catching(throwable);
+	}
+
+	@Override
+	public void catching(Throwable throwable) {
+		StringWriter sw = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(sw));
+		String stacktrace = sw.toString();
+		System.out.println(stacktrace);
 	}
 
 

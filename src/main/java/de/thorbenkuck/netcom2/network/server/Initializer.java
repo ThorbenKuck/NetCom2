@@ -71,7 +71,7 @@ class Initializer {
 		// TODO auslagern!
 		communicationRegistration.register(NewConnectionInitializer.class)
 				.addLast((connection, session, newConnectionInitializer) -> {
-					System.out.println("HAAAAAAAAAAAALLO!");
+					logging.debug("Processing NewConnectionInitializer");
 					String identifier = newConnectionInitializer.getID() + "@" + newConnectionInitializer.getConnectionKey();
 					logging.debug("Received ConnectionInitializer for: " + identifier);
 					logging.trace("[" + identifier + "]: Verifying Client ..");
@@ -87,8 +87,8 @@ class Initializer {
 						logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + newConnectionInitializer.getConnectionKey());
 						logging.trace("[" + identifier + "]: Acknowledging newly initialized Connection..");
 						connection.offerToSend(newConnectionInitializer);
+						logging.trace("[" + identifier + "]: Removing duplicate..");
 						clients.remove(toDelete);
-						System.out.println(clients);
 					} else {
 						logging.warn("[" + identifier + "]: Needed to find 2 Clients! Found: " + clientOptional + " and " + toDeleteClientOptional);
 					}

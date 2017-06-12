@@ -52,7 +52,7 @@ public class ServerStartTest {
 	}
 
 	private static void create() {
-		NetComLogging.setLogging(Logging.getDefault());
+		NetComLogging.setLogging(Logging.callerTrace());
 		serverStart = ServerStart.at(port);
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
@@ -110,7 +110,7 @@ public class ServerStartTest {
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((session, o) -> session.send(new TestObject("World")))
+				.addLast((connection, session, o) -> connection.offerToSend(new TestObject("World")))
 				.withRequirement(Session::isIdentified);
 
 		serverStart.getCommunicationRegistration()

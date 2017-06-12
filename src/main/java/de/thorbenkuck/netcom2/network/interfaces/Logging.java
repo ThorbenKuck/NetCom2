@@ -1,9 +1,6 @@
 package de.thorbenkuck.netcom2.network.interfaces;
 
-import de.thorbenkuck.netcom2.logging.DebugLogging;
-import de.thorbenkuck.netcom2.logging.DisabledLogging;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
-import de.thorbenkuck.netcom2.logging.SystemLogging;
+import de.thorbenkuck.netcom2.logging.*;
 
 public interface Logging {
 	static Logging getDefault() {
@@ -22,11 +19,15 @@ public interface Logging {
 		return new DebugLogging();
 	}
 
+	static Logging callerTrace() {
+		return new CallerReflectionLoggin();
+	}
+
 	void trace(String s);
 
-	void info(String s);
-
 	void debug(String s);
+
+	void info(String s);
 
 	void warn(String s);
 
