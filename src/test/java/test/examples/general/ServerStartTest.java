@@ -52,7 +52,7 @@ public class ServerStartTest {
 	}
 
 	private static void create() {
-		NetComLogging.setLogging(Logging.callerTrace());
+		NetComLogging.setLogging(Logging.disabled());
 		serverStart = ServerStart.at(port);
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
