@@ -50,6 +50,6 @@ public class ClientID implements Serializable {
 
 	@Override
 	public String toString() {
-		return id.toString();
+		return "{" + (id == null ? "EmptyClientID" : id.toString()) + "}";
 	}
 }

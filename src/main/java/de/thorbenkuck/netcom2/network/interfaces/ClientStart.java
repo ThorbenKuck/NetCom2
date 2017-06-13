@@ -17,8 +17,6 @@ public interface ClientStart extends Launch, Loggable {
 
 	Awaiting createNewConnection(Class key) throws InterruptedException;
 
-	void registerTo(Class clazz);
-
 	void setSocketFactory(SocketFactory factory);
 
 	Sender send();

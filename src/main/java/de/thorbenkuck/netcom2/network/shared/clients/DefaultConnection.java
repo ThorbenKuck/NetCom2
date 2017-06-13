@@ -16,6 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+/**
+ * DefaultConnection
+ */
 public class DefaultConnection implements Connection {
 
 	private final Socket socket;
@@ -63,10 +66,16 @@ public class DefaultConnection implements Connection {
 
 	@Override
 	public void close() throws IOException {
+		logging.debug("Closing Connection " + this);
+		logging.trace("Requesting soft-stop of set ReceivingService ..");
 		receivingService.softStop();
+		logging.trace("Requesting soft-stop of set SendingService ..");
 		sendingService.softStop();
+		logging.trace("Requesting soft-stop of ThreadPool ..");
 		threadPool.shutdown();
+		logging.trace("Shutting down socket ..");
 		socket.close();
+		logging.debug("Successfully shut down Connection " + this);
 	}
 
 	@Override
@@ -82,17 +91,21 @@ public class DefaultConnection implements Connection {
 		logging.debug("Starting to listen to: " + this);
 		threadPool.submit(() -> {
 			try {
-				logging.trace("Awaiting Synchronization of ReceivingService and SendingService");
+				logging.trace("Awaiting Synchronization of ReceivingService");
 				receivingService.started().synchronize();
+				logging.trace("Awaiting Synchronization of SendingService");
 				sendingService.started().synchronize();
 			} catch (InterruptedException e) {
 				logging.catching(e);
 			}
-			logging.info("Synchronization complete! Now i am listening!");
+			logging.info("Synchronization complete! Connection is now listening.");
 			started = true;
+			logging.trace("Realising awaiting Threads..");
 			synchronize.goOn();
 		});
+		logging.trace("Executing ReceivingService ..");
 		threadPool.submit(receivingService);
+		logging.trace("Executing SendingService ..");
 		threadPool.submit(sendingService);
 
 		return synchronize;
@@ -128,11 +141,13 @@ public class DefaultConnection implements Connection {
 
 	@Override
 	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
+		logging.debug("Added DisconnectedConsumer(" + consumer + ") for Connection " + this);
 		return disconnectedPipeline.addLast(consumer);
 	}
 
 	@Override
 	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
+		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
 		disconnectedPipeline.remove(consumer);
 	}
 
@@ -141,12 +156,13 @@ public class DefaultConnection implements Connection {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to send objects!");
 		}
-		logging.trace("Offering object " + object + " to Send");
+		logging.trace("Offering object " + object + " to write..");
 		toSend.offer(object);
 	}
 
 	@Override
 	public void addListener(Feasible<Class> feasible) {
+		logging.debug("Added Feasible " + feasible);
 		receivingService.addReceivingCallback(new ConnectionCallBack(feasible));
 	}
 
@@ -172,7 +188,7 @@ public class DefaultConnection implements Connection {
 
 	@Override
 	public void setSession(Session session) {
-		logging.warn("Overriding Session!");
+		logging.debug("Overriding Session for " + this);
 		receivingService.setSession(session);
 		this.session = session;
 	}
@@ -193,13 +209,15 @@ public class DefaultConnection implements Connection {
 	}
 
 	@Override
-	public boolean active() {
+	public boolean isActive() {
 		return socket.isConnected();
 	}
 
 	@Override
 	public void setLogging(Logging logging) {
+		this.logging.debug("Overriding set Logging ..");
 		this.logging = logging;
+		logging.debug("Overrode Logging!");
 	}
 
 	@Override

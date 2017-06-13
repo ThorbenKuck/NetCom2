@@ -44,9 +44,9 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public void run() {
 		running = true;
-		synchronize.goOn();
 		logging.debug("Started ReceivingService for " + connection.getFormattedAddress());
-		while (running() && in.hasNext()) {
+		synchronize.goOn();
+		while (running()) {
 			try {
 				String string = in.nextLine();
 				logging.trace("Reading " + string);
@@ -54,7 +54,7 @@ class DefaultReceivingService implements ReceivingService {
 				logging.debug("Received: " + object);
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
-				logging.catching(e);
+				logging.error("Could not Serialize!", e);
 			} catch (NoSuchElementException e) {
 				logging.trace("Client from " + connection.getFormattedAddress() + " disconnected");
 				softStop();

@@ -35,6 +35,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public Client create(Socket socket) {
 		Client client = new Client(communicationRegistration);
+		ClientID id = ClientID.create();
+		logging.trace("Setting new id to Client ..");
+		client.setID(id);
 		Connection connection = connectionFactory.create(socket, client);
 		logging.trace(toString() + " created Client(" + connection.getFormattedAddress() + ") ..");
 		try {
@@ -61,12 +64,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);
-		ClientID id = ClientID.create();
-		logging.trace("Setting new id to Client ..");
-		client.setID(id);
 		logging.trace("Pinging Client ..");
 		Awaiting awaiting = client.primed();
-		client.send(new Ping(id));
+		client.send(new Ping(client.getID()));
 		logging.trace("Adding disconnect routine");
 		client.addDisconnectedHandler(this::clearClient);
 		logging.trace("Awaiting Ping from Client@" + connection.getFormattedAddress() + " ..");

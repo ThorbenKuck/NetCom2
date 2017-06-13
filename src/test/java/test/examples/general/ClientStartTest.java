@@ -21,9 +21,9 @@ public class ClientStartTest {
 	private static int port = 44444;
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.info());
+		NetComLogging.setLogging(Logging.getDefault());
 		clientStart = ClientStart.at("localhost", port);
-//		clientStart.setSocketFactory((port, address) -> {
+//		clientStart.setServerSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefault().createSocket(address, port);
 //			} catch (IOException e) {
@@ -43,24 +43,24 @@ public class ClientStartTest {
 			clientStart.send().objectToServer(new TestObject("This should not come back"));
 			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 			try {
-				logging.info("#1 Awaiting receive of Class TestObjectThree...");
+				System.out.println("#1 Awaiting receive of Class TestObjectThree...");
 				clientStart.send()
 						.objectToServer(new Login())
 						.andAwaitReceivingOfClass(TestObjectThree.class);
-				logging.info("#1 Received TestObjectThree.class!");
+				System.out.println("#1 Received TestObjectThree.class!");
 				clientStart.send().objectToServer(new Login());
 				clientStart.send().objectToServer(new Login());
 				clientStart.send().objectToServer(new Login());
 				clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
 				Awaiting callBack = clientStart.createNewConnection(TestObject.class);
-				logging.info("SomeStuff");
-				logging.info("SomeMoreStuff");
-				logging.info("Jetzt warte ich auf die neue Connection..");
+				System.out.println("SomeStuff");
+				System.out.println("SomeMoreStuff");
+				System.out.println("Jetzt warte ich auf die neue Connection..");
 				callBack.synchronize();
-				logging.info("Connection wurde aufgebaut! JUHU!");
-				logging.info("Lass uns die neue Connection mal testen..");
+				System.out.println("Connection wurde aufgebaut! JUHU!");
+				System.out.println("Lass uns die neue Connection mal testen..");
 				clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
-				logging.info("Das lief doch gut!");
+				System.out.println("Das lief doch gut!");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -3,7 +3,6 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,9 +15,6 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 
 	@Override
 	public String get(Object o) throws SerializationFailedException {
-		if (o.getClass().equals(Ping.class)) {
-			return serializePing((Ping) o);
-		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;
 		try {
@@ -46,10 +42,6 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 		String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
 		logging.trace("Encoded " + o + " to " + toReturn);
 		return toReturn;
-	}
-
-	private String serializePing(Ping o) {
-		return "Ping|" + o.getId();
 	}
 
 	@Override

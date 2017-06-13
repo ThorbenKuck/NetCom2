@@ -32,7 +32,7 @@ public class ServerStartTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.info());
+		NetComLogging.setLogging(Logging.getDefault());
 		catching();
 		create();
 		schedule();
@@ -59,7 +59,6 @@ public class ServerStartTest {
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
 			client.addDisconnectedHandler(client1 -> logging.info("ABORT!" + client1 + " disconnected!"));
-
 			Session session = client.getSession();
 			session.eventOf(Login.class)
 					.addFirst(login -> logging.info("Du bist doch schon eingeloggt, du eumel!"))
@@ -84,7 +83,7 @@ public class ServerStartTest {
 //
 //			session.addHeartBeat(heartBeat);
 		});
-//		serverStart.setSocketFactory(integer -> {
+//		serverStart.setServerSocketFactory(integer -> {
 //			try {
 //				return SSLServerSocketFactory.getDefault().createServerSocket(integer);
 //			} catch (IOException e) {

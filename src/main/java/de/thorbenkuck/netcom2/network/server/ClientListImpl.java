@@ -7,11 +7,14 @@ import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 class ClientListImpl extends Observable implements ClientList {
 
 	private final List<Client> clients = new ArrayList<>();
+	private final Lock lock = new ReentrantLock(true);
 	private final Logging logging = new NetComLogging();
 
 	ClientListImpl() {
@@ -19,9 +22,14 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public void add(Client client) {
-		logging.trace("Added new Client(" + client + ") to ClientList");
-		clients.add(client);
-		notifyAboutClientList();
+		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
+		try {
+			lock.lock();
+			clients.add(client);
+			notifyAboutClientList();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	private synchronized void notifyAboutClientList() {
@@ -32,16 +40,26 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public void remove(Client client) {
-		logging.trace("Removing Client " + client + " from ClientList");
-		clients.remove(client);
-		notifyAboutClientList();
+		logging.debug("Removing Client " + client.getID() + " from ClientList");
+		try {
+			lock.lock();
+			clients.remove(client);
+			notifyAboutClientList();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public void clear() {
-		logging.trace("Clearing the ClientList");
-		clients.clear();
-		notifyAboutClientList();
+		logging.debug("Clearing the ClientList");
+		try {
+			lock.lock();
+			clients.clear();
+			notifyAboutClientList();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
@@ -70,7 +88,7 @@ class ClientListImpl extends Observable implements ClientList {
 
 	@Override
 	public Iterator<Client> iterator() {
-		return new ClientIterator(clients);
+		return new ClientIterator(this);
 	}
 
 	@Override
@@ -78,14 +96,18 @@ class ClientListImpl extends Observable implements ClientList {
 		return "ClientList{" + clients.toString() + "}";
 	}
 
+	public List<Client> accessInternals() {
+		return new ArrayList<>(clients);
+	}
+
 	private class ClientIterator implements Iterator<Client> {
 
 		private Queue<Client> clients;
-		private List<Client> clientList;
+		private ClientList clientList;
 		private Client current;
 
-		public ClientIterator(List<Client> clientList) {
-			clients = new LinkedList<>(clientList);
+		public ClientIterator(ClientListImpl clientList) {
+			clients = new LinkedList<>(clientList.accessInternals());
 			this.clientList = clientList;
 		}
 

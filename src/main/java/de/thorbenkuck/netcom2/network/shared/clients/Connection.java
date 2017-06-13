@@ -45,5 +45,5 @@ public interface Connection extends Loggable {
 
 	InetAddress getInetAddress();
 
-	boolean active();
+	boolean isActive();
 }

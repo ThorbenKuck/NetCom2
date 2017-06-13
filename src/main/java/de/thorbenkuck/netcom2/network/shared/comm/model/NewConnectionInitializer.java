@@ -28,4 +28,13 @@ public class NewConnectionInitializer implements Serializable {
 	public ClientID getToDeleteID() {
 		return toDeleteID;
 	}
+
+	@Override
+	public String toString() {
+		return "NewConnectionInitializer{" +
+				"connectionKey=" + connectionKey +
+				", ID=" + ID +
+				", toDeleteID=" + toDeleteID +
+				'}';
+	}
 }

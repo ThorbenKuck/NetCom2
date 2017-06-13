@@ -14,4 +14,11 @@ public class NewConnectionRequest implements Serializable {
 	public Class getKey() {
 		return key;
 	}
+
+	@Override
+	public String toString() {
+		return "NewConnectionRequest{" +
+				"key=" + key +
+				'}';
+	}
 }

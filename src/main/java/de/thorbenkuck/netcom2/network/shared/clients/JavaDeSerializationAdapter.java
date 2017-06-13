@@ -3,7 +3,6 @@ package de.thorbenkuck.netcom2.network.shared.clients;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
@@ -16,9 +15,6 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {
-		if (s.startsWith("Ping")) {
-			return deSerializePing(s);
-		}
 		Object o;
 		try {
 			logging.trace("DeSerialization of " + s);
@@ -40,10 +36,6 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 					"\nGiven serialized Object: " + s);
 		}
 		return o;
-	}
-
-	private Object deSerializePing(String s) {
-		return new Ping(ClientID.fromString(s.split("\\|")[1]));
 	}
 
 	@Override

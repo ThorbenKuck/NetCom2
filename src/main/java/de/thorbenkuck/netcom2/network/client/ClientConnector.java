@@ -21,35 +21,49 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		this.address = address;
 		this.port = port;
 		this.client = client;
-		logging.trace("Creating default listener..");
+		logging.trace("Instantiated ClientConnector for " + address + ":" + port);
 	}
 
 	@Override
 	public Connection establishConnection(SocketFactory factory) throws IOException {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
+		logging.trace("Creating Connection ..");
 		Connection connection = connectionFactory.create(factory.create(port, address), client);
-		logging.trace("Starting to listen");
+		logging.trace("Starting to listen on new Connection ..");
 		try {
+			logging.trace("Awaiting Synchronization of new Connection ..");
 			connection.startListening().synchronize();
 		} catch (InterruptedException e) {
+			logging.fatal("Thread was Interrupted while waiting for synchronization!", e);
+			logging.error("Closing Connection!");
 			connection.close();
-			throw new Error(e);
+			throw new IOException(e);
 		}
 		return connection;
 	}
 
 	@Override
 	public Connection establishConnection(Class key, SocketFactory factory) throws IOException {
-		logging.debug("Trying to establish connection to " + address + ":" + port);
+		String prefix = "[Connection@" + key + "]: ";
+		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
+		logging.trace(prefix + "Creating Connection ..");
 		Connection connection = connectionFactory.create(factory.create(port, address), client, key);
-		logging.trace("Starting to listen");
+		logging.trace(prefix + "Starting to listen on new Connection ..");
 		try {
+			logging.trace(prefix + "Awaiting Synchronization of new Connection");
 			connection.startListening().synchronize();
 		} catch (InterruptedException e) {
+			logging.fatal(prefix + "Thread was Interrupted while waiting for synchronization!", e);
+			logging.error(prefix + "Closing Connection!");
 			connection.close();
-			throw new Error(e);
+			throw new IOException(e);
 		}
 		return connection;
+	}
+
+	@Override
+	public void shutDown() throws IOException {
+		logging.error("Cannot shutdown here!");
 	}
 
 	@Override

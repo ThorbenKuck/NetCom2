@@ -28,18 +28,28 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 
 	@Override
 	public ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
+		logging.debug("Establishing ServerConnection to: " + port);
 		if (this.serverSocket == null) {
+			logging.trace("Trying to create new ServerSocket ..");
 			this.serverSocket = factory.create(port);
+		} else {
+			logging.trace("Connection already established! Returning already established Connection ..");
 		}
 		if (serverSocket == null) {
 			throw new StartFailedException("Cannot create ServerSocket!");
 		}
+		logging.trace("ServerSocket appears to be okay ..");
 		return this.serverSocket;
 	}
 
 	@Override
 	public ServerSocket establishConnection(Class key, Factory<Integer, ServerSocket> integerServerSocketFactory) throws IOException, StartFailedException {
 		return establishConnection(integerServerSocketFactory);
+	}
+
+	@Override
+	public void shutDown() throws IOException {
+		if (serverSocket != null && ! serverSocket.isClosed()) serverSocket.close();
 	}
 
 

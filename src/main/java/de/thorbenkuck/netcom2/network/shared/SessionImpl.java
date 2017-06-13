@@ -24,7 +24,6 @@ public class SessionImpl implements Session {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null) System.out.println("Comparing " + uuid + " to " + ((SessionImpl) obj).uuid);
 		return obj != null && obj.getClass().equals(SessionImpl.class) && ((SessionImpl) obj).uuid.equals(uuid);
 	}
 

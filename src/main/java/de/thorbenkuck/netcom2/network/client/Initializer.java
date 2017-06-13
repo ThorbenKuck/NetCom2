@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.client;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
+import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -11,74 +11,62 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.*;
 
 class Initializer {
 
-	private Client client;
-	private CommunicationRegistration communicationRegistration;
-	private Logging logging = new NetComLogging();
-	private Cache cache;
-	private InternalSender sender;
+	private final Client client;
+	private final CommunicationRegistration communicationRegistration;
+	private final Logging logging = Logging.unified();
+	private final Cache cache;
+	private final InternalSender sender;
+	private final ClientConnector clientConnector;
+	private final SocketFactory socketFactory;
 
-	Initializer(Client client, CommunicationRegistration communicationRegistration, Cache cache, InternalSender sender) {
+	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
+				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
+				final SocketFactory socketFactory) {
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
 		this.sender = sender;
+		this.clientConnector = clientConnector;
+		this.socketFactory = socketFactory;
 	}
 
 	void init() throws StartFailedException {
+		logging.trace("Registering internal Components ..");
 		register();
+		logging.trace("Awaiting handshake with Server ..");
 		awaitHandshake();
 	}
 
 	private void register() {
-		communicationRegistration.register(RegisterResponse.class).addFirst((user, o) -> {
-			if (o.isOkay()) {
-				cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
-			}
-		});
-		communicationRegistration.register(UnRegisterResponse.class).addFirst((user, o) -> {
-			if (o.isOkay()) {
-				cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
-				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
-			}
-		});
-
+		logging.trace("Registering Handler for RegisterResponse.class ..");
+		communicationRegistration.register(RegisterResponse.class)
+				.addFirst(new RegisterResponseHandler(cache, sender));
+		logging.trace("Registering Handler for UnRegisterResponse.class ..");
+		communicationRegistration.register(UnRegisterResponse.class)
+				.addFirst(new UnRegisterResponseHandler(cache, sender));
+		logging.trace("Registering Handler for Ping.class ..");
 		communicationRegistration.register(Ping.class)
-				.addFirst((session, o) -> {
-					logging.debug("Received Ping from " + session);
-					client.triggerPrimation();
-					client.setID(o.getId());
-					session.send(o);
-				}).withRequirement(o -> ClientID.isEmpty(client.getID()));
-		communicationRegistration.register(Ping.class)
-				.addFirst((session, o) -> {
-					logging.debug("Received update ping from Server!");
-					client.addFalseID(o.getId());
-					client.triggerPrimation();
-					client.send(new Ping(client.getID()));
-				})
-				.withRequirement(o -> ! ClientID.isEmpty(client.getID()));
-
-
+				.addFirst(new PingHandler(client));
+		logging.trace("Registering Handler for NewConnectionRequest.class ..");
 		communicationRegistration.register(NewConnectionRequest.class)
-				.addLast((session, o) -> {
-					logging.info("Received Request for new Connection for " + o.getKey());
-				});
+				.addLast(new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
+		logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 		communicationRegistration.register(NewConnectionInitializer.class)
-				.addLast((connection, session, o) -> {
-					logging.info("Setting new Connection to Key " + o.getConnectionKey());
-					client.setConnection(o.getConnectionKey(), connection);
-				}).withRequirement((session, newConnectionInitializer) ->
-				client.getID().equals(newConnectionInitializer.getID()) && ! ClientID.isEmpty(newConnectionInitializer.getID()));
-
-		communicationRegistration.register(CachePush.class).addFirst((user, o) -> cache.addAndOverride(o.getObject()));
+				.addLast(new NewConnectionInitializerHandler(client))
+				.withRequirement((session, newConnectionInitializer) ->
+						client.getID().equals(newConnectionInitializer.getID())
+								&& ! ClientID.isEmpty(newConnectionInitializer.getID()));
+		logging.trace("Registering Handler for CachePush.class ..");
+		communicationRegistration.register(CachePush.class)
+				.addFirst(new CachePushHandler(cache));
 	}
 
 	private void awaitHandshake() throws StartFailedException {
-		logging.trace("Awaiting ping from Server ..");
+		logging.debug("Awaiting ping from Server ..");
 		try {
 			client.primed().synchronize();
 		} catch (InterruptedException e) {
+			logging.error("Could not synchronize!");
 			throw new StartFailedException(e);
 		}
 		logging.trace("Handshake complete!");

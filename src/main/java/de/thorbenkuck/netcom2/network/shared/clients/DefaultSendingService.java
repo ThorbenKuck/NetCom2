@@ -11,6 +11,7 @@ import de.thorbenkuck.netcom2.network.shared.Synchronize;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -40,22 +41,25 @@ class DefaultSendingService implements SendingService {
 			throw new Error("Setup required before run!");
 		}
 		running = true;
-		synchronize.goOn();
 		logging.debug("Started Sending Service");
+		synchronize.goOn();
 		while (running()) {
 			try {
 				Object o = toSend.take();
 				logging.debug("Sending " + o + " ..");
+				logging.trace("Serializing " + o + " ..");
 				String toSend = serialize(o);
-				logging.trace("Sending: " + toSend);
+				logging.trace("Writing: " + toSend + " ..");
 				printWriter.println(encryptionAdapter.get(toSend));
 				printWriter.flush();
-				logging.trace("Done with: " + toSend);
+				logging.trace("Successfully wrote " + toSend + "!");
 			} catch (InterruptedException e) {
+				logging.warn("Interrupted while waiting for a new Object to send");
 				logging.catching(e);
 			} catch (SerializationFailedException e) {
-				logging.warn("Failed to Serialize!");
-				logging.catching(e);
+				logging.error("Failed to Serialize!", e);
+			} catch (Throwable throwable) {
+				logging.error("Encountered unexpected Throwable", throwable);
 			}
 		}
 	}
@@ -63,17 +67,22 @@ class DefaultSendingService implements SendingService {
 	private String serialize(Object o) throws SerializationFailedException {
 		SerializationFailedException serializationFailedException;
 		try {
+			logging.trace("Trying to use mainSerializationAdapter for " + o + " .. ");
 			return mainSerializationAdapter.get(o);
 		} catch (SerializationFailedException ex) {
+			logging.trace("Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
 			serializationFailedException = new SerializationFailedException(ex);
 			for (SerializationAdapter<Object, String> adapter : fallBackSerialization) {
 				try {
+					logging.trace("Trying to use: " + adapter + " ..");
 					return adapter.get(o);
 				} catch (SerializationFailedException e) {
+					logging.trace("Fallback serialization " + adapter + " failed .. Trying next one");
 					serializationFailedException.addSuppressed(e);
 				}
 			}
 		}
+		logging.warn("No fallback serialization found! Failed to serialize " + o + "!");
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
@@ -89,14 +98,18 @@ class DefaultSendingService implements SendingService {
 
 	@Override
 	public void overrideSendingQueue(LinkedBlockingQueue<Object> linkedBlockingQueue) {
+		logging.warn("Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
 
 	@Override
 	public void setup(OutputStream outputStream, LinkedBlockingQueue<Object> toSendFrom) {
-		setup = true;
+		Objects.requireNonNull(outputStream);
+		Objects.requireNonNull(toSendFrom);
 		this.printWriter = new PrintWriter(outputStream);
 		this.toSend = toSendFrom;
+		setup = true;
+		logging.debug("DefaultSendingService is now setup!");
 	}
 
 	@Override

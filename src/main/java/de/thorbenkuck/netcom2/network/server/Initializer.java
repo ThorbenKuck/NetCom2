@@ -1,16 +1,11 @@
 package de.thorbenkuck.netcom2.network.server;
 
-import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.server.communication.RegisterRequestReceiveHandler;
-import de.thorbenkuck.netcom2.network.server.communication.UnRegisterRequestReceiveHandler;
 import de.thorbenkuck.netcom2.network.shared.cache.*;
-import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.*;
 
 import java.util.Observable;
-import java.util.Optional;
 
 class Initializer {
 
@@ -18,7 +13,7 @@ class Initializer {
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
 	private final ClientList clients;
-	private Logging logging = new NetComLogging();
+	private Logging logging = Logging.unified();
 
 	Initializer(InternalDistributor distributor, CommunicationRegistration communicationRegistration,
 				Cache cache, ClientList clients) {
@@ -30,70 +25,30 @@ class Initializer {
 
 	void init() {
 		logging.trace("Creating internal dependencies");
+		logging.trace("Registering internal commands ..");
 		register();
+		logging.trace("Setting internal Observers ..");
 		setObserver();
 	}
 
 	private void register() {
+		logging.trace("Registering Handler for RegisterRequest.class ..");
 		communicationRegistration.register(RegisterRequest.class)
 				.addFirst(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
 				.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+		logging.trace("Registering Handler for UnRegisterRequest.class ..");
 		communicationRegistration.register(UnRegisterRequest.class)
 				.addLast(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
 				.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
-
-		// TODO auslagern!
+		logging.trace("Registering Handler for Ping.class ..");
 		communicationRegistration.register(Ping.class)
-				.addLast((session, ping) -> {
-					logging.debug("Ping received from Client");
-					System.out.println(clients);
-					System.out.println(session);
-					Optional<Client> clientOptional = clients.getClient(session);
-					clientOptional.ifPresent(client -> {
-						if (client.getID().equals(ping.getId())) {
-							logging.debug("Acknowledged!");
-							client.triggerPrimation();
-							logging.info("Handshake with new Client Complete!");
-						} else {
-							logging.warn("Detected malicious activity at Client: " + client + "!");
-							logging.debug("Forcing disconnect now...");
-							client.disconnect();
-						}
-					});
-				});
-		// TODO auslagern!
+				.addLast(new PingRequestHandler(clients));
+		logging.trace("Registering Handler for NewConnectionRequest.class ..");
 		communicationRegistration.register(NewConnectionRequest.class)
-				.addLast(((session, o) -> {
-					logging.info("Client of Session " + session + " requested new Connection with key: " + o.getKey());
-					logging.trace("Acknowledging request..");
-					session.send(o);
-				}));
-		// TODO auslagern!
+				.addLast(new NewConnectionRequestHandler());
+		logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 		communicationRegistration.register(NewConnectionInitializer.class)
-				.addLast((connection, session, newConnectionInitializer) -> {
-					logging.debug("Processing NewConnectionInitializer");
-					String identifier = newConnectionInitializer.getID() + "@" + newConnectionInitializer.getConnectionKey();
-					logging.debug("Received ConnectionInitializer for: " + identifier);
-					logging.trace("[" + identifier + "]: Verifying Client ..");
-					Optional<Client> clientOptional = clients.getClient(newConnectionInitializer.getID());
-					Optional<Client> toDeleteClientOptional = clients.getClient(newConnectionInitializer.getToDeleteID());
-					if (clientOptional.isPresent() && toDeleteClientOptional.isPresent()) {
-						logging.trace("[" + identifier + "]: Client exists!");
-						Client client = clientOptional.get();
-						Client toDelete = toDeleteClientOptional.get();
-						logging.trace("[" + identifier + "]: Setting new Connection ..");
-						client.setConnection(newConnectionInitializer.getConnectionKey(), connection);
-						connection.setSession(client.getSession());
-						logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + newConnectionInitializer.getConnectionKey());
-						logging.trace("[" + identifier + "]: Acknowledging newly initialized Connection..");
-						connection.writeObject(newConnectionInitializer);
-						logging.trace("[" + identifier + "]: Removing duplicate..");
-						clients.remove(toDelete);
-					} else {
-						logging.warn("[" + identifier + "]: Needed to find 2 Clients! Found: " + clientOptional + " and " + toDeleteClientOptional);
-					}
-				});
-
+				.addLast(new NewConnectionInitializerRequestHandler(clients));
 	}
 
 	private void setObserver() {
@@ -121,7 +76,7 @@ class Initializer {
 
 		@Override
 		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-			NetComLogging.getLogging().error("TODO");
+			logging.fatal("TODO!");
 		}
 	}
 }

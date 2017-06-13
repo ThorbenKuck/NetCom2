@@ -10,4 +10,6 @@ public interface Connector<Factory, Return> {
 
 	Return establishConnection(Class key, Factory factory) throws IOException, StartFailedException;
 
+	void shutDown() throws IOException;
+
 }
