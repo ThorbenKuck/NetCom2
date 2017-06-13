@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
 public class CacheImpl extends Observable implements Cache {
 
 	private final Map<Class<?>, Object> internals = new HashMap<>();
-	private Logging logging = new LoggingUtil();
+	private Logging logging = new NetComLogging();
 
 	@Override
 	public void update(Object object) {

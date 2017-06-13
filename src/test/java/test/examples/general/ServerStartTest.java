@@ -3,6 +3,8 @@ package test.examples.general;
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import test.examples.*;
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ServerStartTest {
 
 	private static int port = 44444;
+	private static Logging logging = Logging.unified();
 	private static ServerStart serverStart;
 	private static Thread starter = new Thread(() -> {
 		try {
@@ -29,6 +32,7 @@ public class ServerStartTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.getDefault());
 		catching();
 		create();
 		schedule();
@@ -45,7 +49,7 @@ public class ServerStartTest {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String stacktrace = sw.toString();
-			System.out.println(stacktrace);
+			logging.info(stacktrace);
 		});
 	}
 
@@ -54,9 +58,32 @@ public class ServerStartTest {
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
-			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
+			client.addDisconnectedHandler(client1 -> logging.info("ABORT!" + client1 + " disconnected!"));
+			Session session = client.getSession();
+			session.eventOf(Login.class)
+					.addFirst(login -> logging.info("Du bist doch schon eingeloggt, du eumel!"))
+					.withRequirement(login -> session.isIdentified());
+
+			session.eventOf(Login.class)
+					.addLast(login -> {
+						logging.info("Okay, ich logge dich ein...");
+						session.setIdentified(true);
+					}).withRequirement(login -> ! session.isIdentified());
+
+
+//			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();
+//
+//			heartBeat.configure()
+//					.tickRate()
+//					.times(1)
+//					.in(1, TimeUnit.SECONDS)
+//					.and()
+//					.run()
+//					.setAction(currentSession -> currentSession.send(new Ping()));
+//
+//			session.addHeartBeat(heartBeat);
 		});
-//		serverStart.setSocketFactory(integer -> {
+//		serverStart.setServerSocketFactory(integer -> {
 //			try {
 //				return SSLServerSocketFactory.getDefault().createServerSocket(integer);
 //			} catch (IOException e) {
@@ -79,16 +106,21 @@ public class ServerStartTest {
 	private static void register() throws CommunicationAlreadySpecifiedException {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> System.out.println("------\nreceived " + o.getHello() + " from " + user + "\n-------"))
+				.addLast((session, o) -> logging.info("------received " + o.getHello() + " from " + session + "-------"))
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> user.send(new TestObject("World")))
+				.addLast((connection, session, o) -> connection.writeObject(new TestObject("World")))
 				.withRequirement(Session::isIdentified);
 
-		serverStart.getCommunicationRegistration().register(Login.class).addLast((user, o) -> user.setIdentified(true));
+		serverStart.getCommunicationRegistration()
+				.register(Login.class)
+				.addLast((session, o) ->
+						session.triggerEvent(Login.class, o)
+				);
 
-		serverStart.getCommunicationRegistration().addDefaultCommunicationHandler(object -> System.out.println("Haha, kenne nicht das Object: " + object));
+		serverStart.getCommunicationRegistration()
+				.addDefaultCommunicationHandler(object -> logging.error("Ich kenne das Object: " + object.getClass() + " nicht!"));
 	}
 
 	private static void start() throws StartFailedException {

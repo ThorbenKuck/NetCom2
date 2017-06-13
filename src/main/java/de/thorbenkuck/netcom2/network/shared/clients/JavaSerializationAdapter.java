@@ -1,7 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.io.ByteArrayOutputStream;
@@ -11,23 +11,37 @@ import java.util.Base64;
 
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
-	private final Logging logging = LoggingUtil.getLogging();
+	private final Logging logging = NetComLogging.getLogging();
 
 	@Override
 	public String get(Object o) throws SerializationFailedException {
-		logging.trace("Entered JavaSerializationAdapter#get");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos;
+		ObjectOutputStream oos = null;
 		try {
+			logging.trace("Creating ObjectOutputStream..");
 			oos = new ObjectOutputStream(baos);
+			logging.trace("Writing object..");
 			oos.writeObject(o);
-			oos.close();
+			logging.trace("Done!");
 		} catch (IOException e) {
-			logging.trace("Leaving JavaSerializationAdapter#get");
 			throw new SerializationFailedException(e);
+		} finally {
+			if (oos != null) {
+				try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				baos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		logging.trace("Leaving JavaSerializationAdapter#get");
-		return Base64.getEncoder().encodeToString(baos.toByteArray());
+		String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
+		logging.trace("Encoded " + o + " to " + toReturn);
+		return toReturn;
 	}
 
 	@Override

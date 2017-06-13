@@ -3,6 +3,7 @@ package test.examples.echo;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.network.client.Sender;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import test.examples.TestObject;
 
@@ -20,6 +21,7 @@ public class EchoClientTest {
 	public static void main(String[] args) {
 		// Create the ClientStart
 		ClientStart clientStart = ClientStart.at("localhost", 8888);
+		clientStart.setLogging(Logging.debug());
 
 		// Simply print out, what you received from the Server
 		register(clientStart.getCommunicationRegistration());
@@ -37,11 +39,13 @@ public class EchoClientTest {
 
 	private static void register(CommunicationRegistration communicationRegistration) {
 		communicationRegistration.register(TestObject.class)
-				.addFirst(((user, o) -> System.out.println("Server send: " + o.getHello())));
+				.addFirst((o -> System.out.println("Server send: " + o.getHello())));
 	}
 
 	private static void schedule(Sender send) {
-		scheduledExecutorService.scheduleAtFixedRate(() -> send.objectToServer(new TestObject("Hello!")), 1, 1, TimeUnit.SECONDS);
+		scheduledExecutorService.scheduleAtFixedRate(() -> {
+			send.objectToServer(new TestObject("Hello!"));
+			System.out.println("Sending Hello! to server ...");
+		}, 1, 1, TimeUnit.SECONDS);
 	}
-
 }

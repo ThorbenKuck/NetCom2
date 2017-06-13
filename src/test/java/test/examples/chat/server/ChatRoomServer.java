@@ -2,6 +2,8 @@ package test.examples.chat.server;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 
 public class ChatRoomServer {
@@ -10,6 +12,7 @@ public class ChatRoomServer {
 	private static UserList userList = new UserList();
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.getDefault());
 		serverStart = ServerStart.at(8000);
 
 		new Instantiate(serverStart, userList).resolve();

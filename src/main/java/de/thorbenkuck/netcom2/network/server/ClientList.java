@@ -2,7 +2,9 @@ package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
+import de.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface ClientList extends Iterable<Client> {
@@ -16,6 +18,10 @@ public interface ClientList extends Iterable<Client> {
 	void remove(Client client);
 
 	void clear();
+
+	Optional<Client> getClient(Session session);
+
+	Optional<Client> getClient(ClientID ID);
 
 	Stream<Session> userStream();
 

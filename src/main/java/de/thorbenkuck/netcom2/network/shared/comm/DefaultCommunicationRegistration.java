@@ -1,39 +1,40 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
-import de.thorbenkuck.netcom2.interfaces.Pipeline;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
-import de.thorbenkuck.netcom2.pipeline.QueuedPipeline;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
+import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
-	private final Map<Class, Pipeline<?>> mapping = new HashMap<>();
-	private final Logging logging = new LoggingUtil();
+	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
+	private final Logging logging = new NetComLogging();
 	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> Pipeline<T> register(Class<T> clazz) {
-		mapping.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
-		return (Pipeline<T>) mapping.get(clazz);
+	public <T> ReceivePipeline<T> register(Class<T> clazz) {
+		mapping.computeIfAbsent(clazz, k -> {
+			logging.trace("Creating ReceivingPipeline for " + clazz);
+			return new QueuedReceivePipeline<>();
+		});
+		return (ReceivePipeline<T>) mapping.get(clazz);
 	}
 
 	@Override
 	public void unRegister(Class clazz) {
 		if (! isRegistered(clazz)) {
-			LoggingUtil.getLogging().debug("Could not find OnReceive for Class " + clazz);
+			logging.debug("Could not find OnReceive to unregister for Class " + clazz);
 			return;
 		}
-
-		LoggingUtil.getLogging().debug("Unregistered Pipeline for " + clazz);
+		logging.trace("Unregister whole ReceivePipeline for " + clazz + " ..");
 		mapping.remove(clazz);
+		logging.debug("Unregistered ReceivePipeline for " + clazz);
 	}
 
 	@Override
@@ -43,18 +44,33 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> void trigger(Class<T> clazz, Session session, Object o) throws CommunicationNotSpecifiedException {
-		logging.trace("Searching for Communication specification at " + clazz + " with instance " + o);
+	public <T> void trigger(Class<T> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException {
+		requireNotNull(clazz, connection, session, o);
+		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
+		logging.trace("Trying to match " + clazz + " with " + o.getClass());
 		assertMatching(clazz, o);
 		if (! isRegistered(clazz)) {
-			handleNotRegistered(clazz, o);
+			logging.trace("Could not find specific communication for " + clazz + ". Using fallback!");
+			handleNotRegistered(clazz, connection, session, o);
 		} else {
 			logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 			try {
-				mapping.get(clazz).run(session, o);
+				mapping.get(clazz).run(connection, session, o);
 			} catch (Throwable throwable) {
 				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
 			}
+		}
+	}
+
+	@Override
+	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
+		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
+		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
+	}
+
+	private void requireNotNull(Object... objects) {
+		for (Object o : objects) {
+			Objects.requireNonNull(o);
 		}
 	}
 
@@ -66,23 +82,28 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void handleNotRegistered(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
+	private void handleNotRegistered(Class<?> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
+			logging.trace("No DefaultCommunicationHandler set!");
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
 		} else {
-			runDefaultCommunicationHandler(o);
+			logging.trace("Running all set DefaultCommunicationHandler ..");
+			runDefaultCommunicationHandler(connection, session, o);
 		}
 	}
 
-	private void runDefaultCommunicationHandler(Object o) {
+	private void runDefaultCommunicationHandler(Connection connection, Session session, Object o) {
 		for (DefaultCommunicationHandler defaultCommunicationHandler : defaultCommunicationHandlers) {
-			defaultCommunicationHandler.handle(o);
+			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
+			try {
+				defaultCommunicationHandler.handle(connection, session, o);
+				defaultCommunicationHandler.handle(session, o);
+				defaultCommunicationHandler.handle(o);
+			} catch (Throwable throwable) {
+				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler, throwable);
+				logging.trace("Continuing ..");
+			}
 		}
-	}
-
-	@Override
-	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
-		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
 	@Override

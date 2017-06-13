@@ -2,25 +2,13 @@ package de.thorbenkuck.netcom2.logging;
 
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
-public class LoggingUtil implements Logging {
+public class NetComLogging implements Logging {
 
-	private static Logging logging = new SystemLogging();
+	private static Logging logging = Logging.getDefault();
 
 	@Override
-	public void catching(Throwable throwable) {
-		getLogging().catching(throwable);
-	}
-
-	public static Logging getLogging() {
-		return logging;
-	}
-
-	public static void setLogging(Logging logging) {
-		if (logging == null) {
-			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
-					"Expected an implementation at " + Logging.class + " received: " + null);
-		}
-		LoggingUtil.logging = logging;
+	public void trace(String s) {
+		getLogging().trace(s);
 	}
 
 	@Override
@@ -31,11 +19,6 @@ public class LoggingUtil implements Logging {
 	@Override
 	public void info(String s) {
 		getLogging().info(s);
-	}
-
-	@Override
-	public void trace(String s) {
-		getLogging().trace(s);
 	}
 
 	@Override
@@ -61,6 +44,23 @@ public class LoggingUtil implements Logging {
 	@Override
 	public void fatal(String s, Throwable throwable) {
 		getLogging().fatal(s, throwable);
+	}
+
+	@Override
+	public void catching(Throwable throwable) {
+		getLogging().catching(throwable);
+	}
+
+	public static Logging getLogging() {
+		return logging;
+	}
+
+	public static void setLogging(Logging logging) {
+		if (logging == null) {
+			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
+					"Expected an implementation at " + Logging.class + " received: " + null);
+		}
+		NetComLogging.logging = logging;
 	}
 
 	@Override

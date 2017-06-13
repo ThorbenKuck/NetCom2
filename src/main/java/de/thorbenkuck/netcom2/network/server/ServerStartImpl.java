@@ -1,10 +1,8 @@
 package de.thorbenkuck.netcom2.network.server;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.ServerHasToBeStartedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -28,41 +26,49 @@ class ServerStartImpl implements ServerStart {
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
-	private final Logging logging = new LoggingUtil();
+	private Logging logging = Logging.unified();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
 	ServerStartImpl(ServerConnector serverConnector) {
+		logging.debug("Instantiating ServerStart ..");
 		this.serverConnector = serverConnector;
-		clientConnectedHandlers.add(new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
-		setSocketFactory(integer -> {
-			try {
-				logging.debug("Creating java.net.ServerSocket(" + integer + ")");
-				return new ServerSocket(integer);
-			} catch (IOException e) {
-				logging.catching(e);
-				return null;
-			}
-		});
+		logging.trace("Adding DefaultClientHandler ..");
+		addClientConnectedHandler(new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
+		logging.trace("Setting DefaultServerSocketFactory ..");
+		setServerSocketFactory(new DefaultServerSocketFactory());
 	}
 
 	@Override
 	public void launch() throws StartFailedException {
 		logging.info("Starting server at port: " + serverConnector.getPort());
 		try {
-			new Initializer(distributor, communicationRegistration, cache).init();
+			logging.trace("Initializing connection to port: " + serverConnector.getPort());
+			new Initializer(distributor, communicationRegistration, cache, clientList).init();
+			logging.trace("Establishing Connection ..");
 			serverConnector.establishConnection(serverSocketFactory);
-			logging.debug("Established connection!");
+			logging.info("Established connection at port: " + serverConnector.getPort());
 			running = true;
 		} catch (IOException e) {
-			throw new StartFailedException(e);
+			logging.fatal("Could not start! Shutting down safely ..", e);
+			StartFailedException startFailedException = new StartFailedException(e);
+			try {
+				serverConnector.shutDown();
+			} catch (IOException e1) {
+				logging.error("Encountered Exception, while shutting down Connection!", e1);
+				startFailedException.addSuppressed(e1);
+			}
+			throw startFailedException;
+		} catch (Throwable throwable) {
+			logging.fatal("Failed to start Server, because of an unexpected Throwable", throwable);
+			throw new StartFailedException(throwable);
 		}
 	}
 
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
-		assertStarted();
+		logging.debug("Starting to accept all next Clients ..");
 		try {
 			while (running()) {
 				acceptNextClient();
@@ -71,9 +77,10 @@ class ServerStartImpl implements ServerStart {
 		} catch (ClientConnectionFailedException e) {
 			throw new ClientConnectionFailedException(e);
 		} catch (Throwable t) {
-			logging.catching(t);
-			logging.error("Caught unexpected Throwable while accepting Clients!");
+			logging.fatal("Caught unexpected Throwable while accepting Clients!", t);
 			logging.debug("Trying to at least disconnect ..");
+			disconnect();
+			throw new ClientConnectionFailedException(t);
 		}
 		disconnect();
 	}
@@ -85,15 +92,19 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		assertStarted();
+		if (! running) {
+			throw new ClientConnectionFailedException("Cannot accept Clients, if not started properly!");
+		}
+		logging.debug("Accepting next Client.");
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
-			logging.info("Awaiting new Client ..");
+			logging.info("Awaiting new Connection ..");
 			Socket socket = serverSocket.accept();
-			logging.debug("Client connected! " + socket.getInetAddress() + ":" + socket.getPort());
+			logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
+			logging.trace("Handling new Connection ..");
 			threadPool.execute(() -> handle(socket));
 		} catch (IOException e) {
-			logging.error("Client-Connection failed! Aborting!", e);
+			logging.error("Connection establishment failed! Aborting!", e);
 			throw new ClientConnectionFailedException(e);
 		}
 	}
@@ -122,20 +133,16 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void disconnect() {
-		logging.trace("Trying to disconnect existing ServerSocket");
-		try {
-			serverConnector.disconnect();
-			softStop();
-		} catch (IOException e) {
-			logging.catching(e);
-		}
+		logging.trace("Requesting disconnect of existing ServerSocket");
+		softStop();
 	}
 
 	@Override
-	public void setSocketFactory(Factory<Integer, ServerSocket> factory) {
+	public void setServerSocketFactory(Factory<Integer, ServerSocket> factory) {
 		if (serverSocketFactory != null) {
 			logging.debug("Overriding existing Factory " + serverSocketFactory + " with " + factory);
 		}
+		logging.trace("Set ServerSocketFactory to " + factory);
 		serverSocketFactory = factory;
 	}
 
@@ -149,18 +156,23 @@ class ServerStartImpl implements ServerStart {
 		return communicationRegistration;
 	}
 
-	private void assertStarted() {
-		if (! serverConnector.connected()) {
-			throw new ServerHasToBeStartedException();
-		}
-	}
-
+	/**
+	 * TODO Auslagern!
+	 *
+	 * @param socket
+	 */
 	private void handle(Socket socket) {
+		logging.debug("Handling new Socket: " + socket);
 		Client client = null;
+		logging.trace("Requesting handling at clientConnectedHandlers ..");
 		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
 			if (client == null) {
+				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
 				client = clientConnectedHandler.create(socket);
+				if (client != null) logging.trace("ClientConnectedHandler " + clientConnectedHandler
+						+ " successfully created Client! Blocking access to client-creation .");
 			}
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
 			clientConnectedHandler.handle(client);
 		}
 	}
@@ -168,7 +180,11 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void softStop() {
 		logging.debug("Stopping ..");
+		logging.trace("Notifying about stop ..");
 		running = false;
+		logging.trace("Shutting down ThreadPool ..");
+		threadPool.shutdown();
+		logging.trace("Shutdown request completed!");
 	}
 
 	@Override
@@ -178,7 +194,9 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void setLogging(Logging logging) {
-		LoggingUtil.setLogging(logging);
+		this.logging.debug("Updating logging.");
+		this.logging = logging;
+		logging.trace("Updated logging!");
 	}
 
 	@Override

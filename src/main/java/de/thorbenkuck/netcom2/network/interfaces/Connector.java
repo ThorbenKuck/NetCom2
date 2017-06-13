@@ -1,13 +1,15 @@
 package de.thorbenkuck.netcom2.network.interfaces;
 
+import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+
 import java.io.IOException;
 
-public interface Connector<Factory> {
+public interface Connector<Factory, Return> {
 
-	void establishConnection(Factory factory) throws IOException;
+	Return establishConnection(Factory factory) throws IOException, StartFailedException;
 
-	void disconnect() throws IOException;
+	Return establishConnection(Class key, Factory factory) throws IOException, StartFailedException;
 
-	boolean connected();
+	void shutDown() throws IOException;
 
 }

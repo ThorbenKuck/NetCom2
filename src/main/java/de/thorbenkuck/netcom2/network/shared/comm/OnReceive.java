@@ -1,16 +1,15 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
 import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 @FunctionalInterface
-public interface OnReceive<O> {
+public interface OnReceive<O> extends OnReceiveTriple<O> {
 
-	void run(Session session, O o);
-
-	default void onUnRegistration() {
+	default void accept(Connection connection, Session session, O o) {
+		accept(session, o);
 	}
 
-	default void onRegistration() {
-	}
+	void accept(Session session, O o);
 
 }

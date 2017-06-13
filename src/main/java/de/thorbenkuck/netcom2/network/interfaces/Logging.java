@@ -1,19 +1,37 @@
 package de.thorbenkuck.netcom2.network.interfaces;
 
-import de.thorbenkuck.netcom2.logging.LoggingUtil;
+import de.thorbenkuck.netcom2.logging.*;
 
 public interface Logging {
-	static Logging access() {
-		return new LoggingUtil();
+	static Logging getDefault() {
+		return new SystemLogging();
 	}
 
-	void catching(Throwable throwable);
+	static Logging disabled() {
+		return new DisabledLogging();
+	}
+
+	static Logging unified() {
+		return new NetComLogging();
+	}
+
+	static Logging debug() {
+		return new DebugLogging();
+	}
+
+	static Logging callerTrace() {
+		return new CallerReflectionLoggin();
+	}
+
+	static Logging info() {
+		return new InfoLogging();
+	}
+
+	void trace(String s);
 
 	void debug(String s);
 
 	void info(String s);
-
-	void trace(String s);
 
 	void warn(String s);
 
@@ -24,4 +42,6 @@ public interface Logging {
 	void fatal(String s);
 
 	void fatal(String s, Throwable throwable);
+
+	void catching(Throwable throwable);
 }
