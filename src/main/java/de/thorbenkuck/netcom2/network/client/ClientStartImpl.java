@@ -34,6 +34,8 @@ public class ClientStartImpl implements ClientStart {
 		clientConnector = new ClientConnector(address, port, client);
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());
+		logging.trace("Creating Sender ..");
+		sender = InternalSender.create(client, cache);
 	}
 
 	@Override
@@ -45,8 +47,6 @@ public class ClientStartImpl implements ClientStart {
 		} catch (IOException e) {
 			throw new StartFailedException(e);
 		}
-		logging.trace("Creating required elements ..");
-		sender = InternalSender.create(client, cache);
 		logging.trace("Initializing new Connection ..");
 		new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory).init();
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
