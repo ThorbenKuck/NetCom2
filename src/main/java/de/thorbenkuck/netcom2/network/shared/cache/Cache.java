@@ -9,6 +9,8 @@ public interface Cache {
 		return new CacheImpl();
 	}
 
+	void clearObservers();
+
 	void update(Object object);
 
 	void addNew(Object object);

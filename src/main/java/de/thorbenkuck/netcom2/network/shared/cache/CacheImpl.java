@@ -11,6 +11,11 @@ public class CacheImpl extends Observable implements Cache {
 	private Logging logging = new NetComLogging();
 
 	@Override
+	public void clearObservers() {
+		deleteObservers();
+	}
+
+	@Override
 	public void update(Object object) {
 		if (isSet(object.getClass())) {
 			synchronized (internals) {
