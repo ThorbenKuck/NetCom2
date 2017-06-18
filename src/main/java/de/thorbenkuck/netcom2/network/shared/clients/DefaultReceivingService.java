@@ -18,9 +18,9 @@ import java.util.*;
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
-	private final Runnable onDisconnect;
 	private final List<CallBack<Object>> callBacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
+	private Runnable onDisconnect;
 	private Connection connection;
 	private Session session;
 	private Scanner in;
@@ -38,7 +38,8 @@ class DefaultReceivingService implements ReceivingService {
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
 		this.decryptionAdapter = decryptionAdapter;
-		this.onDisconnect = () -> logging.info("Shutting down ReceivingService!");
+		this.onDisconnect = () -> {
+		};
 	}
 
 	@Override
@@ -104,6 +105,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void onDisconnect() {
+		logging.info("Shutting down ReceivingService!");
 		onDisconnect.run();
 	}
 
@@ -144,6 +146,11 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public void setSession(Session session) {
 		this.session = session;
+	}
+
+	@Override
+	public void onDisconnect(Runnable runnable) {
+		this.onDisconnect = runnable;
 	}
 
 	@Override

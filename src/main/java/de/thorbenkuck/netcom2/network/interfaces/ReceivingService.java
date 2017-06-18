@@ -14,5 +14,7 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 
 	void setSession(Session session);
 
+	void onDisconnect(Runnable runnable);
+
 	Awaiting started();
 }

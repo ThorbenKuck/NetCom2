@@ -32,8 +32,10 @@ public class ConnectionFactory {
 	}
 
 	private ReceivingService getReceivingService(Client client) {
-		return new DefaultReceivingService(client.getCommunicationRegistration(),
+		ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
 				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(), client.getDecryptionAdapter());
+		receivingService.onDisconnect(client::disconnect);
+		return receivingService;
 
 	}
 
