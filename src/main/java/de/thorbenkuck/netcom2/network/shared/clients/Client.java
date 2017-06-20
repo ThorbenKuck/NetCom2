@@ -74,17 +74,26 @@ public class Client {
 	}
 
 	public void disconnect() {
+		logging.debug("Requested disconnect of client " + this);
+		logging.trace("Sorting DisconnectedHandler by priority ..");
 		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
+		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
 		disconnectedHandlers.stream()
 				.filter(DisconnectedHandler::active)
 				.forEachOrdered(dh -> dh.handle(this));
+		logging.trace("Closing all Connections ..");
 		connections.values().forEach(internalConnection -> {
+			logging.trace("Closing Connection " + internalConnection);
 			try {
 				internalConnection.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		});
+		logging.trace("Resetting ClientID ..");
+		id = ClientID.empty();
+		logging.trace("Resetting session ..");
+		session = Session.createNew(this);
 	}
 
 	public final void triggerPrimation() {
