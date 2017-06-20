@@ -121,4 +121,9 @@ public class ClientStartImpl implements ClientStart {
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
 	}
+
+	@Override
+	public void clearCache() {
+		cache.clearObservers();
+	}
 }

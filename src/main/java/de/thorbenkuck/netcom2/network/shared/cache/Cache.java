@@ -30,4 +30,6 @@ public interface Cache {
 	void addGeneralObserver(Observer observer);
 
 	void removeGeneralObserver(Observer observer);
+
+	void reset();
 }

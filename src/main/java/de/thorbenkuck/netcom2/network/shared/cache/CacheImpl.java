@@ -10,9 +10,19 @@ public class CacheImpl extends Observable implements Cache {
 	private final Map<Class<?>, Object> internals = new HashMap<>();
 	private Logging logging = new NetComLogging();
 
+	private void notifyAboutChangedEntry(Object updatedEntry) {
+		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
+		sendNotify(new UpdatedEntryEvent(updatedEntry));
+	}
+
 	@Override
 	public void clearObservers() {
 		deleteObservers();
+	}
+
+	private void notifyAboutNewEntry(Object newEntry) {
+		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
+		sendNotify(new NewEntryEvent(newEntry));
 	}
 
 	@Override
@@ -111,6 +121,12 @@ public class CacheImpl extends Observable implements Cache {
 				'}';
 	}
 
+	@Override
+	public void reset() {
+		clearObservers();
+		internals.clear();
+	}
+
 	private void notifyAboutRemovedEntry(Class clazz) {
 		logging.trace("Removed Cache-entry at " + clazz);
 		sendNotify(new DeletedEntryEvent(clazz));
@@ -122,13 +138,5 @@ public class CacheImpl extends Observable implements Cache {
 		clearChanged();
 	}
 
-	private void notifyAboutChangedEntry(Object updatedEntry) {
-		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
-		sendNotify(new UpdatedEntryEvent(updatedEntry));
-	}
 
-	private void notifyAboutNewEntry(Object newEntry) {
-		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
-		sendNotify(new NewEntryEvent(newEntry));
-	}
 }

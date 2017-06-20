@@ -33,4 +33,5 @@ public interface ClientStart extends Launch, Loggable {
 
 	CommunicationRegistration getCommunicationRegistration();
 
+	void clearCache();
 }
