@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface CallBack<T> extends Consumer<T> {
 
-	default boolean acceptable(Object object) {
+	default boolean isAcceptable(Object object) {
 		return object != null;
 	}
 

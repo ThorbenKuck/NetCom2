@@ -8,6 +8,8 @@ import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 public interface ReceivingService extends Runnable, SoftStoppable {
 
+	void cleanUpCallBacks();
+
 	void addReceivingCallback(CallBack<Object> callBack);
 
 	void setup(Connection connection, Session session);

@@ -127,7 +127,7 @@ public class DefaultConnection implements Connection {
 			}
 
 			@Override
-			public boolean acceptable(Object o) {
+			public boolean isAcceptable(Object o) {
 				return o != null && o.getClass().equals(clazz);
 			}
 
@@ -164,7 +164,7 @@ public class DefaultConnection implements Connection {
 	@Override
 	public void addListener(Feasible<Class> feasible) {
 		logging.debug("Added Feasible " + feasible);
-		receivingService.addReceivingCallback(new ConnectionCallBack(feasible));
+		receivingService.addReceivingCallback(new CallBackFeasibleWrapper(feasible));
 	}
 
 	@Override
@@ -227,34 +227,6 @@ public class DefaultConnection implements Connection {
 			return false;
 		}
 		return ((DefaultConnection) o).socket.equals(socket);
-	}
-
-	private class ConnectionCallBack implements CallBack<Object> {
-
-		private final Feasible<Class> feasible;
-
-		private ConnectionCallBack(Feasible<Class> feasible) {
-			this.feasible = feasible;
-		}
-
-		@Override
-		public void accept(Object object) {
-			feasible.tryAccept(object.getClass());
-		}
-
-		@Override
-		public boolean acceptable(Object object) {
-			return feasible.acceptable(object);
-		}
-
-		@Override
-		public boolean remove() {
-			return feasible.remove();
-		}
-
-		public String toString() {
-			return feasible.toString();
-		}
 	}
 
 	@Override

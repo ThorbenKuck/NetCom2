@@ -76,6 +76,8 @@ public class Client {
 				logging.catching(e);
 			}
 		});
+		logging.trace("Clearing connections ..");
+		connections.clear();
 		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
 		disconnectedHandlers.stream()
 				.filter(DisconnectedHandler::active)

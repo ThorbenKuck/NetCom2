@@ -19,8 +19,6 @@ public class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		logging.debug("Disconnection requested!");
 		logging.trace("Clearing internal Cache ..");
 		clientStart.cache().reset();
-//		logging.trace("Clearing CommunicationRegistration ..");
-//		clientStart.getCommunicationRegistration().clear();
 		logging.trace("Clearing ClientSession ..");
 		client.clearSession();
 		logging.trace("Setting cleared Client up ..");

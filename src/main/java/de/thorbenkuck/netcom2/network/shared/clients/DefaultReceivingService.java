@@ -14,13 +14,17 @@ import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
 	private final List<CallBack<Object>> callBacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private Runnable onDisconnect;
+	private final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private Runnable onDisconnect = () -> {
+	};
 	private Connection connection;
 	private Session session;
 	private Scanner in;
@@ -38,8 +42,6 @@ class DefaultReceivingService implements ReceivingService {
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
 		this.decryptionAdapter = decryptionAdapter;
-		this.onDisconnect = () -> {
-		};
 	}
 
 	@Override
@@ -53,6 +55,9 @@ class DefaultReceivingService implements ReceivingService {
 				logging.trace("Reading " + string);
 				Object object = deserialize(string);
 				logging.debug("Received: " + object);
+				if (object == null) {
+					throw new NullPointerException("Received null!");
+				}
 				trigger(object);
 			} catch (DeSerializationFailedException e) {
 				logging.error("Could not Serialize!", e);
@@ -88,7 +93,7 @@ class DefaultReceivingService implements ReceivingService {
 	private void trigger(Object object) {
 		try {
 			communicationRegistration.trigger(object.getClass(), connection, session, object);
-			callBack(object);
+			threadPool.submit(() -> callBack(object));
 		} catch (CommunicationNotSpecifiedException e) {
 			logging.catching(e);
 		}
@@ -99,37 +104,62 @@ class DefaultReceivingService implements ReceivingService {
 		running = false;
 	}
 
-	@Override
-	public boolean running() {
-		return running;
-	}
-
 	private void onDisconnect() {
 		logging.info("Shutting down ReceivingService!");
 		onDisconnect.run();
 	}
 
 	private void callBack(Object object) {
-		List<CallBack<Object>> toRemove = new ArrayList<>();
-		synchronized (callBacks) {
+		logging.debug("Accepting CallBacks(" + object + ")!");
+		runSynchronizedOverCallbacks(() -> {
+			logging.trace("Calling all callbacks, that want to be called ..");
 			callBacks.stream()
-					.filter(callBack -> callBack.acceptable(object))
-					.forEachOrdered(callBack -> {
+					.filter(callBack -> callBack.isAcceptable(object))
+					.forEach(callBack -> {
+						logging.trace("Calling " + callBack + " ..");
 						callBack.accept(object);
-						if (callBack.remove()) {
-							toRemove.add(callBack);
-						}
 					});
-			toRemove.forEach(CallBack::onRemove);
-			callBacks.removeAll(toRemove);
+		});
+
+		cleanUpCallBacks();
+	}
+
+	private void runSynchronizedOverCallbacks(Runnable runnable) {
+		logging.trace("Awaiting ThreadAccess over callBacks ..");
+		synchronized (callBacks) {
+			logging.trace("Acquired ThreadAccess over callBacks!");
+			runnable.run();
 		}
 	}
 
 	@Override
+	public void cleanUpCallBacks() {
+		logging.debug("CallBack cleanup requested!");
+		List<CallBack<Object>> toRemove = new ArrayList<>();
+		runSynchronizedOverCallbacks(() -> {
+			callBacks.stream()
+					.filter(CallBack::remove)
+					.forEach(callBack -> {
+						logging.trace("Marking CallBack " + callBack + " as removable ..");
+						toRemove.add(callBack);
+					});
+			toRemove.forEach(callBackToRemove -> {
+				logging.trace("Preparing to remove CallBack: " + callBackToRemove);
+				callBackToRemove.onRemove();
+				logging.debug("Removing CallBack " + toRemove);
+				callBacks.remove(callBackToRemove);
+			});
+		});
+		logging.debug("CallBack cleanup done!");
+	}
+
+	@Override
 	public void addReceivingCallback(CallBack<Object> callBack) {
-		synchronized (callBacks) {
+		logging.debug("Trying to add CallBack " + callBack);
+		runSynchronizedOverCallbacks(() -> {
+			logging.trace("Added Callback: " + callBack);
 			callBacks.add(callBack);
-		}
+		});
 	}
 
 	@Override
@@ -157,4 +187,10 @@ class DefaultReceivingService implements ReceivingService {
 	public Awaiting started() {
 		return synchronize;
 	}
+
+	@Override
+	public boolean running() {
+		return running;
+	}
+
 }
