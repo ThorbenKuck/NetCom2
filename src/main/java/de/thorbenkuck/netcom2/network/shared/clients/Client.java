@@ -46,8 +46,7 @@ public class Client {
 		logging.trace("Setting default EncryptionAdapter and DecryptionAdapter ..");
 		encryptionAdapter = EncryptionAdapter.getDefault();
 		decryptionAdapter = DecryptionAdapter.getDefault();
-		logging.trace("Getting new Session ..");
-		setSession(Session.createNew(this));
+		setup();
 	}
 
 	private void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
@@ -56,6 +55,12 @@ public class Client {
 
 	public void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
+	}
+
+	public void setup() {
+		logging.debug("Initial setup of Client requested!");
+		logging.trace("Getting new Session ..");
+		setSession(Session.createNew(this));
 	}
 
 	@Override
@@ -113,6 +118,7 @@ public class Client {
 	}
 
 	public final void setSession(Session session) {
+		if (session == null) throw new IllegalArgumentException("Session cant be null!!");
 		if (this.session != null) logging.warn("Overriding existing ClientSession with " + session + "!");
 		else logging.debug("Setting ClientSession to " + session + " ..");
 		this.session = session;
@@ -121,6 +127,10 @@ public class Client {
 			logging.trace("Updating Session of Connection " + connection);
 			connection.setSession(session);
 		}
+	}
+
+	public final void clearSession() {
+		session = null;
 	}
 
 	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {

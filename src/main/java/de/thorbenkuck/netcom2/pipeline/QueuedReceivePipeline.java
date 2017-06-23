@@ -1,6 +1,7 @@
 package de.thorbenkuck.netcom2.pipeline;
 
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
@@ -13,16 +14,17 @@ import java.util.Queue;
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiverImpl<T>> core = new LinkedList<>();
+	private final Logging logging = Logging.unified();
 	private boolean closed = false;
 
 	@Override
 	public ReceivePipelineCondition<T> addLast(OnReceive<T> onReceive) {
-		return addLast((OnReceiveTriple<T>) onReceive);
+		return addLast(new OnReceiveWrapper<>(onReceive));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> pipelineService) {
-		return addLast((OnReceive<T>) pipelineService);
+	public ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> onReceiveSingle) {
+		return addLast(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
 	@Override
@@ -32,17 +34,18 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			core.add(pipelineReceiver);
 		}
 		pipelineService.onRegistration();
+		logging.debug("Registering onReceive: " + pipelineReceiver);
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
 
 	@Override
 	public ReceivePipelineCondition<T> addFirst(OnReceive<T> onReceive) {
-		return addFirst((OnReceiveTriple<T>) onReceive);
+		return addFirst(new OnReceiveWrapper<>(onReceive));
 	}
 
 	@Override
 	public ReceivePipelineCondition<T> addFirst(OnReceiveSingle<T> pipelineService) {
-		return addFirst((OnReceive<T>) pipelineService);
+		return addFirst(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
 	@Override
@@ -64,7 +67,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public void remove(OnReceive<T> pipelineService) {
 		synchronized (core) {
 			checkClosed();
-			core.remove(new PipelineReceiverImpl<>(pipelineService));
+			core.remove(new PipelineReceiverImpl<>(new OnReceiveWrapper<>(pipelineService)));
 		}
 	}
 
@@ -76,6 +79,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	@SuppressWarnings ("unchecked")
 	@Override
 	public void run(Connection connection, Session session, Object t) {
 		synchronized (core) {

@@ -1,12 +1,10 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
-import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.pipeline.CanBeRegistered;
 
-public interface OnReceiveSingle<O> extends OnReceive<O> {
+import java.util.function.Consumer;
 
-	default void accept(Session session, O o) {
-		accept(o);
-	}
+public interface OnReceiveSingle<O> extends Consumer<O>, CanBeRegistered {
 
 	void accept(O o);
 

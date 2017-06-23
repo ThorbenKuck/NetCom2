@@ -23,6 +23,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.trace("Creating ReceivingPipeline for " + clazz);
 			return new QueuedReceivePipeline<>();
 		});
+		logging.debug("Registering communication for " + clazz);
 		return (ReceivePipeline<T>) mapping.get(clazz);
 	}
 
@@ -66,6 +67,15 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
+	}
+
+	@Override
+	public void clear() {
+		logging.debug("Clearing all defined Communications!");
+		logging.trace("Clearing CommunicationPipelines ..");
+		mapping.clear();
+		logging.trace("Clearing DefaultCommunicationHandlers ..");
+		defaultCommunicationHandlers.clear();
 	}
 
 	private void requireNotNull(Object... objects) {

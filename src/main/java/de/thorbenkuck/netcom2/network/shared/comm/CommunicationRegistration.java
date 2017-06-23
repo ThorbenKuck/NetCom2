@@ -22,4 +22,5 @@ public interface CommunicationRegistration {
 
 	void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler);
 
+	void clear();
 }

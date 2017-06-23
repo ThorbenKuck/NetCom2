@@ -75,7 +75,7 @@ public class ClientStartTest {
 				.addLast((user, o) -> logging.info("Received " + o.getHello() + " from Server"));
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
-				.addLast((user, o) -> logging.info("----\n" + o.getMsg() + "\n----"));
+				.addLast((connection, user, o) -> logging.info("----\n" + o.getMsg() + "\n----"));
 
 		clientStart.getCommunicationRegistration()
 				.register(Ping.class)

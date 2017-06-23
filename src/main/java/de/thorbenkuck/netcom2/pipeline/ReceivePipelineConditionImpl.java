@@ -15,11 +15,11 @@ class ReceivePipelineConditionImpl<T> implements ReceivePipelineCondition<T> {
 
 	@Override
 	public final void withRequirement(BiPredicate<Session, T> userPredicate) {
-		receiver.addBiPredicate(userPredicate);
+		receiver.addTriPredicate(new OnReceivePredicateWrapper<>(userPredicate));
 	}
 
 	@Override
 	public final void withRequirement(Predicate<Session> userPredicate) {
-		receiver.addPredicate(userPredicate);
+		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
 	}
 }

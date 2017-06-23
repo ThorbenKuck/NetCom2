@@ -36,10 +36,7 @@ public class ClientStartImpl implements ClientStart {
 		setSocketFactory(new DefaultClientSocketFactory());
 		logging.trace("Creating Sender ..");
 		sender = InternalSender.create(client, cache);
-		client.addDisconnectedHandler(client -> {
-			cache.clearObservers();
-			client.disconnect();
-		});
+		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
 	}
 
 	@Override
@@ -127,6 +124,7 @@ public class ClientStartImpl implements ClientStart {
 
 	@Override
 	public void clearCache() {
+		logging.debug("Clearing cache observers ..");
 		cache.clearObservers();
 	}
 }
