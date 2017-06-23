@@ -56,7 +56,7 @@ public class DefaultConnection implements Connection {
 				close();
 			} catch (IOException e1) {
 				e1.addSuppressed(e);
-				logging.error("Encountered Exception while cleaning up over a previously encountered Exception!", e1);
+				logging.fatal("Encountered Exception while cleaning up over a previously encountered Exception!", e1);
 				throw new Error(e1);
 			}
 			throw new Error(e);
@@ -72,7 +72,8 @@ public class DefaultConnection implements Connection {
 		logging.trace("Requesting soft-stop of set SendingService ..");
 		sendingService.softStop();
 		logging.trace("Requesting soft-stop of ThreadPool ..");
-		threadPool.shutdown();
+		logging.info("Sending Service will be shut down forcefully! Expect an InterruptedException!");
+		threadPool.shutdownNow();
 		logging.trace("Shutting down socket ..");
 		socket.close();
 		logging.debug("Successfully shut down Connection " + this);

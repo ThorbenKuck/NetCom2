@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.network.client.ClientStartImpl;
 import de.thorbenkuck.netcom2.network.client.Sender;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
+import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import de.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -14,6 +15,8 @@ public interface ClientStart extends Launch, Loggable {
 	static ClientStart at(String address, int port) {
 		return new ClientStartImpl(address, port);
 	}
+
+	Cache cache();
 
 	Awaiting createNewConnection(Class key) throws InterruptedException;
 

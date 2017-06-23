@@ -6,12 +6,13 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class DefaultClientSocketFactory implements SocketFactory {
+
 	@Override
-	public Socket create(int port, String address) {
+	public Socket create(int port, String address) throws IOException {
 		try {
 			return new Socket(address, port);
 		} catch (IOException e) {
-			throw new Error(e);
+			throw new IOException(e);
 		}
 	}
 }

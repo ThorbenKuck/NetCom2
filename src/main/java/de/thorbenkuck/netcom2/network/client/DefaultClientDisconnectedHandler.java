@@ -15,13 +15,17 @@ public class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 
 	@Override
 	public void handle(Client client) {
+		logging.warn("Disconnected from Server! Cleaning up ..");
 		logging.debug("Disconnection requested!");
 		logging.trace("Clearing internal Cache ..");
-		clientStart.clearCache();
-		logging.trace("Clearing CommunicationRegistration ..");
-		clientStart.getCommunicationRegistration().clear();
+		clientStart.cache().reset();
+//		logging.trace("Clearing CommunicationRegistration ..");
+//		clientStart.getCommunicationRegistration().clear();
+		logging.trace("Clearing ClientSession ..");
 		client.clearSession();
+		logging.trace("Setting cleared Client up ..");
 		client.setup();
+		logging.info("ClientStart has been cleaned up and can be reused");
 	}
 
 	@Override

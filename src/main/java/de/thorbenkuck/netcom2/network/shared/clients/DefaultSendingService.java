@@ -62,7 +62,7 @@ class DefaultSendingService implements SendingService {
 				logging.error("Encountered unexpected Throwable", throwable);
 			}
 		}
-		logging.info("Shutting down SendingService!");
+		logging.info("SendingService stopped!");
 	}
 
 	private String serialize(Object o) throws SerializationFailedException {

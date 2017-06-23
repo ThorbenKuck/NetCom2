@@ -8,6 +8,7 @@ import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 
 import java.io.IOException;
+import java.net.Socket;
 
 class ClientConnector implements Connector<SocketFactory, Connection> {
 
@@ -27,8 +28,10 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	@Override
 	public Connection establishConnection(SocketFactory factory) throws IOException {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
+		logging.trace("Creating Socket by SocketFactory ..");
+		Socket socket = factory.create(port, address);
 		logging.trace("Creating Connection ..");
-		Connection connection = connectionFactory.create(factory.create(port, address), client);
+		Connection connection = connectionFactory.create(socket, client);
 		logging.trace("Starting to listen on new Connection ..");
 		try {
 			logging.trace("Awaiting Synchronization of new Connection ..");

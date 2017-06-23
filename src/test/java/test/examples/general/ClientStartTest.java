@@ -13,11 +13,15 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
 import java.util.Observable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 
 	private static ClientStart clientStart;
 	private static Logging logging = Logging.unified();
+	private static ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private static int port = 44444;
 
 	public static void main(String[] args) {
@@ -85,7 +89,10 @@ public class ClientStartTest {
 	private static void start() throws StartFailedException {
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
-		clientStart.addDisconnectedHandler(client -> logging.info("Bye bye lieber Server"));
+		clientStart.addDisconnectedHandler(client -> {
+			logging.info("Bye bye lieber Server");
+			executorService.schedule(new ConnectionRetryRunnable(clientStart), 4, TimeUnit.SECONDS);
+		});
 		clientStart.launch();
 	}
 
@@ -103,6 +110,28 @@ public class ClientStartTest {
 		@Override
 		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
 			logging.info("[DELETED] Received push from Server about: " + deletedEntryEvent.getCorrespondingClass());
+		}
+	}
+
+	private static class ConnectionRetryRunnable implements Runnable {
+
+		private ClientStart clientStart;
+		private int tries = 0;
+
+		private ConnectionRetryRunnable(ClientStart clientStart) {
+			this.clientStart = clientStart;
+		}
+
+		@Override
+		public void run() {
+			++ tries;
+			try {
+				clientStart.launch();
+				logging.info("Reconnected after " + tries + " tries!");
+			} catch (StartFailedException e) {
+				logging.catching(e);
+				executorService.schedule(this, 4, TimeUnit.SECONDS);
+			}
 		}
 	}
 }

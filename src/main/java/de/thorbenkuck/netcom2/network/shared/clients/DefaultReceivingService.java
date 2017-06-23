@@ -43,7 +43,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Override
-	public void run() {
+	public synchronized void run() {
 		running = true;
 		logging.debug("Started ReceivingService for " + connection.getFormattedAddress());
 		synchronize.goOn();
@@ -57,14 +57,14 @@ class DefaultReceivingService implements ReceivingService {
 			} catch (DeSerializationFailedException e) {
 				logging.error("Could not Serialize!", e);
 			} catch (NoSuchElementException e) {
-				logging.trace("Client from " + connection.getFormattedAddress() + " disconnected");
+				logging.info("Disconnection detected!");
 				softStop();
 			} catch (Throwable throwable) {
 				logging.error("Encountered unexpected Throwable while reading nextLine!", throwable);
 			}
 		}
 		onDisconnect();
-		logging.trace("Leaving ReceivingService#run");
+		logging.trace("Receiving Service stopped!");
 	}
 
 	private Object deserialize(String string) throws DeSerializationFailedException {

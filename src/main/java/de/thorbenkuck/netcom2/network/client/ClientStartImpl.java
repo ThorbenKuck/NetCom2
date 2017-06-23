@@ -54,20 +54,8 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public void setLogging(Logging logging) {
-		this.logging.debug("Overriding logging ..");
-		this.logging = logging;
-		logging.debug("Logging was updated!");
-	}
-
-	@Override
-	public String toString() {
-		return "ClientStart{" +
-				"cache=" + cache +
-				", socketFactory=" + socketFactory +
-				", communicationRegistration=" + communicationRegistration +
-				", client=" + client +
-				'}';
+	public Cache cache() {
+		return cache;
 	}
 
 	@Override
@@ -126,5 +114,22 @@ public class ClientStartImpl implements ClientStart {
 	public void clearCache() {
 		logging.debug("Clearing cache observers ..");
 		cache.clearObservers();
+	}
+
+	@Override
+	public void setLogging(Logging logging) {
+		this.logging.debug("Overriding logging ..");
+		this.logging = logging;
+		logging.debug("Logging was updated!");
+	}
+
+	@Override
+	public String toString() {
+		return "ClientStart{" +
+				"cache=" + cache +
+				", socketFactory=" + socketFactory +
+				", communicationRegistration=" + communicationRegistration +
+				", client=" + client +
+				'}';
 	}
 }

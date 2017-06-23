@@ -63,38 +63,23 @@ public class Client {
 		setSession(Session.createNew(this));
 	}
 
-	@Override
-	public final String toString() {
-		return "Client{" +
-				"id=" + id +
-				", session=" + session +
-				", connections=" + connections +
-				", mainSerializationAdapter=" + mainSerializationAdapter +
-				", mainDeSerializationAdapter=" + mainDeSerializationAdapter +
-				", fallBackSerialization=" + fallBackSerialization +
-				", fallBackDeSerialization=" + fallBackDeSerialization +
-				", decryptionAdapter" + decryptionAdapter +
-				", encryptionAdapter" + encryptionAdapter +
-				'}';
-	}
-
 	public void disconnect() {
 		logging.debug("Requested disconnect of client " + this);
 		logging.trace("Sorting DisconnectedHandler by priority ..");
 		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
-		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
-		disconnectedHandlers.stream()
-				.filter(DisconnectedHandler::active)
-				.forEachOrdered(dh -> dh.handle(this));
 		logging.trace("Closing all Connections ..");
 		connections.values().forEach(internalConnection -> {
 			logging.trace("Closing Connection " + internalConnection);
 			try {
 				internalConnection.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		});
+		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
+		disconnectedHandlers.stream()
+				.filter(DisconnectedHandler::active)
+				.forEachOrdered(disconnectedHandler -> disconnectedHandler.handle(this));
 		logging.trace("Resetting ClientID ..");
 		id = ClientID.empty();
 		logging.trace("Resetting session ..");
@@ -118,7 +103,7 @@ public class Client {
 	}
 
 	public final void setSession(Session session) {
-		if (session == null) throw new IllegalArgumentException("Session cant be null!!");
+		if (session == null) throw new IllegalArgumentException("Session cant be null!");
 		if (this.session != null) logging.warn("Overriding existing ClientSession with " + session + "!");
 		else logging.debug("Setting ClientSession to " + session + " ..");
 		this.session = session;
@@ -130,6 +115,7 @@ public class Client {
 	}
 
 	public final void clearSession() {
+		logging.info("Session of Client will be cleared!");
 		session = null;
 	}
 
@@ -292,5 +278,20 @@ public class Client {
 			falseIDs.removeAll(clientIDS);
 			logging.trace("State of false IDs after: " + falseIDs);
 		}
+	}
+
+	@Override
+	public final String toString() {
+		return "Client{" +
+				"id=" + id +
+				", session=" + session +
+				", connections=" + connections +
+				", mainSerializationAdapter=" + mainSerializationAdapter +
+				", mainDeSerializationAdapter=" + mainDeSerializationAdapter +
+				", fallBackSerialization=" + fallBackSerialization +
+				", fallBackDeSerialization=" + fallBackDeSerialization +
+				", decryptionAdapter" + decryptionAdapter +
+				", encryptionAdapter" + encryptionAdapter +
+				'}';
 	}
 }
