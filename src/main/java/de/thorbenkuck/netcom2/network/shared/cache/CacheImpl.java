@@ -32,11 +32,15 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void clearObservers() {
+		logging.trace("Deleting all Observers currently registered ..");
+		logging.trace("#Observers before: " + countObservers());
 		deleteObservers();
+		logging.trace("#Observers after: " + countObservers());
 	}
 
 	@Override
 	public void update(Object object) {
+		logging.trace("Trying to update an existing Object(" + object + ") to Cache ..");
 		if (isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
@@ -50,6 +54,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void addNew(Object object) {
+		logging.trace("Trying to add a new Object(" + object + ") to Cache ..");
 		if (! isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
@@ -72,11 +77,12 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void remove(Class clazz) {
+		logging.trace("Trying to remove Object(" + clazz + ") to Cache ..");
 		if (isSet(clazz)) {
 			Object removedEntry;
 			synchronized (internals) {
 				removedEntry = internals.remove(clazz);
-				logging.debug("Removed entry for " + clazz);
+				logging.debug("Removed entry for " + clazz + " (instance: " + removedEntry + ")");
 			}
 			notifyAboutRemovedEntry(removedEntry);
 		}
@@ -115,7 +121,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	public void addGeneralObserver(GeneralCacheObserver observer) {
 		logging.debug("Adding Observer(" + observer + ") to " + toString());
-		logging.info("It is recommended to use " + CacheObserver.class);
+		logging.warn("It is recommended to use " + CacheObserver.class);
 		addObserver(observer);
 	}
 
@@ -134,7 +140,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void reset() {
+		logging.debug("Resetting Cache!");
 		clearObservers();
+		logging.trace("Clearing all previously cached instances ..");
 		internals.clear();
 	}
 

@@ -4,12 +4,12 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 
-public class DefaultClientDisconnectedHandler implements DisconnectedHandler {
+class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 
 	private final Logging logging = Logging.unified();
 	private ClientStartImpl clientStart;
 
-	public DefaultClientDisconnectedHandler(ClientStartImpl clientStart) {
+	DefaultClientDisconnectedHandler(ClientStartImpl clientStart) {
 		this.clientStart = clientStart;
 	}
 
@@ -23,6 +23,8 @@ public class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		client.clearSession();
 		logging.trace("Setting cleared Client up ..");
 		client.setup();
+		logging.trace("Resetting Sender ..");
+		clientStart.send().reset();
 		logging.info("ClientStart has been cleaned up and can be reused");
 	}
 

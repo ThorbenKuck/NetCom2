@@ -59,7 +59,7 @@ public class ClientStartTest {
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
 		clientStart.addDisconnectedHandler(client -> {
-			System.out.println("Bye bye lieber Server");
+			System.out.println("Bye bye dear Server");
 			executorService.schedule(new ConnectionRetryRunnable(clientStart), 4, TimeUnit.SECONDS);
 		});
 		clientStart.launch();
@@ -81,12 +81,12 @@ public class ClientStartTest {
 			Awaiting callBack = clientStart.createNewConnection(TestObject.class);
 			System.out.println("SomeStuff");
 			System.out.println("SomeMoreStuff");
-			System.out.println("Jetzt warte ich auf die neue Connection..");
+			System.out.println("Now wait for the new Connection..");
 			callBack.synchronize();
-			System.out.println("Connection wurde aufgebaut! JUHU!");
-			System.out.println("Lass uns die neue Connection mal testen..");
+			System.out.println("Connection established! YAY!");
+			System.out.println("Let's test the new Connection ..");
 			clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andWaitFor(TestObject.class);
-			System.out.println("Das lief doch gut!");
+			System.out.println("That was good, was'nt it?");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

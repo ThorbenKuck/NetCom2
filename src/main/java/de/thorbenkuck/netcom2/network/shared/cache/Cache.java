@@ -8,8 +8,6 @@ public interface Cache {
 		return new CacheImpl();
 	}
 
-	void clearObservers();
-
 	void update(Object object);
 
 	void addNew(Object object);
@@ -18,9 +16,9 @@ public interface Cache {
 
 	void remove(Class clazz);
 
-	boolean isSet(Class<?> clazz);
-
 	<T> Optional<T> get(Class<T> clazz);
+
+	boolean isSet(Class<?> clazz);
 
 	<T> void addCacheObserver(CacheObserver<T> cacheObserver);
 
@@ -29,6 +27,8 @@ public interface Cache {
 	void addGeneralObserver(GeneralCacheObserver observer);
 
 	void removeGeneralObserver(GeneralCacheObserver observer);
+
+	void clearObservers();
 
 	void reset();
 }

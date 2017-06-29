@@ -27,4 +27,6 @@ public interface Sender {
 
 	<T> Expectable unRegistrationToServer(Class<T> clazz, Class connectionKey);
 
+	void reset();
+
 }

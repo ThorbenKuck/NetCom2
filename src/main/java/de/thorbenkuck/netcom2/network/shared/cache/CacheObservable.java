@@ -1,26 +1,27 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class CacheObservable {
 
 	private boolean changed = false;
-	private Vector<CacheObserver<?>> obs = new Vector<>();
+	private List<CacheObserver<?>> obs = new ArrayList<>();
 
 	public <T> void addObserver(CacheObserver<T> cacheObserver) {
 		if (cacheObserver == null) {
 			throw new NullPointerException();
 		} else {
 			if (! this.obs.contains(cacheObserver)) {
-				this.obs.addElement(cacheObserver);
+				this.obs.add(cacheObserver);
 			}
 
 		}
 	}
 
 	public void deleteObserver(CacheObserver<?> cacheObserver) {
-		obs.removeElement(cacheObserver);
+		obs.remove(cacheObserver);
 	}
 
 	protected <T> void newEntry(T o) {
@@ -69,8 +70,8 @@ public class CacheObservable {
 		this.changed = true;
 	}
 
-	public synchronized void deleteObservers() {
-		this.obs.removeAllElements();
+	protected synchronized void deleteObservers() {
+		this.obs.clear();
 	}
 
 	public synchronized boolean hasChanged() {

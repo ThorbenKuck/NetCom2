@@ -13,12 +13,11 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observer;
 
 public class SenderImpl implements InternalSender, Loggable {
 
-	private Client client;
-	private Map<Class<?>, CacheObserver<?>> observers = new HashMap<>();
+	private final Client client;
+	private Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
 	private Cache cache;
 	private Logging logging = new NetComLogging();
 
@@ -45,28 +44,28 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
 	}
 
 	@Override
 	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
 	@Override
 	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
 	}
 
 	@Override
 	public <T> Expectable unRegistrationToServer(Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
 		}
@@ -76,7 +75,7 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> Expectable unRegistrationToServer(Class<T> clazz, Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
 		}
@@ -86,23 +85,33 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> Expectable unRegistrationToServer(Class<T> clazz, Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
 		}
 		throw new RuntimeException("Cannot unregister! Registration was never requested!");
 	}
 
-	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> CacheObserver<T> deleteObserver(Class clazz) {
-		return (CacheObserver<T>) observers.remove(clazz);
+	public <T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer) {
+		if(observer.accept(clazz)) {
+			logging.debug("Added pending CacheObserver for " + clazz);
+			pendingObservers.put(clazz, observer);
+		} else {
+			logging.warn("CacheObserver and given Class are incompatible! (" + clazz + " <=> " + observer + ")");
+		}
 	}
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> CacheObserver<T> getObserver(Class<T> clazz) {
-		return (CacheObserver<T>) observers.get(clazz);
+	public <T> CacheObserver<T> removePendingObserver(Class clazz) {
+		return (CacheObserver<T>) pendingObservers.remove(clazz);
+	}
+
+	@SuppressWarnings ("unchecked")
+	@Override
+	public <T> CacheObserver<T> getPendingObserver(Class<T> clazz) {
+		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
 	@Override
@@ -117,5 +126,12 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public void setLogging(Logging logging) {
 		this.logging = logging;
+	}
+
+	@Override
+	public void reset()  {
+		logging.debug("Resetting Sender!");
+		logging.trace("Deleting currently pending observer ..");
+		this.pendingObservers.clear();
 	}
 }

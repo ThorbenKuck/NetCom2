@@ -18,7 +18,7 @@ public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
 	@Override
 	public final boolean accept(Object o) {
-		return o != null && o.getClass().equals(clazz);
+		return o != null && ( o.getClass().equals(clazz) || o.equals(clazz));
 	}
 
 	@Override

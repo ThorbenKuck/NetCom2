@@ -13,7 +13,9 @@ interface InternalSender extends Sender {
 		return new SenderImpl(client, cache);
 	}
 
-	<T> CacheObserver<T> deleteObserver(Class clazz);
+	<T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer);
 
-	<T> CacheObserver<T> getObserver(Class<T> clazz);
+	<T> CacheObserver<T> removePendingObserver(Class clazz);
+
+	<T> CacheObserver<T> getPendingObserver(Class<T> clazz);
 }
