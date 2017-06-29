@@ -109,6 +109,10 @@ public class ClientStartTest {
 	}
 
 	private static class TestObserver extends AbstractCacheObserver {
+		private TestObserver() {
+			super(clazz);
+		}
+
 		@Override
 		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
 			System.out.println("[NEW ENTRY] Received push from Server about: " + newEntryEvent.getObject());

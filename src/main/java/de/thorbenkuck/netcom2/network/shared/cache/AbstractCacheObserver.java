@@ -1,18 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import java.util.Observable;
+public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
-public abstract class AbstractCacheObserver implements CacheObserver {
-	@Override
-	public final void update(Observable o, Object arg) {
-		assertNotNull(o, arg);
-		if (arg.getClass().equals(NewEntryEvent.class)) {
-			newEntry((NewEntryEvent) arg, o);
-		} else if (arg.getClass().equals(UpdatedEntryEvent.class)) {
-			updatedEntry((UpdatedEntryEvent) arg, o);
-		} else if (arg.getClass().equals(DeletedEntryEvent.class)) {
-			deletedEntry((DeletedEntryEvent) arg, o);
-		}
+	private final Class<T> clazz;
+
+	protected AbstractCacheObserver(Class<T> clazz) {
+		this.clazz = clazz;
 	}
 
 	protected final void assertNotNull(Object... o) {
@@ -23,14 +16,13 @@ public abstract class AbstractCacheObserver implements CacheObserver {
 		}
 	}
 
-	public abstract void newEntry(NewEntryEvent newEntryEvent, Observable observable);
-
-	public abstract void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable);
-
-	public abstract void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable);
+	@Override
+	public final boolean accept(Object o) {
+		return o != null && o.getClass().equals(clazz);
+	}
 
 	@Override
 	public String toString() {
-		return AbstractCacheObserver.class + " implementation: " + getClass();
+		return CacheObserver.class + " implementation: " + getClass();
 	}
 }

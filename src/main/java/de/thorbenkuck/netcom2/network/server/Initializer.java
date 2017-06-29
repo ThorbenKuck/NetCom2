@@ -61,6 +61,7 @@ class Initializer {
 		private Distributor distributor;
 
 		ObserverSender(Distributor distributor) {
+			super(clazz);
 			this.distributor = distributor;
 		}
 

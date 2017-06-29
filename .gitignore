@@ -33,7 +33,6 @@
 # IntelliJ
 /out/
 .gradle
-.idea
 build
 
 # mpeltonen/sbt-idea plugin

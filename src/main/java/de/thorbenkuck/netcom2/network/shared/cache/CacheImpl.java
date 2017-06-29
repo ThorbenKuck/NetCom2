@@ -3,28 +3,37 @@ package de.thorbenkuck.netcom2.network.shared.cache;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public class CacheImpl extends Observable implements Cache {
+public class CacheImpl extends CacheObservable implements Cache {
 
 	private final Map<Class<?>, Object> internals = new HashMap<>();
 	private Logging logging = new NetComLogging();
 
 	private void notifyAboutChangedEntry(Object updatedEntry) {
 		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
-		sendNotify(new UpdatedEntryEvent(updatedEntry));
+		setChanged();
+		updatedEntry(updatedEntry);
 	}
 
 	private void notifyAboutNewEntry(Object newEntry) {
 		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
-		sendNotify(new NewEntryEvent(newEntry));
+		setChanged();
+		newEntry(newEntry);
+	}
+
+	private void notifyAboutRemovedEntry(Object object) {
+		logging.trace("Removed Cache-entry at " + object.getClass());
+		setChanged();
+		deletedEntry(object);
 	}
 
 	@Override
 	public void clearObservers() {
 		deleteObservers();
 	}
-
 
 	@Override
 	public void update(Object object) {
@@ -64,11 +73,12 @@ public class CacheImpl extends Observable implements Cache {
 	@Override
 	public void remove(Class clazz) {
 		if (isSet(clazz)) {
+			Object removedEntry;
 			synchronized (internals) {
-				internals.remove(clazz);
+				removedEntry = internals.remove(clazz);
 				logging.debug("Removed entry for " + clazz);
 			}
-			notifyAboutRemovedEntry(clazz);
+			notifyAboutRemovedEntry(removedEntry);
 		}
 	}
 
@@ -91,30 +101,26 @@ public class CacheImpl extends Observable implements Cache {
 	}
 
 	@Override
-	public void addCacheObserver(CacheObserver cacheObserver) {
+	public <T> void addCacheObserver(CacheObserver<T> cacheObserver) {
 		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
 		addObserver(cacheObserver);
 	}
 
 	@Override
-	public void removeCacheObserver(CacheObserver cacheObserver) {
+	public <T> void removeCacheObserver(CacheObserver<T> cacheObserver) {
 		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
 		deleteObserver(cacheObserver);
 	}
 
 	@Override
-	public void addGeneralObserver(Observer observer) {
-		if (observer instanceof CacheObserver) {
-			addCacheObserver((CacheObserver) observer);
-		} else {
-			logging.debug("Adding Observer(" + observer + ") to " + toString());
-			logging.info("It is recommended to use " + CacheObserver.class);
-			addObserver(observer);
-		}
+	public void addGeneralObserver(GeneralCacheObserver observer) {
+		logging.debug("Adding Observer(" + observer + ") to " + toString());
+		logging.info("It is recommended to use " + CacheObserver.class);
+		addObserver(observer);
 	}
 
 	@Override
-	public void removeGeneralObserver(Observer observer) {
+	public void removeGeneralObserver(GeneralCacheObserver observer) {
 		logging.debug("Removing Observer(" + observer + ") from " + toString());
 		deleteObserver(observer);
 	}
@@ -130,17 +136,6 @@ public class CacheImpl extends Observable implements Cache {
 	public void reset() {
 		clearObservers();
 		internals.clear();
-	}
-
-	private void notifyAboutRemovedEntry(Class clazz) {
-		logging.trace("Removed Cache-entry at " + clazz);
-		sendNotify(new DeletedEntryEvent(clazz));
-	}
-
-	private synchronized void sendNotify(Object o) {
-		setChanged();
-		notifyObservers(o);
-		clearChanged();
 	}
 
 
