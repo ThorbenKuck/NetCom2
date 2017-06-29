@@ -1,12 +1,10 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import com.sun.istack.internal.NotNull;
-
 import java.util.Observable;
 
 public abstract class AbstractCacheObserver implements CacheObserver {
 	@Override
-	public final void update(@NotNull Observable o, @NotNull Object arg) {
+	public final void update(Observable o, Object arg) {
 		assertNotNull(o, arg);
 		if (arg.getClass().equals(NewEntryEvent.class)) {
 			newEntry((NewEntryEvent) arg, o);
