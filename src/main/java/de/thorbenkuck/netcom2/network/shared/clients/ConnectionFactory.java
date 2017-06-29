@@ -22,7 +22,7 @@ public class ConnectionFactory {
 		Session session = client.getSession();
 
 		logging.trace("Creating connection..");
-		Connection connection = new DefaultConnection(socket, session, receivingService, sendingService);
+		Connection connection = new DefaultConnection(socket, session, receivingService, sendingService, key);
 		logging.trace("Applying connection to Client");
 		client.setConnection(key, connection);
 		logging.trace("Connection build!");

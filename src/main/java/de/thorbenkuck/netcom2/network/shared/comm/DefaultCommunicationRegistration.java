@@ -9,11 +9,14 @@ import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
+	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
 
 	@SuppressWarnings ("unchecked")
@@ -49,14 +52,19 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		requireNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
-		assertMatching(clazz, o);
+		requireMatching(clazz, o);
 		if (! isRegistered(clazz)) {
-			logging.trace("Could not find specific communication for " + clazz + ". Using fallback!");
+			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
 			logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 			try {
-				mapping.get(clazz).run(connection, session, o);
+				logging.trace("Performing required type casts ..");
+				logging.trace("Casting ReceivePipeline ..");
+				ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
+				logging.trace("Casting given Object " + o + "  ..");
+				T t = (T) o;
+				threadPool.submit(() -> handleRegistered(receivePipeline, connection, session, t));
 			} catch (Throwable throwable) {
 				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
 			}
@@ -84,7 +92,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void assertMatching(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
+	private void requireMatching(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
 		if (! (o != null && clazz.equals(o.getClass()))) {
 			throw new CommunicationNotSpecifiedException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
@@ -98,8 +106,12 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
 		} else {
 			logging.trace("Running all set DefaultCommunicationHandler ..");
-			runDefaultCommunicationHandler(connection, session, o);
+			threadPool.submit(() -> runDefaultCommunicationHandler(connection, session, o));
 		}
+	}
+
+	private <T> void handleRegistered(ReceivePipeline<T> pipeline, Connection connection, Session session, T o) {
+		pipeline.run(connection, session, o);
 	}
 
 	private void runDefaultCommunicationHandler(Connection connection, Session session, Object o) {

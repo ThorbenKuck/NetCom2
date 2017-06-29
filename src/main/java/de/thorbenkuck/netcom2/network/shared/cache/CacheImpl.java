@@ -15,15 +15,16 @@ public class CacheImpl extends Observable implements Cache {
 		sendNotify(new UpdatedEntryEvent(updatedEntry));
 	}
 
+	private void notifyAboutNewEntry(Object newEntry) {
+		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
+		sendNotify(new NewEntryEvent(newEntry));
+	}
+
 	@Override
 	public void clearObservers() {
 		deleteObservers();
 	}
 
-	private void notifyAboutNewEntry(Object newEntry) {
-		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
-		sendNotify(new NewEntryEvent(newEntry));
-	}
 
 	@Override
 	public void update(Object object) {
@@ -33,6 +34,8 @@ public class CacheImpl extends Observable implements Cache {
 				logging.debug("Updated entry for " + object.getClass());
 			}
 			notifyAboutChangedEntry(object);
+		} else {
+			logging.warn(object.getClass() + " is not set!");
 		}
 	}
 
@@ -44,6 +47,8 @@ public class CacheImpl extends Observable implements Cache {
 				logging.debug("Added new entry for " + object.getClass());
 			}
 			notifyAboutNewEntry(object);
+		} else {
+			logging.warn(object.getClass() + " is already set!");
 		}
 	}
 

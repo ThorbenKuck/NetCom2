@@ -47,14 +47,14 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public synchronized void run() {
 		running = true;
-		logging.debug("Started ReceivingService for " + connection.getFormattedAddress());
+		logging.debug("Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
 		synchronize.goOn();
 		while (running()) {
 			try {
 				String string = in.nextLine();
 				logging.trace("Reading " + string);
 				Object object = deserialize(string);
-				logging.debug("Received: " + object);
+				logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" + connection.getFormattedAddress());
 				if (object == null) {
 					throw new NullPointerException("Received null!");
 				}

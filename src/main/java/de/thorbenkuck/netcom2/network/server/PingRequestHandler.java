@@ -19,10 +19,9 @@ class PingRequestHandler implements OnReceive<Ping> {
 
 	@Override
 	public void accept(Session session, Ping ping) {
-		logging.debug("Ping received from Client");
-		System.out.println(clients);
-		System.out.println(session);
+		logging.debug("Ping received from Session " + session);
 
+		logging.trace("Receiving Client for Session " + session);
 		Optional<Client> clientOptional = clients.getClient(session);
 		clientOptional.ifPresent(client -> {
 			logging.trace("Checking client! Comparing IDs: Known ID: " + client.getID() + " received ID: " + ping.getId());
@@ -36,6 +35,8 @@ class PingRequestHandler implements OnReceive<Ping> {
 				client.disconnect();
 			}
 		});
-
+		if (! clientOptional.isPresent()) {
+			logging.warn("Could not locate Client for Session" + session);
+		}
 	}
 }

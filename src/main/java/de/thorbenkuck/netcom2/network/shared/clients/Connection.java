@@ -46,4 +46,8 @@ public interface Connection extends Loggable {
 	InetAddress getInetAddress();
 
 	boolean isActive();
+
+	Class<?> getKey();
+
+	void setKey(Class<?> connectionKey);
 }

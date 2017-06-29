@@ -75,7 +75,7 @@ public class ClientStartTest {
 			System.out.println("#1 Awaiting receive of Class TestObjectThree...");
 			clientStart.send()
 					.objectToServer(new Login())
-					.andAwaitReceivingOfClass(TestObjectThree.class);
+					.andWaitFor(TestObjectThree.class);
 			System.out.println("#1 Received TestObjectThree.class!");
 			clientStart.send().objectToServer(new Login());
 			clientStart.send().objectToServer(new Login());
@@ -88,7 +88,7 @@ public class ClientStartTest {
 			callBack.synchronize();
 			System.out.println("Connection wurde aufgebaut! JUHU!");
 			System.out.println("Lass uns die neue Connection mal testen..");
-			clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
+			clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andWaitFor(TestObject.class);
 			System.out.println("Das lief doch gut!");
 		} catch (InterruptedException e) {
 			e.printStackTrace();

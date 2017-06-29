@@ -3,6 +3,6 @@ package de.thorbenkuck.netcom2.network.shared;
 @FunctionalInterface
 public interface Expectable {
 
-	void andAwaitReceivingOfClass(Class clazz) throws InterruptedException;
+	void andWaitFor(Class clazz) throws InterruptedException;
 
 }

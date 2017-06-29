@@ -65,12 +65,13 @@ class DistributorImpl implements InternalDistributor {
 
 	@Override
 	public final void toRegistered(Object o) {
-		toRegistered(o, Session::isIdentified);
+		toRegistered(o, Objects::nonNull);
 	}
 
 	@Override
 	@SafeVarargs
 	public final void toRegistered(Object o, Predicate<Session>... predicates) {
+		logging.trace("Trying to send " + o + " to " + distributorRegistration.getRegistered(o.getClass()));
 		distributorRegistration.getRegistered(o.getClass()).stream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {

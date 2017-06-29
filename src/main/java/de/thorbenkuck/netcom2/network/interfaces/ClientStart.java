@@ -2,6 +2,8 @@ package de.thorbenkuck.netcom2.network.interfaces;
 
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.client.ClientStartImpl;
+import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
+import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import de.thorbenkuck.netcom2.network.client.Sender;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
@@ -18,7 +20,7 @@ public interface ClientStart extends Launch, Loggable {
 
 	Cache cache();
 
-	Awaiting createNewConnection(Class key) throws InterruptedException;
+	Awaiting createNewConnection(Class key);
 
 	void setSocketFactory(SocketFactory factory);
 
@@ -33,6 +35,10 @@ public interface ClientStart extends Launch, Loggable {
 	void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
 
 	void addDisconnectedHandler(DisconnectedHandler disconnectedHandler);
+
+	void setDecryptionAdapter(DecryptionAdapter decryptionAdapter);
+
+	void setEncryptionAdapter(EncryptionAdapter encryptionAdapter);
 
 	CommunicationRegistration getCommunicationRegistration();
 

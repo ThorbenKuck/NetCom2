@@ -153,8 +153,9 @@ public class Client {
 		Objects.requireNonNull(connection);
 		Objects.requireNonNull(object);
 
+		logging.debug("Trying to send " + object + " over Connection " + connection.getKey());
 		logging.trace("Creating Expectable for " + object.getClass() + " ..");
-		ListenAndExpect<Class> expectable = new Listener<>(object.getClass());
+		ListenAndExpect expectable = new Listener(object.getClass());
 		logging.trace("Adding Expectable to connection ..");
 		connection.addListener(expectable);
 		logging.trace("Writing Object to connection");
@@ -204,6 +205,10 @@ public class Client {
 		return decryptionAdapter;
 	}
 
+	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+		this.decryptionAdapter = decryptionAdapter;
+	}
+
 	public SerializationAdapter<Object, String> getMainSerializationAdapter() {
 		return mainSerializationAdapter;
 	}
@@ -219,6 +224,10 @@ public class Client {
 
 	public EncryptionAdapter getEncryptionAdapter() {
 		return encryptionAdapter;
+	}
+
+	public void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
+		this.encryptionAdapter = encryptionAdapter;
 	}
 
 	public Awaiting prepareConnection(Class clazz) {

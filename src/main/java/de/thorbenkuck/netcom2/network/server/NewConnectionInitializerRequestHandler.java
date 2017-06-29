@@ -20,9 +20,10 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 
 	@Override
 	public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
+		Class connectionKey = newConnectionInitializer.getConnectionKey();
 		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
 		logging.debug(clients.toString());
-		String identifier = newConnectionInitializer.getID() + "@" + newConnectionInitializer.getConnectionKey();
+		String identifier = newConnectionInitializer.getID() + "@" + connectionKey;
 		logging.debug("Received ConnectionInitializer for: " + identifier);
 		logging.trace("[" + identifier + "]: Verifying Client ..");
 		Optional<Client> clientOptional = clients.getClient(newConnectionInitializer.getID());
@@ -34,17 +35,19 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 			try {
 				logging.trace("Awaiting primation of sending Client ..");
 				client.primed().synchronize();
-				logging.trace("Awaiting primation of deleting Client..");
+				logging.trace("Awaiting primation of deleting Client ..");
 				toDelete.primed().synchronize();
 				logging.trace("[" + identifier + "]: Setting new Connection ..");
-				client.setConnection(newConnectionInitializer.getConnectionKey(), connection);
+				client.setConnection(connectionKey, connection);
 				connection.setSession(client.getSession());
-				logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + newConnectionInitializer.getConnectionKey());
+				logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + connectionKey);
 				logging.trace("[" + identifier + "]: Acknowledging newly initialized Connection..");
 				connection.writeObject(newConnectionInitializer);
-				logging.trace("[" + identifier + "]: Removing duplicate..");
+				logging.trace("[" + identifier + "]: Removing duplicate ..");
 				clients.remove(toDelete);
 				client.removeFalseID(newConnectionInitializer.getToDeleteID());
+				logging.trace("[" + identifier + "]: Updating ConnectionKey ..");
+				connection.setKey(connectionKey);
 			} catch (InterruptedException e) {
 				logging.catching(e);
 			}

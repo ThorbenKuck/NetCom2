@@ -31,12 +31,14 @@ public class DefaultConnection implements Connection {
 	private ReceivingService receivingService;
 	private SendingService sendingService;
 	private boolean started = false;
+	private Class<?> key;
 
-	public DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService) {
+	public DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService, Class<?> key) {
 		this.socket = socket;
 		this.session = session;
 		this.receivingService = receivingService;
 		this.sendingService = sendingService;
+		this.key = key;
 		setup();
 	}
 
@@ -212,6 +214,16 @@ public class DefaultConnection implements Connection {
 	@Override
 	public boolean isActive() {
 		return socket.isConnected();
+	}
+
+	@Override
+	public Class<?> getKey() {
+		return key;
+	}
+
+	@Override
+	public void setKey(Class<?> connectionKey) {
+		this.key = connectionKey;
 	}
 
 	@Override

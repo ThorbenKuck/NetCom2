@@ -1,10 +1,13 @@
 package de.thorbenkuck.netcom2.network.shared;
 
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
+
 import java.util.concurrent.CountDownLatch;
 
 public abstract class AbstractSynchronize implements Synchronize {
 
 	private final int numberOfActions;
+	private final Logging logging = Logging.unified();
 	private CountDownLatch countDownLatch;
 
 	protected AbstractSynchronize() {
@@ -20,20 +23,31 @@ public abstract class AbstractSynchronize implements Synchronize {
 	}
 
 	@Override
+	public final void synchronize() throws InterruptedException {
+		logging.trace("Awaiting Synchronization ..");
+		countDownLatch.await();
+		logging.trace("Synchronized!");
+	}
+
+	@Override
 	public final void goOn() {
-		countDownLatch.countDown();
+		logging.debug("Continuing " + this);
+		synchronized (logging) {
+			countDownLatch.countDown();
+			logging.debug("Leftover actions to take: " + countDownLatch.getCount());
+		}
 	}
 
 	@Override
 	public final void reset() {
-		while (countDownLatch.getCount() > 0) {
-			countDownLatch.countDown();
+		logging.debug("Resetting " + this);
+		synchronized (logging) {
+			while (countDownLatch.getCount() > 0) {
+				goOn();
+			}
+			countDownLatch = new CountDownLatch(numberOfActions);
 		}
-		countDownLatch = new CountDownLatch(numberOfActions);
 	}
 
-	@Override
-	public final void synchronize() throws InterruptedException {
-		countDownLatch.await();
-	}
+
 }

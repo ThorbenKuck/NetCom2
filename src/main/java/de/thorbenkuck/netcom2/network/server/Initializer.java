@@ -66,11 +66,15 @@ class Initializer {
 
 		@Override
 		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
+			logging.debug("Received a new entry for the set Cache!");
+			logging.trace("Notifying registered Clients for Class " + newEntryEvent.getObject().getClass());
 			distributor.toRegistered(newEntryEvent.getObject());
 		}
 
 		@Override
 		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
+			logging.debug("Received an updated entry for the set Cache!");
+			logging.trace("Notifying registered Clients for Class " + updatedEntryEvent.getObject().getClass());
 			distributor.toRegistered(updatedEntryEvent.getObject());
 		}
 

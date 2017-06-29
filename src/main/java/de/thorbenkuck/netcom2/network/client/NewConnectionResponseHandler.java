@@ -46,7 +46,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			List<ClientID> toRemove = new ArrayList<>();
 			for (ClientID toDeleteID : client.getFalseIDs()) {
 				logging.trace(prefix + "Requesting deletion of old key: " + toDeleteID);
-				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andAwaitReceivingOfClass(NewConnectionInitializer.class);
+				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andWaitFor(NewConnectionInitializer.class);
 				toRemove.add(toDeleteID);
 				logging.trace(prefix + "Marked for deletion " + toDeleteID);
 			}

@@ -24,7 +24,7 @@ public class ChatRoomClient {
 			new Instantiate(clientStart).resolve();
 			System.out.print("Please enter your UserName: ");
 			String userName = userInput.getNextLine();
-			clientStart.send().objectToServer(new Login(userName)).andAwaitReceivingOfClass(User.class);
+			clientStart.send().objectToServer(new Login(userName)).andWaitFor(User.class);
 			new InputSender(userInput, clientStart.send()).magic();
 		} catch (StartFailedException | IOException | InterruptedException e) {
 			System.out.println("Error");

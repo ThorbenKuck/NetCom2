@@ -59,7 +59,7 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public Awaiting createNewConnection(Class key) throws InterruptedException {
+	public Awaiting createNewConnection(Class key) {
 		logging.trace("Trying to establish new Connection ..");
 		return clientConnectionEstablish.newFor(key, client);
 	}
@@ -103,6 +103,18 @@ public class ClientStartImpl implements ClientStart {
 	public void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
 		client.addDisconnectedHandler(disconnectedHandler);
+	}
+
+	@Override
+	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
+		client.setDecryptionAdapter(decryptionAdapter);
+	}
+
+	@Override
+	public void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
+		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
+		client.setEncryptionAdapter(encryptionAdapter);
 	}
 
 	@Override
