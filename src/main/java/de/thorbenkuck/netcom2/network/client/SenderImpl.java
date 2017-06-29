@@ -5,6 +5,7 @@ import de.thorbenkuck.netcom2.network.interfaces.Loggable;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Expectable;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
@@ -17,7 +18,7 @@ import java.util.Observer;
 public class SenderImpl implements InternalSender, Loggable {
 
 	private Client client;
-	private Map<Class, Observer> observers = new HashMap<>();
+	private Map<Class<?>, CacheObserver<?>> observers = new HashMap<>();
 	private Cache cache;
 	private Logging logging = new NetComLogging();
 
@@ -42,28 +43,28 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
 		observers.put(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer, Connection connection) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
 		logging.debug("Registering to " + clazz);
 		observers.put(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer, Class connectionKey) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
 		logging.debug("Registering to " + clazz);
 		observers.put(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (observers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
@@ -73,7 +74,7 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz, Connection connection) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz, Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (observers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
@@ -83,7 +84,7 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz, Class connectionKey) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz, Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (observers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
@@ -92,14 +93,16 @@ public class SenderImpl implements InternalSender, Loggable {
 		throw new RuntimeException("Cannot unregister! Registration was never requested!");
 	}
 
+	@SuppressWarnings ("unchecked")
 	@Override
-	public Observer deleteObserver(Class clazz) {
-		return observers.remove(clazz);
+	public <T> CacheObserver<T> deleteObserver(Class clazz) {
+		return (CacheObserver<T>) observers.remove(clazz);
 	}
 
+	@SuppressWarnings ("unchecked")
 	@Override
-	public Observer getObserver(Class clazz) {
-		return observers.get(clazz);
+	public <T> CacheObserver<T> getObserver(Class<T> clazz) {
+		return (CacheObserver<T>) observers.get(clazz);
 	}
 
 	@Override

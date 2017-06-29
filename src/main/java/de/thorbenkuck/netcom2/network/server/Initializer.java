@@ -56,31 +56,30 @@ class Initializer {
 		cache.addCacheObserver(new ObserverSender(distributor));
 	}
 
-	private class ObserverSender extends AbstractCacheObserver {
+	private class ObserverSender implements GeneralCacheObserver {
 
 		private Distributor distributor;
 
 		ObserverSender(Distributor distributor) {
-			super(clazz);
 			this.distributor = distributor;
 		}
 
 		@Override
-		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
+		public void newEntry(Object o, CacheObservable observable) {
 			logging.debug("Received a new entry for the set Cache!");
-			logging.trace("Notifying registered Clients for Class " + newEntryEvent.getObject().getClass());
-			distributor.toRegistered(newEntryEvent.getObject());
+			logging.trace("Notifying registered Clients for Class " + o.getClass());
+			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
+		public void updatedEntry(Object o, CacheObservable observable) {
 			logging.debug("Received an updated entry for the set Cache!");
-			logging.trace("Notifying registered Clients for Class " + updatedEntryEvent.getObject().getClass());
-			distributor.toRegistered(updatedEntryEvent.getObject());
+			logging.trace("Notifying registered Clients for Class " + o.getClass());
+			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
+		public void deletedEntry(Object o, CacheObservable observable) {
 			logging.fatal("TODO!");
 		}
 	}

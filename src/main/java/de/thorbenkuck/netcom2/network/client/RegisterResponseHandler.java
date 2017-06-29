@@ -20,7 +20,7 @@ class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 	@Override
 	public void accept(Session session, RegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
+			cache.addCacheObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
 			logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
 		}
 	}

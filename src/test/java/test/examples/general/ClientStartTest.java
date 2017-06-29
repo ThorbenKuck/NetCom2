@@ -5,10 +5,7 @@ import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
-import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
-import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
+import de.thorbenkuck.netcom2.network.shared.cache.*;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
@@ -108,24 +105,24 @@ public class ClientStartTest {
 				.addLast(ping -> System.out.println("Received Ping from Server!"));
 	}
 
-	private static class TestObserver extends AbstractCacheObserver {
+	private static class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
 		private TestObserver() {
-			super(clazz);
+			super(TestObjectTwo.class);
 		}
 
 		@Override
-		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-			System.out.println("[NEW ENTRY] Received push from Server about: " + newEntryEvent.getObject());
+		public void newEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[NEW ENTRY] Received push from Server about: " + testObjectTwo);
 		}
 
 		@Override
-		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-			System.out.println("[UPDATE] Received push from Server about: " + updatedEntryEvent.getObject());
+		public void updatedEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[UPDATE] Received push from Server about: " + testObjectTwo);
 		}
 
 		@Override
-		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-			System.out.println("[DELETED] Received push from Server about: " + deletedEntryEvent.getCorrespondingClass());
+		public void deletedEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[DELETED] Received push from Server about: " + testObjectTwo);
 		}
 	}
 

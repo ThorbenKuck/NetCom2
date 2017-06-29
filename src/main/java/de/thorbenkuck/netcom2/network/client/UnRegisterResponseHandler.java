@@ -20,7 +20,7 @@ class UnRegisterResponseHandler implements OnReceive<UnRegisterResponse> {
 	@Override
 	public void accept(Session session, UnRegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addGeneralObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
+			cache.addCacheObserver(sender.deleteObserver(o.getRequest().getCorrespondingClass()));
 			logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
 		}
 	}

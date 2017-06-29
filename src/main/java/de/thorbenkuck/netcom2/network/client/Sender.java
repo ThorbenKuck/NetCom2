@@ -1,6 +1,8 @@
 package de.thorbenkuck.netcom2.network.client;
 
 import de.thorbenkuck.netcom2.network.shared.Expectable;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 import java.util.Observer;
@@ -13,16 +15,16 @@ public interface Sender {
 
 	Expectable objectToServer(Object o, Class connectionKey);
 
-	Expectable registrationToServer(Class clazz, Observer observer);
+	<T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer);
 
-	Expectable registrationToServer(Class clazz, Observer observer, Connection connection);
+	<T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection);
 
-	Expectable registrationToServer(Class clazz, Observer observer, Class connectionKey);
+	<T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey);
 
-	Expectable unRegistrationToServer(Class clazz);
+	<T> Expectable unRegistrationToServer(Class<T> clazz);
 
-	Expectable unRegistrationToServer(Class clazz, Connection connection);
+	<T> Expectable unRegistrationToServer(Class<T> clazz, Connection connection);
 
-	Expectable unRegistrationToServer(Class clazz, Class connectionKey);
+	<T> Expectable unRegistrationToServer(Class<T> clazz, Class connectionKey);
 
 }
