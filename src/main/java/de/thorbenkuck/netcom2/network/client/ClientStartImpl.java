@@ -114,6 +114,7 @@ public class ClientStartImpl implements ClientStart {
 	public void clearCache() {
 		logging.debug("Clearing cache observers ..");
 		cache.clearObservers();
+
 	}
 
 	@Override
