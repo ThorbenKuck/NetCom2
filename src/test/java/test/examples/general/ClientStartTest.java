@@ -6,6 +6,7 @@ import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.cache.*;
+import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
@@ -34,14 +35,13 @@ public class ClientStartTest {
 	}
 
 	private static void create() {
-		NetComLogging.setLogging(Logging.getDefault());
 		clientStart = ClientStart.at("localhost", port);
 	}
 
 	private static void setup() {
-//		clientStart.setServerSocketFactory((port, address) -> {
+//		clientStart.setSocketFactory((port, address) -> {
 //			try {
-//				return SSLSocketFactory.getDefault().createSocket(address, port);
+//				return SSLSocketFactory.getDefaultJavaSerialization().createSocket(address, port);
 //			} catch (IOException e) {
 //				e.printStackTrace();
 //			}

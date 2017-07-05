@@ -7,6 +7,8 @@ import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import de.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 
+import java.util.function.Consumer;
+
 public interface ReceivePipeline<T> {
 	ReceivePipelineCondition<T> addLast(OnReceive<T> pipelineService);
 
@@ -28,5 +30,18 @@ public interface ReceivePipeline<T> {
 
 	void close();
 
+	/**
+	 * Sets the ReceivePipeline to an unchangeable open-state. If you close and than seal it, it cannot be opened any more
+	 */
+	void seal();
+
+	boolean isSealed();
+
 	void open();
+
+	boolean isClosed();
+
+	void ifClosed(Consumer<ReceivePipeline<T>> consumer);
+
+	void ifClosed(Runnable runnable);
 }

@@ -19,7 +19,7 @@ class PingHandler implements OnReceiveTriple<Ping> {
 
 	@Override
 	public void accept(Connection connection, Session session, Ping ping) {
-		logging.trace("Trying to get Thread-Access over Client...");
+		logging.trace("Trying to get Thread-Access over Client ...");
 		synchronized (client) {
 			logging.trace("Got Thread-Access over Client!");
 			if (! ClientID.isEmpty(client.getID())) {

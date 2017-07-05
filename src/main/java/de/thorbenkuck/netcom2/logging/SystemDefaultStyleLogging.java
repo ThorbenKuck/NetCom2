@@ -2,39 +2,55 @@ package de.thorbenkuck.netcom2.logging;
 
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-public class SystemLogging implements Logging {
+public class SystemDefaultStyleLogging implements Logging {
+
+	private final PrintStream out;
+
+	public SystemDefaultStyleLogging() {
+		this(System.out);
+	}
+
+	public SystemDefaultStyleLogging(PrintStream printStream) {
+		out = printStream;
+	}
+
 	@Override
 	public String toString() {
-		return "{Default Logging-style for NetCom2-LoggingUtil}";
+		return "{Default Logging-style for NetCom2Logging}";
 	}
 
 	@Override
 	public void trace(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") TRACE : " + s);
+		out.println(getPrefix() + "TRACE : " + s);
+	}
+
+	String getPrefix() {
+		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
 	}
 
 	@Override
 	public void debug(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") DEBUG : " + s);
+		out.println(getPrefix() + "DEBUG : " + s);
 	}
 
 	@Override
 	public void info(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") INFO : " + s);
+		out.println(getPrefix() + "INFO : " + s);
 	}
 
 	@Override
 	public void warn(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") WARN : " + s);
+		out.println(getPrefix() + "WARN : " + s);
 	}
 
 	@Override
 	public void error(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") ERROR : " + s);
+		out.println(getPrefix() + "ERROR : " + s);
 	}
 
 	@Override
@@ -45,7 +61,7 @@ public class SystemLogging implements Logging {
 
 	@Override
 	public void fatal(String s) {
-		System.out.println("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") FATAL : " + s);
+		out.println(getPrefix() + "FATAL : " + s);
 	}
 
 	@Override
@@ -59,7 +75,7 @@ public class SystemLogging implements Logging {
 		StringWriter sw = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(sw));
 		String stacktrace = sw.toString();
-		System.out.println(stacktrace);
+		out.println(stacktrace);
 	}
 
 

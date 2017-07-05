@@ -33,7 +33,7 @@ public class DefaultConnection implements Connection {
 	private boolean started = false;
 	private Class<?> key;
 
-	public DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService, Class<?> key) {
+	DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService, Class<?> key) {
 		this.socket = socket;
 		this.session = session;
 		this.receivingService = receivingService;

@@ -5,6 +5,9 @@ import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.Factory;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.Synchronize;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -14,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,7 +99,7 @@ class ServerStartImpl implements ServerStart {
 		if (! running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not started properly!");
 		}
-		logging.debug("Accepting next Client.");
+		logging.debug("Accepting next ClientImpl.");
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
 			logging.info("Awaiting new Connection ..");
@@ -167,12 +171,12 @@ class ServerStartImpl implements ServerStart {
 		logging.trace("Requesting handling at clientConnectedHandlers ..");
 		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
 			if (client == null) {
-				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
+				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create ClientImpl ..");
 				client = clientConnectedHandler.create(socket);
 				if (client != null) logging.trace("ClientConnectedHandler " + clientConnectedHandler
-						+ " successfully created Client! Blocking access to client-creation .");
+						+ " successfully created ClientImpl! Blocking access to clientImpl-creation .");
 			}
-			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle ClientImpl ..");
 			clientConnectedHandler.handle(client);
 		}
 	}
@@ -208,5 +212,17 @@ class ServerStartImpl implements ServerStart {
 				", cache=" + cache +
 				", running=" + running +
 				'}';
+	}
+
+	@Override
+	public Awaiting createNewConnection(Session session, Class key) {
+		logging.debug("Trying to create Connection " + key + " for Session " + session);
+		logging.trace("Getting Client from ClientList ..");
+		Optional<Client> clientOptional = clientList.getClient(session);
+		if(!clientOptional.isPresent()) {
+			logging.warn("Could not locate Client for Session: " + session);
+			return Synchronize.empty();
+		}
+		return clientOptional.get().createNewConnection(key);
 	}
 }

@@ -23,7 +23,7 @@ public class ConnectionFactory {
 
 		logging.trace("Creating connection..");
 		Connection connection = new DefaultConnection(socket, session, receivingService, sendingService, key);
-		logging.trace("Applying connection to Client");
+		logging.trace("Applying connection to ClientImpl");
 		client.setConnection(key, connection);
 		logging.trace("Connection build!");
 		logging.info("Connected to server at " + connection);

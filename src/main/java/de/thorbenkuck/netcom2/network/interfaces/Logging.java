@@ -4,7 +4,7 @@ import de.thorbenkuck.netcom2.logging.*;
 
 public interface Logging {
 	static Logging getDefault() {
-		return new SystemLogging();
+		return new ErrorLogging();
 	}
 
 	static Logging disabled() {
@@ -15,16 +15,28 @@ public interface Logging {
 		return new NetComLogging();
 	}
 
+	static Logging callerTrace() {
+		return new CallerReflectionLogging();
+	}
+
+	static Logging trace() {
+		return new TraceLogging();
+	}
+
 	static Logging debug() {
 		return new DebugLogging();
 	}
 
-	static Logging callerTrace() {
-		return new CallerReflectionLoggin();
-	}
-
 	static Logging info() {
 		return new InfoLogging();
+	}
+
+	static Logging warn() {
+		return new WarnLogging();
+	}
+
+	static Logging error() {
+		return new ErrorLogging();
 	}
 
 	void trace(String s);

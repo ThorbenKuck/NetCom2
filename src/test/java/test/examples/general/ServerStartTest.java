@@ -1,7 +1,6 @@
 package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -36,12 +35,8 @@ public class ServerStartTest {
 		catching();
 		create();
 		schedule();
-		try {
-			register();
-			starter.start();
-		} catch (CommunicationAlreadySpecifiedException e) {
-			throw new RuntimeException(e);
-		}
+		register();
+		starter.start();
 	}
 
 	private static void catching() {
@@ -85,7 +80,7 @@ public class ServerStartTest {
 		});
 //		serverStart.setServerSocketFactory(integer -> {
 //			try {
-//				return SSLServerSocketFactory.getDefault().createServerSocket(integer);
+//				return SSLServerSocketFactory.getDefaultJavaSerialization().createServerSocket(integer);
 //			} catch (IOException e) {
 //				e.printStackTrace();
 //			}
@@ -103,7 +98,7 @@ public class ServerStartTest {
 		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 11, 11, TimeUnit.SECONDS);
 	}
 
-	private static void register() throws CommunicationAlreadySpecifiedException {
+	private static void register() {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addLast((session, o) -> System.out.println("------received " + o.getHello() + " from " + session + "-------"))

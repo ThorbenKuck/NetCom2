@@ -2,35 +2,36 @@ package de.thorbenkuck.netcom2.logging;
 
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
-public class DebugLogging implements Logging {
+public class ErrorLogging implements Logging {
 
 	private final Logging logging;
 
-	public DebugLogging() {
+	public ErrorLogging() {
 		this(new SystemDefaultStyleLogging());
 	}
 
-	public DebugLogging(Logging base) {
+	public ErrorLogging(Logging base) {
 		this.logging = base;
 	}
 
 	@Override
 	public void trace(String s) {
+
 	}
 
 	@Override
 	public void debug(String s) {
-		logging.debug(s);
+
 	}
 
 	@Override
 	public void info(String s) {
-		logging.info(s);
+
 	}
 
 	@Override
 	public void warn(String s) {
-		logging.warn(s);
+
 	}
 
 	@Override

@@ -7,10 +7,7 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
-import de.thorbenkuck.netcom2.network.shared.clients.Client;
-import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import de.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
-import de.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import de.thorbenkuck.netcom2.network.shared.clients.*;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
@@ -28,9 +25,9 @@ public class ClientStartImpl implements ClientStart {
 
 	public ClientStartImpl(String address, int port) {
 		logging.debug("Instantiation ClientStart ..");
-		logging.trace("Creating Client ..");
-		client = new Client(communicationRegistration);
-		logging.trace("Creating Client-Connector ..");
+		logging.trace("Creating ClientImpl ..");
+		client = Client.create(communicationRegistration);
+		logging.trace("Creating ClientImpl-Connector ..");
 		clientConnector = new ClientConnector(address, port, client);
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());
@@ -141,7 +138,7 @@ public class ClientStartImpl implements ClientStart {
 				"cache=" + cache +
 				", socketFactory=" + socketFactory +
 				", communicationRegistration=" + communicationRegistration +
-				", client=" + client +
+				", clientImpl=" + client +
 				'}';
 	}
 }

@@ -11,7 +11,7 @@ import java.util.Base64;
 
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
-	private final Logging logging = NetComLogging.getLogging();
+	private final Logging logging = Logging.unified();
 
 	@Override
 	public String get(Object o) throws SerializationFailedException {

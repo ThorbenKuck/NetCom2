@@ -11,7 +11,7 @@ import java.util.Base64;
 
 public class JavaDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
 
-	private final Logging logging = NetComLogging.getLogging();
+	private final Logging logging = Logging.unified();
 
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {

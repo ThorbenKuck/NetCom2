@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.exceptions.UnregistrationException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Loggable;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -17,8 +18,8 @@ import java.util.Map;
 public class SenderImpl implements InternalSender, Loggable {
 
 	private final Client client;
-	private Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
-	private Cache cache;
+	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
+	private final Cache cache;
 	private Logging logging = new NetComLogging();
 
 	public SenderImpl(Client client, Cache cache) {
@@ -69,7 +70,7 @@ public class SenderImpl implements InternalSender, Loggable {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class SenderImpl implements InternalSender, Loggable {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
@@ -89,14 +90,16 @@ public class SenderImpl implements InternalSender, Loggable {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
 	public <T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer) {
 		if(observer.accept(clazz)) {
 			logging.debug("Added pending CacheObserver for " + clazz);
-			pendingObservers.put(clazz, observer);
+			synchronized (pendingObservers) {
+				pendingObservers.put(clazz, observer);
+			}
 		} else {
 			logging.warn("CacheObserver and given Class are incompatible! (" + clazz + " <=> " + observer + ")");
 		}
@@ -117,7 +120,7 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public String toString() {
 		return "Sender{" +
-				"client=" + client +
+				"clientImpl=" + client +
 				", cache=" + cache +
 				", logging=" + logging +
 				'}';

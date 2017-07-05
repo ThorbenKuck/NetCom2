@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SerializationAdapter<F, T> {
 
-	static SerializationAdapter<Object, String> getDefault() {
+	static SerializationAdapter<Object, String> getDefaultJavaDeSerialization() {
 		return new JavaSerializationAdapter();
 	}
 

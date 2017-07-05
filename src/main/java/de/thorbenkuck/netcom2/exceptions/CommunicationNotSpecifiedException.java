@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.exceptions;
 
-public class CommunicationNotSpecifiedException extends Exception {
+public class CommunicationNotSpecifiedException extends NetComException {
 
 	public CommunicationNotSpecifiedException(String s) {
 		super(s);

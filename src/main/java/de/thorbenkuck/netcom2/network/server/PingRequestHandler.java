@@ -21,14 +21,14 @@ class PingRequestHandler implements OnReceive<Ping> {
 	public void accept(Session session, Ping ping) {
 		logging.debug("Ping received from Session " + session);
 
-		logging.trace("Receiving Client for Session " + session);
+		logging.trace("Receiving ClientImpl for Session " + session);
 		Optional<Client> clientOptional = clients.getClient(session);
 		clientOptional.ifPresent(client -> {
 			logging.trace("Checking client! Comparing IDs: Known ID: " + client.getID() + " received ID: " + ping.getId());
 			if (client.getSession().equals(session)) {
 				logging.debug("Acknowledged!");
 				client.triggerPrimation();
-				logging.info("Handshake with new Client Complete!");
+				logging.info("Handshake with new ClientImpl Complete!");
 			} else {
 				logging.warn("Detected malissiose activity at " + client);
 				logging.warn("Forcing Disconnect NOW!");
@@ -36,7 +36,7 @@ class PingRequestHandler implements OnReceive<Ping> {
 			}
 		});
 		if (! clientOptional.isPresent()) {
-			logging.warn("Could not locate Client for Session" + session);
+			logging.warn("Could not locate ClientImpl for Session" + session);
 		}
 	}
 }

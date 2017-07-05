@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.exceptions;
 
-public class SerializationFailedException extends Exception {
+public class SerializationFailedException extends NetComException {
 
 	public SerializationFailedException(String message) {
 		super(message);

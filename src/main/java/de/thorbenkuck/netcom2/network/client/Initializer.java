@@ -75,7 +75,7 @@ class Initializer {
 	@Override
 	public String toString() {
 		return "Initializer{" +
-				"client=" + client +
+				"clientImpl=" + client +
 				", communicationRegistration=" + communicationRegistration +
 				", cache=" + cache +
 				", sender=" + sender +
