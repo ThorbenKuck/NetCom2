@@ -1,6 +1,7 @@
 # NetCom2
 
-NetCom2 is a framework, modular desigend to function as a universal Client-Server-Communication-Interface.
+NetCom2 is a framework, highly modular desigend to function as a universal and asynchronus Client-Server-Communication-Interface.
+It is designed to function as an over-network EventBus.
 
 NOTE: The documentation is still in Work!
 
@@ -16,9 +17,15 @@ But do not mistake this as an simple framework! If you want, you can create your
 
 ## Getting started
 
+### Installation
+
+TODO
+
+### Starting with code
+
 Getting startet is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
-### Creating a Server
+#### Creating a Server
 
 To create a server, you simply say:
 
@@ -40,7 +47,7 @@ try {
 
 Launch creates internal dependencies and  acceptAllNextClients(); waits for the next clients to connect.
 
-### Creating a Client
+#### Creating a Client
 
 You create a Client similiiar to a Server. You just say:
 
@@ -54,7 +61,7 @@ Now, to connect, simply say:
 clientStart.launch();
 ```
 
-### Sending Stuff
+#### Sending Stuff
 
 Let's assume, you have an Object called Test in the Shared project, which looks like this:
 ```java
@@ -99,7 +106,7 @@ try {
 
 Now, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
-### Where to go from here
+## Where to go from here
 
 Check out the Wiki for more informations about creating a Server and a Client, with more depth.
 
