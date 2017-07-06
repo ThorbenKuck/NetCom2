@@ -27,6 +27,9 @@ import java.lang.annotation.Target;
  *     <li>AnnotationProcessor to verify the receiver at compileTime</li>
  *     <li>CommunicationRegistration extension to accept and run such an receive</li>
  * </ul>
+ *
+ * TODO AnnotationProcessor
+ * TODO CommunicationRegistration extension
  */
 @Target (ElementType.METHOD)
 @Retention (RetentionPolicy.RUNTIME)
