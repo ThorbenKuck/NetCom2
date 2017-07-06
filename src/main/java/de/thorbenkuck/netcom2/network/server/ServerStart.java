@@ -11,6 +11,7 @@ import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
 
 public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleConnections {
 
@@ -39,4 +40,6 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	ClientList clientList();
 
 	CommunicationRegistration getCommunicationRegistration();
+
+	void setExecutorService(ExecutorService executorService);
 }

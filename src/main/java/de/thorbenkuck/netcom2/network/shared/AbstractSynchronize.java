@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.shared;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.CountDownLatch;
@@ -22,6 +23,7 @@ public abstract class AbstractSynchronize implements Synchronize {
 		this.countDownLatch = new CountDownLatch(numberOfActions);
 	}
 
+	@Asynchronous
 	@Override
 	public final void synchronize() throws InterruptedException {
 		logging.trace("Awaiting Synchronization ..");
@@ -29,6 +31,7 @@ public abstract class AbstractSynchronize implements Synchronize {
 		logging.trace("Synchronized!");
 	}
 
+	@Asynchronous
 	@Override
 	public final void goOn() {
 		logging.debug("Continuing " + this);
@@ -38,6 +41,7 @@ public abstract class AbstractSynchronize implements Synchronize {
 		}
 	}
 
+	@Asynchronous
 	@Override
 	public final void reset() {
 		logging.debug("Resetting " + this);

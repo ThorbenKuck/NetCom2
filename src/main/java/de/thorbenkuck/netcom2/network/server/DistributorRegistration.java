@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -7,16 +8,19 @@ import de.thorbenkuck.netcom2.network.shared.Session;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Synchronized
 public class DistributorRegistration {
 
 	private final Logging logging = new NetComLogging();
-	private Map<Class, Set<Session>> registration = new HashMap<>();
+	private final Map<Class, Set<Session>> registration = new HashMap<>();
 
 	DistributorRegistration() {
 	}
 
 	public void addRegistration(Class s, Session session) {
-		getAndCreate(s).add(session);
+		synchronized (registration) {
+			getAndCreate(s).add(session);
+		}
 		logging.debug("Session " + session + " registered for " + s);
 	}
 
@@ -26,19 +30,27 @@ public class DistributorRegistration {
 	}
 
 	public void removeRegistration(Session session) {
-		final List<Class> keys = registration.keySet().stream()
-				.filter(clazz -> registration.get(clazz) != null && registration.get(clazz).contains(session))
-				.collect(Collectors.toList());
+		final List<Class> keys;
+		synchronized (registration) {
+			keys = registration.keySet().stream()
+					.filter(clazz -> registration.get(clazz) != null && registration.get(clazz).contains(session))
+					.collect(Collectors.toList());
+		}
 		keys.forEach(clazz -> removeRegistration(clazz, session));
 	}
 
 	public void removeRegistration(Class s, Session session) {
-		Set<Session> set = get(s);
-		set.remove(session);
+		Set<Session> set;
+		synchronized (registration) {
+			set = get(s);
+			set.remove(session);
+		}
 		logging.debug("Session " + session + " removed from " + s);
 		if (set.isEmpty()) {
 			logging.debug("No registration left for " + s + ". Cleaning up...");
-			registration.remove(s);
+			synchronized (registration) {
+				registration.remove(s);
+			}
 		}
 	}
 
@@ -47,6 +59,8 @@ public class DistributorRegistration {
 	}
 
 	public List<Session> getRegistered(Class s) {
-		return registration.get(s) != null ? new ArrayList<>(registration.get(s)) : new ArrayList<>();
+		synchronized (registration) {
+			return new ArrayList<>(get(s));
+		}
 	}
 }

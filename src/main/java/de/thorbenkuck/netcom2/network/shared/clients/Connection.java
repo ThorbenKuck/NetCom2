@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
@@ -50,4 +51,6 @@ public interface Connection extends Loggable {
 	Class<?> getKey();
 
 	void setKey(Class<?> connectionKey);
+
+	void setThreadPool(ExecutorService executorService);
 }

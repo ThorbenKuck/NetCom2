@@ -94,10 +94,10 @@ public class ClientStartTest {
 	private static void register() {
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> System.out.println("Received " + o.getHello() + " from Server"));
+				.addLast(o -> System.out.println("Received " + o.getHello() + " from Server"));
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
-				.addLast((connection, user, o) -> System.out.println("----\n" + o.getMsg() + "\n----"));
+				.addLast(o -> System.out.println("----\n" + o.getMsg() + "\n----"));
 
 		clientStart.getCommunicationRegistration()
 				.register(Ping.class)

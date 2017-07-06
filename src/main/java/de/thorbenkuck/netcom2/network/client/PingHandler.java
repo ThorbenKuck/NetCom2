@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -17,6 +18,7 @@ class PingHandler implements OnReceiveTriple<Ping> {
 		this.client = client;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Connection connection, Session session, Ping ping) {
 		logging.trace("Trying to get Thread-Access over Client ...");

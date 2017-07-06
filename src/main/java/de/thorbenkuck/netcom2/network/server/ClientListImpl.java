@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -11,6 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
+@Synchronized
 class ClientListImpl extends Observable implements ClientList {
 
 	private final List<Client> clients = new ArrayList<>();
@@ -83,7 +85,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	@Override
-	public Stream<Session> userStream() {
+	public Stream<Session> sessionStream() {
 		final List<Session> sessions = new ArrayList<>();
 		try {
 			clientLock.lock();

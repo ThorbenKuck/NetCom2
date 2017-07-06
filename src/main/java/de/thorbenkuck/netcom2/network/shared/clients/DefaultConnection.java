@@ -227,6 +227,14 @@ public class DefaultConnection implements Connection {
 	}
 
 	@Override
+	public void setThreadPool(ExecutorService executorService) {
+		logging.warn("This operation is not yet supported!");
+		// Soft-Stop currentThreadPool
+		// set new ThreadPool
+		// Restart Sending and ReceivingService
+	}
+
+	@Override
 	public void setLogging(Logging logging) {
 		this.logging.debug("Overriding set Logging ..");
 		this.logging = logging;

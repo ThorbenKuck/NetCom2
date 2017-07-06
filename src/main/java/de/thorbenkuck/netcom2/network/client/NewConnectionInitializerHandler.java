@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -16,6 +17,7 @@ public class NewConnectionInitializerHandler implements OnReceiveTriple<NewConne
 		this.client = client;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
 		logging.info("Setting new Connection to Key " + newConnectionInitializer.getConnectionKey());

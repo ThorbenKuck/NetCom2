@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -29,6 +30,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 		this.sender = sender;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Session session, NewConnectionRequest o) {
 		Class key = o.getKey();

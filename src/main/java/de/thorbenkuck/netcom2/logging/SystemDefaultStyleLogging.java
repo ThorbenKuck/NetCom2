@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.logging;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.io.PrintStream;
@@ -7,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 
+@Synchronized
 public class SystemDefaultStyleLogging implements Logging {
 
 	private final PrintStream out;
@@ -26,31 +28,27 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	@Override
 	public void trace(String s) {
-		out.println(getPrefix() + "TRACE : " + s);
-	}
-
-	String getPrefix() {
-		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
+		println(getPrefix() + "TRACE : " + s);
 	}
 
 	@Override
 	public void debug(String s) {
-		out.println(getPrefix() + "DEBUG : " + s);
+		println(getPrefix() + "DEBUG : " + s);
 	}
 
 	@Override
 	public void info(String s) {
-		out.println(getPrefix() + "INFO : " + s);
+		println(getPrefix() + "INFO : " + s);
 	}
 
 	@Override
 	public void warn(String s) {
-		out.println(getPrefix() + "WARN : " + s);
+		println(getPrefix() + "WARN : " + s);
 	}
 
 	@Override
 	public void error(String s) {
-		out.println(getPrefix() + "ERROR : " + s);
+		println(getPrefix() + "ERROR : " + s);
 	}
 
 	@Override
@@ -61,7 +59,7 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	@Override
 	public void fatal(String s) {
-		out.println(getPrefix() + "FATAL : " + s);
+		println(getPrefix() + "FATAL : " + s);
 	}
 
 	@Override
@@ -75,7 +73,17 @@ public class SystemDefaultStyleLogging implements Logging {
 		StringWriter sw = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(sw));
 		String stacktrace = sw.toString();
-		out.println(stacktrace);
+		println(stacktrace);
+	}
+
+	private void println(String s) {
+		synchronized (out) {
+			out.println(s);
+		}
+	}
+
+	String getPrefix() {
+		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
 	}
 
 

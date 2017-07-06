@@ -46,4 +46,10 @@ class PipelineReceiverImpl<T> {
 	final OnReceiveTriple<T> getOnReceive() {
 		return onReceive;
 	}
+
+	static final PipelineReceiverImpl empty() {
+		PipelineReceiverImpl<Object> pipelineReceiver = new PipelineReceiverImpl<>(null);
+		pipelineReceiver.addTriPredicate(((object, object2, object3) -> false));
+		return pipelineReceiver;
+	}
 }

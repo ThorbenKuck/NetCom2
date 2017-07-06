@@ -135,6 +135,8 @@ public class SenderImpl implements InternalSender, Loggable {
 	public void reset()  {
 		logging.debug("Resetting Sender!");
 		logging.trace("Deleting currently pending observer ..");
-		this.pendingObservers.clear();
+		synchronized (pendingObservers) {
+			this.pendingObservers.clear();
+		}
 	}
 }

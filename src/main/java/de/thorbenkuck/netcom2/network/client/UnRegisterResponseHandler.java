@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -17,6 +18,7 @@ class UnRegisterResponseHandler implements OnReceive<UnRegisterResponse> {
 		this.sender = sender;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Session session, UnRegisterResponse o) {
 		if (o.isOkay()) {

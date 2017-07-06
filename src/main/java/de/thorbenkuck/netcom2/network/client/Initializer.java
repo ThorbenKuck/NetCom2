@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
@@ -14,6 +15,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import de.thorbenkuck.netcom2.network.shared.comm.model.*;
 import de.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 
+@Synchronized
 class Initializer {
 
 	private final Client client;
@@ -42,7 +44,7 @@ class Initializer {
 		awaitHandshake();
 	}
 
-	private void register() {
+	private synchronized void register() {
 
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
@@ -56,7 +58,9 @@ class Initializer {
 	private void awaitHandshake() throws StartFailedException {
 		logging.debug("Awaiting ping from Server ..");
 		try {
-			client.primed().synchronize();
+			synchronized (client) {
+				client.primed().synchronize();
+			}
 		} catch (InterruptedException e) {
 			logging.error("Could not synchronize!");
 			throw new StartFailedException(e);
@@ -96,7 +100,9 @@ class Initializer {
 
 	private <T> void requireClear(Class<T> clazz) {
 		logging.trace("Checking for the Receive Pipeline of Class " + clazz);
-		ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
+		ReceivePipeline<T> receivePipeline;
+		receivePipeline = communicationRegistration.register(clazz);
+
 		if(receivePipeline.isSealed()) {
 			logging.warn("Found sealed ReceivePipeline " + receivePipeline + "! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
 			if(!receivePipeline.isClosed()) {
@@ -111,7 +117,7 @@ class Initializer {
 			logging.warn("Found non-empty, open ReceivePipeline " + receivePipeline + ". This should not happen. Clearing ReceivePipeline");
 			logging.trace("Clearing ReceivePipeline ..");
 			receivePipeline.clear();
-			logging.info("If you want to intersect the default-NetCom2-Communication, make sure to close the ReceivePipeline afterwards!");
+			logging.info("If you want to intersect the default-NetCom2-Communication, make sure to do so, after the internal requirements have been resolved and close it again!");
 		}
 	}
 

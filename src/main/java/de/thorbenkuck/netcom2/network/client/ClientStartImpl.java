@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
@@ -12,6 +13,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
 
+@Synchronized
 public class ClientStartImpl implements ClientStart {
 
 	private final Cache cache = Cache.create();
@@ -22,6 +24,7 @@ public class ClientStartImpl implements ClientStart {
 	private SocketFactory socketFactory;
 	private Client client;
 	private InternalSender sender;
+	boolean launched;
 
 	public ClientStartImpl(String address, int port) {
 		logging.debug("Instantiation ClientStart ..");
@@ -37,16 +40,23 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public void launch() throws StartFailedException {
-		logging.debug("Connecting to server ..");
-		try {
-			logging.trace("Trying to establish Connection ..");
-			clientConnector.establishConnection(socketFactory);
-		} catch (IOException e) {
-			throw new StartFailedException(e);
+	public synchronized void launch() throws StartFailedException {
+		if(launched) {
+			logging.warn("Requested launch cannot be performed, already launched!");
+			return;
 		}
-		logging.trace("Initializing new Connection ..");
-		new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory).init();
+		logging.debug("Connecting to server ..");
+		synchronized (clientConnector) {
+			try {
+				logging.trace("Trying to establish Connection ..");
+				clientConnector.establishConnection(socketFactory);
+			} catch (IOException e) {
+				throw new StartFailedException(e);
+			}
+			logging.trace("Initializing new Connection ..");
+			new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory).init();
+			launched = true;
+		}
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
 	}
 
@@ -62,7 +72,7 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public void setSocketFactory(SocketFactory factory) {
+	public synchronized void setSocketFactory(SocketFactory factory) {
 		logging.debug("Set SocketFactory to: " + factory);
 		socketFactory = factory;
 	}
@@ -73,43 +83,43 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
+	public synchronized void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
 		logging.debug("Added fallback Serialization " + serializationAdapter);
 		client.addFallBackSerialization(serializationAdapter);
 	}
 
 	@Override
-	public void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
+	public synchronized void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
 		client.addFallBackDeSerialization(deSerializationAdapter);
 	}
 
 	@Override
-	public void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
+	public synchronized void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
 		client.setMainSerializationAdapter(mainSerializationAdapter);
 	}
 
 	@Override
-	public void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public synchronized void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
 	}
 
 	@Override
-	public void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
+	public synchronized void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
 		client.addDisconnectedHandler(disconnectedHandler);
 	}
 
 	@Override
-	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+	public synchronized void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
 		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
 		client.setDecryptionAdapter(decryptionAdapter);
 	}
 
 	@Override
-	public void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
+	public synchronized void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
 		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
 		client.setEncryptionAdapter(encryptionAdapter);
 	}
@@ -120,13 +130,13 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public void clearCache() {
-		logging.debug("Clearing cache observers ..");
-		cache.clearObservers();
+	public synchronized void clearCache() {
+		logging.debug("Clearing cache ..");
+		cache.reset();
 	}
 
 	@Override
-	public void setLogging(Logging logging) {
+	public synchronized void setLogging(Logging logging) {
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
@@ -140,5 +150,11 @@ public class ClientStartImpl implements ClientStart {
 				", communicationRegistration=" + communicationRegistration +
 				", clientImpl=" + client +
 				'}';
+	}
+
+	void runSynchronized(Runnable runnable) {
+		synchronized (clientConnector) {
+			runnable.run();
+		}
 	}
 }

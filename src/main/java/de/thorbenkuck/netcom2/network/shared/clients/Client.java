@@ -11,12 +11,17 @@ import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 public interface Client {
 
 	static Client create(CommunicationRegistration communicationRegistration) {
 		return new ClientImpl(communicationRegistration);
 	}
+
+	void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
+
+	void setThreadPool(ExecutorService executorService);
 
 	void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 

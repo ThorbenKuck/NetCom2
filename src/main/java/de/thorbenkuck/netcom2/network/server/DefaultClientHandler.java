@@ -1,5 +1,7 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -29,6 +31,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	@Asynchronous
 	@Override
 	public Client create(Socket socket) {
 		Client client = Client.create(communicationRegistration);
@@ -58,6 +61,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		return client;
 	}
 
+	@Asynchronous
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);

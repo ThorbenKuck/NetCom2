@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
@@ -14,6 +15,7 @@ public class CachePushHandler implements OnReceiveSingle<CachePush> {
 		this.cache = cache;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(CachePush o) {
 		logging.debug("Updating cache, based on received information!");

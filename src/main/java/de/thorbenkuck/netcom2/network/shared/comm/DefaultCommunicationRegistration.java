@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.shared.comm;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
@@ -7,25 +8,30 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
+import de.thorbenkuck.netcom2.pipeline.Wrapper;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Synchronized
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
-	private final Queue<DefaultCommunicationHandler> defaultCommunicationHandlers = new LinkedList<>();
+	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
+	private final Wrapper wrapper = new Wrapper();
 
 	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> ReceivePipeline<T> register(Class<T> clazz) {
-		mapping.computeIfAbsent(clazz, k -> {
-			logging.trace("Creating ReceivingPipeline for " + clazz);
-			return new QueuedReceivePipeline<>();
-		});
+		synchronized (mapping) {
+			mapping.computeIfAbsent(clazz, k -> {
+				logging.trace("Creating ReceivingPipeline for " + clazz);
+				return new QueuedReceivePipeline<>();
+			});
+		}
 		logging.debug("Registering communication for " + clazz);
 		return (ReceivePipeline<T>) mapping.get(clazz);
 	}
@@ -37,7 +43,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			return;
 		}
 		logging.trace("Unregister whole ReceivePipeline for " + clazz + " ..");
-		mapping.remove(clazz);
+		synchronized (mapping) {
+			mapping.remove(clazz);
+		}
 		logging.debug("Unregistered ReceivePipeline for " + clazz);
 	}
 
@@ -61,29 +69,50 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			try {
 				logging.trace("Performing required type casts ..");
 				logging.trace("Casting ReceivePipeline ..");
-				ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
-				logging.trace("Casting given Object " + o + "  ..");
-				T t = (T) o;
-				threadPool.submit(() -> handleRegistered(receivePipeline, connection, session, t));
+				synchronized (mapping) {
+					ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
+					if (receivePipeline == null) {
+						throw new ConcurrentModificationException("ReceivePipeline for " + clazz + " was removed whilst trying to trigger it!");
+					}
+					logging.trace("Casting given Object " + o + "  ..");
+					T t = (T) o;
+					threadPool.submit(() -> handleRegistered(receivePipeline, connection, session, t));
+				}
 			} catch (Throwable throwable) {
-				logging.error("Encountered an Throwable while running OnCommunication for " + clazz, throwable);
+				logging.error("Encountered an Throwable while running CommunicationRegistration for " + clazz, throwable);
 			}
 		}
 	}
 
 	@Override
-	public void addDefaultCommunicationHandler(DefaultCommunicationHandler defaultCommunicationHandler) {
+	public void addDefaultCommunicationHandler(OnReceiveSingle<Object> defaultCommunicationHandler) {
+		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+	}
+
+	@Override
+	public void addDefaultCommunicationHandler(OnReceive<Object> defaultCommunicationHandler) {
+		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+	}
+
+	@Override
+	public void addDefaultCommunicationHandler(OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
-		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
+		synchronized (defaultCommunicationHandlers) {
+			this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
+		}
 	}
 
 	@Override
 	public void clear() {
-		logging.debug("Clearing all defined Communications!");
-		logging.trace("Clearing CommunicationPipelines ..");
-		mapping.clear();
-		logging.trace("Clearing DefaultCommunicationHandlers ..");
-		defaultCommunicationHandlers.clear();
+		synchronized (mapping) {
+			synchronized (defaultCommunicationHandlers) {
+				logging.debug("Clearing all defined Communications!");
+				logging.trace("Clearing CommunicationPipelines ..");
+				mapping.clear();
+				logging.trace("Clearing DefaultCommunicationHandlers ..");
+				defaultCommunicationHandlers.clear();
+			}
+		}
 	}
 
 	private void requireNotNull(Object... objects) {
@@ -101,12 +130,14 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void handleNotRegistered(Class<?> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException {
-		if (defaultCommunicationHandlers.isEmpty()) {
-			logging.trace("No DefaultCommunicationHandler set!");
-			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
-		} else {
-			logging.trace("Running all set DefaultCommunicationHandler ..");
-			threadPool.submit(() -> runDefaultCommunicationHandler(connection, session, o));
+		synchronized (defaultCommunicationHandlers) {
+			if (defaultCommunicationHandlers.isEmpty()) {
+				logging.trace("No DefaultCommunicationHandler set!");
+				throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
+			} else {
+				logging.trace("Running all set DefaultCommunicationHandler ..");
+				threadPool.submit(() -> runDefaultCommunicationHandler(connection, session, o));
+			}
 		}
 	}
 
@@ -115,22 +146,47 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void runDefaultCommunicationHandler(Connection connection, Session session, Object o) {
-		for (DefaultCommunicationHandler defaultCommunicationHandler : defaultCommunicationHandlers) {
-			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
+		List<OnReceiveTriple<Object>> defaultCommunicationHandlerList;
+		synchronized (defaultCommunicationHandlers) {
+			 defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
+		}
+		for (OnReceiveTriple<Object> onReceive : defaultCommunicationHandlerList) {
+			logging.trace("Asking " + onReceive + " to handle dead object: " + o.getClass());
 			try {
-				defaultCommunicationHandler.handle(connection, session, o);
-				defaultCommunicationHandler.handle(session, o);
-				defaultCommunicationHandler.handle(o);
+				onReceive.accept(connection, session, o);
 			} catch (Throwable throwable) {
-				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler, throwable);
+				logging.error("Encountered unexpected Throwable while running " + onReceive, throwable);
 				logging.trace("Continuing ..");
 			}
 		}
 	}
 
 	@Override
+	public void clearAllEmptyPipelines() {
+		logging.trace("Trying to find empty ReceivePipelines and deleting them to free memory");
+		List<Class> keyList;
+		synchronized (mapping) {
+			keyList = new ArrayList<>(mapping.keySet());
+		}
+
+		for(Class key : keyList) {
+			ReceivePipeline receivePipeline;
+			synchronized (mapping) {
+				receivePipeline = mapping.get(key);
+			}
+			// Skip the sealed.
+			if(receivePipeline.isSealed()) {
+				continue;
+			}
+			if(receivePipeline.isEmpty()) {
+				unRegister(key);
+			}
+		}
+	}
+
+	@Override
 	public String toString() {
-		return "DefaultCommunicationRegistration{" +
+		return "CommunicationRegistration{" +
 				"mapping=" + mapping +
 				'}';
 	}

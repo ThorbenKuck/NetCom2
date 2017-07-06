@@ -58,9 +58,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public ReceivePipelineCondition<T> addFirst(OnReceiveTriple<T> pipelineService) {
 		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
 
-		ifClosed(() -> falseAdd(pipelineService));
-
-		ifOpen(() -> {
+		if (isClosed()) {
+			falseAdd(pipelineService);
+		} else {
 			Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
 			newCore.add(pipelineReceiver);
 			synchronized (core) {
@@ -69,7 +69,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 				core.addAll(newCore);
 			}
 			pipelineService.onRegistration();
-		});
+		}
 
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
@@ -101,9 +101,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public void close() {
-		if (! sealed) {
-			closed = true;
-		}
+		requiredNotSealed();
+		closed = true;
 	}
 
 	@Override
@@ -118,9 +117,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public void open() {
-		if (! sealed) {
-			closed = false;
-		}
+		requiredNotSealed();
+		closed = false;
 	}
 
 	@Override
@@ -145,9 +143,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return core.isEmpty();
 	}
 
-	protected void requiresOpen() {
-		if (closed) {
-			throw new PipelineAccessException("ReceivePipeline Closed!");
+	protected void requiredNotSealed() {
+		if (sealed) {
+			throw new PipelineAccessException("ReceivePipeline is sealed!");
 		}
 	}
 
@@ -160,6 +158,12 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private void ifOpen(Runnable runnable) {
 		if (! closed) {
 			runnable.run();
+		}
+	}
+
+	protected void requiresOpen() {
+		if (closed) {
+			throw new PipelineAccessException("ReceivePipeline Closed!");
 		}
 	}
 }

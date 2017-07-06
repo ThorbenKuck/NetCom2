@@ -11,6 +11,8 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -23,6 +25,8 @@ class ClientImpl implements Client {
 	private final List<ClientID> falseIDs = new ArrayList<>();
 	private final Map<Class, Synchronize> synchronizeMap = new HashMap<>();
 	private final Lock connectionLock = new ReentrantLock();
+	private final Lock threadPoolLock = new ReentrantLock();
+	private ExecutorService threadPool = Executors.newCachedThreadPool();
 	private EncryptionAdapter encryptionAdapter;
 	private DecryptionAdapter decryptionAdapter;
 	private SerializationAdapter<Object, String> mainSerializationAdapter;
@@ -46,8 +50,31 @@ class ClientImpl implements Client {
 		setup();
 	}
 
-	private void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	@Override
+	public void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
+	}
+
+	@Override
+	public void setThreadPool(ExecutorService executorService) {
+		try {
+			threadPoolLock.lock();
+			this.threadPool = executorService;
+			updateConnectionThreadPools(threadPool);
+		} finally {
+			threadPoolLock.unlock();
+		}
+	}
+
+	private void updateConnectionThreadPools(ExecutorService executorService) {
+		try {
+			connectionLock.lock();
+			for(Connection connection : connections.values()) {
+				connection.setThreadPool(executorService);
+			}
+		} finally {
+			connectionLock.unlock();
+		}
 	}
 
 	@Override
@@ -63,7 +90,7 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public void disconnect() {
+	public synchronized void disconnect() {
 		logging.debug("Requested disconnect of client " + this);
 		logging.trace("Sorting DisconnectedHandler by priority ..");
 		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
