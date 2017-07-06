@@ -11,7 +11,7 @@ class NewConnectionRequestHandler implements OnReceive<NewConnectionRequest> {
 
 	@Override
 	public void accept(Session session, NewConnectionRequest o) {
-		logging.info("ClientImpl of Session " + session + " requested new Connection with key: " + o.getKey());
+		logging.info("Client of Session " + session + " requested new Connection with key: " + o.getKey());
 		logging.trace("Acknowledging request..");
 		session.send(o);
 	}

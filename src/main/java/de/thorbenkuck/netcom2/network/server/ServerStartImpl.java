@@ -99,7 +99,7 @@ class ServerStartImpl implements ServerStart {
 		if (! running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not started properly!");
 		}
-		logging.debug("Accepting next ClientImpl.");
+		logging.debug("Accepting next Client.");
 		ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
 			logging.info("Awaiting new Connection ..");
@@ -108,7 +108,7 @@ class ServerStartImpl implements ServerStart {
 			logging.trace("Handling new Connection ..");
 			threadPool.execute(() -> handle(socket));
 		} catch (IOException e) {
-			logging.error("Connection establishment failed! Aborting!", e);
+			logging.error("Connection establishment failed! Aborting!");
 			throw new ClientConnectionFailedException(e);
 		}
 	}
@@ -171,12 +171,12 @@ class ServerStartImpl implements ServerStart {
 		logging.trace("Requesting handling at clientConnectedHandlers ..");
 		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
 			if (client == null) {
-				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create ClientImpl ..");
+				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
 				client = clientConnectedHandler.create(socket);
 				if (client != null) logging.trace("ClientConnectedHandler " + clientConnectedHandler
-						+ " successfully created ClientImpl! Blocking access to clientImpl-creation .");
+						+ " successfully created Client! Blocking access to client-creation.");
 			}
-			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle ClientImpl ..");
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
 			clientConnectedHandler.handle(client);
 		}
 	}

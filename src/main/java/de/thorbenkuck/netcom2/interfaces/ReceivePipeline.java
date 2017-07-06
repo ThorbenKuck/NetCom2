@@ -44,4 +44,6 @@ public interface ReceivePipeline<T> {
 	void ifClosed(Consumer<ReceivePipeline<T>> consumer);
 
 	void ifClosed(Runnable runnable);
+
+	boolean isEmpty();
 }

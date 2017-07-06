@@ -14,10 +14,6 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * ToDo: Die EncryptionAdapter, DecryptionAdapter, Serialisation usw. müssen auch nach start einer Connection noch erhalten bleiben
- * ToDo: Auf ClientImpl-Seite einen neuen Socket erstellen, auf ServerSeite einen neuen Socket requesten für einen Key.
- */
 class ClientImpl implements Client {
 
 	private final List<DisconnectedHandler> disconnectedHandlers = new ArrayList<>();
@@ -37,7 +33,7 @@ class ClientImpl implements Client {
 	private ClientID id = ClientID.empty();
 
 	ClientImpl(CommunicationRegistration communicationRegistration) {
-		logging.trace("Creating ClientImpl ..");
+		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;
 		logging.trace("Setting default SerializationAdapter and FallbackSerializationAdapter ..");
 		setMainSerializationAdapter(SerializationAdapter.getDefaultJavaDeSerialization());
@@ -61,7 +57,7 @@ class ClientImpl implements Client {
 
 	@Override
 	public void setup() {
-		logging.debug("Initial setup of ClientImpl requested!");
+		logging.debug("Initial setup of Client requested!");
 		logging.trace("Getting new Session ..");
 		setSession(Session.createNew(this));
 	}
@@ -119,9 +115,14 @@ class ClientImpl implements Client {
 
 	@Override
 	public final void setSession(Session session) {
-		if (session == null) throw new IllegalArgumentException("Session cant be null!");
-		if (this.session != null) logging.warn("Overriding existing ClientSession with " + session + "!");
-		else logging.debug("Setting ClientSession to " + session + " ..");
+		if (session == null) {
+			throw new IllegalArgumentException("Session cant be null!");
+		}
+		if (this.session != null) {
+			logging.warn("Overriding existing ClientSession with " + session + "!");
+		} else {
+			logging.debug("Setting ClientSession to " + session + " ..");
+		}
 		this.session = session;
 		logging.trace("Updating Sessions of all known Connections ..");
 		for (Connection connection : connections.values()) {
@@ -132,7 +133,7 @@ class ClientImpl implements Client {
 
 	@Override
 	public final void clearSession() {
-		logging.info("Session of ClientImpl will be cleared!");
+		logging.info("Session of Client will be cleared!");
 		session = null;
 	}
 
@@ -197,15 +198,6 @@ class ClientImpl implements Client {
 		}
 
 		return expectable;
-	}
-
-	private void requireConnected(Connection connection) {
-		if(connection == null) {
-			throw new SendFailedException("Connection does not exist!");
-		}
-		if(!connection.isActive()) {
-			throw new SendFailedException("Connection is not yet Connected!");
-		}
 	}
 
 	@Override
@@ -374,9 +366,18 @@ class ClientImpl implements Client {
 		}
 	}
 
+	private void requireConnected(Connection connection) {
+		if (connection == null) {
+			throw new SendFailedException("Connection does not exist!");
+		}
+		if (! connection.isActive()) {
+			throw new SendFailedException("Connection is not yet Connected!");
+		}
+	}
+
 	@Override
 	public final String toString() {
-		return "ClientImpl{" +
+		return "Client{" +
 				"id=" + id +
 				", session=" + session +
 				", connections=" + connections +

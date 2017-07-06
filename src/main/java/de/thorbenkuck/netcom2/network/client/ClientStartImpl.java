@@ -25,9 +25,9 @@ public class ClientStartImpl implements ClientStart {
 
 	public ClientStartImpl(String address, int port) {
 		logging.debug("Instantiation ClientStart ..");
-		logging.trace("Creating ClientImpl ..");
+		logging.trace("Creating Client ..");
 		client = Client.create(communicationRegistration);
-		logging.trace("Creating ClientImpl-Connector ..");
+		logging.trace("Creating Client-Connector ..");
 		clientConnector = new ClientConnector(address, port, client);
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());

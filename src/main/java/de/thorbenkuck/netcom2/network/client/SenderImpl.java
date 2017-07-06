@@ -107,13 +107,13 @@ public class SenderImpl implements InternalSender, Loggable {
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> CacheObserver<T> removePendingObserver(Class clazz) {
+	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		return (CacheObserver<T>) pendingObservers.remove(clazz);
 	}
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public <T> CacheObserver<T> getPendingObserver(Class<T> clazz) {
+	public synchronized  <T> CacheObserver<T> getPendingObserver(Class<T> clazz) {
 		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 

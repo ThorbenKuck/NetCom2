@@ -31,7 +31,7 @@ public class ServerStartTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.getDefault());
+		NetComLogging.setLogging(Logging.trace());
 		catching();
 		create();
 		schedule();

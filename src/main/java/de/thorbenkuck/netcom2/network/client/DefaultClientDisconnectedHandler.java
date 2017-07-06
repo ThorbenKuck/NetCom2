@@ -21,7 +21,7 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		clientStart.cache().reset();
 		logging.trace("Clearing ClientSession ..");
 		client.clearSession();
-		logging.trace("Setting cleared ClientImpl up ..");
+		logging.trace("Setting cleared Client up ..");
 		client.setup();
 		logging.trace("Resetting Sender ..");
 		clientStart.send().reset();

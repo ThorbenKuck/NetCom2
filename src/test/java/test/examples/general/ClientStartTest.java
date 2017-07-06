@@ -6,11 +6,9 @@ import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
 import de.thorbenkuck.netcom2.network.shared.cache.*;
-import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
-import java.util.Observable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +21,7 @@ public class ClientStartTest {
 	private static int port = 44444;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.trace());
 		create();
 		setup();
 

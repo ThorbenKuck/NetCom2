@@ -140,6 +140,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return core.isEmpty();
+	}
+
 	protected void requiresOpen() {
 		if (closed) {
 			throw new PipelineAccessException("ReceivePipeline Closed!");

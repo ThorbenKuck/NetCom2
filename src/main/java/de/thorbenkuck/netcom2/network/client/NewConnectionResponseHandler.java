@@ -41,7 +41,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			logging.trace(prefix + "Created Connection by socketFactory!");
 			logging.trace(prefix + "Listening for Handshake-Core (Ping)");
 			client.primed().synchronize();
-			logging.trace(prefix + "Received default ping! ClientImpl is now primed!");
+			logging.trace(prefix + "Received default ping! Client is now primed!");
 			logging.debug(prefix + "Sending a NewConnectionInitializer over the new Connection");
 			List<ClientID> toRemove = new ArrayList<>();
 			for (ClientID toDeleteID : client.getFalseIDs()) {
@@ -50,7 +50,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 				toRemove.add(toDeleteID);
 				logging.trace(prefix + "Marked for deletion " + toDeleteID);
 			}
-			logging.trace(prefix + "Clearing false IDs from local ClientImpl");
+			logging.trace(prefix + "Clearing false IDs from local Client");
 			client.removeFalseIDs(toRemove);
 			logging.info("Established new Connection to Server with key: " + key);
 			if (client.isConnectionPrepared(key)) {
@@ -61,7 +61,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			throw new Error(e);
 		} catch (InterruptedException e) {
 			logging.fatal("Encountered Exception while synchronizing!", e);
-			logging.fatal("No fallback! Server and ClientImpl are now possibly desynchronized!");
+			logging.fatal("No fallback! Server and Client are now possibly desynchronized!");
 			throw new Error(e);
 		}
 	}
