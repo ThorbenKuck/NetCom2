@@ -1,9 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 public class PingDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
+	@Asynchronous
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {
 		if (s.startsWith("Ping")) {

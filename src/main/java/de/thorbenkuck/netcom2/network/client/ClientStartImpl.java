@@ -12,6 +12,7 @@ import de.thorbenkuck.netcom2.network.shared.clients.*;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Synchronized
 public class ClientStartImpl implements ClientStart {
@@ -137,6 +138,7 @@ public class ClientStartImpl implements ClientStart {
 
 	@Override
 	public synchronized void setLogging(Logging logging) {
+		Objects.requireNonNull(logging);
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
@@ -150,6 +152,38 @@ public class ClientStartImpl implements ClientStart {
 				", communicationRegistration=" + communicationRegistration +
 				", clientImpl=" + client +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (! (o instanceof ClientStartImpl)) return false;
+
+		ClientStartImpl that = (ClientStartImpl) o;
+
+		if (launched != that.launched) return false;
+		if (! cache.equals(that.cache)) return false;
+		if (! clientConnector.equals(that.clientConnector)) return false;
+		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (! clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
+		if (! logging.equals(that.logging)) return false;
+		if (! socketFactory.equals(that.socketFactory)) return false;
+		if (! client.equals(that.client)) return false;
+		return sender.equals(that.sender);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = cache.hashCode();
+		result = 31 * result + clientConnector.hashCode();
+		result = 31 * result + communicationRegistration.hashCode();
+		result = 31 * result + clientConnectionEstablish.hashCode();
+		result = 31 * result + logging.hashCode();
+		result = 31 * result + socketFactory.hashCode();
+		result = 31 * result + client.hashCode();
+		result = 31 * result + sender.hashCode();
+		result = 31 * result + (launched ? 1 : 0);
+		return result;
 	}
 
 	void runSynchronized(Runnable runnable) {

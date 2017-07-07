@@ -1,5 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.network.client.DecryptionAdapter;
@@ -13,10 +15,13 @@ import de.thorbenkuck.netcom2.network.shared.Synchronize;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Synchronized
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
@@ -52,15 +57,8 @@ class DefaultReceivingService implements ReceivingService {
 		while (running()) {
 			try {
 				String string = in.nextLine();
-				logging.trace("Reading " + string);
-				Object object = deserialize(string);
-				logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" + connection.getFormattedAddress());
-				if (object == null) {
-					throw new NullPointerException("Received null!");
-				}
-				trigger(object);
-			} catch (DeSerializationFailedException e) {
-				logging.error("Could not Serialize!", e);
+				// First get, then execute!
+				threadPool.submit(() -> handle(string));
 			} catch (NoSuchElementException e) {
 				logging.info("Disconnection detected!");
 				softStop();
@@ -70,6 +68,44 @@ class DefaultReceivingService implements ReceivingService {
 		}
 		onDisconnect();
 		logging.trace("Receiving Service stopped!");
+	}
+
+	@Override
+	public void softStop() {
+		running = false;
+	}
+
+	private void onDisconnect() {
+		logging.info("Shutting down ReceivingService!");
+		onDisconnect.run();
+	}
+
+	@Override
+	public boolean running() {
+		return running;
+	}
+
+	@Asynchronous
+	private void handle(String string) {
+		logging.trace("Handling " + string + " ..");
+		try {
+			logging.trace("Decrypting " + string);
+			String toHandle = decrypt(string);
+			logging.trace("Deserialize " + toHandle + " ..");
+			Object object = deserialize(toHandle);
+			logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" + connection.getFormattedAddress());
+			Objects.requireNonNull(object);
+			logging.trace("Triggering Communication ..");
+			trigger(object);
+			logging.trace("Notifying Callbacks ..");
+			callBack(object);
+		} catch (DeSerializationFailedException e) {
+			logging.error("Could not Serialize!", e);
+		}
+	}
+
+	private String decrypt(String s) {
+		return decryptionAdapter.get(s);
 	}
 
 	private Object deserialize(String string) throws DeSerializationFailedException {
@@ -93,20 +129,9 @@ class DefaultReceivingService implements ReceivingService {
 	private void trigger(Object object) {
 		try {
 			communicationRegistration.trigger(object.getClass(), connection, session, object);
-			threadPool.submit(() -> callBack(object));
 		} catch (CommunicationNotSpecifiedException e) {
 			logging.catching(e);
 		}
-	}
-
-	@Override
-	public void softStop() {
-		running = false;
-	}
-
-	private void onDisconnect() {
-		logging.info("Shutting down ReceivingService!");
-		onDisconnect.run();
 	}
 
 	private void callBack(Object object) {
@@ -136,20 +161,13 @@ class DefaultReceivingService implements ReceivingService {
 	public void cleanUpCallBacks() {
 		logging.debug("CallBack cleanup requested!");
 		List<CallBack<Object>> toRemove = new ArrayList<>();
-		runSynchronizedOverCallbacks(() -> {
-			callBacks.stream()
-					.filter(CallBack::remove)
-					.forEach(callBack -> {
-						logging.trace("Marking CallBack " + callBack + " as removable ..");
-						toRemove.add(callBack);
-					});
-			toRemove.forEach(callBackToRemove -> {
-				logging.trace("Preparing to remove CallBack: " + callBackToRemove);
-				callBackToRemove.onRemove();
-				logging.debug("Removing CallBack " + toRemove);
-				callBacks.remove(callBackToRemove);
-			});
-		});
+		callBacks.stream()
+				.filter(CallBack::remove)
+				.forEach(callBack -> {
+					logging.trace("Marking CallBack " + callBack + " as removable ..");
+					toRemove.add(callBack);
+				});
+		runSynchronizedOverCallbacks(() -> toRemove.forEach(this::removeCallback));
 		logging.debug("CallBack cleanup done!");
 	}
 
@@ -167,7 +185,9 @@ class DefaultReceivingService implements ReceivingService {
 		this.connection = connection;
 		this.session = session;
 		try {
-			in = new Scanner(connection.getInputStream());
+			synchronized (this) {
+				in = new Scanner(connection.getInputStream());
+			}
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -188,9 +208,12 @@ class DefaultReceivingService implements ReceivingService {
 		return synchronize;
 	}
 
-	@Override
-	public boolean running() {
-		return running;
+	@Asynchronous
+	private void removeCallback(CallBack<Object> toRemove) {
+		logging.trace("Preparing to remove CallBack: " + toRemove);
+		toRemove.onRemove();
+		logging.debug("Removing CallBack " + toRemove);
+		callBacks.remove(toRemove);
 	}
 
 }

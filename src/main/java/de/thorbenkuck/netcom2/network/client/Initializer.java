@@ -135,4 +135,32 @@ class Initializer {
 				", sender=" + sender +
 				'}';
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (! (o instanceof Initializer)) return false;
+
+		Initializer that = (Initializer) o;
+
+		if (! client.equals(that.client)) return false;
+		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (! logging.equals(that.logging)) return false;
+		if (! cache.equals(that.cache)) return false;
+		if (! sender.equals(that.sender)) return false;
+		if (! clientConnector.equals(that.clientConnector)) return false;
+		return socketFactory.equals(that.socketFactory);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = client.hashCode();
+		result = 31 * result + communicationRegistration.hashCode();
+		result = 31 * result + logging.hashCode();
+		result = 31 * result + cache.hashCode();
+		result = 31 * result + sender.hashCode();
+		result = 31 * result + clientConnector.hashCode();
+		result = 31 * result + socketFactory.hashCode();
+		return result;
+	}
 }

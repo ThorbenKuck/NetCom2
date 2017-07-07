@@ -7,11 +7,14 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Synchronized
 public class SystemDefaultStyleLogging implements Logging {
 
 	private final PrintStream out;
+	private final Lock printLock = new ReentrantLock();
 
 	public SystemDefaultStyleLogging() {
 		this(System.out);
@@ -28,52 +31,100 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	@Override
 	public void trace(String s) {
-		println(getPrefix() + "TRACE : " + s);
+		try {
+			printLock.lock();
+			println(getPrefix() + "TRACE : " + s);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void debug(String s) {
-		println(getPrefix() + "DEBUG : " + s);
+		try {
+			printLock.lock();
+			println(getPrefix() + "DEBUG : " + s);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void info(String s) {
-		println(getPrefix() + "INFO : " + s);
+		try {
+			printLock.lock();
+			println(getPrefix() + "INFO : " + s);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void warn(String s) {
-		println(getPrefix() + "WARN : " + s);
+		try {
+			printLock.lock();
+			println(getPrefix() + "WARN : " + s);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void error(String s) {
-		println(getPrefix() + "ERROR : " + s);
+		boolean locked = false;
+		try {
+			locked = printLock.tryLock();
+			println(getPrefix() + "ERROR : " + s);
+		} finally {
+			if (locked) printLock.unlock();
+		}
 	}
 
 	@Override
 	public void error(String s, Throwable throwable) {
-		error(s);
-		catching(throwable);
+		try {
+			printLock.lock();
+			error(s);
+			catching(throwable);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void fatal(String s) {
-		println(getPrefix() + "FATAL : " + s);
+		boolean locked = false;
+		try {
+			locked = printLock.tryLock();
+			println(getPrefix() + "FATAL : " + s);
+		} finally {
+			if (locked) printLock.unlock();
+		}
 	}
 
 	@Override
 	public void fatal(String s, Throwable throwable) {
-		fatal(s);
-		catching(throwable);
+		try {
+			printLock.lock();
+			fatal(s);
+			catching(throwable);
+		} finally {
+			printLock.unlock();
+		}
 	}
 
 	@Override
 	public void catching(Throwable throwable) {
-		StringWriter sw = new StringWriter();
-		throwable.printStackTrace(new PrintWriter(sw));
-		String stacktrace = sw.toString();
-		println(stacktrace);
+		boolean locked = false;
+		try {
+			locked = printLock.tryLock();
+			StringWriter sw = new StringWriter();
+			throwable.printStackTrace(new PrintWriter(sw));
+			String stacktrace = sw.toString();
+			println(stacktrace);
+		} finally {
+			if (locked) printLock.unlock();
+		}
 	}
 
 	private void println(String s) {

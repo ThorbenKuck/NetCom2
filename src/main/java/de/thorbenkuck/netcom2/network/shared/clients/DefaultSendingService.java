@@ -13,6 +13,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 class DefaultSendingService implements SendingService {
@@ -22,6 +24,7 @@ class DefaultSendingService implements SendingService {
 	private final EncryptionAdapter encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
+	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private PrintWriter printWriter;
 	private LinkedBlockingQueue<Object> toSend;
 	private boolean running = false;
@@ -46,23 +49,36 @@ class DefaultSendingService implements SendingService {
 		while (running()) {
 			try {
 				Object o = toSend.take();
-				logging.debug("Sending " + o + " ..");
-				logging.trace("Serializing " + o + " ..");
-				String toSend = serialize(o);
-				logging.trace("Writing: " + toSend + " ..");
-				printWriter.println(encryptionAdapter.get(toSend));
-				printWriter.flush();
-				logging.trace("Successfully wrote " + toSend + "!");
+				// Take it first, then send it in another thread!
+				threadPool.submit(() -> send(o));
 			} catch (InterruptedException e) {
 				logging.warn("Interrupted while waiting for a new Object to send");
 				logging.catching(e);
-			} catch (SerializationFailedException e) {
-				logging.error("Failed to Serialize!", e);
-			} catch (Throwable throwable) {
-				logging.error("Encountered unexpected Throwable", throwable);
 			}
 		}
 		logging.info("SendingService stopped!");
+	}
+
+	private void send(Object o) {
+		try {
+			logging.debug("Sending " + o + " ..");
+			logging.trace("Serializing " + o + " ..");
+			String toSend = serialize(o);
+			logging.trace("Encrypting " + toSend + " ..");
+			toSend = encrypt(toSend);
+			logging.trace("Writing: " + toSend + " ..");
+			printWriter.println(encryptionAdapter.get(toSend));
+			printWriter.flush();
+			logging.trace("Successfully wrote " + toSend + "!");
+		} catch (SerializationFailedException e) {
+			logging.error("Failed to Serialize!", e);
+		} catch (Throwable throwable) {
+			logging.error("Encountered unexpected Throwable", throwable);
+		}
+	}
+
+	private String encrypt(String s) {
+		return encryptionAdapter.get(s);
 	}
 
 	private String serialize(Object o) throws SerializationFailedException {
@@ -99,6 +115,7 @@ class DefaultSendingService implements SendingService {
 
 	@Override
 	public void overrideSendingQueue(LinkedBlockingQueue<Object> linkedBlockingQueue) {
+		Objects.requireNonNull(linkedBlockingQueue);
 		logging.warn("Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}

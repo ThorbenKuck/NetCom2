@@ -21,20 +21,42 @@ class PingHandler implements OnReceiveTriple<Ping> {
 	@Asynchronous
 	@Override
 	public void accept(Connection connection, Session session, Ping ping) {
-		logging.trace("Trying to get Thread-Access over Client ...");
-		synchronized (client) {
-			logging.trace("Got Thread-Access over Client!");
-			if (! ClientID.isEmpty(client.getID())) {
-				logging.debug("Received faulty Ping..");
-				client.addFalseID(ping.getId());
-			} else {
-				logging.debug("Received Ping: " + ping.getId());
-				client.setID(ping.getId());
-			}
+		if (! ClientID.isEmpty(client.getID())) {
+			logging.debug("Received faulty Ping..");
+			client.addFalseID(ping.getId());
+		} else {
+			logging.debug("Received Ping: " + ping.getId());
+			client.setID(ping.getId());
 		}
 		logging.trace("Pinging back Server!");
-		connection.writeObject(new Ping(client.getID()));
+		connection.write(new Ping(client.getID()));
 		logging.trace("Triggering primation of Client ..");
 		client.triggerPrimation();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (! (o instanceof PingHandler)) return false;
+
+		PingHandler that = (PingHandler) o;
+
+		if (! logging.equals(that.logging)) return false;
+		return client.equals(that.client);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = logging.hashCode();
+		result = 31 * result + client.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "PingHandler{" +
+				"logging=" + logging +
+				", client=" + client +
+				'}';
 	}
 }

@@ -1,27 +1,30 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.Objects;
 
+@Synchronized
 public class CacheObservable {
 
+	private final List<CacheObserver<?>> obs = new ArrayList<>();
 	private boolean changed = false;
-	private List<CacheObserver<?>> obs = new ArrayList<>();
 
 	public <T> void addObserver(CacheObserver<T> cacheObserver) {
-		if (cacheObserver == null) {
-			throw new NullPointerException();
-		} else {
+		Objects.requireNonNull(cacheObserver);
+		synchronized (obs) {
 			if (! this.obs.contains(cacheObserver)) {
 				this.obs.add(cacheObserver);
 			}
-
 		}
 	}
 
 	public void deleteObserver(CacheObserver<?> cacheObserver) {
-		obs.remove(cacheObserver);
+		synchronized (obs) {
+			obs.remove(cacheObserver);
+		}
 	}
 
 	protected <T> void newEntry(T o) {
@@ -47,7 +50,7 @@ public class CacheObservable {
 		return var2;
 	}
 
-	protected synchronized void clearChanged() {
+	protected void clearChanged() {
 		this.changed = false;
 	}
 
@@ -61,24 +64,25 @@ public class CacheObservable {
 
 	protected void deletedEntry(Object o) {
 		Object[] observers = observersToArray();
+
 		for (int i = observers.length - 1; i >= 0; -- i) {
 			((CacheObserver) observers[i]).deletedEntry(o, this);
 		}
 	}
 
-	protected synchronized void setChanged() {
+	protected void setChanged() {
 		this.changed = true;
 	}
 
-	protected synchronized void deleteObservers() {
+	protected void deleteObservers() {
 		this.obs.clear();
 	}
 
-	public synchronized boolean hasChanged() {
+	public boolean hasChanged() {
 		return this.changed;
 	}
 
-	public synchronized int countObservers() {
+	public int countObservers() {
 		return this.obs.size();
 	}
 }

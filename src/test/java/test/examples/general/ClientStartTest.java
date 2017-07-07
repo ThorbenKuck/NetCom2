@@ -1,11 +1,14 @@
 package test.examples.general;
 
+import de.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.cache.*;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
@@ -15,12 +18,16 @@ import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 
-	private static ClientStart clientStart;
-	private static Logging logging = Logging.unified();
-	private static ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private static int port = 44444;
+	private ClientStart clientStart;
+	private Logging logging = Logging.unified();
+	private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	private int port = 44444;
 
 	public static void main(String[] args) {
+		new ClientStartTest().run();
+	}
+
+	public void run() {
 		NetComLogging.setLogging(Logging.trace());
 		create();
 		setup();
@@ -33,15 +40,15 @@ public class ClientStartTest {
 		}
 	}
 
-	private static void create() {
+	private void create() {
 		clientStart = ClientStart.at("localhost", port);
 	}
 
-	private static void setup() {
+	private void setup() {
 //		clientStart.setSocketFactory((port, address) -> {
 //			try {
 //				return SSLSocketFactory.getDefaultJavaSerialization().createSocket(address, port);
-//			} catch (IOException e) {
+//			} catch (IOExceptiSealingon e) {
 //				e.printStackTrace();
 //			}
 //			try {
@@ -54,7 +61,7 @@ public class ClientStartTest {
 		register();
 	}
 
-	private static void start() throws StartFailedException {
+	private void start() throws StartFailedException {
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
 		clientStart.addDisconnectedHandler(client -> {
@@ -62,9 +69,10 @@ public class ClientStartTest {
 			executorService.schedule(new ConnectionRetryRunnable(clientStart), 4, TimeUnit.SECONDS);
 		});
 		clientStart.launch();
+		System.out.println("Launched!");
 	}
 
-	private static void send() {
+	private void send() {
 		clientStart.send().objectToServer(new TestObject("This should not come back"));
 		clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 		try {
@@ -91,10 +99,15 @@ public class ClientStartTest {
 		}
 	}
 
-	private static void register() {
+	private void register() {
+//		clientStart.getCommunicationRegistration()
+//				.register(TestObject.class)
+//				.addLast(o -> System.out.println("Received " + o.getHello() + " from Server"));
+
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast(o -> System.out.println("Received " + o.getHello() + " from Server"));
+				.to(this);
+
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
 				.addLast(o -> System.out.println("----\n" + o.getMsg() + "\n----"));
@@ -104,7 +117,12 @@ public class ClientStartTest {
 				.addLast(ping -> System.out.println("Received Ping from Server!"));
 	}
 
-	private static class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
+	@ReceiveHandler
+	public void handle(Connection connection, Session session, TestObject testObject) {
+		System.out.println("\n\n\n\n\n\nReceived " + testObject.getHello() + "\n\n\n\n\n\n\n");
+	}
+
+	private class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
 		private TestObserver() {
 			super(TestObjectTwo.class);
 		}
@@ -125,7 +143,7 @@ public class ClientStartTest {
 		}
 	}
 
-	private static class ConnectionRetryRunnable implements Runnable {
+	private class ConnectionRetryRunnable implements Runnable {
 
 		private ClientStart clientStart;
 		private int tries = 0;

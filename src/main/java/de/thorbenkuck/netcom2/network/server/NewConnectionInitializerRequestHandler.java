@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -18,6 +19,7 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 		this.clients = clients;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
 		Class connectionKey = newConnectionInitializer.getConnectionKey();
@@ -42,7 +44,7 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 				connection.setSession(client.getSession());
 				logging.trace("[" + identifier + "]: New Connection is now usable under the key: " + connectionKey);
 				logging.trace("[" + identifier + "]: Acknowledging newly initialized Connection..");
-				connection.writeObject(newConnectionInitializer);
+				connection.write(newConnectionInitializer);
 				logging.trace("[" + identifier + "]: Removing duplicate ..");
 				clients.remove(toDelete);
 				client.removeFalseID(newConnectionInitializer.getToDeleteID());

@@ -23,6 +23,6 @@ public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
 	@Override
 	public String toString() {
-		return CacheObserver.class + " implementation: " + getClass();
+		return CacheObserver.class.getSimpleName() + " implementation: " + getClass();
 	}
 }

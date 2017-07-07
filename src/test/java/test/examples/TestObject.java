@@ -13,4 +13,8 @@ public class TestObject implements Serializable {
 	public String getHello() {
 		return hello;
 	}
+
+	public String toString() {
+		return "TestObject{hello=" + hello + "}";
+	}
 }

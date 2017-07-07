@@ -26,7 +26,7 @@ public interface Connection extends Loggable {
 
 	void removeOnDisconnectedConsumer(Consumer<Connection> consumer);
 
-	void writeObject(Object object);
+	void write(Object object);
 
 	void addListener(Feasible<Class> feasible);
 

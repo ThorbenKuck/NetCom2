@@ -7,6 +7,7 @@ import de.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import de.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
+import de.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
 import java.util.function.Consumer;
 
@@ -23,11 +24,27 @@ public interface ReceivePipeline<T> {
 
 	ReceivePipelineCondition<T> addFirst(OnReceiveTriple<T> pipelineService);
 
+	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceive<T> pipelineService);
+
+	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveSingle<T> pipelineService);
+
+	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveTriple<T> pipelineService);
+
+	ReceivePipelineCondition<T> addLastIfNotContained(OnReceive<T> pipelineService);
+
+	ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveSingle<T> pipelineService);
+
+	ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveTriple<T> pipelineService);
+
+	ReceivePipelineCondition<T> to(Object object);
+
+	void setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy);
+
 	void remove(OnReceive<T> pipelineService);
 
 	void clear();
 
-	void run(Connection connection, Session session, Object t);
+	void run(Connection connection, Session session, T t);
 
 	void close();
 

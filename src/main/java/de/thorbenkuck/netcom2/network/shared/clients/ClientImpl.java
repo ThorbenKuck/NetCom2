@@ -26,6 +26,7 @@ class ClientImpl implements Client {
 	private final Map<Class, Synchronize> synchronizeMap = new HashMap<>();
 	private final Lock connectionLock = new ReentrantLock();
 	private final Lock threadPoolLock = new ReentrantLock();
+	private final Lock idLock = new ReentrantLock();
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
 	private EncryptionAdapter encryptionAdapter;
 	private DecryptionAdapter decryptionAdapter;
@@ -69,7 +70,7 @@ class ClientImpl implements Client {
 	private void updateConnectionThreadPools(ExecutorService executorService) {
 		try {
 			connectionLock.lock();
-			for(Connection connection : connections.values()) {
+			for (Connection connection : connections.values()) {
 				connection.setThreadPool(executorService);
 			}
 		} finally {
@@ -118,6 +119,7 @@ class ClientImpl implements Client {
 		id = ClientID.empty();
 		logging.trace("Resetting session ..");
 		session = Session.createNew(this);
+		logging.debug("Client has been disconnected!");
 	}
 
 	@Override
@@ -217,7 +219,7 @@ class ClientImpl implements Client {
 		logging.trace("Writing Object to connection");
 		try {
 			connectionLock.lock();
-			connection.writeObject(object);
+			connection.write(object);
 		} catch (Exception e) {
 			throw new SendFailedException(e);
 		} finally {
@@ -228,37 +230,43 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public Optional<Connection> getConnection(Class connectionKey) {
+	public final Optional<Connection> getConnection(Class connectionKey) {
+		return Optional.ofNullable(connections.get(connectionKey));
+	}
+
+	@Override
+	public final ClientID getID() {
 		try {
-			connectionLock.lock();
-			return Optional.ofNullable(connections.get(connectionKey));
+			idLock.lock();
+			return this.id;
 		} finally {
-			connectionLock.unlock();
+			idLock.unlock();
 		}
 	}
 
 	@Override
-	public ClientID getID() {
-		return this.id;
+	public final void setID(ClientID id) {
+		try {
+			idLock.lock();
+			this.id = id;
+			if (! ClientID.isEmpty(this.id)) {
+				logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
+			}
+		} finally {
+			idLock.unlock();
+		}
 	}
 
 	@Override
-	public synchronized void setID(ClientID id) {
-		if (! ClientID.isEmpty(this.id))
-			logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
-		this.id = id;
-	}
-
-	@Override
-	public void setConnection(Class key, Connection connection) {
+	public final void setConnection(Class key, Connection connection) {
 		logging.debug("Setting new Connection for " + key);
-		logging.trace("Mapped Key " + key + " to " + connection);
 		try {
 			connectionLock.lock();
 			connections.put(key, connection);
 		} finally {
 			connectionLock.unlock();
 		}
+		logging.trace("Mapped Key " + key + " to " + connection);
 	}
 
 	@Override
@@ -415,5 +423,55 @@ class ClientImpl implements Client {
 				", decryptionAdapter" + decryptionAdapter +
 				", encryptionAdapter" + encryptionAdapter +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (! (o instanceof ClientImpl)) return false;
+
+		ClientImpl client = (ClientImpl) o;
+
+		if (! disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
+		if (! fallBackSerialization.equals(client.fallBackSerialization)) return false;
+		if (! fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
+		if (! connections.equals(client.connections)) return false;
+		if (! falseIDs.equals(client.falseIDs)) return false;
+		if (! synchronizeMap.equals(client.synchronizeMap)) return false;
+		if (! connectionLock.equals(client.connectionLock)) return false;
+		if (! threadPoolLock.equals(client.threadPoolLock)) return false;
+		if (! idLock.equals(client.idLock)) return false;
+		if (! threadPool.equals(client.threadPool)) return false;
+		if (! encryptionAdapter.equals(client.encryptionAdapter)) return false;
+		if (! decryptionAdapter.equals(client.decryptionAdapter)) return false;
+		if (! mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
+		if (! mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
+		if (! logging.equals(client.logging)) return false;
+		if (! session.equals(client.session)) return false;
+		if (! communicationRegistration.equals(client.communicationRegistration)) return false;
+		return id.equals(client.id);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = disconnectedHandlers.hashCode();
+		result = 31 * result + fallBackSerialization.hashCode();
+		result = 31 * result + fallBackDeSerialization.hashCode();
+		result = 31 * result + connections.hashCode();
+		result = 31 * result + falseIDs.hashCode();
+		result = 31 * result + synchronizeMap.hashCode();
+		result = 31 * result + connectionLock.hashCode();
+		result = 31 * result + threadPoolLock.hashCode();
+		result = 31 * result + idLock.hashCode();
+		result = 31 * result + threadPool.hashCode();
+		result = 31 * result + encryptionAdapter.hashCode();
+		result = 31 * result + decryptionAdapter.hashCode();
+		result = 31 * result + mainSerializationAdapter.hashCode();
+		result = 31 * result + mainDeSerializationAdapter.hashCode();
+		result = 31 * result + logging.hashCode();
+		result = 31 * result + session.hashCode();
+		result = 31 * result + communicationRegistration.hashCode();
+		result = 31 * result + id.hashCode();
+		return result;
 	}
 }

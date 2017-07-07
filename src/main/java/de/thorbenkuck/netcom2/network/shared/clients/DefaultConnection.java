@@ -1,5 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 /**
  * DefaultConnection
  */
+@Synchronized
 public class DefaultConnection implements Connection {
 
 	private final Socket socket;
@@ -46,10 +49,12 @@ public class DefaultConnection implements Connection {
 		logging.debug("Connection setup for " + socket);
 		try {
 			logging.trace("SendingService setup..");
-			this.sendingService.setup(socket.getOutputStream(), toSend);
-			logging.trace("SendingService was successfully setup!");
-			logging.trace("ReceivingService setup..");
-			this.receivingService.setup(this, getSession());
+			synchronized (this) {
+				this.sendingService.setup(socket.getOutputStream(), toSend);
+				logging.trace("SendingService was successfully setup!");
+				logging.trace("ReceivingService setup..");
+				this.receivingService.setup(this, getSession());
+			}
 			logging.trace("ReceivingService was successfully setup!");
 		} catch (IOException e) {
 			try {
@@ -103,7 +108,7 @@ public class DefaultConnection implements Connection {
 			}
 			logging.info("Synchronization complete! Connection is now listening.");
 			started = true;
-			logging.trace("Realising awaiting Threads..");
+			logging.trace("Releasing awaiting Threads..");
 			synchronize.goOn();
 		});
 		logging.trace("Executing ReceivingService ..");
@@ -154,8 +159,9 @@ public class DefaultConnection implements Connection {
 		disconnectedPipeline.remove(consumer);
 	}
 
+	@Asynchronous
 	@Override
-	public void writeObject(Object object) {
+	public void write(Object object) {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to send objects!");
 		}
@@ -170,12 +176,12 @@ public class DefaultConnection implements Connection {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
+	public final InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException {
+	public final OutputStream getOutputStream() throws IOException {
 		return socket.getOutputStream();
 	}
 
@@ -228,10 +234,11 @@ public class DefaultConnection implements Connection {
 
 	@Override
 	public void setThreadPool(ExecutorService executorService) {
-		logging.warn("This operation is not yet supported!");
+		logging.error("This operation is not yet supported!");
 		// Soft-Stop currentThreadPool
 		// set new ThreadPool
 		// Restart Sending and ReceivingService
+		// Catch up with pending messages
 	}
 
 	@Override

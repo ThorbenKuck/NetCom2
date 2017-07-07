@@ -29,7 +29,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		synchronized (mapping) {
 			mapping.computeIfAbsent(clazz, k -> {
 				logging.trace("Creating ReceivingPipeline for " + clazz);
-				return new QueuedReceivePipeline<>();
+				return new QueuedReceivePipeline<>(clazz);
 			});
 		}
 		logging.debug("Registering communication for " + clazz);
@@ -121,9 +121,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void requireMatching(Class<?> clazz, Object o) throws CommunicationNotSpecifiedException {
+	private void requireMatching(Class<?> clazz, Object o) {
 		if (! (o != null && clazz.equals(o.getClass()))) {
-			throw new CommunicationNotSpecifiedException("Possible internal error!\n" +
+			throw new IllegalArgumentException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
 					"If you called CommunicationRegistration yourself, please make sure, the Object matches to the provided Class");
 		}

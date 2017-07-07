@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  */
 @Target (ElementType.METHOD)
 @Retention (RetentionPolicy.RUNTIME)
-public @interface Receiver {
+public @interface ReceiveHandler {
 
 	boolean active() default true;
 

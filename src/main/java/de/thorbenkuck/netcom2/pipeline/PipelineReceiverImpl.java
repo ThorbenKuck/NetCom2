@@ -6,6 +6,7 @@ import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 class PipelineReceiverImpl<T> {
@@ -14,10 +15,12 @@ class PipelineReceiverImpl<T> {
 	private final Queue<TriPredicate<Connection, Session, T>> predicates = new LinkedList<>();
 
 	PipelineReceiverImpl(OnReceiveTriple<T> onReceive) {
+		Objects.requireNonNull(onReceive);
 		this.onReceive = onReceive;
 	}
 
 	final void addTriPredicate(TriPredicate<Connection, Session, T> triPredicate) {
+		Objects.requireNonNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
@@ -31,16 +34,19 @@ class PipelineReceiverImpl<T> {
 		return true;
 	}
 
+	@Override
 	public boolean equals(Object o) {
-		if (o == null || ! PipelineReceiverImpl.class.equals(o.getClass())) {
-			return false;
-		}
+		if (this == o) return true;
+		if (! (o instanceof PipelineReceiverImpl)) return false;
 
-		if (this == o) {
-			return true;
-		}
+		PipelineReceiverImpl<?> that = (PipelineReceiverImpl<?>) o;
 
-		return onReceive.equals(((PipelineReceiverImpl) o).getOnReceive());
+		return onReceive.equals(that.onReceive);
+	}
+
+	@Override
+	public int hashCode() {
+		return onReceive.hashCode();
 	}
 
 	final OnReceiveTriple<T> getOnReceive() {
