@@ -5,6 +5,8 @@ It is designed to function as an over-network EventBus.
 
 NOTE: The documentation is still in Work!
 
+[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)
+
 ----
 
 ## About this framework
@@ -41,6 +43,10 @@ D is a non-breaking, security release
 
 Also there is a NIGHTLY branch, for the inpatient.
 
+### Current State
+
+0.3_BETA (Release 09.07.2017)
+
 ## For whom this is
 
 If you are searching for a easy to use framework, that gives you the option to fastly create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
@@ -53,9 +59,9 @@ But do not mistake this as an simple framework! If you want, you can create your
 
 ### Installation
 
-TODO
+Change the branch to RELEASE and choose the version, you want to use. THe latest is found at the root-path and older versions are listed in sub-folders (for example: alpha). Click on that version (
 
-### Starting with code
+### Starting to code
 
 Getting startet is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
