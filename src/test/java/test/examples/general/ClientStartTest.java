@@ -111,10 +111,6 @@ public class ClientStartTest {
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
 				.addLast(o -> System.out.println("----\n" + o.getMsg() + "\n----"));
-
-		clientStart.getCommunicationRegistration()
-				.register(Ping.class)
-				.addLast(ping -> System.out.println("Received Ping from Server!"));
 	}
 
 	@ReceiveHandler

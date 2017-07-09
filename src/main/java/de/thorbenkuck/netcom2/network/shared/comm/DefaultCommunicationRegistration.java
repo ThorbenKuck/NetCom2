@@ -39,7 +39,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public void unRegister(Class clazz) {
 		if (! isRegistered(clazz)) {
-			logging.debug("Could not find OnReceive to unregister for Class " + clazz);
+			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
 			return;
 		}
 		logging.trace("Unregister whole ReceivePipeline for " + clazz + " ..");
@@ -54,33 +54,38 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		return mapping.get(clazz) != null;
 	}
 
-	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> void trigger(Class<T> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException {
 		requireNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
-		requireMatching(clazz, o);
+		sanityCheck(clazz, o);
 		if (! isRegistered(clazz)) {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
-			try {
-				logging.trace("Performing required type casts ..");
-				logging.trace("Casting ReceivePipeline ..");
-				synchronized (mapping) {
-					ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
-					if (receivePipeline == null) {
-						throw new ConcurrentModificationException("ReceivePipeline for " + clazz + " was removed whilst trying to trigger it!");
-					}
-					logging.trace("Casting given Object " + o + "  ..");
-					T t = (T) o;
-					threadPool.submit(() -> handleRegistered(receivePipeline, connection, session, t));
+			threadPool.submit(() -> triggerExisting(clazz, connection, session, o));
+		}
+	}
+
+	@SuppressWarnings ("unchecked")
+	private <T> void triggerExisting(Class<T> clazz, Connection connection, Session session, Object o) {
+		logging.trace("Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
+		try {
+			logging.trace("Performing required type casts ..");
+			logging.trace("Casting ReceivePipeline ..");
+			synchronized (mapping) {
+				ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
+				if (receivePipeline == null) {
+					throw new ConcurrentModificationException("ReceivePipeline for " + clazz + " was removed whilst trying to trigger it!");
 				}
-			} catch (Throwable throwable) {
-				logging.error("Encountered an Throwable while running CommunicationRegistration for " + clazz, throwable);
+				logging.trace("Casting given Object " + o + "  ..");
+				T t = (T) o;
+				logging.trace("Now handling the communication ..");
+				handleRegistered(receivePipeline, connection, session, t);
 			}
+		} catch (Throwable throwable) {
+			logging.error("Encountered an Throwable while running CommunicationRegistration for " + clazz, throwable);
 		}
 	}
 
@@ -121,7 +126,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void requireMatching(Class<?> clazz, Object o) {
+	private void sanityCheck(Class<?> clazz, Object o) {
 		if (! (o != null && clazz.equals(o.getClass()))) {
 			throw new IllegalArgumentException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
@@ -150,13 +155,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		synchronized (defaultCommunicationHandlers) {
 			 defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		}
-		for (OnReceiveTriple<Object> onReceive : defaultCommunicationHandlerList) {
-			logging.trace("Asking " + onReceive + " to handle dead object: " + o.getClass());
+		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
+			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
-				onReceive.accept(connection, session, o);
+				defaultCommunicationHandler.accept(connection, session, o);
 			} catch (Throwable throwable) {
-				logging.error("Encountered unexpected Throwable while running " + onReceive, throwable);
-				logging.trace("Continuing ..");
+				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler, throwable);
+				logging.trace("Continuing anyways..");
 			}
 		}
 	}
