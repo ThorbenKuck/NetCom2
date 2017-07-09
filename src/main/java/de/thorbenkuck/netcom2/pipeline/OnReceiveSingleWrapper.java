@@ -29,8 +29,8 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	}
 
 	@Override
-	public final void doOnError() {
-		onReceive.doOnError();
+	public final void onAddFailed() {
+		onReceive.onAddFailed();
 	}
 
 	@Override

@@ -39,19 +39,19 @@ public class Listener implements ListenAndExpect {
 	}
 
 	@Override
-	public final boolean remove() {
+	public final boolean isRemovable() {
 		return removable;
 	}
 
 	@Override
-	public final boolean acceptable(Object o) {
+	public final boolean isAcceptable(Object o) {
 		return o != null && o.getClass().equals(t);
 	}
 
 	protected final void trigger() {
 		logging.trace("Match found! Releasing waiting Threads ..");
 		countDownLatch.countDown();
-		logging.trace("Marked " + this + " as removable");
+		logging.trace("Marked " + this + " as isRemovable");
 		removable = true;
 	}
 

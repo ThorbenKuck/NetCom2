@@ -70,7 +70,7 @@ public interface ReceivePipeline<T> {
 	 * This seal is permanent and makes the ReceivePipeline immutable.
 	 * </p>
 	 * <p>
-	 * <b>Note:</b>  If you seal an Pipeline, it will not get collected, by a {@link CommunicationRegistration#clearAllEmptyPipelines()} call. How ever, a {@link CommunicationRegistration#unRegister(Class)} call will still remove the Pipeline
+	 * <b>Note:</b>  If you seal an Pipeline, it will not get collected, by a {@link CommunicationRegistration#clearAllEmptyPipelines()} call. How ever, a {@link CommunicationRegistration#unRegister(Class)} call will still isRemovable the Pipeline
 	 * </p>
 	 */
 	void seal();

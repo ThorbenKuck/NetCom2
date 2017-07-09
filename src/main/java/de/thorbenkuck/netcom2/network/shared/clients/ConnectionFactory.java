@@ -7,11 +7,24 @@ import de.thorbenkuck.netcom2.network.interfaces.SendingService;
 import de.thorbenkuck.netcom2.network.shared.Session;
 
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Synchronized
 public class ConnectionFactory {
 
-	private Logging logging = Logging.unified();
+	private final Logging logging = Logging.unified();
+	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
+	private final static Lock connectionFactoryHookLock = new ReentrantLock();
+
+	public static void setConnectionFactoryHook(ConnectionFactoryHook connectionFactoryHook) {
+		try {
+			connectionFactoryHookLock.lock();
+			ConnectionFactory.connectionFactoryHook = connectionFactoryHook;
+		} finally {
+			connectionFactoryHookLock.unlock();
+		}
+	}
 
 	public Connection create(Socket socket, Client client) {
 		return create(socket, client, DefaultConnection.class);
@@ -36,7 +49,8 @@ public class ConnectionFactory {
 		// Synchonization, so only 1 Connection at a time can be established (real speaking)
 		synchronized (this) {
 			logging.trace("Creating connection..");
-			connection = new DefaultConnection(socket, session, receivingService, sendingService, key);
+			connection = getConnection(socket, session, sendingService, receivingService, key);
+			connection.setup();
 			logging.trace("Applying connection to Client");
 			client.setConnection(key, connection);
 		}
@@ -71,4 +85,12 @@ public class ConnectionFactory {
 				client.getEncryptionAdapter());
 	}
 
+	private Connection getConnection(Socket socket, Session session, SendingService sendingService, ReceivingService receivingService, Class<?> key) {
+		try {
+			connectionFactoryHookLock.lock();
+			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);
+		} finally {
+			connectionFactoryHookLock.unlock();
+		}
+	}
 }

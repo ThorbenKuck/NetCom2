@@ -192,12 +192,12 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public final Expectable send(Object object) {
+	public final ReceiveOrSendSynchronization send(Object object) {
 		return send(DefaultConnection.class, object);
 	}
 
 	@Override
-	public final Expectable send(Class connectionKey, Object object) {
+	public final ReceiveOrSendSynchronization send(Class connectionKey, Object object) {
 		try {
 			return send(connections.get(connectionKey), object);
 		} catch (SendFailedException e) {
@@ -206,27 +206,30 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public final Expectable send(Connection connection, Object object) {
+	public final ReceiveOrSendSynchronization send(Connection connection, Object object) {
 		Objects.requireNonNull(object);
-
 		requireConnected(connection);
 
-		logging.debug("Trying to send " + object + " over Connection " + connection.getKey());
+		logging.debug("Trying to beforeSend " + object + " over Connection " + connection.getKey());
 		logging.trace("Creating Expectable for " + object.getClass() + " ..");
-		ListenAndExpect expectable = new Listener(object.getClass());
+		ListenAndExpect sendExpectable = new Listener(object.getClass());
+		ListenAndExpect receivedExpectable = new Listener(object.getClass());
 		logging.trace("Adding Expectable to connection ..");
-		connection.addListener(expectable);
-		logging.trace("Writing Object to connection");
-		try {
-			connectionLock.lock();
-			connection.write(object);
-		} catch (Exception e) {
-			throw new SendFailedException(e);
-		} finally {
-			connectionLock.unlock();
-		}
+		threadPool.submit(() -> {
+			try {
+				connectionLock.lock();
+				connection.addObjectSendListener(new CallBackListener(sendExpectable));
+				connection.addObjectReceivedListener(new CallBackListener(receivedExpectable));
+				logging.trace("Writing Object to connection");
+				connection.write(object);
+			} catch (Exception e) {
+				throw new SendFailedException(e);
+			} finally {
+				connectionLock.unlock();
+			}
+		});
 
-		return expectable;
+		return new DefaultReceiveOrSendSynch(sendExpectable, receivedExpectable, object.getClass());
 	}
 
 	@Override

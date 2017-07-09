@@ -5,11 +5,11 @@ public interface Feasible<T> {
 
 	void tryAccept(T t);
 
-	default boolean remove() {
+	default boolean isRemovable() {
 		return true;
 	}
 
-	default boolean acceptable(Object object) {
+	default boolean isAcceptable(Object object) {
 		return object != null;
 	}
 

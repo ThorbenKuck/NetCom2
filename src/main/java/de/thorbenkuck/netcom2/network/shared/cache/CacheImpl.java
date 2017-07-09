@@ -77,7 +77,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void remove(Class clazz) {
-		logging.trace("Trying to remove Object(" + clazz + ") to Cache ..");
+		logging.trace("Trying to isRemovable Object(" + clazz + ") to Cache ..");
 		if (isSet(clazz)) {
 			Object removedEntry;
 			synchronized (internals) {

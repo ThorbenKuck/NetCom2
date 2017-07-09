@@ -1,12 +1,15 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import de.thorbenkuck.netcom2.annotations.Synchronized;
+import de.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
 import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import de.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.*;
+import de.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
 @Synchronized
 class Initializer {
@@ -52,7 +55,16 @@ class Initializer {
 			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
+
+			// TO NOT CHANGE THIS!
+			ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
+			pipeline.setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy.ALLOW_SINGLE);
+			pipeline.to(this);
 		}
+	}
+
+	@ReceiveHandler
+	private void handleAck(Acknowledge acknowledge) {
 	}
 
 	private void setObserver() {

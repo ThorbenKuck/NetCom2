@@ -5,15 +5,17 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface CallBack<T> extends Consumer<T> {
 
-	default boolean isAcceptable(Object object) {
-		return object != null;
+	default boolean isAcceptable(T t) {
+		return t != null;
 	}
 
-	default boolean remove() {
+	default boolean isRemovable() {
 		return true;
 	}
 
 	default void onRemove() {
 	}
 
+	default void onError() {
+	}
 }

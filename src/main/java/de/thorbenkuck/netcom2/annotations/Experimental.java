@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Shows that this method is not yet tested thoroughly
  */
-@Target (ElementType.METHOD)
+@Target (ElementType.TYPE)
 @Retention (RetentionPolicy.SOURCE)
-public @interface Experimantal {
+public @interface Experimental {
 }

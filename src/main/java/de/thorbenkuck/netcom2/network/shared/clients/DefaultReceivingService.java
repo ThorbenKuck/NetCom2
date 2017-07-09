@@ -15,8 +15,6 @@ import de.thorbenkuck.netcom2.network.shared.Synchronize;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -162,9 +160,9 @@ class DefaultReceivingService implements ReceivingService {
 		logging.debug("CallBack cleanup requested!");
 		List<CallBack<Object>> toRemove = new ArrayList<>();
 		callBacks.stream()
-				.filter(CallBack::remove)
+				.filter(CallBack::isRemovable)
 				.forEach(callBack -> {
-					logging.trace("Marking CallBack " + callBack + " as removable ..");
+					logging.trace("Marking CallBack " + callBack + " as isRemovable ..");
 					toRemove.add(callBack);
 				});
 		runSynchronizedOverCallbacks(() -> toRemove.forEach(this::removeCallback));
@@ -174,10 +172,8 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public void addReceivingCallback(CallBack<Object> callBack) {
 		logging.debug("Trying to add CallBack " + callBack);
-		runSynchronizedOverCallbacks(() -> {
-			logging.trace("Added Callback: " + callBack);
-			callBacks.add(callBack);
-		});
+		runSynchronizedOverCallbacks(() -> callBacks.add(callBack));
+		logging.trace("Added Callback: " + callBack);
 	}
 
 	@Override
@@ -210,7 +206,7 @@ class DefaultReceivingService implements ReceivingService {
 
 	@Asynchronous
 	private void removeCallback(CallBack<Object> toRemove) {
-		logging.trace("Preparing to remove CallBack: " + toRemove);
+		logging.trace("Preparing to isRemovable CallBack: " + toRemove);
 		toRemove.onRemove();
 		logging.debug("Removing CallBack " + toRemove);
 		callBacks.remove(toRemove);

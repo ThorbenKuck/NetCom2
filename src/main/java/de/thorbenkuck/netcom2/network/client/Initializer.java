@@ -53,6 +53,11 @@ class Initializer {
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) -> client.getID().equals(newConnectionInitializer.getID()) && ! ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
+
+		ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
+		pipeline.addFirst(o -> {});
+		pipeline.close();
+		pipeline.seal();
 	}
 
 	private void awaitHandshake() throws StartFailedException {

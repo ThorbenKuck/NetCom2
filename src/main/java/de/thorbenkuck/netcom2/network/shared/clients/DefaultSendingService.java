@@ -7,15 +7,18 @@ import de.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.SendingService;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import de.thorbenkuck.netcom2.network.shared.CallBack;
 import de.thorbenkuck.netcom2.network.shared.Synchronize;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 class DefaultSendingService implements SendingService {
 
@@ -25,8 +28,9 @@ class DefaultSendingService implements SendingService {
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private final List<CallBack<Object>> callBacks = new ArrayList<>();
 	private PrintWriter printWriter;
-	private LinkedBlockingQueue<Object> toSend;
+	private BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
 
@@ -49,10 +53,10 @@ class DefaultSendingService implements SendingService {
 		while (running()) {
 			try {
 				Object o = toSend.take();
-				// Take it first, then send it in another thread!
+				// Take it first, then beforeSend it in another thread!
 				threadPool.submit(() -> send(o));
 			} catch (InterruptedException e) {
-				logging.warn("Interrupted while waiting for a new Object to send");
+				logging.warn("Interrupted while waiting for a new Object to beforeSend");
 				logging.catching(e);
 			}
 		}
@@ -70,6 +74,10 @@ class DefaultSendingService implements SendingService {
 			printWriter.println(encryptionAdapter.get(toSend));
 			printWriter.flush();
 			logging.trace("Successfully wrote " + toSend + "!");
+			// help the GC
+			toSend = null;
+			logging.trace("Accepting CallBacks ..");
+			triggerCallbacks(o);
 		} catch (SerializationFailedException e) {
 			logging.error("Failed to Serialize!", e);
 		} catch (Throwable throwable) {
@@ -77,8 +85,38 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
-	private String encrypt(String s) {
-		return encryptionAdapter.get(s);
+	private void triggerCallbacks(Object o) {
+		List<CallBack<Object>> temp;
+		synchronized(callBacks) {
+			temp = new ArrayList<>(callBacks);
+		}
+		temp.stream()
+				.filter(callBack -> callBack.isAcceptable(o))
+				.forEachOrdered(callBack -> callBack.accept(o));
+
+		threadPool.submit(this::tryClearCallBacks);
+	}
+
+	private void deleteCallBack(CallBack<Object> callBack) {
+		logging.debug("Removing " + callBack + " from SendingService ..");
+		synchronized(callBacks) {
+			callBacks.remove(callBack);
+		}
+	}
+
+	private void tryClearCallBacks() {
+		List<CallBack<Object>> removable = new ArrayList<>();
+
+		synchronized(callBacks) {
+			callBacks.stream()
+					.filter(CallBack::isRemovable)
+					.forEachOrdered(callBack -> {
+						logging.debug("Marking " + callBack + " as to be removed ..");
+						removable.add(callBack);
+					});
+		}
+
+		removable.forEach(this::deleteCallBack);
 	}
 
 	private String serialize(Object o) throws SerializationFailedException {
@@ -103,6 +141,17 @@ class DefaultSendingService implements SendingService {
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
+	private String encrypt(String s) {
+		return encryptionAdapter.get(s);
+	}
+
+	@Override
+	public void addSendDoneCallback(CallBack<Object> callback) {
+		synchronized(callBacks) {
+			callBacks.add(callback);
+		}
+	}
+
 	@Override
 	public void softStop() {
 		running = false;
@@ -114,14 +163,14 @@ class DefaultSendingService implements SendingService {
 	}
 
 	@Override
-	public void overrideSendingQueue(LinkedBlockingQueue<Object> linkedBlockingQueue) {
+	public void overrideSendingQueue(BlockingQueue<Object> linkedBlockingQueue) {
 		Objects.requireNonNull(linkedBlockingQueue);
 		logging.warn("Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
 
 	@Override
-	public void setup(OutputStream outputStream, LinkedBlockingQueue<Object> toSendFrom) {
+	public void setup(OutputStream outputStream, BlockingQueue<Object> toSendFrom) {
 		Objects.requireNonNull(outputStream);
 		Objects.requireNonNull(toSendFrom);
 		this.printWriter = new PrintWriter(outputStream);

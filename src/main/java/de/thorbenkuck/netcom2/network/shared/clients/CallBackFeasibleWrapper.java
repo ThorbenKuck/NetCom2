@@ -20,12 +20,12 @@ class CallBackFeasibleWrapper implements CallBack<Object> {
 
 	@Override
 	public boolean isAcceptable(Object object) {
-		return feasible.acceptable(object);
+		return feasible.isAcceptable(object);
 	}
 
 	@Override
-	public boolean remove() {
-		return feasible.remove();
+	public boolean isRemovable() {
+		return feasible.isRemovable();
 	}
 
 	public String toString() {

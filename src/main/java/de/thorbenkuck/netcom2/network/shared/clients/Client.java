@@ -49,11 +49,11 @@ public interface Client {
 
 	Awaiting createNewConnection(Class connectionKey);
 
-	Expectable send(Object object);
+	ReceiveOrSendSynchronization send(Object object);
 
-	Expectable send(Class connectionKey, Object object);
+	ReceiveOrSendSynchronization send(Class connectionKey, Object object);
 
-	Expectable send(Connection connection, Object object);
+	ReceiveOrSendSynchronization send(Connection connection, Object object);
 
 	Optional<Connection> getConnection(Class connectionKey);
 
