@@ -5,7 +5,7 @@ It is designed to function as an over-network EventBus.
 
 NOTE: The documentation is still in Work!
 
-[![Build Status](https://travis-ci.org/thorbenkuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)
+[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)
 
 ----
 
