@@ -8,6 +8,5 @@ import java.util.function.BiConsumer;
 @FunctionalInterface
 public interface OnReceive<O> extends BiConsumer<Session, O>, CanBeRegistered {
 
-	void accept(Session session, O o);
 
 }

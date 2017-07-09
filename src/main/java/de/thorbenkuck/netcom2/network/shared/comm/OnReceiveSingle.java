@@ -6,6 +6,4 @@ import java.util.function.Consumer;
 
 public interface OnReceiveSingle<O> extends Consumer<O>, CanBeRegistered {
 
-	void accept(O o);
-
 }

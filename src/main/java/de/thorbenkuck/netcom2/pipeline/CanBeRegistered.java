@@ -34,8 +34,6 @@ public interface CanBeRegistered {
 	 * This method is called, if for example the ReceivePipeline is closed, but an instance of CanBeRegistered is added.
 	 * First {@link #onUnRegistration()} is called, than this, lastly {@link #onUnRegistration()}. This way, an
 	 */
-	default void doOnError() {
-
+	default void onAddFailed() {
 	}
-
 }

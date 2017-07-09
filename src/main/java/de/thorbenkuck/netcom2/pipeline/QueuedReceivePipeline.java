@@ -94,21 +94,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return addFirstIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
-	public boolean contains(OnReceiveTriple<T> onReceiveTriple) {
-		return core.contains(new PipelineReceiverImpl<>(onReceiveTriple));
-	}
-
-	public boolean contains(OnReceive<T> onReceive) {
-		return contains(new OnReceiveWrapper<>(onReceive));
-	}
-
-	public boolean contains(OnReceiveSingle<T> onReceiveSingle) {
-		return contains(new OnReceiveSingleWrapper<>(onReceiveSingle));
-	}
-
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if(!contains(pipelineService)) {
+		if (! contains(pipelineService)) {
 			return addFirst(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -126,7 +114,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if(!contains(pipelineService)) {
+		if (! contains(pipelineService)) {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -144,6 +132,60 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			return toReturn;
 		} finally {
 			policyLock.unlock();
+		}
+	}
+
+	protected void requiresOpen() {
+		if (closed) {
+			throw new PipelineAccessException("ReceivePipeline Closed!");
+		}
+	}
+
+	protected void requiredNotSealed() {
+		if (sealed) {
+			throw new PipelineAccessException("ReceivePipeline is sealed!");
+		}
+	}
+
+	@Override
+	public boolean contains(OnReceiveTriple<T> onReceiveTriple) {
+		return core.contains(new PipelineReceiverImpl<>(onReceiveTriple));
+	}
+
+	@Override
+	public boolean contains(OnReceive<T> onReceive) {
+		return contains(new OnReceiveWrapper<>(onReceive));
+	}
+
+	@Override
+	public boolean contains(OnReceiveSingle<T> onReceiveSingle) {
+		return contains(new OnReceiveSingleWrapper<>(onReceiveSingle));
+	}
+
+	@Override
+	public boolean isSealed() {
+		return sealed;
+	}
+
+	@Override
+	public boolean isClosed() {
+		return closed;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return core.isEmpty();
+	}
+
+	@Override
+	public void ifClosed(Consumer<ReceivePipeline<T>> consumer) {
+		ifClosed(() -> consumer.accept(this));
+	}
+
+	@Override
+	public void ifClosed(Runnable runnable) {
+		if (closed) {
+			runnable.run();
 		}
 	}
 
@@ -167,6 +209,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public void clear() {
+		if (isClosed()) {
+			throw new PipelineAccessException("Cannot clear an closed Pipeline!");
+		}
 		synchronized (core) {
 			core.clear();
 		}
@@ -200,49 +245,14 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public boolean isSealed() {
-		return sealed;
-	}
-
-	@Override
 	public void open() {
 		requiredNotSealed();
 		logging.debug("Opening ReceivePipeline for " + clazz);
 		closed = false;
 	}
 
-	@Override
-	public boolean isClosed() {
-		return closed;
-	}
-
-	@Override
-	public void ifClosed(Consumer<ReceivePipeline<T>> consumer) {
-		ifClosed(() -> consumer.accept(this));
-	}
-
-	@Override
-	public void ifClosed(Runnable runnable) {
-		if (closed) {
-			runnable.run();
-		}
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return core.isEmpty();
-	}
-
-	protected void requiredNotSealed() {
-		if (sealed) {
-			throw new PipelineAccessException("ReceivePipeline is sealed!");
-		}
-	}
-
 	private void falseAdd(CanBeRegistered canBeRegistered) {
-		canBeRegistered.onRegistration();
-		canBeRegistered.doOnError();
-		canBeRegistered.onUnRegistration();
+		canBeRegistered.onAddFailed();
 	}
 
 	private void ifOpen(Runnable runnable) {
@@ -284,18 +294,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public String toString() {
-		return "QueuedReceivePipeline{" +
+		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
-				", core=" + core +
-				", closed=" + closed +
-				", sealed=" + sealed +
+				", open=" + ! closed +
 				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
+				", core=" + core +
 				'}';
-	}
-
-	protected void requiresOpen() {
-		if (closed) {
-			throw new PipelineAccessException("ReceivePipeline Closed!");
-		}
 	}
 }

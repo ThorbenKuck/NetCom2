@@ -1,10 +1,29 @@
-group 'NetCom2'
-version 'Alpha 0.1'
+group 'de.thorbenkuck.network'
+version '0.3_BETA'
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 String root = file('.').toString()
 sourceCompatibility = 1.8
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url "$buildDir/repo"
+            System.out.println("$buildDir/repo")
+        }
+    }
+}
 
 repositories {
     mavenCentral()

@@ -38,6 +38,22 @@ public interface ReceivePipeline<T> {
 
 	ReceivePipelineCondition<T> to(Object object);
 
+	boolean contains(OnReceiveTriple<T> onReceiveTriple);
+
+	boolean contains(OnReceive<T> onReceive);
+
+	boolean contains(OnReceiveSingle<T> onReceiveSingle);
+
+	boolean isSealed();
+
+	boolean isClosed();
+
+	boolean isEmpty();
+
+	void ifClosed(Consumer<ReceivePipeline<T>> consumer);
+
+	void ifClosed(Runnable runnable);
+
 	void setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy);
 
 	void remove(OnReceive<T> pipelineService);
@@ -59,15 +75,5 @@ public interface ReceivePipeline<T> {
 	 */
 	void seal();
 
-	boolean isSealed();
-
 	void open();
-
-	boolean isClosed();
-
-	void ifClosed(Consumer<ReceivePipeline<T>> consumer);
-
-	void ifClosed(Runnable runnable);
-
-	boolean isEmpty();
 }
