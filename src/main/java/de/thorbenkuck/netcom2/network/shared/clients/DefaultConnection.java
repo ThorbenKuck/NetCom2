@@ -1,5 +1,7 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.interfaces.ReceivingService;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 /**
  * DefaultConnection
  */
+@Synchronized
 public class DefaultConnection implements Connection {
 
 	private final Socket socket;
@@ -31,12 +34,14 @@ public class DefaultConnection implements Connection {
 	private ReceivingService receivingService;
 	private SendingService sendingService;
 	private boolean started = false;
+	private Class<?> key;
 
-	public DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService) {
+	DefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService, Class<?> key) {
 		this.socket = socket;
 		this.session = session;
 		this.receivingService = receivingService;
 		this.sendingService = sendingService;
+		this.key = key;
 		setup();
 	}
 
@@ -44,10 +49,12 @@ public class DefaultConnection implements Connection {
 		logging.debug("Connection setup for " + socket);
 		try {
 			logging.trace("SendingService setup..");
-			this.sendingService.setup(socket.getOutputStream(), toSend);
-			logging.trace("SendingService was successfully setup!");
-			logging.trace("ReceivingService setup..");
-			this.receivingService.setup(this, getSession());
+			synchronized (this) {
+				this.sendingService.setup(socket.getOutputStream(), toSend);
+				logging.trace("SendingService was successfully setup!");
+				logging.trace("ReceivingService setup..");
+				this.receivingService.setup(this, getSession());
+			}
 			logging.trace("ReceivingService was successfully setup!");
 		} catch (IOException e) {
 			try {
@@ -101,7 +108,7 @@ public class DefaultConnection implements Connection {
 			}
 			logging.info("Synchronization complete! Connection is now listening.");
 			started = true;
-			logging.trace("Realising awaiting Threads..");
+			logging.trace("Releasing awaiting Threads..");
 			synchronize.goOn();
 		});
 		logging.trace("Executing ReceivingService ..");
@@ -127,7 +134,7 @@ public class DefaultConnection implements Connection {
 			}
 
 			@Override
-			public boolean acceptable(Object o) {
+			public boolean isAcceptable(Object o) {
 				return o != null && o.getClass().equals(clazz);
 			}
 
@@ -152,8 +159,9 @@ public class DefaultConnection implements Connection {
 		disconnectedPipeline.remove(consumer);
 	}
 
+	@Asynchronous
 	@Override
-	public void writeObject(Object object) {
+	public void write(Object object) {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to send objects!");
 		}
@@ -164,16 +172,16 @@ public class DefaultConnection implements Connection {
 	@Override
 	public void addListener(Feasible<Class> feasible) {
 		logging.debug("Added Feasible " + feasible);
-		receivingService.addReceivingCallback(new ConnectionCallBack(feasible));
+		receivingService.addReceivingCallback(new CallBackFeasibleWrapper(feasible));
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
+	public final InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException {
+	public final OutputStream getOutputStream() throws IOException {
 		return socket.getOutputStream();
 	}
 
@@ -215,6 +223,25 @@ public class DefaultConnection implements Connection {
 	}
 
 	@Override
+	public Class<?> getKey() {
+		return key;
+	}
+
+	@Override
+	public void setKey(Class<?> connectionKey) {
+		this.key = connectionKey;
+	}
+
+	@Override
+	public void setThreadPool(ExecutorService executorService) {
+		logging.error("This operation is not yet supported!");
+		// Soft-Stop currentThreadPool
+		// set new ThreadPool
+		// Restart Sending and ReceivingService
+		// Catch up with pending messages
+	}
+
+	@Override
 	public void setLogging(Logging logging) {
 		this.logging.debug("Overriding set Logging ..");
 		this.logging = logging;
@@ -227,34 +254,6 @@ public class DefaultConnection implements Connection {
 			return false;
 		}
 		return ((DefaultConnection) o).socket.equals(socket);
-	}
-
-	private class ConnectionCallBack implements CallBack<Object> {
-
-		private final Feasible<Class> feasible;
-
-		private ConnectionCallBack(Feasible<Class> feasible) {
-			this.feasible = feasible;
-		}
-
-		@Override
-		public void accept(Object object) {
-			feasible.tryAccept(object.getClass());
-		}
-
-		@Override
-		public boolean acceptable(Object object) {
-			return feasible.acceptable(object);
-		}
-
-		@Override
-		public boolean remove() {
-			return feasible.remove();
-		}
-
-		public String toString() {
-			return feasible.toString();
-		}
 	}
 
 	@Override

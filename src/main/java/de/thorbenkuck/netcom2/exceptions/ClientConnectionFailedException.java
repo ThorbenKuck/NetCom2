@@ -1,6 +1,6 @@
 package de.thorbenkuck.netcom2.exceptions;
 
-public class ClientConnectionFailedException extends Exception {
+public class ClientConnectionFailedException extends NetComException {
 	public ClientConnectionFailedException(String s) {
 		super(s);
 	}

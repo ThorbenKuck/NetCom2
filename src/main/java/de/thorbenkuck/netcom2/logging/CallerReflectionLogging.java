@@ -5,21 +5,30 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Objects;
 
-public class CallerReflectionLoggin implements Logging {
+public class CallerReflectionLogging implements Logging {
 
-	public CallerReflectionLoggin() {
+	private Logging logging;
+
+	public CallerReflectionLogging(Logging base) {
+		Objects.requireNonNull(base);
 		warn("This Logging-Mechanism is very workload-intensive!");
+		this.logging = base;
+	}
+
+	public CallerReflectionLogging() {
+		this(new SystemDefaultStyleLogging());
 	}
 
 	public String getPrefix() {
-		return ("[" + new Date().toString() + "] (" + Thread.currentThread().toString() + ") [" + getCaller() + "] ");
+		return (" [" + getCaller() + "] ");
 	}
 
 	public String getCaller() {
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 		for (StackTraceElement stackTraceElement : stackTraceElements) {
-			if (! stackTraceElement.getClassName().equals(CallerReflectionLoggin.class.getName())
+			if (! stackTraceElement.getClassName().equals(CallerReflectionLogging.class.getName())
 					&& ! stackTraceElement.getClassName().equals(NetComLogging.class.getName())
 					&& stackTraceElement.getClassName().indexOf("java.lang.Thread") != 0) {
 				return stackTraceElement.getClassName();
@@ -30,27 +39,27 @@ public class CallerReflectionLoggin implements Logging {
 
 	@Override
 	public void trace(String s) {
-		System.out.println(getPrefix() + " TRACE : " + s);
+		logging.trace(getPrefix() + " TRACE : " + s);
 	}
 
 	@Override
 	public void debug(String s) {
-		System.out.println(getPrefix() + " DEBUG : " + s);
+		logging.debug(getPrefix() + " DEBUG : " + s);
 	}
 
 	@Override
 	public void info(String s) {
-		System.out.println(getPrefix() + " INFO : " + s);
+		logging.info(getPrefix() + " INFO : " + s);
 	}
 
 	@Override
 	public void warn(String s) {
-		System.out.println(getPrefix() + " WARN : " + s);
+		logging.warn(getPrefix() + " WARN : " + s);
 	}
 
 	@Override
 	public void error(String s) {
-		System.out.println(getPrefix() + " ERROR : " + s);
+		logging.error(getPrefix() + " ERROR : " + s);
 	}
 
 	@Override
@@ -61,7 +70,7 @@ public class CallerReflectionLoggin implements Logging {
 
 	@Override
 	public void fatal(String s) {
-		System.out.println(getPrefix() + " FATAL : " + s);
+		logging.fatal(getPrefix() + " FATAL : " + s);
 	}
 
 	@Override
@@ -72,10 +81,7 @@ public class CallerReflectionLoggin implements Logging {
 
 	@Override
 	public void catching(Throwable throwable) {
-		StringWriter sw = new StringWriter();
-		throwable.printStackTrace(new PrintWriter(sw));
-		String stacktrace = sw.toString();
-		System.out.println(stacktrace);
+		logging.catching(throwable);
 	}
 
 }

@@ -1,12 +1,11 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
-import de.thorbenkuck.netcom2.network.shared.clients.Client;
-import de.thorbenkuck.netcom2.network.shared.clients.ClientID;
-import de.thorbenkuck.netcom2.network.shared.clients.Connection;
-import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
+import de.thorbenkuck.netcom2.network.shared.clients.*;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
@@ -32,9 +31,10 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	@Asynchronous
 	@Override
 	public Client create(Socket socket) {
-		Client client = new Client(communicationRegistration);
+		Client client = Client.create(communicationRegistration);
 		ClientID id = ClientID.create();
 		logging.trace("Setting new id to Client ..");
 		client.setID(id);
@@ -61,6 +61,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		return client;
 	}
 
+	@Asynchronous
 	@Override
 	public void handle(Client client) {
 		assertNotNull(client);

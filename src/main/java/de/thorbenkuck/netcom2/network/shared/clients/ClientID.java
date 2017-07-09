@@ -1,8 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@Synchronized
 public class ClientID implements Serializable {
 
 	private final UUID id;

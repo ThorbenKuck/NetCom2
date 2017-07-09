@@ -1,33 +1,38 @@
 package de.thorbenkuck.netcom2.network.shared;
 
+import de.thorbenkuck.netcom2.network.interfaces.Logging;
+
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
-public class Listener<T extends Class> implements ListenAndExpect<Class> {
+public class Listener implements ListenAndExpect {
 
+	private final Logging logging = Logging.unified();
 	private Class t;
 	private CountDownLatch countDownLatch = new CountDownLatch(1);
 	private boolean removable = true;
 
-	public Listener(T t) {
-		if (t == null) {
-			throw new NullPointerException();
-		}
+	public Listener(Class t) {
+		Objects.requireNonNull(t);
 		this.t = t;
 	}
 
 	@Override
-	public final void andAwaitReceivingOfClass(Class clazz) throws InterruptedException {
+	public final void andWaitFor(Class clazz) throws InterruptedException {
 		removable = false;
 		this.t = clazz;
 		await();
 	}
 
 	private void await() throws InterruptedException {
+		logging.trace("Awaiting receiving of " + t);
 		countDownLatch.await();
+		logging.trace("Received " + t + "! Continuing ..");
 	}
 
 	@Override
 	public final void tryAccept(Class clazz) {
+		logging.trace("Trying to match " + clazz + " to " + t);
 		if (t.equals(clazz)) {
 			trigger();
 		}
@@ -44,7 +49,9 @@ public class Listener<T extends Class> implements ListenAndExpect<Class> {
 	}
 
 	protected final void trigger() {
+		logging.trace("Match found! Releasing waiting Threads ..");
 		countDownLatch.countDown();
+		logging.trace("Marked " + this + " as removable");
 		removable = true;
 	}
 

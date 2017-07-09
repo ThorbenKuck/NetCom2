@@ -1,9 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
+import javax.jws.Oneway;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -11,8 +13,9 @@ import java.util.Base64;
 
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
-	private final Logging logging = NetComLogging.getLogging();
+	private final Logging logging = Logging.unified();
 
+	@Asynchronous
 	@Override
 	public String get(Object o) throws SerializationFailedException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

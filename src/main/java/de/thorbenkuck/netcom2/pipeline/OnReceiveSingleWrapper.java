@@ -29,6 +29,11 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	}
 
 	@Override
+	public final void doOnError() {
+		onReceive.doOnError();
+	}
+
+	@Override
 	public final int hashCode() {
 		return onReceive.hashCode();
 	}

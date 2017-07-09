@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -11,10 +12,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
+@Synchronized
 class ClientListImpl extends Observable implements ClientList {
 
 	private final List<Client> clients = new ArrayList<>();
-	private final Lock lock = new ReentrantLock(true);
+	private final Lock clientLock = new ReentrantLock(true);
 	private final Logging logging = new NetComLogging();
 
 	ClientListImpl() {
@@ -24,11 +26,11 @@ class ClientListImpl extends Observable implements ClientList {
 	public void add(Client client) {
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
 		try {
-			lock.lock();
+			clientLock.lock();
 			clients.add(client);
 			notifyAboutClientList();
 		} finally {
-			lock.unlock();
+			clientLock.unlock();
 		}
 	}
 
@@ -42,11 +44,11 @@ class ClientListImpl extends Observable implements ClientList {
 	public void remove(Client client) {
 		logging.debug("Removing Client " + client.getID() + " from ClientList");
 		try {
-			lock.lock();
+			clientLock.lock();
 			clients.remove(client);
 			notifyAboutClientList();
 		} finally {
-			lock.unlock();
+			clientLock.unlock();
 		}
 	}
 
@@ -54,30 +56,45 @@ class ClientListImpl extends Observable implements ClientList {
 	public void clear() {
 		logging.debug("Clearing the ClientList");
 		try {
-			lock.lock();
+			clientLock.lock();
 			clients.clear();
 			notifyAboutClientList();
 		} finally {
-			lock.unlock();
+			clientLock.unlock();
 		}
 	}
 
 	@Override
 	public Optional<Client> getClient(Session session) {
-		return clients.stream().filter(client -> client.getSession().equals(session)).findFirst();
+		try {
+			clientLock.lock();
+			return clients.stream().filter(client -> client.getSession().equals(session)).findFirst();
+		} finally {
+			clientLock.unlock();
+		}
 	}
 
 	@Override
 	public Optional<Client> getClient(ClientID id) {
-		return clients.stream().filter(client -> client.getID().equals(id)).findFirst();
+		try {
+			clientLock.lock();
+			return clients.stream().filter(client -> client.getID().equals(id)).findFirst();
+		} finally {
+			clientLock.unlock();
+		}
 	}
 
 	@Override
-	public Stream<Session> userStream() {
+	public Stream<Session> sessionStream() {
 		final List<Session> sessions = new ArrayList<>();
+		try {
+			clientLock.lock();
 		clients.stream()
 				.filter(client -> client.getSession() != null)
 				.forEach(client -> sessions.add(client.getSession()));
+		} finally {
+			clientLock.unlock();
+		}
 		return sessions.stream();
 	}
 
@@ -96,19 +113,22 @@ class ClientListImpl extends Observable implements ClientList {
 		return "ClientList{" + clients.toString() + "}";
 	}
 
-	public List<Client> accessInternals() {
+	private List<Client> accessInternals() {
 		return new ArrayList<>(clients);
 	}
 
 	private class ClientIterator implements Iterator<Client> {
 
 		private Queue<Client> clients;
-		private ClientList clientList;
 		private Client current;
 
 		public ClientIterator(ClientListImpl clientList) {
-			clients = new LinkedList<>(clientList.accessInternals());
-			this.clientList = clientList;
+			try {
+				clientLock.lock();
+				clients = new LinkedList<>(clientList.accessInternals());
+			} finally {
+				clientLock.unlock();
+			}
 		}
 
 		@Override
@@ -120,11 +140,6 @@ class ClientListImpl extends Observable implements ClientList {
 		public Client next() {
 			current = clients.poll();
 			return current;
-		}
-
-		@Override
-		public void remove() {
-			clientList.remove(current);
 		}
 	}
 }

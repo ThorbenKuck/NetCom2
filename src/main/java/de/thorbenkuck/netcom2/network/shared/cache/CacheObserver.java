@@ -1,12 +1,15 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import java.util.Observable;
-import java.util.Observer;
+public interface CacheObserver<T> {
+	void newEntry(T t, CacheObservable observable);
 
-public interface CacheObserver extends Observer {
-	void newEntry(NewEntryEvent newEntryEvent, Observable observable);
+	void updatedEntry(T t, CacheObservable observable);
 
-	void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable);
+	/**
+	 * @param t          the Last known instance
+	 * @param observable
+	 */
+	void deletedEntry(T t, CacheObservable observable);
 
-	void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable);
+	boolean accept(Object o);
 }

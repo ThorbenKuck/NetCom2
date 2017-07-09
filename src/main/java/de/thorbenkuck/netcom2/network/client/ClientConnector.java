@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.interfaces.Connector;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -7,6 +8,7 @@ import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 
+import javax.jws.Oneway;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -25,6 +27,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		logging.trace("Instantiated ClientConnector for " + address + ":" + port);
 	}
 
+	@Asynchronous
 	@Override
 	public Connection establishConnection(SocketFactory factory) throws IOException {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
@@ -45,6 +48,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		return connection;
 	}
 
+	@Asynchronous
 	@Override
 	public Connection establishConnection(Class key, SocketFactory factory) throws IOException {
 		String prefix = "[Connection@" + key + "]: ";

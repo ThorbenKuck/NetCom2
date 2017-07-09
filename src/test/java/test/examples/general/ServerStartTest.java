@@ -1,7 +1,6 @@
 package test.examples.general;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.CommunicationAlreadySpecifiedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -32,16 +31,12 @@ public class ServerStartTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.getDefault());
+		NetComLogging.setLogging(Logging.trace());
 		catching();
 		create();
 		schedule();
-		try {
-			register();
-			starter.start();
-		} catch (CommunicationAlreadySpecifiedException e) {
-			throw new RuntimeException(e);
-		}
+		register();
+		starter.start();
 	}
 
 	private static void catching() {
@@ -49,7 +44,7 @@ public class ServerStartTest {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String stacktrace = sw.toString();
-			logging.info(stacktrace);
+			System.out.println(stacktrace);
 		});
 	}
 
@@ -58,15 +53,15 @@ public class ServerStartTest {
 		serverStart.addClientConnectedHandler(client -> {
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
-			client.addDisconnectedHandler(client1 -> logging.info("ABORT!" + client1 + " disconnected!"));
+			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
 			Session session = client.getSession();
 			session.eventOf(Login.class)
-					.addFirst(login -> logging.info("Du bist doch schon eingeloggt, du eumel!"))
+					.addFirst(login -> System.out.println("Du bist doch schon eingeloggt, du eumel!"))
 					.withRequirement(login -> session.isIdentified());
 
 			session.eventOf(Login.class)
 					.addLast(login -> {
-						logging.info("Okay, ich logge dich ein...");
+						System.out.println("Okay, ich logge dich ein...");
 						session.setIdentified(true);
 					}).withRequirement(login -> ! session.isIdentified());
 
@@ -85,7 +80,7 @@ public class ServerStartTest {
 		});
 //		serverStart.setServerSocketFactory(integer -> {
 //			try {
-//				return SSLServerSocketFactory.getDefault().createServerSocket(integer);
+//				return SSLServerSocketFactory.getDefaultJavaSerialization().createServerSocket(integer);
 //			} catch (IOException e) {
 //				e.printStackTrace();
 //			}
@@ -103,14 +98,14 @@ public class ServerStartTest {
 		scheduledExecutorService.scheduleAtFixedRate(ServerStartTest::send, 11, 11, TimeUnit.SECONDS);
 	}
 
-	private static void register() throws CommunicationAlreadySpecifiedException {
+	private static void register() {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((session, o) -> logging.info("------received " + o.getHello() + " from " + session + "-------"))
+				.addLast((session, o) -> System.out.println("------received " + o.getHello() + " from " + session + "-------"))
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((connection, session, o) -> connection.writeObject(new TestObject("World")))
+				.addLast((connection, session, o) -> connection.write(new TestObject(connection.getKey() + ":" + o.getHello())))
 				.withRequirement(Session::isIdentified);
 
 		serverStart.getCommunicationRegistration()

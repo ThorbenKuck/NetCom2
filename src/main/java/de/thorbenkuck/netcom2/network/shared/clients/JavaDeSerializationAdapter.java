@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -11,8 +12,9 @@ import java.util.Base64;
 
 public class JavaDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
 
-	private final Logging logging = NetComLogging.getLogging();
+	private final Logging logging = Logging.unified();
 
+	@Asynchronous
 	@Override
 	public Object get(String s) throws DeSerializationFailedException {
 		Object o;

@@ -1,36 +1,54 @@
 package test.examples.general;
 
+import de.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Awaiting;
-import de.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
-import de.thorbenkuck.netcom2.network.shared.cache.DeletedEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.NewEntryEvent;
-import de.thorbenkuck.netcom2.network.shared.cache.UpdatedEntryEvent;
+import de.thorbenkuck.netcom2.network.shared.Session;
+import de.thorbenkuck.netcom2.network.shared.cache.*;
+import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import test.examples.*;
 
-import java.util.Observable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ClientStartTest {
 
-	private static ClientStart clientStart;
-	private static Logging logging = Logging.unified();
-	private static ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private static int port = 44444;
+	private ClientStart clientStart;
+	private Logging logging = Logging.unified();
+	private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	private int port = 44444;
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.getDefault());
+		new ClientStartTest().run();
+	}
+
+	public void run() {
+		NetComLogging.setLogging(Logging.trace());
+		create();
+		setup();
+
+		try {
+			start();
+			send();
+		} catch (StartFailedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void create() {
 		clientStart = ClientStart.at("localhost", port);
-//		clientStart.setServerSocketFactory((port, address) -> {
+	}
+
+	private void setup() {
+//		clientStart.setSocketFactory((port, address) -> {
 //			try {
-//				return SSLSocketFactory.getDefault().createSocket(address, port);
-//			} catch (IOException e) {
+//				return SSLSocketFactory.getDefaultJavaSerialization().createSocket(address, port);
+//			} catch (IOExceptiSealingon e) {
 //				e.printStackTrace();
 //			}
 //			try {
@@ -40,80 +58,92 @@ public class ClientStartTest {
 //			}
 //			return null;
 //		});
+		register();
+	}
 
+	private void start() throws StartFailedException {
+		clientStart.addFallBackDeSerialization(new TestDeSerializer());
+		clientStart.addFallBackSerialization(new TestSerializer());
+		clientStart.addDisconnectedHandler(client -> {
+			System.out.println("Bye bye dear Server");
+			executorService.schedule(new ConnectionRetryRunnable(clientStart), 4, TimeUnit.SECONDS);
+		});
+		clientStart.launch();
+		System.out.println("Launched!");
+	}
+
+	private void send() {
+		clientStart.send().objectToServer(new TestObject("This should not come back"));
+		clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
 		try {
-			register();
-			start();
-			clientStart.send().objectToServer(new TestObject("This should not come back"));
-			clientStart.send().registrationToServer(TestObjectTwo.class, new TestObserver());
-			try {
-				System.out.println("#1 Awaiting receive of Class TestObjectThree...");
-				clientStart.send()
-						.objectToServer(new Login())
-						.andAwaitReceivingOfClass(TestObjectThree.class);
-				System.out.println("#1 Received TestObjectThree.class!");
-				clientStart.send().objectToServer(new Login());
-				clientStart.send().objectToServer(new Login());
-				clientStart.send().objectToServer(new Login());
-				clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
-				Awaiting callBack = clientStart.createNewConnection(TestObject.class);
-				System.out.println("SomeStuff");
-				System.out.println("SomeMoreStuff");
-				System.out.println("Jetzt warte ich auf die neue Connection..");
-				callBack.synchronize();
-				System.out.println("Connection wurde aufgebaut! JUHU!");
-				System.out.println("Lass uns die neue Connection mal testen..");
-				clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andAwaitReceivingOfClass(TestObject.class);
-				System.out.println("Das lief doch gut!");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} catch (StartFailedException e) {
+			System.out.println("#1 Awaiting receive of Class TestObjectThree...");
+			clientStart.send()
+					.objectToServer(new Login())
+					.andWaitFor(TestObjectThree.class);
+			System.out.println("#1 Received TestObjectThree.class!");
+			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new Login());
+			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
+			Awaiting callBack = clientStart.createNewConnection(TestObject.class);
+			System.out.println("SomeStuff");
+			System.out.println("SomeMoreStuff");
+			System.out.println("Now wait for the new Connection..");
+			callBack.synchronize();
+			System.out.println("Connection established! YAY!");
+			System.out.println("Let's test the new Connection ..");
+			clientStart.send().objectToServer(new TestObject("Hello!"), TestObject.class).andWaitFor(TestObject.class);
+			System.out.println("That was good, was'nt it?");
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void register() {
+	private void register() {
+//		clientStart.getCommunicationRegistration()
+//				.register(TestObject.class)
+//				.addLast(o -> System.out.println("Received " + o.getHello() + " from Server"));
+
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addLast((user, o) -> logging.info("Received " + o.getHello() + " from Server"));
+				.to(this);
+
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
-				.addLast((connection, user, o) -> logging.info("----\n" + o.getMsg() + "\n----"));
+				.addLast(o -> System.out.println("----\n" + o.getMsg() + "\n----"));
 
 		clientStart.getCommunicationRegistration()
 				.register(Ping.class)
-				.addLast(ping -> logging.info("Received Ping from Server!"));
+				.addLast(ping -> System.out.println("Received Ping from Server!"));
 	}
 
-	private static void start() throws StartFailedException {
-		clientStart.addFallBackDeSerialization(new TestDeSerializer());
-		clientStart.addFallBackSerialization(new TestSerializer());
-		clientStart.addDisconnectedHandler(client -> {
-			logging.info("Bye bye lieber Server");
-			executorService.schedule(new ConnectionRetryRunnable(clientStart), 4, TimeUnit.SECONDS);
-		});
-		clientStart.launch();
+	@ReceiveHandler
+	public void handle(Connection connection, Session session, TestObject testObject) {
+		System.out.println("\n\n\n\n\n\nReceived " + testObject.getHello() + "\n\n\n\n\n\n\n");
 	}
 
-	private static class TestObserver extends AbstractCacheObserver {
-		@Override
-		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-			logging.info("[NEW ENTRY] Received push from Server about: " + newEntryEvent.getObject());
+	private class TestObserver extends AbstractCacheObserver<TestObjectTwo> {
+		private TestObserver() {
+			super(TestObjectTwo.class);
 		}
 
 		@Override
-		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-			logging.info("[UPDATE] Received push from Server about: " + updatedEntryEvent.getObject());
+		public void newEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[NEW ENTRY] Received push from Server about: " + testObjectTwo);
 		}
 
 		@Override
-		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
-			logging.info("[DELETED] Received push from Server about: " + deletedEntryEvent.getCorrespondingClass());
+		public void updatedEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[UPDATE] Received push from Server about: " + testObjectTwo);
+		}
+
+		@Override
+		public void deletedEntry(TestObjectTwo testObjectTwo, CacheObservable observable) {
+			System.out.println("[DELETED] Received push from Server about: " + testObjectTwo);
 		}
 	}
 
-	private static class ConnectionRetryRunnable implements Runnable {
+	private class ConnectionRetryRunnable implements Runnable {
 
 		private ClientStart clientStart;
 		private int tries = 0;
@@ -127,7 +157,8 @@ public class ClientStartTest {
 			++ tries;
 			try {
 				clientStart.launch();
-				logging.info("Reconnected after " + tries + " tries!");
+				System.out.println("Reconnected after " + tries + " tries!");
+				send();
 			} catch (StartFailedException e) {
 				logging.catching(e);
 				executorService.schedule(this, 4, TimeUnit.SECONDS);

@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -19,6 +20,7 @@ class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 		this.Cache = Cache;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Session session, RegisterRequest o) {
 		logging.debug("Trying to register " + session + " to " + o.getCorrespondingClass());

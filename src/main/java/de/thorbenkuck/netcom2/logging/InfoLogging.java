@@ -4,7 +4,15 @@ import de.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class InfoLogging implements Logging {
 
-	private Logging logging = Logging.getDefault();
+	private final Logging logging;
+
+	public InfoLogging() {
+		this(new SystemDefaultStyleLogging());
+	}
+
+	public InfoLogging(Logging base) {
+		this.logging = base;
+	}
 
 	@Override
 	public void trace(String s) {

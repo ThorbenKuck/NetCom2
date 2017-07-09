@@ -18,4 +18,14 @@ public interface Pipeline<T> {
 
 	void open();
 
+	void seal();
+
+	boolean isSealed();
+
+	boolean isOpen();
+
+	void ifClosed(Consumer<Pipeline<T>> consumer);
+
+	void ifClosed(Runnable runnable);
+
 }

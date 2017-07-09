@@ -15,6 +15,6 @@ public class DefaultSynchronize extends AbstractSynchronize {
 
 	@Override
 	public void error() {
-		Logging.getDefault().fatal("oh oh..");
+		Logging.unified().fatal("oh oh..");
 	}
 }

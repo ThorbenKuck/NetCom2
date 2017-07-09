@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
@@ -25,7 +26,7 @@ public interface Connection extends Loggable {
 
 	void removeOnDisconnectedConsumer(Consumer<Connection> consumer);
 
-	void writeObject(Object object);
+	void write(Object object);
 
 	void addListener(Feasible<Class> feasible);
 
@@ -46,4 +47,10 @@ public interface Connection extends Loggable {
 	InetAddress getInetAddress();
 
 	boolean isActive();
+
+	Class<?> getKey();
+
+	void setKey(Class<?> connectionKey);
+
+	void setThreadPool(ExecutorService executorService);
 }

@@ -11,4 +11,7 @@ public interface ReceivePipelineCondition<T> {
 
 	void withRequirement(Predicate<Session> userPredicate);
 
+	static <T> ReceivePipelineCondition<T> empty() {
+		return new EmptyReceivePipelineCondition<>();
+	}
 }

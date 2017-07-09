@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.interfaces.SocketFactory;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -29,6 +30,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 		this.sender = sender;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Session session, NewConnectionRequest o) {
 		Class key = o.getKey();
@@ -46,7 +48,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			List<ClientID> toRemove = new ArrayList<>();
 			for (ClientID toDeleteID : client.getFalseIDs()) {
 				logging.trace(prefix + "Requesting deletion of old key: " + toDeleteID);
-				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andAwaitReceivingOfClass(NewConnectionInitializer.class);
+				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andWaitFor(NewConnectionInitializer.class);
 				toRemove.add(toDeleteID);
 				logging.trace(prefix + "Marked for deletion " + toDeleteID);
 			}

@@ -1,12 +1,14 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.cache.*;
+import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
+import de.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
 import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import de.thorbenkuck.netcom2.network.shared.comm.model.*;
 
-import java.util.Observable;
-
+@Synchronized
 class Initializer {
 
 	private final InternalDistributor distributor;
@@ -32,31 +34,35 @@ class Initializer {
 	}
 
 	private void register() {
-		logging.trace("Registering Handler for RegisterRequest.class ..");
-		communicationRegistration.register(RegisterRequest.class)
-				.addFirst(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
-				.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
-		logging.trace("Registering Handler for UnRegisterRequest.class ..");
-		communicationRegistration.register(UnRegisterRequest.class)
-				.addLast(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
-				.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
-		logging.trace("Registering Handler for Ping.class ..");
-		communicationRegistration.register(Ping.class)
-				.addLast(new PingRequestHandler(clients));
-		logging.trace("Registering Handler for NewConnectionRequest.class ..");
-		communicationRegistration.register(NewConnectionRequest.class)
-				.addLast(new NewConnectionRequestHandler());
-		logging.trace("Registering Handler for NewConnectionInitializer.class ..");
-		communicationRegistration.register(NewConnectionInitializer.class)
-				.addLast(new NewConnectionInitializerRequestHandler(clients));
+		synchronized (communicationRegistration) {
+			logging.trace("Registering Handler for RegisterRequest.class ..");
+			communicationRegistration.register(RegisterRequest.class)
+					.addFirstIfNotContained(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
+					.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+			logging.trace("Registering Handler for UnRegisterRequest.class ..");
+			communicationRegistration.register(UnRegisterRequest.class)
+					.addFirstIfNotContained(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
+					.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+			logging.trace("Registering Handler for Ping.class ..");
+			communicationRegistration.register(Ping.class)
+					.addFirstIfNotContained(new PingRequestHandler(clients));
+			logging.trace("Registering Handler for NewConnectionRequest.class ..");
+			communicationRegistration.register(NewConnectionRequest.class)
+					.addFirstIfNotContained(new NewConnectionRequestHandler());
+			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
+			communicationRegistration.register(NewConnectionInitializer.class)
+					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
+		}
 	}
 
 	private void setObserver() {
 		logging.trace("Adding internal CacheObserver ..");
-		cache.addCacheObserver(new ObserverSender(distributor));
+		synchronized (cache) {
+			cache.addCacheObserver(new ObserverSender(distributor));
+		}
 	}
 
-	private class ObserverSender extends AbstractCacheObserver {
+	private class ObserverSender implements GeneralCacheObserver {
 
 		private Distributor distributor;
 
@@ -65,17 +71,21 @@ class Initializer {
 		}
 
 		@Override
-		public void newEntry(NewEntryEvent newEntryEvent, Observable observable) {
-			distributor.toRegistered(newEntryEvent.getObject());
+		public void newEntry(Object o, CacheObservable observable) {
+			logging.debug("Received a new entry for the set Cache!");
+			logging.trace("Notifying registered Clients for Class " + o.getClass());
+			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void updatedEntry(UpdatedEntryEvent updatedEntryEvent, Observable observable) {
-			distributor.toRegistered(updatedEntryEvent.getObject());
+		public void updatedEntry(Object o, CacheObservable observable) {
+			logging.debug("Received an updated entry for the set Cache!");
+			logging.trace("Notifying registered Clients for Class " + o.getClass());
+			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void deletedEntry(DeletedEntryEvent deletedEntryEvent, Observable observable) {
+		public void deletedEntry(Object o, CacheObservable observable) {
 			logging.fatal("TODO!");
 		}
 	}

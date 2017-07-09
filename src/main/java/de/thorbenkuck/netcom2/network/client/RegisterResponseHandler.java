@@ -1,5 +1,6 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -17,10 +18,11 @@ class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 		this.sender = sender;
 	}
 
+	@Asynchronous
 	@Override
 	public void accept(Session session, RegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addGeneralObserver(sender.getObserver(o.getRequest().getCorrespondingClass()));
+			cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
 			logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
 		}
 	}

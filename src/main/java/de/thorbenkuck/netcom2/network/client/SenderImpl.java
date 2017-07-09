@@ -1,10 +1,12 @@
 package de.thorbenkuck.netcom2.network.client;
 
+import de.thorbenkuck.netcom2.exceptions.UnregistrationException;
 import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Loggable;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Expectable;
 import de.thorbenkuck.netcom2.network.shared.cache.Cache;
+import de.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import de.thorbenkuck.netcom2.network.shared.clients.Client;
 import de.thorbenkuck.netcom2.network.shared.clients.Connection;
 import de.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
@@ -12,13 +14,12 @@ import de.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observer;
 
 public class SenderImpl implements InternalSender, Loggable {
 
-	private Client client;
-	private Map<Class, Observer> observers = new HashMap<>();
-	private Cache cache;
+	private final Client client;
+	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
+	private final Cache cache;
 	private Logging logging = new NetComLogging();
 
 	public SenderImpl(Client client, Cache cache) {
@@ -42,70 +43,84 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer, Connection connection) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable registrationToServer(Class clazz, Observer observer, Class connectionKey) {
+	public <T> Expectable registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
 		logging.debug("Registering to " + clazz);
-		observers.put(clazz, observer);
+		addPendingObserver(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz, Connection connection) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz, Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
-	public Expectable unRegistrationToServer(Class clazz, Class connectionKey) {
+	public <T> Expectable unRegistrationToServer(Class<T> clazz, Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
-		if (observers.containsKey(clazz)) {
+		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
 		}
-		throw new RuntimeException("Cannot unregister! Registration was never requested!");
+		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
-	public Observer deleteObserver(Class clazz) {
-		return observers.remove(clazz);
+	public <T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer) {
+		if(observer.accept(clazz)) {
+			logging.debug("Added pending CacheObserver for " + clazz);
+			synchronized (pendingObservers) {
+				pendingObservers.put(clazz, observer);
+			}
+		} else {
+			logging.warn("CacheObserver and given Class are incompatible! (" + clazz + " <=> " + observer + ")");
+		}
 	}
 
+	@SuppressWarnings ("unchecked")
 	@Override
-	public Observer getObserver(Class clazz) {
-		return observers.get(clazz);
+	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
+		return (CacheObserver<T>) pendingObservers.remove(clazz);
+	}
+
+	@SuppressWarnings ("unchecked")
+	@Override
+	public synchronized  <T> CacheObserver<T> getPendingObserver(Class<T> clazz) {
+		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
 	@Override
 	public String toString() {
 		return "Sender{" +
-				"client=" + client +
+				"clientImpl=" + client +
 				", cache=" + cache +
 				", logging=" + logging +
 				'}';
@@ -114,5 +129,14 @@ public class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public void setLogging(Logging logging) {
 		this.logging = logging;
+	}
+
+	@Override
+	public void reset()  {
+		logging.debug("Resetting Sender!");
+		logging.trace("Deleting currently pending observer ..");
+		synchronized (pendingObservers) {
+			this.pendingObservers.clear();
+		}
 	}
 }

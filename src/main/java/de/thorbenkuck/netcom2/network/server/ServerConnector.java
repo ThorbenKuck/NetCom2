@@ -27,7 +27,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 	}
 
 	@Override
-	public ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
+	public synchronized ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
 		logging.debug("Establishing ServerConnection to: " + port);
 		if (this.serverSocket == null) {
 			logging.trace("Trying to create new ServerSocket ..");

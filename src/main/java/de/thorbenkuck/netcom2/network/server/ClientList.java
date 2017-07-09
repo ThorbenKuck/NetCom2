@@ -23,7 +23,7 @@ public interface ClientList extends Iterable<Client> {
 
 	Optional<Client> getClient(ClientID ID);
 
-	Stream<Session> userStream();
+	Stream<Session> sessionStream();
 
 	Stream<Client> stream();
 }

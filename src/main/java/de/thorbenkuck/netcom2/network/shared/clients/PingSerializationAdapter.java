@@ -1,9 +1,11 @@
 package de.thorbenkuck.netcom2.network.shared.clients;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
 import de.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 public class PingSerializationAdapter implements SerializationAdapter<Object, String> {
+	@Asynchronous
 	@Override
 	public String get(Object o) throws SerializationFailedException {
 		if (o.getClass().equals(Ping.class)) {

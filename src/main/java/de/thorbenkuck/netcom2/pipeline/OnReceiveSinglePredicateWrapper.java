@@ -29,4 +29,9 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 	public final boolean equals(Object o) {
 		return o != null && predicate.equals(o);
 	}
+
+	@Override
+	public final String toString() {
+		return predicate.toString();
+	}
 }

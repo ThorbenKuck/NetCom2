@@ -1,19 +1,24 @@
 package de.thorbenkuck.netcom2.network.server;
 
+import de.thorbenkuck.netcom2.annotations.Asynchronous;
+import de.thorbenkuck.netcom2.annotations.Synchronized;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.shared.Session;
 import de.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+@Synchronized
 class DistributorImpl implements InternalDistributor {
 
 	private final Logging logging = Logging.unified();
-	private ClientList clientList;
-	private DistributorRegistration distributorRegistration;
+	private final ClientList clientList;
+	private final DistributorRegistration distributorRegistration;
 
-	DistributorImpl(ClientList clientList, DistributorRegistration distributorRegistration) {
+	DistributorImpl(final ClientList clientList, final DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributorRegistration = distributorRegistration;
 	}
@@ -30,20 +35,26 @@ class DistributorImpl implements InternalDistributor {
 				'}';
 	}
 
+	@Asynchronous
 	@Override
 	@SafeVarargs
 	public synchronized final void toSpecific(Object o, Predicate<Session>... predicates) {
-		clientList.userStream()
-				.filter(user -> testAgainst(user, predicates))
-				.forEach(client -> client.send(o));
+		final List<Session> clientsToSendTo = new ArrayList<>();
+		synchronized (clientList) {
+			clientList.sessionStream()
+					.filter(user -> testAgainst(user, predicates))
+					.forEach(clientsToSendTo::add);
+		}
+		clientsToSendTo.forEach(session -> session.send(o));
 	}
 
-
+	@Asynchronous
 	@Override
 	public final void toAllIdentified(Object o) {
 		toSpecific(o, Session::isIdentified);
 	}
 
+	@Asynchronous
 	@SafeVarargs
 	@Override
 	public final void toAllIdentified(Object o, Predicate<Session>... predicates) {
@@ -51,27 +62,41 @@ class DistributorImpl implements InternalDistributor {
 		toSpecific(o, predicates);
 	}
 
+	@Asynchronous
 	@Override
 	public final void toAll(Object o) {
 		toSpecific(o, Objects::nonNull);
 	}
 
+	@Asynchronous
+	@SafeVarargs
 	@Override
-	public synchronized final void toAllExcept(Object o, Predicate<Session>[] predicates) {
-		clientList.userStream()
-				.filter(user -> ! testAgainst(user, predicates))
-				.forEach(client -> client.send(o));
+	public synchronized final void toAllExcept(Object o, Predicate<Session>... predicates) {
+		final List<Session> toSendTo = new ArrayList<>();
+		synchronized (clientList) {
+			clientList.sessionStream()
+					.filter(user -> ! testAgainst(user, predicates))
+					.forEach(toSendTo::add);
+		}
+		toSendTo.forEach(session -> session.send(o));
 	}
 
+	@Asynchronous
 	@Override
 	public final void toRegistered(Object o) {
-		toRegistered(o, Session::isIdentified);
+		toRegistered(o, Objects::nonNull);
 	}
 
+	@Asynchronous
 	@Override
 	@SafeVarargs
 	public final void toRegistered(Object o, Predicate<Session>... predicates) {
-		distributorRegistration.getRegistered(o.getClass()).stream()
+		List<Session> toSendTo;
+		synchronized (distributorRegistration) {
+			toSendTo = distributorRegistration.getRegistered(o.getClass());
+		}
+		logging.trace("Trying to send " + o + " to " + toSendTo);
+		toSendTo.stream()
 				.filter(user -> testAgainst(user, predicates))
 				.forEach(user -> {
 					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
@@ -79,7 +104,8 @@ class DistributorImpl implements InternalDistributor {
 				});
 	}
 
-	private boolean testAgainst(Session session, Predicate<Session>[] predicates) {
+	@SafeVarargs
+	private final boolean testAgainst(Session session, Predicate<Session>... predicates) {
 		for (Predicate<Session> predicate : predicates) {
 			if (! predicate.test(session)) {
 				return false;

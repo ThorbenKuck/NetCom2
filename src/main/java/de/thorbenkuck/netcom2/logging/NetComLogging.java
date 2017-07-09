@@ -8,63 +8,66 @@ public class NetComLogging implements Logging {
 
 	@Override
 	public void trace(String s) {
-		getLogging().trace(s);
+		NetComLogging.getLogging().trace(s);
 	}
 
 	@Override
 	public void debug(String s) {
-		getLogging().debug(s);
+		NetComLogging.getLogging().debug(s);
 	}
 
 	@Override
 	public void info(String s) {
-		getLogging().info(s);
+		NetComLogging.getLogging().info(s);
 	}
 
 	@Override
 	public void warn(String s) {
-		getLogging().warn(s);
+		NetComLogging.getLogging().warn(s);
 	}
 
 	@Override
 	public void error(String s) {
-		getLogging().error(s);
+		NetComLogging.getLogging().error(s);
 	}
 
 	@Override
 	public void error(String s, Throwable throwable) {
-		getLogging().error(s, throwable);
+		NetComLogging.getLogging().error(s, throwable);
 	}
 
 	@Override
 	public void fatal(String s) {
-		getLogging().fatal(s);
+		NetComLogging.getLogging().fatal(s);
 	}
 
 	@Override
 	public void fatal(String s, Throwable throwable) {
-		getLogging().fatal(s, throwable);
+		NetComLogging.getLogging().fatal(s, throwable);
 	}
 
 	@Override
 	public void catching(Throwable throwable) {
-		getLogging().catching(throwable);
+		NetComLogging.getLogging().catching(throwable);
 	}
 
-	public static Logging getLogging() {
+	private static Logging getLogging() {
 		return logging;
 	}
 
 	public static void setLogging(Logging logging) {
 		if (logging == null) {
 			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
-					"Expected an implementation at " + Logging.class + " received: " + null);
+					"Expected an implementation of " + Logging.class + " received: " + null);
+		}
+		if(NetComLogging.logging == logging) {
+			throw new IllegalArgumentException("Cyclic dependency!");
 		}
 		NetComLogging.logging = logging;
 	}
 
 	@Override
 	public String toString() {
-		return "{Central Logging-Mechanism for NetCom2}";
+		return "{Centralized Logging-Mechanism for NetCom2}";
 	}
 }

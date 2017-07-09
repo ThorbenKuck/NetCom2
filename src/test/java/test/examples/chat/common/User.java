@@ -1,7 +1,5 @@
 package test.examples.chat.common;
 
-import com.sun.istack.internal.NotNull;
-
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -12,7 +10,7 @@ public class User implements Serializable {
 		this("");
 	}
 
-	public User(@NotNull String userName) {
+	public User(String userName) {
 		this.userName = userName;
 	}
 

@@ -1,6 +1,5 @@
 package de.thorbenkuck.netcom2.network.shared.cache;
 
-import java.util.Observer;
 import java.util.Optional;
 
 public interface Cache {
@@ -8,8 +7,6 @@ public interface Cache {
 	static Cache create() {
 		return new CacheImpl();
 	}
-
-	void clearObservers();
 
 	void update(Object object);
 
@@ -19,17 +16,19 @@ public interface Cache {
 
 	void remove(Class clazz);
 
-	boolean isSet(Class<?> clazz);
-
 	<T> Optional<T> get(Class<T> clazz);
 
-	void addCacheObserver(CacheObserver cacheObserver);
+	boolean isSet(Class<?> clazz);
 
-	void removeCacheObserver(CacheObserver cacheObserver);
+	<T> void addCacheObserver(CacheObserver<T> cacheObserver);
 
-	void addGeneralObserver(Observer observer);
+	<T> void removeCacheObserver(CacheObserver<T> cacheObserver);
 
-	void removeGeneralObserver(Observer observer);
+	void addGeneralObserver(GeneralCacheObserver observer);
+
+	void removeGeneralObserver(GeneralCacheObserver observer);
+
+	void clearObservers();
 
 	void reset();
 }
