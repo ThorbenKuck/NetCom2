@@ -60,8 +60,6 @@ class DefaultReceivingService implements ReceivingService {
 			} catch (NoSuchElementException e) {
 				logging.info("Disconnection detected!");
 				softStop();
-			} catch (Throwable throwable) {
-				logging.error("Encountered unexpected Throwable while reading nextLine!", throwable);
 			}
 		}
 		onDisconnect();
@@ -86,11 +84,12 @@ class DefaultReceivingService implements ReceivingService {
 	@Asynchronous
 	private void handle(String string) {
 		logging.trace("Handling " + string + " ..");
+		Object object = null;
 		try {
 			logging.trace("Decrypting " + string);
 			String toHandle = decrypt(string);
 			logging.trace("Deserialize " + toHandle + " ..");
-			Object object = deserialize(toHandle);
+			object = deserialize(toHandle);
 			logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" + connection.getFormattedAddress());
 			Objects.requireNonNull(object);
 			logging.trace("Triggering Communication ..");
@@ -99,6 +98,8 @@ class DefaultReceivingService implements ReceivingService {
 			callBack(object);
 		} catch (DeSerializationFailedException e) {
 			logging.error("Could not Serialize!", e);
+		} catch (Throwable throwable) {
+			logging.error("Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!", throwable);
 		}
 	}
 

@@ -56,8 +56,10 @@ class DefaultSendingService implements SendingService {
 				// Take it first, then beforeSend it in another thread!
 				threadPool.submit(() -> send(o));
 			} catch (InterruptedException e) {
-				logging.warn("Interrupted while waiting for a new Object to beforeSend");
-				logging.catching(e);
+				if(running) {
+					logging.warn("Interrupted while waiting for a new Object to beforeSend");
+					logging.catching(e);
+				}
 			}
 		}
 		logging.info("SendingService stopped!");
