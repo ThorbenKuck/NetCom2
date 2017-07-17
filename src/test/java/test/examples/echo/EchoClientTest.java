@@ -1,6 +1,7 @@
 package test.examples.echo;
 
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.client.Sender;
 import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -19,9 +20,9 @@ public class EchoClientTest {
 	private static ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.debug());
 		// Create the ClientStart
 		ClientStart clientStart = ClientStart.at("localhost", 8888);
-		clientStart.setLogging(Logging.debug());
 
 		// Simply print out, what you received from the Server
 		register(clientStart.getCommunicationRegistration());

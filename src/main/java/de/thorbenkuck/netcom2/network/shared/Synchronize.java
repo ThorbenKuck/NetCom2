@@ -9,6 +9,6 @@ public interface Synchronize extends Awaiting {
 	void reset();
 
 	static Awaiting empty() {
-		return null;
+		return new EmptySynchronize();
 	}
 }

@@ -2,6 +2,7 @@ package test.examples.echo;
 
 import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import de.thorbenkuck.netcom2.exceptions.StartFailedException;
+import de.thorbenkuck.netcom2.logging.NetComLogging;
 import de.thorbenkuck.netcom2.network.interfaces.Logging;
 import de.thorbenkuck.netcom2.network.server.ServerStart;
 import de.thorbenkuck.netcom2.network.shared.Session;
@@ -13,9 +14,9 @@ public class EchoServerTest {
 	private static ServerStart serverStart;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.debug());
 		// Create the Server at Port 8888
 		serverStart = ServerStart.at(8888);
-		serverStart.setLogging(Logging.debug());
 
 		// And tell the Server, to always send back the Command, he received
 		register(serverStart.getCommunicationRegistration());
