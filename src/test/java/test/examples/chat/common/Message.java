@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class Message implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private final String message;
-	private final User sender;
+	private String message;
+	private User sender;
 
 	public Message(String message, User sender) {
 		this.message = message;
@@ -19,6 +19,11 @@ public class Message implements Serializable {
 
 	public final User getSender() {
 		return sender;
+	}
+
+	public final void set(Message from) {
+		this.message = from.message;
+		this.sender = from.sender;
 	}
 
 	@Override

@@ -261,10 +261,21 @@ public abstract class AbstractConnection implements Connection {
 	@Override
 	public void setThreadPool(ExecutorService executorService) {
 		logging.error("This operation is not yet supported!");
+		/*
 		// Soft-Stop currentThreadPool
 		// set new ThreadPool
 		// Restart Sending and ReceivingService
 		// Catch up with pending messages
+		sendingService.softStop();
+		receivingService.softStop();
+		threadPool.shutdownNow();
+		this.threadPool = executorService;
+		try {
+			startListening().synchronize();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		*/
 	}
 
 
