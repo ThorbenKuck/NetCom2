@@ -1,0 +1,100 @@
+package com.github.thorbenkuck.netcom2.network.shared.clients;
+
+import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
+import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+
+public interface Client {
+
+	static Client create(CommunicationRegistration communicationRegistration) {
+		return new ClientImpl(communicationRegistration);
+	}
+
+	void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
+
+	void setThreadPool(ExecutorService executorService);
+
+	void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
+
+	void setup();
+
+	void disconnect();
+
+	void triggerPrimation();
+
+	Awaiting primed();
+
+	void newPrimation();
+
+	Session getSession();
+
+	void setSession(Session session);
+
+	void clearSession();
+
+	void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter);
+
+	void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter);
+
+	void addDisconnectedHandler(DisconnectedHandler disconnectedHandler);
+
+	Awaiting createNewConnection(Class connectionKey);
+
+	ReceiveOrSendSynchronization send(Object object);
+
+	ReceiveOrSendSynchronization send(Class connectionKey, Object object);
+
+	ReceiveOrSendSynchronization send(Connection connection, Object object);
+
+	Optional<Connection> getConnection(Class connectionKey);
+
+	ClientID getID();
+
+	void setID(ClientID id);
+
+	void setConnection(Class key, Connection connection);
+
+	CommunicationRegistration getCommunicationRegistration();
+
+	DeSerializationAdapter<String, Object> getMainDeSerializationAdapter();
+
+	void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+
+	Set<DeSerializationAdapter<String, Object>> getFallBackDeSerialization();
+
+	DecryptionAdapter getDecryptionAdapter();
+
+	void setDecryptionAdapter(DecryptionAdapter decryptionAdapter);
+
+	SerializationAdapter<Object, String> getMainSerializationAdapter();
+
+	void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter);
+
+	Set<SerializationAdapter<Object, String>> getFallBackSerialization();
+
+	EncryptionAdapter getEncryptionAdapter();
+
+	void setEncryptionAdapter(EncryptionAdapter encryptionAdapter);
+
+	Awaiting prepareConnection(Class clazz);
+
+	boolean isConnectionPrepared(Class clazz);
+
+	void notifyAboutPreparedConnection(Class clazz);
+
+	void addFalseID(ClientID clientID);
+
+	List<ClientID> getFalseIDs();
+
+	void removeFalseID(ClientID clientID);
+
+	void removeFalseIDs(List<ClientID> clientIDS);
+}

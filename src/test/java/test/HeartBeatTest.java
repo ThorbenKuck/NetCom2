@@ -1,7 +1,7 @@
 package test;
 
-import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import de.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
+import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
+import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

@@ -1,11 +1,11 @@
 package test.examples.general;
 
-import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.server.ServerStart;
-import de.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import test.examples.*;
 
 import java.io.PrintWriter;
@@ -110,9 +110,7 @@ public class ServerStartTest {
 
 		serverStart.getCommunicationRegistration()
 				.register(Login.class)
-				.addLast((session, o) ->
-						session.triggerEvent(Login.class, o)
-				);
+				.addLast((session, o) -> session.triggerEvent(Login.class, o));
 
 		serverStart.getCommunicationRegistration()
 				.addDefaultCommunicationHandler(object -> logging.error("Ich kenne das Object: " + object.getClass() + " nicht!"));

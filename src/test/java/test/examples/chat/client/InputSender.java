@@ -1,6 +1,6 @@
 package test.examples.chat.client;
 
-import de.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.network.client.Sender;
 import test.examples.chat.common.Logout;
 import test.examples.chat.common.Message;
 

@@ -1,6 +1,6 @@
 package test.examples.live;
 
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class TestLogging implements Logging {
 	@Override

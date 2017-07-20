@@ -1,15 +1,17 @@
 package test.examples.general;
 
-import de.thorbenkuck.netcom2.annotations.ReceiveHandler;
-import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
-import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.shared.Awaiting;
-import de.thorbenkuck.netcom2.network.shared.Session;
-import de.thorbenkuck.netcom2.network.shared.cache.*;
-import de.thorbenkuck.netcom2.network.shared.clients.Connection;
-import de.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
+import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
+import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
+import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import test.examples.*;
 
 import java.util.concurrent.Executors;

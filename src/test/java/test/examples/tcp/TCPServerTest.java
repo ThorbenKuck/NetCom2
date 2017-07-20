@@ -1,21 +1,15 @@
 package test.examples.tcp;
 
-import de.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
-import de.thorbenkuck.netcom2.network.server.ServerStart;
-import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
-import de.thorbenkuck.netcom2.network.shared.clients.ConnectionFactoryHook;
-import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactoryHook;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 public class TCPServerTest {
-
-	public static void main(String[] args) {
-		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
-		NetComLogging.setLogging(Logging.trace());
-		new TCPServerTest();
-	}
 
 	private ServerStart serverStart;
 
@@ -34,6 +28,12 @@ public class TCPServerTest {
 
 	private void register(CommunicationRegistration communicationRegistration) {
 		communicationRegistration.addDefaultCommunicationHandler(((connection, session, o) -> session.send(o)));
+	}
+
+	public static void main(String[] args) {
+		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
+		NetComLogging.setLogging(Logging.trace());
+		new TCPServerTest();
 	}
 
 }

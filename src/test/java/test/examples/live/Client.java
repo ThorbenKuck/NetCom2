@@ -1,8 +1,8 @@
 package test.examples.live;
 
-import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import de.thorbenkuck.netcom2.network.shared.Awaiting;
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 
 public class Client {
 

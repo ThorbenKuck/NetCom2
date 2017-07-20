@@ -1,6 +1,6 @@
 package test.examples.chat.server;
 
-import de.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import test.examples.chat.common.User;
 
 import java.util.HashMap;

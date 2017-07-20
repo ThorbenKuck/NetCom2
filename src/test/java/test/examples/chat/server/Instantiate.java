@@ -1,8 +1,8 @@
 package test.examples.chat.server;
 
-import de.thorbenkuck.netcom2.network.server.ServerStart;
-import de.thorbenkuck.netcom2.network.shared.Session;
-import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import test.examples.chat.common.Login;
 import test.examples.chat.common.Logout;
 import test.examples.chat.common.Message;

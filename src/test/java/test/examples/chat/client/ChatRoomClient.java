@@ -1,9 +1,9 @@
 package test.examples.chat.client;
 
-import de.thorbenkuck.netcom2.exceptions.StartFailedException;
-import de.thorbenkuck.netcom2.logging.NetComLogging;
-import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import de.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import test.examples.chat.common.Login;
 import test.examples.chat.common.User;
 

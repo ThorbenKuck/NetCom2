@@ -1,7 +1,7 @@
 package test.examples.chat.client;
 
-import de.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import de.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import test.examples.chat.common.Message;
 import test.examples.chat.common.User;
 

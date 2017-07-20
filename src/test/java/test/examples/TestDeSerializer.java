@@ -1,7 +1,7 @@
 package test.examples;
 
-import de.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
-import de.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
+import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
+import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 
 public class TestDeSerializer implements DeSerializationAdapter<String, Object> {
 	@Override
