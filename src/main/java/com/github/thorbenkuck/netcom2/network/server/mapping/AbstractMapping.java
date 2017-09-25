@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server.mapping;
 
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
