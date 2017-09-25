@@ -59,11 +59,27 @@ But do not mistake this as an simple framework! If you want, you can create your
 
 ### Installation
 
-Change the branch to RELEASE and choose the version, you want to use. THe latest is found at the root-path and older versions are listed in sub-folders (for example: alpha). Click on that version (
+Include this in your pom.xml (if you are using Maven)
+
+```
+<dependency>
+  <groupId>com.github.thorbenkuck</groupId>
+  <artifactId>NetCom2</artifactId>
+  <version>0.3</version>
+</dependency>
+```
+
+Or this in you build.gradle (if you are using Gradle)
+
+```
+dependencies {
+    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.3'
+}
+```
 
 ### Starting to code
 
-Getting startet is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
+Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
 #### Creating a Server
 
