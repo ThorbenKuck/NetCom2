@@ -13,6 +13,9 @@ NOTE: The documentation is still in Work!
 
 This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Tho easy to use, you can acomplish many thing using this.
 
+#### The target source is java 1.8.    
+#### The current version is compatible with java 1.9
+
 The 2 core-interfaces are:
 
 <ul>
@@ -167,7 +170,3 @@ Now, you have a simple Server, that prints out what he received to the console a
 Check out the Wiki for more informations about creating a Server and a Client, with more depth.
 
 ----
-
-## Version:
-Current Version: 0.1 (Beta)
-
