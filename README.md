@@ -60,8 +60,8 @@ But do not mistake this as an simple framework! If you want, you can create your
 
 ## Getting started
 
-If you are german, you might be interrested in this [YouTube Tutorial-series][https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E].    
-If you cannot understand german, there is also a YouTube Tutorial-series in [english][https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay], but this might sound a bit odd.
+If you are german, you might be interrested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
+If you cannot understand german, there is also a YouTube Tutorial-series in [english](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
 
 ### Installation
 
@@ -172,6 +172,6 @@ Now, you have a simple Server, that prints out what he received to the console a
 
 Check out the Wiki for more informations about creating a Server and a Client, with more depth.
 
-If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series][https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV].
+If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
 
 ----
