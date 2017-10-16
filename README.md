@@ -40,7 +40,7 @@ The Framework-Versions are to be red like this:
 A.B.C.D
 
 A is a breaking, major releas (feature-change)    
-B is a non-breaking, major release (feature-extention)    
+B is a non-breaking for normal use, potentially breaking for custom Instances, major release (feature-extention)    
 C is a non-breaking, minor release (bug-fix)    
 D is a non-breaking, security release    
 
