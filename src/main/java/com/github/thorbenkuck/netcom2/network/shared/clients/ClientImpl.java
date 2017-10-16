@@ -13,9 +13,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * This Class implements
+ */
 class ClientImpl implements Client {
 
 	private final List<DisconnectedHandler> disconnectedHandlers = new ArrayList<>();
@@ -52,11 +56,6 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
-		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
-	}
-
-	@Override
 	public void setThreadPool(ExecutorService executorService) {
 		try {
 			threadPoolLock.lock();
@@ -76,11 +75,6 @@ class ClientImpl implements Client {
 		} finally {
 			connectionLock.unlock();
 		}
-	}
-
-	@Override
-	public void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
-		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
 	}
 
 	@Override
@@ -167,28 +161,9 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
-		logging.trace("Added FallBackSerialization " + serializationAdapter);
-		fallBackSerialization.add(serializationAdapter);
-	}
-
-	@Override
-	public final void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
-		logging.trace("Added FallDeBackSerialization " + deSerializationAdapter);
-		fallBackDeSerialization.add(deSerializationAdapter);
-	}
-
-	@Override
 	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
 		disconnectedHandlers.add(disconnectedHandler);
-	}
-
-	@Override
-	public final Awaiting createNewConnection(Class connectionKey) {
-		logging.debug("Requesting new Connection for key: " + connectionKey);
-		send(new NewConnectionRequest(connectionKey));
-		return prepareConnection(connectionKey);
 	}
 
 	@Override
@@ -238,6 +213,23 @@ class ClientImpl implements Client {
 	}
 
 	@Override
+	public final Awaiting createNewConnection(Class connectionKey) {
+		logging.debug("Requesting new Connection for key: " + connectionKey);
+		send(new NewConnectionRequest(connectionKey));
+		return prepareConnection(connectionKey);
+	}
+
+	@Override
+	public final Connection getAnyConnection() {
+		return connections.get(ThreadLocalRandom.current().nextInt(connections.size()));
+	}
+
+	@Override
+	public String getFormattedAddress() {
+		return getAnyConnection().getFormattedAddress();
+	}
+
+	@Override
 	public final ClientID getID() {
 		try {
 			idLock.lock();
@@ -249,12 +241,15 @@ class ClientImpl implements Client {
 
 	@Override
 	public final void setID(ClientID id) {
+		if(id == null) {
+			throw new IllegalArgumentException("ClientID might not be null!");
+		}
 		try {
 			idLock.lock();
-			this.id = id;
 			if (! ClientID.isEmpty(this.id)) {
 				logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
 			}
+			this.id = id;
 		} finally {
 			idLock.unlock();
 		}
@@ -262,6 +257,12 @@ class ClientImpl implements Client {
 
 	@Override
 	public final void setConnection(Class key, Connection connection) {
+		if(key == null) {
+			throw new IllegalArgumentException("Key for Connection might not be null!");
+		}
+		if(connection == null) {
+			throw new IllegalArgumentException("Connection might not be null!");
+		}
 		logging.debug("Setting new Connection for " + key);
 		try {
 			connectionLock.lock();
@@ -277,6 +278,52 @@ class ClientImpl implements Client {
 		return communicationRegistration;
 	}
 
+	private void requireConnected(Connection connection) {
+		if (connection == null) {
+			throw new SendFailedException("Connection does not exist!");
+		}
+		if (! connection.isActive()) {
+			throw new SendFailedException("Connection is not yet Connected!");
+		}
+	}
+
+	@Override
+	@Deprecated
+	public void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+		addFallBackSerializationAdapter(fallBackSerializationAdapter);
+	}
+
+	/**
+	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
+	 *
+	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
+	 */
+	@Override
+	public void addFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
+	}
+
+	@Override
+	@Deprecated
+	public void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
+	}
+
+
+	@Override
+	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
+		logging.trace("Added FallBackSerialization " + serializationAdapter);
+		fallBackSerialization.add(serializationAdapter);
+	}
+
+
+	@Override
+	public final void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
+		logging.trace("Added FallDeBackSerialization " + deSerializationAdapter);
+		fallBackDeSerialization.add(deSerializationAdapter);
+	}
+
+
 	@Override
 	public DeSerializationAdapter<String, Object> getMainDeSerializationAdapter() {
 		return mainDeSerializationAdapter;
@@ -286,6 +333,16 @@ class ClientImpl implements Client {
 	public final void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Setting MainDeSerializationAdapter to " + mainDeSerializationAdapter);
 		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
+	}
+
+	/**
+	 * This method sets the internal List of FallBackSerializationAdapter, without overriding the existing ones.
+	 *
+	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
+	 */
+	@Override
+	public void addFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
 	@Override
@@ -401,15 +458,6 @@ class ClientImpl implements Client {
 			logging.debug("State of false IDs before: " + falseIDs);
 			falseIDs.removeAll(clientIDS);
 			logging.debug("State of false IDs after: " + falseIDs);
-		}
-	}
-
-	private void requireConnected(Connection connection) {
-		if (connection == null) {
-			throw new SendFailedException("Connection does not exist!");
-		}
-		if (! connection.isActive()) {
-			throw new SendFailedException("Connection is not yet Connected!");
 		}
 	}
 

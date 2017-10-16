@@ -13,10 +13,6 @@ public interface ClientConnectedHandler {
 
 	void handle(Client client);
 
-	default String getIdentifier() {
-		return UUID.randomUUID().toString();
-	}
-
 	default void assertNotNull(Object o) {
 		if (o == null) throw new NullPointerException();
 	}

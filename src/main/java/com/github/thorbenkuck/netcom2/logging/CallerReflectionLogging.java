@@ -9,54 +9,38 @@ public class CallerReflectionLogging implements Logging {
 	private Logging logging;
 
 	public CallerReflectionLogging() {
-		this(new SystemDefaultStyleLogging());
+		this(new CallerTraceSystemDefaultStyleLogging());
 	}
 
 	public CallerReflectionLogging(Logging base) {
 		Objects.requireNonNull(base);
-		warn("This Logging-Mechanism is very workload-intensive!");
 		this.logging = base;
-	}
-
-	public String getPrefix() {
-		return (" [" + getCaller() + "] ");
-	}
-
-	public String getCaller() {
-		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-		for (StackTraceElement stackTraceElement : stackTraceElements) {
-			if (! stackTraceElement.getClassName().equals(CallerReflectionLogging.class.getName())
-					&& ! stackTraceElement.getClassName().equals(NetComLogging.class.getName())
-					&& stackTraceElement.getClassName().indexOf("java.lang.Thread") != 0) {
-				return stackTraceElement.getClassName();
-			}
-		}
-		return null;
+		warn("This Logging-Mechanism is very workload-intensive!");
 	}
 
 	@Override
 	public void trace(String s) {
-		logging.trace(getPrefix() + " TRACE : " + s);
+		logging.trace(s);
 	}
 
 	@Override
 	public void debug(String s) {
-		logging.debug(getPrefix() + " DEBUG : " + s);
+		logging.debug(s);
 	}
 
 	@Override
 	public void info(String s) {
-		logging.info(getPrefix() + " INFO : " + s);
+		logging.info(s);
 	}
 
 	@Override
 	public void warn(String s) {
-		logging.warn(getPrefix() + " WARN : " + s);
+		logging.warn(s);
 	}
 
 	@Override
 	public void error(String s) {
-		logging.error(getPrefix() + " ERROR : " + s);
+		logging.error(s);
 	}
 
 	@Override
@@ -67,7 +51,7 @@ public class CallerReflectionLogging implements Logging {
 
 	@Override
 	public void fatal(String s) {
-		logging.fatal(getPrefix() + " FATAL : " + s);
+		logging.fatal(s);
 	}
 
 	@Override

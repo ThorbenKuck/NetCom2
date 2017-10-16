@@ -41,63 +41,26 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	/**
-	 * This method is called if an object is received and after its Communication is triggered
-	 *
-	 * @param o
-	 */
-	abstract void receivedObject(Object o);	protected abstract void onClose();
-
-	@Override
-	public void setLogging(Logging logging) {
-		this.logging.debug("Overriding set Logging ..");
-		this.logging = logging;
-		logging.debug("Overrode Logging!");
-	}	/**
 	 * This method is called, before an Object is beforeSend to the client.
 	 *
 	 * @param o the Object
 	 */
 	protected abstract void beforeSend(Object o);
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || ! o.getClass().equals(AbstractConnection.class)) {
-			return false;
-		}
-		return ((AbstractConnection) o).socket.equals(socket);
-	}	protected abstract void afterSend(Object o);
+	/**
+	 * This method is called if an object is received and after its Communication is triggered
+	 *
+	 * @param o
+	 */
+	abstract void receivedObject(Object o);
+
+	protected abstract void onClose();
 
 	@Override
-	public String toString() {
-		return "Connection at: " + getFormattedAddress();
-	}
-
-	private class DefaultReceiveCallBack implements CallBack<Object> {
-		@Override
-		public boolean isRemovable() {
-			return ! started;
-		}
-
-		@Override
-		public void accept(Object o) {
-			receivedObject(o);
-		}
-
-		@Override
-		public String toString() {
-			return "DefaultReceiveCallBack{removable=" + ! started + "}";
-		}
-	}
-
-
-
-
-
-	@Override
-	protected void finalize() {
-		for (Object o : toSend) {
-			Logging.unified().warn("LeftOver-Object " + o + " at dead-connection!");
-		}
+	public void setLogging(Logging logging) {
+		this.logging.debug("Overriding set Logging ..");
+		this.logging = logging;
+		logging.debug("Overrode Logging!");
 	}
 
 	@Override
@@ -274,6 +237,10 @@ public abstract class AbstractConnection implements Connection {
 		this.key = connectionKey;
 	}
 
+	/**
+	 * TODO Complete the formed out Algorithm
+	 * @param executorService
+	 */
 	@Override
 	public void setThreadPool(ExecutorService executorService) {
 		logging.error("This operation is not yet supported!");
@@ -294,12 +261,45 @@ public abstract class AbstractConnection implements Connection {
 		*/
 	}
 
-
 	@Override
 	public BlockingQueue<Object> getSendInterface() {
 		return toSend;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || ! o.getClass().equals(AbstractConnection.class)) {
+			return false;
+		}
+		return ((AbstractConnection) o).socket.equals(socket);
+	}	protected abstract void afterSend(Object o);
 
+	@Override
+	public String toString() {
+		return "Connection at: " + getFormattedAddress();
+	}
 
+	@Override
+	protected void finalize() {
+		for (Object o : toSend) {
+			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
+		}
+	}
+
+	private class DefaultReceiveCallBack implements CallBack<Object> {
+		@Override
+		public boolean isRemovable() {
+			return ! started;
+		}
+
+		@Override
+		public void accept(Object o) {
+			receivedObject(o);
+		}
+
+		@Override
+		public String toString() {
+			return "DefaultReceiveCallBack{removable=" + ! started + "}";
+		}
+	}
 }

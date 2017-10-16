@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Synchronized

@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.logging.*;
 
 public interface Logging {
 	static Logging getDefault() {
-		return new ErrorLogging();
+		return error();
 	}
 
 	static Logging disabled() {

@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SystemDefaultStyleLogging implements Logging {
 
 	private final PrintStream out;
-	private final Lock printLock = new ReentrantLock();
 
 	public SystemDefaultStyleLogging() {
 		this(System.out);
@@ -31,100 +30,52 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	@Override
 	public void trace(String s) {
-		try {
-			printLock.lock();
-			println(getPrefix() + "TRACE : " + s);
-		} finally {
-			printLock.unlock();
-		}
+		println(getPrefix() + "TRACE : " + s);
 	}
 
 	@Override
 	public void debug(String s) {
-		try {
-			printLock.lock();
-			println(getPrefix() + "DEBUG : " + s);
-		} finally {
-			printLock.unlock();
-		}
+		println(getPrefix() + "DEBUG : " + s);
 	}
 
 	@Override
 	public void info(String s) {
-		try {
-			printLock.lock();
-			println(getPrefix() + "INFO : " + s);
-		} finally {
-			printLock.unlock();
-		}
+		println(getPrefix() + "INFO : " + s);
 	}
 
 	@Override
 	public void warn(String s) {
-		try {
-			printLock.lock();
-			println(getPrefix() + "WARN : " + s);
-		} finally {
-			printLock.unlock();
-		}
+		println(getPrefix() + "WARN : " + s);
 	}
 
 	@Override
 	public void error(String s) {
-		boolean locked = false;
-		try {
-			locked = printLock.tryLock();
-			println(getPrefix() + "ERROR : " + s);
-		} finally {
-			if (locked) printLock.unlock();
-		}
+		println(getPrefix() + "ERROR : " + s);
 	}
 
 	@Override
 	public void error(String s, Throwable throwable) {
-		try {
-			printLock.lock();
-			error(s);
-			catching(throwable);
-		} finally {
-			printLock.unlock();
-		}
+		error(s);
+		catching(throwable);
 	}
 
 	@Override
 	public void fatal(String s) {
-		boolean locked = false;
-		try {
-			locked = printLock.tryLock();
-			println(getPrefix() + "FATAL : " + s);
-		} finally {
-			if (locked) printLock.unlock();
-		}
+		println(getPrefix() + "FATAL : " + s);
 	}
 
 	@Override
 	public void fatal(String s, Throwable throwable) {
-		try {
-			printLock.lock();
-			fatal(s);
-			catching(throwable);
-		} finally {
-			printLock.unlock();
-		}
+		fatal(s);
+		catching(throwable);
 	}
 
 	@Override
 	public void catching(Throwable throwable) {
-		boolean locked = false;
-		try {
-			locked = printLock.tryLock();
-			StringWriter sw = new StringWriter();
-			throwable.printStackTrace(new PrintWriter(sw));
-			String stacktrace = sw.toString();
-			println(stacktrace);
-		} finally {
-			if (locked) printLock.unlock();
-		}
+		StringWriter sw = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(sw));
+		String stacktrace = sw.toString();
+		println(stacktrace);
 	}
 
 	private void println(String s) {
@@ -136,6 +87,4 @@ public class SystemDefaultStyleLogging implements Logging {
 	String getPrefix() {
 		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
 	}
-
-
 }

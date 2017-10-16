@@ -19,7 +19,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	private void notifyAboutNewEntry(Object newEntry) {
-		logging.trace("Updated Cache-Entry at " + newEntry.getClass());
+		logging.trace("New Cache-Entry at " + newEntry.getClass());
 		setChanged();
 		newEntry(newEntry);
 	}
