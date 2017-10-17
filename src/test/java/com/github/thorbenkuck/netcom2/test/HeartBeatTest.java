@@ -1,9 +1,12 @@
 package com.github.thorbenkuck.netcom2.test;
 
+import com.github.thorbenkuck.netcom2.annotations.Exposed;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HeartBeatTest {
@@ -11,6 +14,7 @@ public class HeartBeatTest {
 	private int i = 1;
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
+	@Exposed
 	@Test
 	public void testHeartBeatChain() throws Exception {
 		HeartBeat<String> heartBeat = heartBeatFactory.produce();

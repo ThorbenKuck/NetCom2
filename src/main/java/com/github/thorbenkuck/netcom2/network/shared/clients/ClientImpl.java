@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
@@ -8,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.utility.Validate;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,7 +20,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * This Class implements
+ * This Class is the internal implementation of the {@link Client} interface.
+ * <p>
+ * It is package private by design, not by error. You should only instantiate an Client by using the Clients {@link Client#create(CommunicationRegistration)}
+ * method, if you need to instantiate it at all.
+ * <p>
+ * For most people, an instantiation should not be required or needed. This is handled internally whenever a new Connection is established.
+ * <p>
+ * If you want, you can create custom {@link Client} implementations. An AbstractClient does not yet exist.
+ * This Client might be used, to create custom parts.
+ * <p>
+ * {@inheritDoc}
  */
 class ClientImpl implements Client {
 
@@ -41,31 +53,41 @@ class ClientImpl implements Client {
 	private CommunicationRegistration communicationRegistration;
 	private ClientID id = ClientID.empty();
 
+	/**
+	 * By instantiating this Client, multiple side-effects are happening.
+	 * <p>
+	 * Internally default Serializations will be set as well es the default Encryption.
+	 *
+	 * Note: No hard side-affects will happen. But please also note, that the Method {@link #setup()} is called, to
+	 * create the Session, depending on the implementation
+	 *
+	 * @param communicationRegistration the CommunicationRegistration which is used for the internal Connections
+	 */
 	ClientImpl(CommunicationRegistration communicationRegistration) {
 		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;
 		logging.trace("Setting default SerializationAdapter and FallbackSerializationAdapter ..");
 		setMainSerializationAdapter(SerializationAdapter.getDefaultJavaDeSerialization());
-		setFallBackSerializationAdapter(SerializationAdapter.getDefaultFallback());
+		addFallBackSerializationAdapter(SerializationAdapter.getDefaultFallback());
 		setMainDeSerializationAdapter(DeSerializationAdapter.getDefaultJavaSerialization());
-		setFallBackDeSerializationAdapter(DeSerializationAdapter.getDefaultFallback());
+		addFallBackDeSerializationAdapter(DeSerializationAdapter.getDefaultFallback());
 		logging.trace("Setting default EncryptionAdapter and DecryptionAdapter ..");
-		encryptionAdapter = EncryptionAdapter.getDefault();
-		decryptionAdapter = DecryptionAdapter.getDefault();
+		setEncryptionAdapter(EncryptionAdapter.getDefault());
+		setDecryptionAdapter(DecryptionAdapter.getDefault());
 		setup();
 	}
 
-	@Override
-	public void setThreadPool(ExecutorService executorService) {
-		try {
-			threadPoolLock.lock();
-			this.threadPool = executorService;
-			updateConnectionThreadPools(threadPool);
-		} finally {
-			threadPoolLock.unlock();
-		}
-	}
-
+	/**
+	 * This method updates all Connections encapsulated by this Client and sets the given {@link ExecutorService}.
+	 * <p>
+	 * This Method is experimental, because the {@link Connection#setThreadPool(ExecutorService)} method ist still incomplete
+	 * and not validated!
+	 * <p>
+	 * The Problem lies within the complexity of changing a ThreadPool of an running Connection
+	 *
+	 * @param executorService the new {@link ExecutorService} to be used by all internal Connections
+	 */
+	@Experimental
 	private void updateConnectionThreadPools(ExecutorService executorService) {
 		try {
 			connectionLock.lock();
@@ -77,6 +99,41 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * This method is used, right before an send is done.
+	 * <p>
+	 * If the Connection is either null or {@link Connection#isActive()} returns false
+	 *
+	 * @param connection the Connection, anything should be send over
+	 */
+	private void requireConnected(Connection connection) {
+		if (connection == null) {
+			throw new SendFailedException("Connection does not exist!");
+		}
+		if (! connection.isActive()) {
+			throw new SendFailedException("Connection is not yet Connected!");
+		}
+	}
+
+	/**
+	 * WARNING: Using this Method is discouraged at the Moment!
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Experimental
+	public void setThreadPool(ExecutorService executorService) {
+		try {
+			threadPoolLock.lock();
+			this.threadPool = executorService;
+			updateConnectionThreadPools(threadPool);
+		} finally {
+			threadPoolLock.unlock();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setup() {
 		logging.debug("Initial setup of Client requested!");
@@ -84,6 +141,9 @@ class ClientImpl implements Client {
 		setSession(Session.createNew(this));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized void disconnect() {
 		logging.debug("Requested disconnect of client " + this);
@@ -116,26 +176,41 @@ class ClientImpl implements Client {
 		logging.debug("Client has been disconnected!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void triggerPrimation() {
 		session.triggerPrimation();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Awaiting primed() {
 		return session.primed();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void newPrimation() {
 		session.newPrimation();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Session getSession() {
 		return session;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void setSession(Session session) {
 		if (session == null) {
@@ -154,23 +229,35 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void clearSession() {
 		logging.info("Session of Client will be cleared!");
 		session = null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void addDisconnectedHandler(DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
 		disconnectedHandlers.add(disconnectedHandler);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(Object object) {
 		return send(DefaultConnection.class, object);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(Class connectionKey, Object object) {
 		try {
@@ -180,6 +267,9 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(Connection connection, Object object) {
 		Objects.requireNonNull(object);
@@ -207,11 +297,17 @@ class ClientImpl implements Client {
 		return new DefaultReceiveOrSendSynch(sendExpectable, receivedExpectable, object.getClass());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Optional<Connection> getConnection(Class connectionKey) {
 		return Optional.ofNullable(connections.get(connectionKey));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Awaiting createNewConnection(Class connectionKey) {
 		logging.debug("Requesting new Connection for key: " + connectionKey);
@@ -219,16 +315,25 @@ class ClientImpl implements Client {
 		return prepareConnection(connectionKey);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Connection getAnyConnection() {
 		return connections.get(ThreadLocalRandom.current().nextInt(connections.size()));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getFormattedAddress() {
 		return getAnyConnection().getFormattedAddress();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final ClientID getID() {
 		try {
@@ -239,11 +344,12 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void setID(ClientID id) {
-		if(id == null) {
-			throw new IllegalArgumentException("ClientID might not be null!");
-		}
+		Validate.parameterNotNull(id);
 		try {
 			idLock.lock();
 			if (! ClientID.isEmpty(this.id)) {
@@ -255,14 +361,12 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void setConnection(Class key, Connection connection) {
-		if(key == null) {
-			throw new IllegalArgumentException("Key for Connection might not be null!");
-		}
-		if(connection == null) {
-			throw new IllegalArgumentException("Connection might not be null!");
-		}
+		Validate.parameterNotNull(key, connection);
 		logging.debug("Setting new Connection for " + key);
 		try {
 			connectionLock.lock();
@@ -273,20 +377,91 @@ class ClientImpl implements Client {
 		logging.trace("Mapped Key " + key + " to " + connection);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if originalKey is null
+	 */
+	@Override
+	public void routeConnection(Class originalKey, Class newKey) {
+		Validate.parameterNotNull(originalKey);
+
+		Connection connection;
+		try {
+			connectionLock.lock();
+			logging.trace("Grabbing connection for " + originalKey);
+			connection = connections.get(originalKey);
+			logging.trace("Found connection for " + originalKey + ": " + connection);
+		} finally {
+			connectionLock.unlock();
+		}
+
+		Validate.parameterNotNull(connection, "No Connection found for given key: " + originalKey);
+
+		routeConnection(connection, newKey);
+	}
+
+	/**
+	 * This Method routs an given {@link Connection} to an new Key.
+	 * <p>
+	 * The Original {@link Connection} will not be unbound from its current bound. This means, that after calling this method,
+	 * the given {@link Connection} is accessible via both, its original Key and the newKey.
+	 * <p>
+	 * A {@link Connection} might be routed to any number of keys. So one {@link Connection} can be accessible by any number of calls.
+	 * <p>
+	 * Other than {@link #setConnection(Class, Connection)} an "null-route" is possible, to allow an sort of "fallback-route".
+	 * <p>
+	 * If you use:
+	 * <code>client.routConnection(OriginalKey.class, null);</code>
+	 * a warning will be logged via the {@link com.github.thorbenkuck.netcom2.network.interfaces.Logging} and the Connection is
+	 * used, whenever you state:
+	 * <code>client.send(new MessageObject(), null);</code>
+	 * <p>
+	 * This might be useful, if you calculate the Keys at runtime. However, it is discouraged to trigger a null-route
+	 * by stating null at compile time.
+	 * <p>
+	 * The new route will override previous routes. So if you previously routed any Connection to a given Key NewKey.class
+	 * and now route another class to NewKey.class, the previously route will be overridden!
+	 *
+	 * @param originalConnection the {@link Connection} that should be rerouted
+	 * @param newKey             the new key, under which the given {@link Connection} is accessible
+	 * @throws IllegalArgumentException if originalConnection is null
+	 */
+	@Override
+	public void routeConnection(Connection originalConnection, Class newKey) {
+		Validate.parameterNotNull(originalConnection);
+
+		try {
+			connectionLock.lock();
+			logging.trace("Creating route to " + newKey + " from Connection " + originalConnection);
+			if (newKey == null) {
+				logging.warn("Creating null-route to Connection: " + originalConnection);
+			}
+			connections.put(newKey, originalConnection);
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
 	}
 
-	private void requireConnected(Connection connection) {
-		if (connection == null) {
-			throw new SendFailedException("Connection does not exist!");
-		}
-		if (! connection.isActive()) {
-			throw new SendFailedException("Connection is not yet Connected!");
-		}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Deprecated
 	public void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
@@ -303,32 +478,61 @@ class ClientImpl implements Client {
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Deprecated
 	public void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter) {
 		logging.trace("Added FallBackSerialization " + serializationAdapter);
 		fallBackSerialization.add(serializationAdapter);
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		logging.trace("Added FallDeBackSerialization " + deSerializationAdapter);
 		fallBackDeSerialization.add(deSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SerializationAdapter<Object, String> getMainSerializationAdapter() {
+		return mainSerializationAdapter;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
+		logging.debug("Setting MainSerializationAdapter to " + mainSerializationAdapter);
+		this.mainSerializationAdapter = mainSerializationAdapter;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public DeSerializationAdapter<String, Object> getMainDeSerializationAdapter() {
 		return mainDeSerializationAdapter;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Setting MainDeSerializationAdapter to " + mainDeSerializationAdapter);
@@ -336,56 +540,56 @@ class ClientImpl implements Client {
 	}
 
 	/**
-	 * This method sets the internal List of FallBackSerializationAdapter, without overriding the existing ones.
-	 *
-	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
+	 * {@inheritDoc}
 	 */
-	@Override
-	public void addFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
-		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
-	}
-
-	@Override
-	public Set<DeSerializationAdapter<String, Object>> getFallBackDeSerialization() {
-		return new HashSet<>(fallBackDeSerialization);
-	}
-
-	@Override
-	public DecryptionAdapter getDecryptionAdapter() {
-		return decryptionAdapter;
-	}
-
-	@Override
-	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
-		this.decryptionAdapter = decryptionAdapter;
-	}
-
-	@Override
-	public SerializationAdapter<Object, String> getMainSerializationAdapter() {
-		return mainSerializationAdapter;
-	}
-
-	@Override
-	public final void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter) {
-		logging.debug("Setting MainSerializationAdapter to " + mainSerializationAdapter);
-		this.mainSerializationAdapter = mainSerializationAdapter;
-	}
-
 	@Override
 	public Set<SerializationAdapter<Object, String>> getFallBackSerialization() {
 		return fallBackSerialization;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<DeSerializationAdapter<String, Object>> getFallBackDeSerialization() {
+		return new HashSet<>(fallBackDeSerialization);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DecryptionAdapter getDecryptionAdapter() {
+		return decryptionAdapter;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+		this.decryptionAdapter = decryptionAdapter;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public EncryptionAdapter getEncryptionAdapter() {
 		return encryptionAdapter;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Awaiting prepareConnection(Class clazz) {
 		logging.debug("Preparing Connection for key: " + clazz);
@@ -406,6 +610,9 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isConnectionPrepared(Class clazz) {
 		try {
@@ -416,6 +623,9 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void notifyAboutPreparedConnection(Class clazz) {
 		logging.trace("Connection " + clazz + " is now prepared, trying to release all waiting Threads ..");
@@ -426,8 +636,13 @@ class ClientImpl implements Client {
 		}
 		logging.trace("Realising waiting Threads for prepared Connection: " + clazz + "!");
 		synchronize.goOn();
+		logging.trace("Clearing set instance of Awaiting");
+		synchronizeMap.remove(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addFalseID(ClientID clientID) {
 		logging.debug("Marking ClientID" + clientID + " as false");
@@ -436,11 +651,17 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<ClientID> getFalseIDs() {
 		return new ArrayList<>(falseIDs);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeFalseID(ClientID clientID) {
 		logging.debug("Removing faulty ClientID " + clientID);
@@ -451,6 +672,9 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeFalseIDs(List<ClientID> clientIDS) {
 		logging.debug("Removing all faulty ClientIDs " + clientIDS);
@@ -461,6 +685,9 @@ class ClientImpl implements Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = disconnectedHandlers.hashCode();
@@ -484,6 +711,9 @@ class ClientImpl implements Client {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -511,6 +741,9 @@ class ClientImpl implements Client {
 		return id.equals(client.id);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final String toString() {
 		return "Client{" +

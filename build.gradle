@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'com.github.thorbenkuck'
-version '0.3'
+version '0.4'
 
 String root = file('.').toString()
 sourceCompatibility = 1.8
