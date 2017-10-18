@@ -1,10 +1,12 @@
-group 'NetCom2'
-version 'Alpha 0.1'
-
 apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'com.github.thorbenkuck'
+version '0.4'
 
 String root = file('.').toString()
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
