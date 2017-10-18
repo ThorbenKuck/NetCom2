@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Experimental
 public class TCPDefaultConnection extends AbstractConnection {
 
 	private final Map<Class, Synchronize> mapping = new HashMap<>();
