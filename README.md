@@ -7,6 +7,9 @@ NOTE: The documentation is still in Work!
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)
+[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+          
 ----
 
 ## About this framework
@@ -49,6 +52,11 @@ Also there is a NIGHTLY branch, for the inpatient.
 ### Current State
 
 0.3_BETA (Release 09.07.2017)
+
+#### Current Development
+
+ * Completion of JavaDOC
+ * Connection Routes
 
 ## For whom this is
 
