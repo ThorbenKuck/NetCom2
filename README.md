@@ -100,7 +100,7 @@ Getting started is easy. You should have basic knowledge about how a Client-Serv
 To create a server, you simply say:
 
 ```java
-ServerStart serverStart = ServerStart.of(/* your port number here */88888);
+ServerStart serverStart = ServerStart.at(/* your port number here */88888);
 ```
 
 With that done, you have to tell the ServerStart-Object to listen to Clients
@@ -122,7 +122,7 @@ Launch creates internal dependencies and acceptAllNextClients(); waits for the n
 You create a Client similiiar to a Server. You just say:
 
 ```java
-ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
+ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 ```
 
 Now, to connect, simply say:
@@ -150,14 +150,14 @@ public class Test implements Serializable {
 
 Now we want to send this from the Client to the Server. We realize this by saying:
 ```java
-ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
+ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
 clientStart.send().objectToServer(new Test());
 ```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
 ```java
-ServerStart serverStart = ServerStart.of(88888);
+ServerStart serverStart = ServerStart.at(88888);
 serverStart.launch();
 
 serverStart.getCommunicationRegistration().register(Test.class).addFirst((session, o) -> {
