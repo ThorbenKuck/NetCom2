@@ -6,11 +6,12 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 /**
  * {@inheritDoc}
  * This Class is public, so it might be extended to create an custom Session.
- *
+ * <p>
  * Note that only the Methods: {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()} are marked final,
  * so that the default behaviour of the internal Mechanisms is ensured.
  */
@@ -21,10 +22,11 @@ public class SessionImpl implements Session {
 	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
 	private final UUID uuid;
 	private final Logging logging = Logging.unified();
+	private final Synchronize synchronize = new DefaultSynchronize();
+	private final Semaphore semaphore = new Semaphore(1);
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
-	private final Synchronize synchronize = new DefaultSynchronize();
 
 	SessionImpl(SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
@@ -113,7 +115,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(Class<T> clazz) {
 		pipelines.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
@@ -124,7 +126,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void triggerEvent(Class<T> clazz, T t) {
 		Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
@@ -180,11 +182,26 @@ public class SessionImpl implements Session {
 	public final void newPrimation() {
 		try {
 			primed().synchronize();
-			synchronized(synchronize) {
+			synchronized (synchronize) {
 				synchronize.reset();
 			}
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
+	}
+
+	@Override
+	public SessionUpdater update() {
+		return new SessionUpdaterImpl(this);
+	}
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 }

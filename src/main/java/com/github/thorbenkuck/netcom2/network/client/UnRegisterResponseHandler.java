@@ -22,8 +22,15 @@ class UnRegisterResponseHandler implements OnReceive<UnRegisterResponse> {
 	@Override
 	public void accept(Session session, UnRegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
-			logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			try {
+				cache.acquire();
+				cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				cache.release();
+			}
 		}
 	}
 }

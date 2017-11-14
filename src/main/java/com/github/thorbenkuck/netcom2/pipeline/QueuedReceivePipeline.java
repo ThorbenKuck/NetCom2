@@ -11,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
 	private final ReceiveObjectHandlerWrapper receiveObjectHandlerWrapper = new ReceiveObjectHandlerWrapper();
+	private final Semaphore semaphore = new Semaphore(1);
 	private boolean closed = false;
 	private boolean sealed = false;
 	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
@@ -96,7 +98,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+		if (!contains(pipelineService)) {
 			return addFirst(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -114,7 +116,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+		if (!contains(pipelineService)) {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -217,14 +219,15 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run(Connection connection, Session session, T t) {
 		try {
 			synchronized (core) {
 				core.stream()
 						.filter(pipelineReceiver -> pipelineReceiver.test(connection, session, t))
-						.forEachOrdered(pipelineReceiver -> pipelineReceiver.getOnReceive().accept(connection, session, t));
+						.forEachOrdered(
+								pipelineReceiver -> pipelineReceiver.getOnReceive().accept(connection, session, t));
 			}
 		} catch (Exception e) {
 			logging.error("Encountered exception!", e);
@@ -256,7 +259,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	private void ifOpen(Runnable runnable) {
-		if (! closed) {
+		if (!closed) {
 			runnable.run();
 		}
 	}
@@ -277,28 +280,46 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (! (o instanceof QueuedReceivePipeline)) return false;
+		if (!(o instanceof QueuedReceivePipeline)) return false;
 
 		QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
+		try {
+			that.acquire();
 
-		if (closed != that.closed) return false;
-		if (sealed != that.sealed) return false;
-		if (! core.equals(that.core)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! policyLock.equals(that.policyLock)) return false;
-		if (! clazz.equals(that.clazz)) return false;
-		if (! receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
+			if (closed != that.closed) return false;
+			if (sealed != that.sealed) return false;
+			if (!core.equals(that.core)) return false;
+			if (!logging.equals(that.logging)) return false;
+			if (!policyLock.equals(that.policyLock)) return false;
+			if (!clazz.equals(that.clazz)) return false;
+			if (!receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
+				return false;
+			return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+		} catch (InterruptedException e) {
+			logging.catching(e);
 			return false;
-		return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+		} finally {
+			that.release();
+		}
 	}
 
 	@Override
 	public String toString() {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
-				", open=" + ! closed +
+				", open=" + !closed +
 				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
 				", core=" + core +
 				'}';
+	}
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -34,7 +35,7 @@ import java.util.concurrent.ExecutorService;
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
  */
-public interface Client {
+public interface Client extends Mutex {
 
 	/**
 	 * Returns a new instance of the internal implementation of this interface.

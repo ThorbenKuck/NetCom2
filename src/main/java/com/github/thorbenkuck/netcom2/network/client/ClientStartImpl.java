@@ -39,7 +39,7 @@ public class ClientStartImpl implements ClientStart {
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());
 		logging.trace("Creating Sender ..");
-		sender = InternalSender.create(client, cache);
+		sender = InternalSender.create(client);
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
 	}
 

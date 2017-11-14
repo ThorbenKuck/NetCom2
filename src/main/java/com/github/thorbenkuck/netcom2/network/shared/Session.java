@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.server.ClientSendBridge;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
@@ -22,7 +23,7 @@ import java.util.Properties;
  *
  * Otherwise you can feel free to create an custom Session.
  */
-public interface Session {
+public interface Session extends Mutex {
 
 	/**
 	 * Returns a new instance of the internal implementation of this interface.
@@ -193,4 +194,14 @@ public interface Session {
 	 * The use of this Method is certainly not forbidden, but discouraged. Calling this method might screw up the internal mechanisms.
 	 */
 	void newPrimation();
+
+	/**
+	 * This is a functional style of updating the Session.
+	 *
+	 * If you use this on the Client-Side, note that calling {@link SessionUpdater#sendOverNetwork()} will NOT update the
+	 * Session on the Server-Side
+	 *
+	 * @return a new {@link SessionUpdater} instance for you to use.
+	 */
+	SessionUpdater update();
 }

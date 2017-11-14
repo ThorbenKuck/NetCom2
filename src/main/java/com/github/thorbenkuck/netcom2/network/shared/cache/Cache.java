@@ -1,8 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
+
 import java.util.Optional;
 
-public interface Cache {
+public interface Cache extends Mutex {
 
 	static Cache create() {
 		return new CacheImpl();

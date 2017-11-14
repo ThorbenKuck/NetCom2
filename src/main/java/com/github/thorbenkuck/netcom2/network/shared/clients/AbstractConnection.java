@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
@@ -12,13 +13,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-public abstract class AbstractConnection implements Connection {
+public abstract class AbstractConnection implements Connection, Mutex {
 
 	private final Socket socket;
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
@@ -284,6 +282,18 @@ public abstract class AbstractConnection implements Connection {
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
+	}
+
+	private final Semaphore semaphore = new Semaphore(1);
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 
 	private class DefaultReceiveCallBack implements CallBack<Object> {

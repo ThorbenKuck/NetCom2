@@ -37,7 +37,7 @@ public class Client {
 		Awaiting newConnection = clientStart.createNewConnection(TestObject.class);
 
 		System.out.println("Some work");
-		System.out.println("Waiting for the Connection to finish");
+		System.out.println("Waiting for the Connection to sendOverNetwork");
 		try {
 			newConnection.synchronize();
 			System.out.println("Connection established!");

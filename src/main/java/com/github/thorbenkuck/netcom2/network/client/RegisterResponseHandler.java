@@ -22,8 +22,15 @@ class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 	@Override
 	public void accept(Session session, RegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
-			logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			try {
+				cache.acquire();
+				cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				cache.release();
+			}
 		}
 	}
 }

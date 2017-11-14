@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,6 +44,7 @@ class ClientImpl implements Client {
 	private final Lock connectionLock = new ReentrantLock();
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final Lock idLock = new ReentrantLock();
+	private final Semaphore semaphore = new Semaphore(1);
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
 	private EncryptionAdapter encryptionAdapter;
 	private DecryptionAdapter decryptionAdapter;
@@ -57,7 +59,7 @@ class ClientImpl implements Client {
 	 * By instantiating this Client, multiple side-effects are happening.
 	 * <p>
 	 * Internally default Serializations will be set as well es the default Encryption.
-	 *
+	 * <p>
 	 * Note: No hard side-affects will happen. But please also note, that the Method {@link #setup()} is called, to
 	 * create the Session, depending on the implementation
 	 *
@@ -110,7 +112,7 @@ class ClientImpl implements Client {
 		if (connection == null) {
 			throw new SendFailedException("Connection does not exist!");
 		}
-		if (! connection.isActive()) {
+		if (!connection.isActive()) {
 			throw new SendFailedException("Connection is not yet Connected!");
 		}
 	}
@@ -352,7 +354,7 @@ class ClientImpl implements Client {
 		Validate.parameterNotNull(id);
 		try {
 			idLock.lock();
-			if (! ClientID.isEmpty(this.id)) {
+			if (!ClientID.isEmpty(this.id)) {
 				logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
 			}
 			this.id = id;
@@ -455,7 +457,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void addFallBackSerializationAdapter(
+			List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
@@ -464,7 +467,8 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void setFallBackSerializationAdapter(
+			List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		addFallBackSerializationAdapter(fallBackSerializationAdapter);
 	}
 
@@ -474,7 +478,8 @@ class ClientImpl implements Client {
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
 	 */
 	@Override
-	public void addFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void addFallBackDeSerializationAdapter(
+			List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
 	}
 
@@ -483,7 +488,8 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void setFallBackDeSerializationAdapter(
+			List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
@@ -717,27 +723,27 @@ class ClientImpl implements Client {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientImpl)) return false;
+		if (!(o instanceof ClientImpl)) return false;
 
 		ClientImpl client = (ClientImpl) o;
 
-		if (! disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
-		if (! fallBackSerialization.equals(client.fallBackSerialization)) return false;
-		if (! fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
-		if (! connections.equals(client.connections)) return false;
-		if (! falseIDs.equals(client.falseIDs)) return false;
-		if (! synchronizeMap.equals(client.synchronizeMap)) return false;
-		if (! connectionLock.equals(client.connectionLock)) return false;
-		if (! threadPoolLock.equals(client.threadPoolLock)) return false;
-		if (! idLock.equals(client.idLock)) return false;
-		if (! threadPool.equals(client.threadPool)) return false;
-		if (! encryptionAdapter.equals(client.encryptionAdapter)) return false;
-		if (! decryptionAdapter.equals(client.decryptionAdapter)) return false;
-		if (! mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
-		if (! mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
-		if (! logging.equals(client.logging)) return false;
-		if (! session.equals(client.session)) return false;
-		if (! communicationRegistration.equals(client.communicationRegistration)) return false;
+		if (!disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
+		if (!fallBackSerialization.equals(client.fallBackSerialization)) return false;
+		if (!fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
+		if (!connections.equals(client.connections)) return false;
+		if (!falseIDs.equals(client.falseIDs)) return false;
+		if (!synchronizeMap.equals(client.synchronizeMap)) return false;
+		if (!connectionLock.equals(client.connectionLock)) return false;
+		if (!threadPoolLock.equals(client.threadPoolLock)) return false;
+		if (!idLock.equals(client.idLock)) return false;
+		if (!threadPool.equals(client.threadPool)) return false;
+		if (!encryptionAdapter.equals(client.encryptionAdapter)) return false;
+		if (!decryptionAdapter.equals(client.decryptionAdapter)) return false;
+		if (!mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
+		if (!mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
+		if (!logging.equals(client.logging)) return false;
+		if (!session.equals(client.session)) return false;
+		if (!communicationRegistration.equals(client.communicationRegistration)) return false;
 		return id.equals(client.id);
 	}
 
@@ -757,5 +763,15 @@ class ClientImpl implements Client {
 				", decryptionAdapter" + decryptionAdapter +
 				", encryptionAdapter" + encryptionAdapter +
 				'}';
+	}
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 }

@@ -6,11 +6,13 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 
 public class CacheImpl extends CacheObservable implements Cache {
 
 	private final Map<Class<?>, Object> internals = new HashMap<>();
 	private Logging logging = new NetComLogging();
+	private final Semaphore semaphore = new Semaphore(1);
 
 	private void notifyAboutChangedEntry(Object updatedEntry) {
 		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
@@ -147,4 +149,13 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
+	}
 }

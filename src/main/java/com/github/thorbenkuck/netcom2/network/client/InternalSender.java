@@ -6,8 +6,8 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 interface InternalSender extends Sender {
 
-	static InternalSender create(Client client, Cache cache) {
-		return new SenderImpl(client, cache);
+	static InternalSender create(Client client) {
+		return new SenderImpl(client);
 	}
 
 	<T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer);

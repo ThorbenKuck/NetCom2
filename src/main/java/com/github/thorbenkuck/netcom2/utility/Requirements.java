@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared;
+package com.github.thorbenkuck.netcom2.utility;
 
 public class Requirements {
 	public static void assertNotNull(Object o) {

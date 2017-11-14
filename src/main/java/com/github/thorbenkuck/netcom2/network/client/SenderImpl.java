@@ -19,12 +19,10 @@ public class SenderImpl implements InternalSender, Loggable {
 
 	private final Client client;
 	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
-	private final Cache cache;
 	private Logging logging = new NetComLogging();
 
-	public SenderImpl(Client client, Cache cache) {
+	public SenderImpl(Client client) {
 		this.client = client;
-		this.cache = cache;
 	}
 
 	@Override
@@ -130,7 +128,6 @@ public class SenderImpl implements InternalSender, Loggable {
 	public String toString() {
 		return "Sender{" +
 				"clientImpl=" + client +
-				", cache=" + cache +
 				", logging=" + logging +
 				'}';
 	}

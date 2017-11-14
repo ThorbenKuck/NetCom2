@@ -11,7 +11,7 @@ import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
 import java.util.function.Consumer;
 
-public interface ReceivePipeline<T> {
+public interface ReceivePipeline<T> extends Mutex {
 	ReceivePipelineCondition<T> addLast(OnReceive<T> pipelineService);
 
 	ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> pipelineService);

@@ -58,15 +58,29 @@ class Initializer {
 
 			// TO NOT CHANGE THIS!
 			ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
-			pipeline.setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy.ALLOW_SINGLE);
-			pipeline.to(this);
+			try {
+				pipeline.acquire();
+				pipeline.setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy.ALLOW_SINGLE);
+				pipeline.to(this);
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				pipeline.release();
+			}
 		}
 	}
 
 	private void setObserver() {
 		logging.trace("Adding internal CacheObserver ..");
 		synchronized (cache) {
-			cache.addCacheObserver(new ObserverSender(distributor));
+			try {
+				cache.acquire();
+				cache.addCacheObserver(new ObserverSender(distributor));
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				cache.release();
+			}
 		}
 	}
 

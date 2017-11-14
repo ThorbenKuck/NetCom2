@@ -12,12 +12,13 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TCPDefaultConnection extends AbstractConnection {
 
-	private final Map<Class, Synchronize> mapping = new HashMap<>();
+	private final Map<Class, Semaphore> mapping = new HashMap<>();
 	private final Lock communicationLock = new ReentrantLock();
 
 	protected TCPDefaultConnection(Socket socket, SendingService sendingService, ReceivingService receivingService, Session session, Class<?> key) {
@@ -54,10 +55,10 @@ public class TCPDefaultConnection extends AbstractConnection {
 		logging.trace("[TCP] Locking access to send ..");
 		communicationLock.lock();
 		logging.debug("[TCP] Preparing send of " + object + " at Thread " + Thread.currentThread());
-		Synchronize synchronize = new DefaultSynchronize();
+		Semaphore semaphore = new Semaphore(1);
 		logging.trace("[TCP] ClientMapping synchronization mechanism ..");
 		synchronized (mapping) {
-			mapping.put(object.getClass(), synchronize);
+			mapping.put(object.getClass(), semaphore);
 		}
 		logging.trace("[TCP] Setting up CallBack ..");
 		receivingService.addReceivingCallback(new TCPAckCallBack(object.getClass()));
@@ -70,13 +71,13 @@ public class TCPDefaultConnection extends AbstractConnection {
 		}
 		logging.debug("[TCP] Preparing receive of Acknowledge from " + object + " at Thread " + Thread.currentThread());
 		logging.trace("[TCP] Grabbing Synchronization mechanism ..");
-		Synchronize synchronize;
+		Semaphore synchronize;
 		synchronized (mapping) {
 			synchronize = mapping.get(object.getClass());
 		}
 		try {
 			logging.debug("[TCP] Awaiting synchronization of " + synchronize);
-			synchronize.synchronize();
+			synchronize.acquire();
 			logging.debug("[TCP] Received Acknowledge of " + object.getClass());
 		} catch (InterruptedException e) {
 			logging.error("[TCP] Interrupted while synchronizing ", e);
@@ -89,7 +90,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 
 	private void ack(Acknowledge acknowledge) {
 		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
-		Synchronize synchronize;
+		Semaphore synchronize;
 		synchronized (mapping) {
 			synchronize = mapping.get(acknowledge.getOf());
 		}
@@ -99,7 +100,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 		}
 
 		logging.trace("[TCP] Releasing waiting Threads after " + acknowledge.getOf());
-		synchronize.goOn();
+		synchronize.release();
 	}
 
 	private void sendAck(Object o) {

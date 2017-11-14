@@ -1,13 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.server.mapping;
 
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 
 public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 
 	protected final Map<T, S> mapping = new HashMap<>();
+	protected final Semaphore semaphore = new Semaphore(1);
 
 	@Override
 	public void map(T t, S s) {
@@ -39,5 +40,15 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 		synchronized (mapping) {
 			mapping.clear();
 		}
+	}
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 }

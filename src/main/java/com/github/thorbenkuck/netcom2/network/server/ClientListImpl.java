@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -8,12 +9,13 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 @Synchronized
-class ClientListImpl extends Observable implements ClientList {
+class ClientListImpl extends Observable implements ClientList, Mutex {
 
 	private final Map<ClientID, Client> clients = new HashMap<>();
 	private final Lock clientLock = new ReentrantLock(true);
@@ -115,6 +117,18 @@ class ClientListImpl extends Observable implements ClientList {
 
 	private List<Client> accessInternals() {
 		return new ArrayList<>(clients.values());
+	}
+
+	private final Semaphore semaphore = new Semaphore(1);
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 
 	private class ClientIterator implements Iterator<Client> {

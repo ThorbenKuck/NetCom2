@@ -43,15 +43,31 @@ public class ConnectionFactory {
 		ReceivingService receivingService = getReceivingService(client);
 		SendingService sendingService = getSendingService(client);
 		Session session = client.getSession();
+
 		Connection connection;
 
 		// Synchonization, so only 1 Connection at a time can be established (real speaking)
 		synchronized (this) {
-			logging.trace("Creating connection..");
-			connection = getConnection(socket, session, sendingService, receivingService, key);
+			logging.trace("Creating connection..");try {
+				session.acquire();
+				connection = getConnection(socket, session, sendingService, receivingService, key);
+			} catch (InterruptedException e) {
+				logging.error("Could not create Connection " + key + "!", e);
+				return null;
+			} finally {
+				session.release();
+			}
 			connection.setup();
 			logging.trace("Applying connection to Client");
-			client.setConnection(key, connection);
+			try {
+				client.acquire();
+				client.setConnection(key, connection);
+			} catch (InterruptedException e) {
+				logging.error("Could not set Connection " + connection + " at Client" + client + "!", e);
+				return null;
+			} finally {
+				client.release();
+			}
 		}
 		logging.trace("Connection build!");
 		logging.info("Connected to server at " + connection);

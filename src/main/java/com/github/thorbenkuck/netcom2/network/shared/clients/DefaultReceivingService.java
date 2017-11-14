@@ -122,7 +122,14 @@ class DefaultReceivingService implements ReceivingService {
 
 	private void trigger(Object object) {
 		try {
-			communicationRegistration.trigger(object.getClass(), connection, session, object);
+			try {
+				communicationRegistration.acquire();
+				communicationRegistration.trigger(object.getClass(), connection, session, object);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				communicationRegistration.release();
+			}
 		} catch (CommunicationNotSpecifiedException e) {
 			logging.catching(e);
 		}
