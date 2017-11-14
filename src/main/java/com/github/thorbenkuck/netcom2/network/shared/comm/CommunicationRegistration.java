@@ -2,12 +2,16 @@ package com.github.thorbenkuck.netcom2.network.shared.comm;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
+import java.util.List;
+import java.util.Map;
+
 @Synchronized
-public interface CommunicationRegistration {
+public interface CommunicationRegistration extends Mutex {
 
 	static CommunicationRegistration create() {
 		return new DefaultCommunicationRegistration();
@@ -31,4 +35,10 @@ public interface CommunicationRegistration {
 	void clear();
 
 	void clearAllEmptyPipelines();
+
+	void updateBy(CommunicationRegistration communicationRegistration);
+
+	Map<Class, ReceivePipeline<?>> map();
+
+	List<OnReceiveTriple<Object>> listDefaultsCommunicationRegistration();
 }
