@@ -50,7 +50,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@Override
-	public boolean isRegistered(Class clazz) {
+	public boolean isRegistered(final Class clazz) {
 		return mapping.get(clazz) != null;
 	}
 
@@ -104,7 +104,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 
 		for (final Class key : keyList) {
-			ReceivePipeline receivePipeline = mapping.get(key);
+			final ReceivePipeline receivePipeline = mapping.get(key);
 			// Skip the sealed.
 			if (receivePipeline.isSealed()) {
 				continue;
@@ -123,7 +123,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			defaultCommunicationHandlers.clear();
 
 			mapping.putAll(communicationRegistration.map());
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			communicationRegistration.release();
@@ -140,7 +140,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		return new ArrayList<>(defaultCommunicationHandlers);
 	}
 
-	private void requireNotNull(Object... objects) {
+	private void requireNotNull(final Object... objects) {
 		Requirements.assertNotNull(objects);
 	}
 
@@ -176,10 +176,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 						"ReceivePipeline for " + clazz + " was removed whilst trying to trigger it!");
 			}
 			logging.trace("Casting given Object " + o + "  ..");
-			T t = (T) o;
+			final T t = (T) o;
 			logging.trace("Now handling the communication ..");
 			handleRegistered(receivePipeline, connection, session, t);
-		} catch (Throwable throwable) {
+		} catch (final Throwable throwable) {
 			logging.error("Encountered an Throwable while running CommunicationRegistration for " + clazz, throwable);
 		}
 	}
@@ -190,7 +190,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
 				defaultCommunicationHandler.accept(connection, session, o);
-			} catch (Throwable throwable) {
+			} catch (final Throwable throwable) {
 				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler,
 						throwable);
 				logging.trace("Continuing anyways..");
@@ -202,7 +202,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		try {
 			pipeline.acquire();
 			pipeline.run(connection, session, o);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			pipeline.release();

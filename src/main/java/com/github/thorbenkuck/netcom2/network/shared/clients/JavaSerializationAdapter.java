@@ -15,8 +15,8 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 
 	@Asynchronous
 	@Override
-	public String get(Object o) throws SerializationFailedException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public String get(final Object o) throws SerializationFailedException {
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;
 		try {
 			logging.trace("Creating ObjectOutputStream..");
@@ -24,7 +24,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 			logging.trace("Writing object..");
 			oos.writeObject(o);
 			logging.trace("Done!");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new SerializationFailedException(e);
 		} finally {
 			if (oos != null) {
@@ -40,7 +40,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				e.printStackTrace();
 			}
 		}
-		String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
+		final String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
 		logging.trace("Encoded " + o + " to " + toReturn);
 		return toReturn;
 	}

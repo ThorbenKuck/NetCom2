@@ -18,13 +18,13 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	private boolean closed = false;
 	private boolean sealed = false;
 
-	protected AbstractPipeline(C collection) {
+	protected AbstractPipeline(final C collection) {
 		this.collection = collection;
 	}
 
 	@Override
-	public PipelineCondition<T> addLast(Consumer<T> consumer) {
-		PipelineElement<T> pipelineElement = new PipelineElement<>(consumer);
+	public PipelineCondition<T> addLast(final Consumer<T> consumer) {
+		final PipelineElement<T> pipelineElement = new PipelineElement<>(consumer);
 		try {
 			lock();
 			collection.add(pipelineElement);
@@ -35,9 +35,9 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	}
 
 	@Override
-	public PipelineCondition<T> addFirst(Consumer<T> consumer) {
-		Queue<PipelineElement<T>> temp = new LinkedList<>(getCollection());
-		PipelineElement<T> pipelineElement = new PipelineElement<>(consumer);
+	public PipelineCondition<T> addFirst(final Consumer<T> consumer) {
+		final Queue<PipelineElement<T>> temp = new LinkedList<>(getCollection());
+		final PipelineElement<T> pipelineElement = new PipelineElement<>(consumer);
 		try {
 			lock();
 			collection.clear();
@@ -50,7 +50,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	}
 
 	@Override
-	public boolean remove(Consumer<T> pipelineService) {
+	public boolean remove(final Consumer<T> pipelineService) {
 		return collection.remove(new PipelineElement<>(pipelineService));
 	}
 
@@ -66,7 +66,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	}
 
 	@Override
-	public void run(T t) {
+	public void run(final T t) {
 		try {
 			lock();
 			collection.forEach(tPipelineElement -> tPipelineElement.run(t));
@@ -120,12 +120,12 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	}
 
 	@Override
-	public final void ifClosed(Consumer<Pipeline<T>> consumer) {
+	public final void ifClosed(final Consumer<Pipeline<T>> consumer) {
 		ifClosed(() -> consumer.accept(this));
 	}
 
 	@Override
-	public final void ifClosed(Runnable runnable) {
+	public final void ifClosed(final Runnable runnable) {
 		if (closed) {
 			runnable.run();
 		}

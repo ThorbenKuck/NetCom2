@@ -14,24 +14,24 @@ class PipelineReceiverImpl<T> {
 	private final OnReceiveTriple<T> onReceive;
 	private final Queue<TriPredicate<Connection, Session, T>> predicates = new LinkedList<>();
 
-	PipelineReceiverImpl(OnReceiveTriple<T> onReceive) {
+	PipelineReceiverImpl(final OnReceiveTriple<T> onReceive) {
 		Objects.requireNonNull(onReceive);
 		this.onReceive = onReceive;
 	}
 
 	static final PipelineReceiverImpl empty() {
-		PipelineReceiverImpl<Object> pipelineReceiver = new PipelineReceiverImpl<>(null);
+		final PipelineReceiverImpl<Object> pipelineReceiver = new PipelineReceiverImpl<>(null);
 		pipelineReceiver.addTriPredicate(((object, object2, object3) -> false));
 		return pipelineReceiver;
 	}
 
-	final void addTriPredicate(TriPredicate<Connection, Session, T> triPredicate) {
+	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
 		Objects.requireNonNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
-	final boolean test(Connection connection, Session session, T t) {
-		Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
+	final boolean test(final Connection connection, final Session session, final T t) {
+		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
 			if (! predicateTemp.remove().test(connection, session, t)) {
 				return false;
@@ -46,11 +46,11 @@ class PipelineReceiverImpl<T> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) return true;
 		if (! (o instanceof PipelineReceiverImpl)) return false;
 
-		PipelineReceiverImpl<?> that = (PipelineReceiverImpl<?>) o;
+		final PipelineReceiverImpl<?> that = (PipelineReceiverImpl<?>) o;
 
 		return onReceive.equals(that.onReceive);
 	}

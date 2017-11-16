@@ -17,7 +17,7 @@ public class ConnectionFactory {
 	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
 	private final Logging logging = Logging.unified();
 
-	public static void setConnectionFactoryHook(ConnectionFactoryHook connectionFactoryHook) {
+	public static void setConnectionFactoryHook(final ConnectionFactoryHook connectionFactoryHook) {
 		try {
 			connectionFactoryHookLock.lock();
 			ConnectionFactory.connectionFactoryHook = connectionFactoryHook;
@@ -26,7 +26,7 @@ public class ConnectionFactory {
 		}
 	}
 
-	public Connection create(Socket socket, Client client) {
+	public Connection create(final Socket socket, final Client client) {
 		return create(socket, client, DefaultConnection.class);
 	}
 
@@ -38,13 +38,12 @@ public class ConnectionFactory {
 	 * @param key    the key of the Connection
 	 * @return a Connection
 	 */
-	public Connection create(Socket socket, Client client, Class key) {
+	public Connection create(final Socket socket, final Client client, final Class key) {
 		logging.trace("Creating services..");
-		ReceivingService receivingService = getReceivingService(client);
-		SendingService sendingService = getSendingService(client);
-		Session session = client.getSession();
-
-		Connection connection;
+		final ReceivingService receivingService = getReceivingService(client);
+		final SendingService sendingService = getSendingService(client);
+		final Session session = client.getSession();
+		final Connection connection;
 
 		// Synchonization, so only 1 Connection at a time can be established (real speaking)
 		synchronized (this) {
@@ -81,8 +80,8 @@ public class ConnectionFactory {
 	 * @param client the Client that holds the main parts
 	 * @return a ReceivingService, usable by a Connection
 	 */
-	private ReceivingService getReceivingService(Client client) {
-		ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
+	private ReceivingService getReceivingService(final Client client) {
+		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
 				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(), client.getDecryptionAdapter());
 		receivingService.onDisconnect(client::disconnect);
 		return receivingService;
@@ -95,12 +94,12 @@ public class ConnectionFactory {
 	 * @param client the Client that holds the main parts
 	 * @return a SendingService, usable by a Connection
 	 */
-	private SendingService getSendingService(Client client) {
+	private SendingService getSendingService(final Client client) {
 		return new DefaultSendingService(client.getMainSerializationAdapter(), client.getFallBackSerialization(),
 				client.getEncryptionAdapter());
 	}
 
-	private Connection getConnection(Socket socket, Session session, SendingService sendingService, ReceivingService receivingService, Class<?> key) {
+	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService, final ReceivingService receivingService, final Class<?> key) {
 		try {
 			connectionFactoryHookLock.lock();
 			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);

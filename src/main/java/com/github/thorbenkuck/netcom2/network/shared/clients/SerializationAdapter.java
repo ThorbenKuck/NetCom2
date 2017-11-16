@@ -12,10 +12,10 @@ public interface SerializationAdapter<F, T> {
 	}
 
 	static List<SerializationAdapter<Object, String>> getDefaultFallback() {
-		List<SerializationAdapter<Object, String>> toReturn = new ArrayList<>();
+		final List<SerializationAdapter<Object, String>> toReturn = new ArrayList<>();
 		toReturn.add(new PingSerializationAdapter());
 		return toReturn;
 	}
 
-	T get(F f) throws SerializationFailedException;
+	T get(final F f) throws SerializationFailedException;
 }

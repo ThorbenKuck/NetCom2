@@ -15,19 +15,19 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 
 	@Asynchronous
 	@Override
-	public Object get(String s) throws DeSerializationFailedException {
-		Object o;
+	public Object get(final String s) throws DeSerializationFailedException {
+		final Object o;
 		try {
 			logging.trace("DeSerialization of " + s);
 			byte[] data = Base64.getDecoder().decode(s.getBytes());
 			logging.trace("Decoded bytes " + Arrays.toString(data));
-			ObjectInputStream ois = new ObjectInputStream(
+			final ObjectInputStream ois = new ObjectInputStream(
 					new ByteArrayInputStream(data));
 			logging.trace("Reading Object..");
 			o = ois.readObject();
 			logging.trace("Decoded Object: " + o);
 			ois.close();
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			throw new DeSerializationFailedException("Error while reading the given serialized Object.. " +
 					"\nGiven serialized Object: " + s, e);
 		}

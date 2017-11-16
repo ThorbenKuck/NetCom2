@@ -10,25 +10,25 @@ public interface Cache extends Mutex {
 		return new CacheImpl();
 	}
 
-	void update(Object object);
+	void update(final Object object);
 
-	void addNew(Object object);
+	void addNew(final Object object);
 
-	void addAndOverride(Object object);
+	void addAndOverride(final Object object);
 
-	void remove(Class clazz);
+	void remove(final Class clazz);
 
-	<T> Optional<T> get(Class<T> clazz);
+	<T> Optional<T> get(final Class<T> clazz);
 
-	boolean isSet(Class<?> clazz);
+	boolean isSet(final Class<?> clazz);
 
-	<T> void addCacheObserver(CacheObserver<T> cacheObserver);
+	<T> void addCacheObserver(final CacheObserver<T> cacheObserver);
 
-	<T> void removeCacheObserver(CacheObserver<T> cacheObserver);
+	<T> void removeCacheObserver(final CacheObserver<T> cacheObserver);
 
-	void addGeneralObserver(GeneralCacheObserver observer);
+	void addGeneralObserver(final GeneralCacheObserver observer);
 
-	void removeGeneralObserver(GeneralCacheObserver observer);
+	void removeGeneralObserver(final GeneralCacheObserver observer);
 
 	void clearObservers();
 

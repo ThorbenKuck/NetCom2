@@ -8,7 +8,8 @@ import java.net.Socket;
 
 class UDPConnectionFactoryHook implements ConnectionFactoryHook {
 
-	public Connection hookup(Socket socket, Session session, SendingService sendingService, ReceivingService receivingService, Class<?> key) {
+	public Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
+							 final ReceivingService receivingService, final Class<?> key) {
 		return new UDPDefaultConnection(socket, session, receivingService, sendingService, key);
 	}
 

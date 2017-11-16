@@ -28,7 +28,7 @@ public class SessionImpl implements Session {
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
 
-	SessionImpl(SendBridge sendBridge) {
+	SessionImpl(final SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
 		this.uuid = UUID.randomUUID();
 	}
@@ -37,7 +37,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		return obj != null && obj.getClass().equals(SessionImpl.class) && ((SessionImpl) obj).uuid.equals(uuid);
 	}
 
@@ -67,7 +67,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setIdentified(boolean identified) {
+	public void setIdentified(final boolean identified) {
 		this.identified = identified;
 	}
 
@@ -83,7 +83,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setIdentifier(String identifier) {
+	public void setIdentifier(final String identifier) {
 		this.identifier = identifier;
 	}
 
@@ -99,7 +99,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setProperties(Properties properties) {
+	public void setProperties(final Properties properties) {
 		this.properties = properties;
 	}
 
@@ -107,7 +107,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void send(Object o) {
+	public void send(final Object o) {
 		sendBridge.send(o);
 	}
 
@@ -117,7 +117,7 @@ public class SessionImpl implements Session {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Pipeline<T> eventOf(Class<T> clazz) {
+	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
 		pipelines.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
 		return (Pipeline<T>) pipelines.get(clazz);
 	}
@@ -128,8 +128,8 @@ public class SessionImpl implements Session {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> void triggerEvent(Class<T> clazz, T t) {
-		Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
+	public <T> void triggerEvent(final Class<T> clazz, T t) {
+		final Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
 		if (pipeline != null) {
 			pipeline.run(t);
 		} else {
@@ -141,7 +141,7 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addHeartBeat(HeartBeat<Session> heartBeat) {
+	public void addHeartBeat(final HeartBeat<Session> heartBeat) {
 		heartBeats.add(heartBeat);
 		heartBeat.parallel().run(this);
 	}
@@ -150,8 +150,8 @@ public class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void removeHeartBeat(HeartBeat<Session> heartBeat) {
-		HeartBeat<Session> heartBeat1 = heartBeats.get(heartBeats.indexOf(heartBeat));
+	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {
+		final HeartBeat<Session> heartBeat1 = heartBeats.remove(heartBeats.indexOf(heartBeat));
 		if (heartBeat1 != null) {
 			heartBeat1.stop();
 		}
@@ -185,7 +185,7 @@ public class SessionImpl implements Session {
 			synchronized (synchronize) {
 				synchronize.reset();
 			}
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		}
 	}

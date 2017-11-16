@@ -9,12 +9,12 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 
 	private final OnReceiveSingle<O> onReceive;
 
-	OnReceiveSingleWrapper(OnReceiveSingle<O> onReceive) {
+	OnReceiveSingleWrapper(final OnReceiveSingle<O> onReceive) {
 		this.onReceive = onReceive;
 	}
 
 	@Override
-	public final void accept(Connection connection, Session session, O o) {
+	public final void accept(final Connection connection, final Session session, final O o) {
 		onReceive.accept(o);
 	}
 
@@ -39,7 +39,7 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	}
 
 	@Override
-	public final boolean equals(Object o) {
+	public final boolean equals(final Object o) {
 		return o != null && onReceive.equals(o);
 	}
 

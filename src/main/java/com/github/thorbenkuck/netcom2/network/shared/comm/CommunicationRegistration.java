@@ -17,26 +17,27 @@ public interface CommunicationRegistration extends Mutex {
 		return new DefaultCommunicationRegistration();
 	}
 
-	<T> ReceivePipeline<T> register(Class<T> clazz);
+	<T> ReceivePipeline<T> register(final Class<T> clazz);
 
-	void unRegister(Class clazz);
+	void unRegister(final Class clazz);
 
-	boolean isRegistered(Class clazz);
+	boolean isRegistered(final Class clazz);
 
-	@SuppressWarnings ("unchecked")
-	<T> void trigger(Class<T> clazz, Connection connection, Session session, Object o) throws CommunicationNotSpecifiedException;
+	@SuppressWarnings("unchecked")
+	<T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
+			throws CommunicationNotSpecifiedException;
 
-	void addDefaultCommunicationHandler(OnReceiveSingle<Object> defaultCommunicationHandler);
+	void addDefaultCommunicationHandler(final OnReceiveSingle<Object> defaultCommunicationHandler);
 
-	void addDefaultCommunicationHandler(OnReceive<Object> defaultCommunicationHandler);
+	void addDefaultCommunicationHandler(final OnReceive<Object> defaultCommunicationHandler);
 
-	void addDefaultCommunicationHandler(OnReceiveTriple<Object> defaultCommunicationHandler);
+	void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler);
 
 	void clear();
 
 	void clearAllEmptyPipelines();
 
-	void updateBy(CommunicationRegistration communicationRegistration);
+	void updateBy(final CommunicationRegistration communicationRegistration);
 
 	Map<Class, ReceivePipeline<?>> map();
 

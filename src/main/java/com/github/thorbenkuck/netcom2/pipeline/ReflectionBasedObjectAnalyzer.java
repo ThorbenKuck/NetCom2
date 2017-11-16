@@ -10,17 +10,17 @@ import java.util.Optional;
 
 class ReflectionBasedObjectAnalyzer {
 
-	public <T> Optional<Method> getResponsibleMethod(Object o, Class<T> clazz) {
+	public <T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
 		return getCorrespondingMethod(o, clazz);
 	}
 
-	private <T> Optional<Method> getCorrespondingMethod(Object o, Class<T> clazz) {
+	private <T> Optional<Method> getCorrespondingMethod(final Object o, final Class<T> clazz) {
 		for (Method method : o.getClass().getDeclaredMethods()) {
 //			if(!Modifier.isPrivate(method.getModifiers())) {
 //
 //			}
 			if (isAnnotationPresent(ReceiveHandler.class, method)) {
-				ReceiveHandler receiveHandler = method.getAnnotation(ReceiveHandler.class);
+				final ReceiveHandler receiveHandler = method.getAnnotation(ReceiveHandler.class);
 				if (receiveHandler.active() && containsOnlyAskedParameter(method, clazz)) {
 					return Optional.of(method);
 				}
@@ -30,13 +30,13 @@ class ReflectionBasedObjectAnalyzer {
 		return Optional.empty();
 	}
 
-	private boolean isAnnotationPresent(Class<? extends Annotation> annotation, Method method) {
+	private boolean isAnnotationPresent(final Class<? extends Annotation> annotation, final Method method) {
 		return method.getAnnotation(annotation) != null;
 	}
 
-	private <T> boolean containsOnlyAskedParameter(Method method, Class<T> clazz) {
+	private <T> boolean containsOnlyAskedParameter(final Method method, final Class<T> clazz) {
 		boolean contains = false;
-		for (Class clazzToCheck : method.getParameterTypes()) {
+		for (final Class clazzToCheck : method.getParameterTypes()) {
 			if (! clazzToCheck.equals(Connection.class) && ! clazzToCheck.equals(Session.class)) {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
@@ -49,7 +49,7 @@ class ReflectionBasedObjectAnalyzer {
 		return contains;
 	}
 
-	private <T> Optional<Class<T>> getResponsibleClassFromMethod(Method method) {
+	private <T> Optional<Class<T>> getResponsibleClassFromMethod(final Method method) {
 		if (method.getParameterCount() == 0) {
 			return Optional.empty();
 		}

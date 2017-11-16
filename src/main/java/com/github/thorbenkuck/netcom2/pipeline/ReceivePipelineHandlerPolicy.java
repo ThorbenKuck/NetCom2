@@ -8,26 +8,26 @@ public enum ReceivePipelineHandlerPolicy {
 
 	NOT_ALLOWED {
 		@Override
-		void prepare(ReceivePipeline receivePipeline) {
+		void prepare(final ReceivePipeline receivePipeline) {
 			throw new PipelineAccessException("ReceivePipeline is not allowed to have Object-Handlers");
 		}
 	}, ALLOW_MULTIPLE {
 		@Override
-		void prepare(ReceivePipeline receivePipeline) {
+		void prepare(final ReceivePipeline receivePipeline) {
 			requireNotSealed(receivePipeline);
 		}
 	}, ALLOW_SINGLE {
 		@Override
-		void prepare(ReceivePipeline receivePipeline) {
+		void prepare(final ReceivePipeline receivePipeline) {
 			requireNotSealed(receivePipeline);
-			if (! receivePipeline.isEmpty()) {
+			if (!receivePipeline.isEmpty()) {
 				warn("Clearing Pipeline to suit ReceivePipelineHandlerPolicy");
 				receivePipeline.clear();
 			}
 		}
 
 		@Override
-		void afterAdding(ReceivePipeline receivePipeline) {
+		void afterAdding(final ReceivePipeline receivePipeline) {
 			trace("Closing pipeline " + receivePipeline + " ..");
 			receivePipeline.close();
 			trace("Sealing closed Pipeline ..");
@@ -39,31 +39,31 @@ public enum ReceivePipelineHandlerPolicy {
 
 	private final Logging logging = Logging.unified();
 
-	abstract void prepare(ReceivePipeline receivePipeline);
+	abstract void prepare(final ReceivePipeline receivePipeline);
 
-	void afterAdding(ReceivePipeline receivePipeline) {
+	void afterAdding(final ReceivePipeline receivePipeline) {
 	}
 
-	final void requireNotSealed(ReceivePipeline receivePipeline) {
+	final void requireNotSealed(final ReceivePipeline receivePipeline) {
 		if (receivePipeline.isSealed()) {
 			fatal("ReceivePipelineHandlerPolicy not applicable to sealed Pipeline!");
 			throw new PipelineAccessException("ReceivePipelineHandlerPolicy not applicable to sealed Pipeline!");
 		}
 	}
 
-	final void fatal(String s) {
+	final void fatal(final String s) {
 		logging.fatal(s);
 	}
 
-	final void trace(String s) {
+	final void trace(final String s) {
 		logging.trace(s);
 	}
 
-	final void debug(String s) {
+	final void debug(final String s) {
 		logging.debug(s);
 	}
 
-	final void warn(String s) {
+	final void warn(final String s) {
 		logging.warn(s);
 	}
 }

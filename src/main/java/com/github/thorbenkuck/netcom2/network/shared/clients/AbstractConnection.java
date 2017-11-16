@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -21,6 +22,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private final Socket socket;
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = new QueuedPipeline<>();
+	private final Semaphore semaphore = new Semaphore(1);
 	protected Logging logging = Logging.unified();
 	protected SendingService sendingService;
 	protected ReceivingService receivingService;
@@ -30,7 +32,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private Class<?> key;
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
 
-	protected AbstractConnection(Socket socket, SendingService sendingService, ReceivingService receivingService, Session session, Class<?> key) {
+	protected AbstractConnection(final Socket socket, final SendingService sendingService,
+								 final ReceivingService receivingService,
+								 final Session session, final Class<?> key) {
 		this.socket = socket;
 		this.sendingService = sendingService;
 		this.receivingService = receivingService;
@@ -43,19 +47,19 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 *
 	 * @param o the Object
 	 */
-	protected abstract void beforeSend(Object o);
+	protected abstract void beforeSend(final Object o);
 
 	/**
 	 * This method is called if an object is received and after its Communication is triggered
 	 *
 	 * @param o
 	 */
-	abstract void receivedObject(Object o);
+	abstract void receivedObject(final Object o);
 
 	protected abstract void onClose();
 
 	@Override
-	public void setLogging(Logging logging) {
+	public void setLogging(final Logging logging) {
 		this.logging.debug("Overriding set Logging ..");
 		this.logging = logging;
 		logging.debug("Overrode Logging!");
@@ -83,13 +87,12 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			} catch (IOException e1) {
 				e1.addSuppressed(e);
 				logging.fatal("Encountered Exception while cleaning up over a previously encountered Exception!", e1);
-				throw new Error(e1);
+				throw new ClientCreationFailedException(e1);
 			}
-			throw new Error(e);
+			throw new ClientCreationFailedException(e);
 		}
 		setup = true;
 	}
-
 
 	@Override
 	public void close() throws IOException {
@@ -107,17 +110,16 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		onClose();
 	}
 
-
 	@Override
 	public Synchronize startListening() {
-		if (! setup) {
+		if (!setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
 		if (started) {
 			throw new IllegalStateException("Cannot startListening to an already listening Connection");
 		}
 
-		Synchronize synchronize = new DefaultSynchronize();
+		final Synchronize synchronize = new DefaultSynchronize();
 		logging.debug("Starting to listen to: " + this);
 		threadPool.submit(() -> {
 			try {
@@ -125,7 +127,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 				receivingService.started().synchronize();
 				logging.trace("Awaiting Synchronization of SendingService");
 				sendingService.started().synchronize();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				logging.catching(e);
 			}
 			logging.info("Synchronization complete! Connection is now listening.");
@@ -141,25 +143,22 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		return synchronize;
 	}
 
-
 	@Override
-	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
+	public PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer) {
 		logging.debug("Added DisconnectedConsumer(" + consumer + ") for Connection " + this);
 		return disconnectedPipeline.addLast(consumer);
 	}
 
-
 	@Override
-	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
+	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
 		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
 		disconnectedPipeline.remove(consumer);
 	}
 
-
 	@Asynchronous
 	@Override
-	public void write(Object object) {
-		if (! setup) {
+	public void write(final Object object) {
+		if (!setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
 		}
 		logging.trace("Running write in new Thread to write " + object + " ..");
@@ -184,12 +183,12 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void addObjectSendListener(CallBack<Object> callBack) {
+	public void addObjectSendListener(final CallBack<Object> callBack) {
 		sendingService.addSendDoneCallback(callBack);
 	}
 
 	@Override
-	public void addObjectReceivedListener(CallBack<Object> callBack) {
+	public void addObjectReceivedListener(final CallBack<Object> callBack) {
 		receivingService.addReceivingCallback(callBack);
 	}
 
@@ -199,7 +198,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void setSession(Session session) {
+	public void setSession(final Session session) {
 		logging.debug("Overriding Session for " + this);
 		receivingService.setSession(session);
 		this.session = session;
@@ -231,16 +230,17 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void setKey(Class<?> connectionKey) {
+	public void setKey(final Class<?> connectionKey) {
 		this.key = connectionKey;
 	}
 
 	/**
 	 * TODO Complete the formed out Algorithm
+	 *
 	 * @param executorService
 	 */
 	@Override
-	public void setThreadPool(ExecutorService executorService) {
+	public void setThreadPool(final ExecutorService executorService) {
 		logging.error("This operation is not yet supported!");
 		/*
 		// Soft-Stop currentThreadPool
@@ -265,12 +265,14 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == null || ! o.getClass().equals(AbstractConnection.class)) {
+	public boolean equals(final Object o) {
+		if (o == null || !o.getClass().equals(AbstractConnection.class)) {
 			return false;
 		}
 		return ((AbstractConnection) o).socket.equals(socket);
-	}	protected abstract void afterSend(Object o);
+	}
+
+	protected abstract void afterSend(final Object o);
 
 	@Override
 	public String toString() {
@@ -283,8 +285,6 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
 	}
-
-	private final Semaphore semaphore = new Semaphore(1);
 
 	@Override
 	public void acquire() throws InterruptedException {
@@ -299,17 +299,17 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private class DefaultReceiveCallBack implements CallBack<Object> {
 		@Override
 		public boolean isRemovable() {
-			return ! started;
+			return !started;
 		}
 
 		@Override
-		public void accept(Object o) {
+		public void accept(final Object o) {
 			receivedObject(o);
 		}
 
 		@Override
 		public String toString() {
-			return "DefaultReceiveCallBack{removable=" + ! started + "}";
+			return "DefaultReceiveCallBack{removable=" + !started + "}";
 		}
 	}
 }

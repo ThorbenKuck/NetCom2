@@ -1,12 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.CallBack;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Acknowledge;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -21,7 +20,9 @@ public class TCPDefaultConnection extends AbstractConnection {
 	private final Map<Class, Semaphore> mapping = new HashMap<>();
 	private final Lock communicationLock = new ReentrantLock();
 
-	protected TCPDefaultConnection(Socket socket, SendingService sendingService, ReceivingService receivingService, Session session, Class<?> key) {
+	protected TCPDefaultConnection(final Socket socket, final SendingService sendingService,
+								   final ReceivingService receivingService,
+								   final Session session, final Class<?> key) {
 		super(socket, sendingService, receivingService, session, key);
 	}
 
@@ -30,7 +31,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void receivedObject(Object o) {
+	protected void receivedObject(final Object o) {
 		logging.debug("[TCP] Testing " + o);
 		if (o.getClass().equals(Acknowledge.class)) {
 			logging.debug("[TCP] Received Acknowledge " + o);
@@ -46,8 +47,8 @@ public class TCPDefaultConnection extends AbstractConnection {
 	}
 
 	@Override
-	protected synchronized void beforeSend(Object object) {
-		Objects.requireNonNull(object);
+	protected synchronized void beforeSend(final Object object) {
+		Requirements.assertNotNull(object);
 		if (object.getClass().equals(Acknowledge.class)) {
 			logging.trace("[TCP] No need to setup an synchronization mechanism an Acknowledge!");
 			return;
@@ -55,7 +56,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 		logging.trace("[TCP] Locking access to send ..");
 		communicationLock.lock();
 		logging.debug("[TCP] Preparing send of " + object + " at Thread " + Thread.currentThread());
-		Semaphore semaphore = new Semaphore(1);
+		final Semaphore semaphore = new Semaphore(1);
 		logging.trace("[TCP] ClientMapping synchronization mechanism ..");
 		synchronized (mapping) {
 			mapping.put(object.getClass(), semaphore);
@@ -65,13 +66,13 @@ public class TCPDefaultConnection extends AbstractConnection {
 	}
 
 	@Override
-	protected void afterSend(Object object) {
+	protected void afterSend(final Object object) {
 		if (object.getClass().equals(Acknowledge.class)) {
 			return;
 		}
 		logging.debug("[TCP] Preparing receive of Acknowledge from " + object + " at Thread " + Thread.currentThread());
 		logging.trace("[TCP] Grabbing Synchronization mechanism ..");
-		Semaphore synchronize;
+		final Semaphore synchronize;
 		synchronized (mapping) {
 			synchronize = mapping.get(object.getClass());
 		}
@@ -88,14 +89,15 @@ public class TCPDefaultConnection extends AbstractConnection {
 		logging.trace("[TCP] Continuing Communication after " + object.getClass());
 	}
 
-	private void ack(Acknowledge acknowledge) {
+	private void ack(final Acknowledge acknowledge) {
 		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
-		Semaphore synchronize;
+		final Semaphore synchronize;
 		synchronized (mapping) {
 			synchronize = mapping.get(acknowledge.getOf());
 		}
 		if (synchronize == null) {
-			logging.error("[TCP] ![DEAD ACKNOWLEDGE]! Found NO Waiting Communication for received Acknowledge " + acknowledge.getOf() + "!");
+			logging.error("[TCP] ![DEAD ACKNOWLEDGE]! Found NO Waiting Communication for received Acknowledge " +
+					acknowledge.getOf() + "!");
 			return;
 		}
 
@@ -103,28 +105,28 @@ public class TCPDefaultConnection extends AbstractConnection {
 		synchronize.release();
 	}
 
-	private void sendAck(Object o) {
+	private void sendAck(final Object o) {
 		logging.debug("[TCP] Acknowledging " + o.getClass());
 		write(new Acknowledge(o.getClass()));
 	}
 
 	private class TCPAckCallBack implements CallBack<Object> {
 
-		private Class<?> hint;
+		private final Class<?> hint;
 		private boolean removable = false;
 
-		private TCPAckCallBack(Class<?> hint) {
+		private TCPAckCallBack(final Class<?> hint) {
 			this.hint = hint;
 		}
 
 		@Override
-		public void accept(Object o) {
+		public void accept(final Object o) {
 			receivedObject(o);
 			removable = true;
 		}
 
 		@Override
-		public boolean isAcceptable(Object o) {
+		public boolean isAcceptable(final Object o) {
 			return o != null && o.getClass().equals(Acknowledge.class) && ((Acknowledge) o).getOf().equals(hint);
 		}
 

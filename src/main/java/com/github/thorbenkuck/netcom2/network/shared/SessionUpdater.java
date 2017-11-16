@@ -4,11 +4,11 @@ import java.util.Properties;
 
 public interface SessionUpdater {
 
-	SessionUpdater updateIdentified(boolean to);
+	SessionUpdater updateIdentified(final boolean to);
 
-	SessionUpdater updateProperties(Properties properties);
+	SessionUpdater updateProperties(final Properties properties);
 
-	SessionUpdater updateIdentifier(String identifier);
+	SessionUpdater updateIdentifier(final String identifier);
 
 	void sendOverNetwork();
 

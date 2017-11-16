@@ -14,20 +14,20 @@ public class CacheImpl extends CacheObservable implements Cache {
 	private Logging logging = new NetComLogging();
 	private final Semaphore semaphore = new Semaphore(1);
 
-	private void notifyAboutChangedEntry(Object updatedEntry) {
+	private void notifyAboutChangedEntry(final Object updatedEntry) {
 		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
 		setChanged();
 		updatedEntry(updatedEntry);
 	}
 
-	private void notifyAboutNewEntry(Object newEntry) {
+	private void notifyAboutNewEntry(final Object newEntry) {
 		logging.trace("New Cache-Entry at " + newEntry.getClass());
 		setChanged();
 		newEntry(newEntry);
 	}
 
 	@Override
-	public void update(Object object) {
+	public void update(final Object object) {
 		logging.trace("Trying to update an existing Object(" + object + ") to Cache ..");
 		if (isSet(object.getClass())) {
 			synchronized (internals) {
@@ -41,7 +41,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	@Override
-	public void addNew(Object object) {
+	public void addNew(final Object object) {
 		logging.trace("Trying to add a new Object(" + object + ") to Cache ..");
 		if (! isSet(object.getClass())) {
 			synchronized (internals) {
@@ -55,7 +55,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	@Override
-	public void addAndOverride(Object object) {
+	public void addAndOverride(final Object object) {
 		if (! isSet(object.getClass())) {
 			addNew(object);
 		} else {
@@ -64,19 +64,19 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	@Override
-	public void remove(Class clazz) {
+	public void remove(final Class clazz) {
 		logging.trace("Trying to isRemovable Object(" + clazz + ") to Cache ..");
 		if (isSet(clazz)) {
-			Object removedEntry;
+			final Object removedEntry;
 			synchronized (internals) {
 				removedEntry = internals.remove(clazz);
-				logging.debug("Removed entry for " + clazz + " (instance: " + removedEntry + ")");
 			}
+			logging.debug("Removed entry for " + clazz + " (instance: " + removedEntry + ")");
 			notifyAboutRemovedEntry(removedEntry);
 		}
 	}
 
-	private void notifyAboutRemovedEntry(Object object) {
+	private void notifyAboutRemovedEntry(final Object object) {
 		logging.trace("Removed Cache-entry at " + object.getClass());
 		setChanged();
 		deletedEntry(object);
@@ -84,8 +84,8 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	@SuppressWarnings ("unchecked")
-	public <T> Optional<T> get(Class<T> clazz) {
-		Object retrieved;
+	public <T> Optional<T> get(final Class<T> clazz) {
+		final Object retrieved;
 		synchronized (internals) {
 			retrieved = internals.get(clazz);
 		}
@@ -96,31 +96,31 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	@Override
-	public boolean isSet(Class<?> clazz) {
+	public boolean isSet(final Class<?> clazz) {
 		return get(clazz).isPresent();
 	}
 
 	@Override
-	public <T> void addCacheObserver(CacheObserver<T> cacheObserver) {
+	public <T> void addCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
 		addObserver(cacheObserver);
 	}
 
 	@Override
-	public <T> void removeCacheObserver(CacheObserver<T> cacheObserver) {
+	public <T> void removeCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
 		deleteObserver(cacheObserver);
 	}
 
 	@Override
-	public void addGeneralObserver(GeneralCacheObserver observer) {
+	public void addGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Adding Observer(" + observer + ") to " + toString());
 		logging.warn("It is recommended to use " + CacheObserver.class);
 		addObserver(observer);
 	}
 
 	@Override
-	public void removeGeneralObserver(GeneralCacheObserver observer) {
+	public void removeGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Removing Observer(" + observer + ") from " + toString());
 		deleteObserver(observer);
 	}

@@ -58,7 +58,7 @@ public interface Session extends Mutex {
 	 *
 	 * @param identified the new boolean value
 	 */
-	void setIdentified(boolean identified);
+	void setIdentified(final boolean identified);
 
 	/**
 	 * Returns the unique identifier of this Session.
@@ -77,7 +77,7 @@ public interface Session extends Mutex {
 	 *
 	 * @param identifier the new Identifier for this particular Session
 	 */
-	void setIdentifier(String identifier);
+	void setIdentifier(final String identifier);
 
 	/**
 	 * Returns the internal {@link Properties} instance.
@@ -97,7 +97,7 @@ public interface Session extends Mutex {
 	 *
 	 * @param properties the new {@link Properties} instance that this Session will use
 	 */
-	void setProperties(Properties properties);
+	void setProperties(final Properties properties);
 
 	/**
 	 * Sends an Object over the Network.
@@ -118,7 +118,7 @@ public interface Session extends Mutex {
 	 *
 	 * @param o the Object that should be send over the Network.
 	 */
-	void send(Object o);
+	void send(final Object o);
 
 	/**
 	 * Prepares and returns an {@link Pipeline} instance for an given Class.
@@ -133,7 +133,7 @@ public interface Session extends Mutex {
 	 * @param <T>   Generic type about the type, which this Pipeline is going to handle
 	 * @return An {@link Pipeline}-implementation, to add or modify the Event
 	 */
-	<T> Pipeline<T> eventOf(Class<T> clazz);
+	<T> Pipeline<T> eventOf(final Class<T> clazz);
 
 	/**
 	 * Triggers an before set Event, using {@link #eventOf(Class)}.
@@ -146,7 +146,7 @@ public interface Session extends Mutex {
 	 * @param <T>   the Type of the Pipeline
 	 * @throws IllegalArgumentException if no Pipeline is set
 	 */
-	<T> void triggerEvent(Class<T> clazz, T t);
+	<T> void triggerEvent(final Class<T> clazz, T t);
 
 	/**
 	 * Adds and holds an {@link HeartBeat}, which handles any Session.
@@ -156,14 +156,14 @@ public interface Session extends Mutex {
 	 *
 	 * @param heartBeat the HeartBeat that should be added to this Session
 	 */
-	void addHeartBeat(HeartBeat<Session> heartBeat);
+	void addHeartBeat(final HeartBeat<Session> heartBeat);
 
 	/**
 	 * Removes an previously set {@link HeartBeat} instance, using the {@link #addHeartBeat(HeartBeat)} method.
 	 *
 	 * @param heartBeat the HeartBeat that should be removed from this Session
 	 */
-	void removeHeartBeat(HeartBeat<Session> heartBeat);
+	void removeHeartBeat(final HeartBeat<Session> heartBeat);
 
 	/**
 	 * This method is only used by the {@link com.github.thorbenkuck.netcom2.network.shared.clients.ClientImpl}.

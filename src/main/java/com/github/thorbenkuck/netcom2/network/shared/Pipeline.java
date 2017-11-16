@@ -4,11 +4,11 @@ import java.util.function.Consumer;
 
 public interface Pipeline<T> {
 
-	PipelineCondition<T> addLast(Consumer<T> consumer);
+	PipelineCondition<T> addLast(final Consumer<T> consumer);
 
-	PipelineCondition<T> addFirst(Consumer<T> consumer);
+	PipelineCondition<T> addFirst(final Consumer<T> consumer);
 
-	boolean remove(Consumer<T> pipelineService);
+	boolean remove(final Consumer<T> pipelineService);
 
 	boolean clear();
 
@@ -24,8 +24,8 @@ public interface Pipeline<T> {
 
 	boolean isOpen();
 
-	void ifClosed(Consumer<Pipeline<T>> consumer);
+	void ifClosed(final Consumer<Pipeline<T>> consumer);
 
-	void ifClosed(Runnable runnable);
+	void ifClosed(final Runnable runnable);
 
 }

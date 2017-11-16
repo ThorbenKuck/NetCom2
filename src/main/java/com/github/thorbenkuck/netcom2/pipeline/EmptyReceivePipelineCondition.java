@@ -7,10 +7,10 @@ import java.util.function.Predicate;
 
 class EmptyReceivePipelineCondition<T> implements ReceivePipelineCondition<T> {
 	@Override
-	public void withRequirement(BiPredicate<Session, T> userPredicate) {
+	public void withRequirement(final BiPredicate<Session, T> userPredicate) {
 	}
 
 	@Override
-	public void withRequirement(Predicate<Session> userPredicate) {
+	public void withRequirement(final Predicate<Session> userPredicate) {
 	}
 }

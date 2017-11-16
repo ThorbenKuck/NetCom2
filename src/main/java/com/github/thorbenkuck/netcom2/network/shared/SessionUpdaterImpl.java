@@ -10,16 +10,16 @@ class SessionUpdaterImpl implements SessionUpdater {
 	private final Session session;
 	private final Logging logging = Logging.unified();
 
-	SessionUpdaterImpl(Session session) {
+	SessionUpdaterImpl(final Session session) {
 		this.session = session;
 	}
 
 	@Override
-	public SessionUpdater updateIdentified(boolean to) {
+	public SessionUpdater updateIdentified(final boolean to) {
 		try {
 			session.acquire();
 			session.setIdentified(to);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			session.release();
@@ -28,11 +28,11 @@ class SessionUpdaterImpl implements SessionUpdater {
 	}
 
 	@Override
-	public SessionUpdater updateProperties(Properties properties) {
+	public SessionUpdater updateProperties(final Properties properties) {
 		try {
 			session.acquire();
 			session.setProperties(properties);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			session.release();
@@ -41,11 +41,11 @@ class SessionUpdaterImpl implements SessionUpdater {
 	}
 
 	@Override
-	public SessionUpdater updateIdentifier(String identifier) {
+	public SessionUpdater updateIdentifier(final String identifier) {
 		try {
 			session.acquire();
 			session.setIdentifier(identifier);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			session.release();
@@ -55,7 +55,7 @@ class SessionUpdaterImpl implements SessionUpdater {
 
 	@Override
 	public void sendOverNetwork() {
-		Session toSend = new SessionImpl(null);
+		final Session toSend = new SessionImpl(null);
 		toSend.update()
 				.updateProperties(new Properties(session.getProperties()))
 				.updateIdentifier(session.getIdentifier())

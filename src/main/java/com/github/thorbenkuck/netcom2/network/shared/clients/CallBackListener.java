@@ -5,19 +5,19 @@ import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
 
 public class CallBackListener implements CallBack<Object> {
 
-	private ListenAndExpect listener;
+	private final ListenAndExpect listener;
 
-	public CallBackListener(ListenAndExpect listener) {
+	public CallBackListener(final ListenAndExpect listener) {
 		this.listener = listener;
 	}
 
 	@Override
-	public void accept(Object object) {
+	public void accept(final Object object) {
 		listener.tryAccept(object.getClass());
 	}
 
 	@Override
-	public boolean isAcceptable(Object object) {
+	public boolean isAcceptable(final Object object) {
 		return listener.isAcceptable(object.getClass());
 	}
 

@@ -9,17 +9,17 @@ class CallBackFeasibleWrapper implements CallBack<Object> {
 
 	private final Feasible<Class> feasible;
 
-	CallBackFeasibleWrapper(Feasible<Class> feasible) {
+	CallBackFeasibleWrapper(final Feasible<Class> feasible) {
 		this.feasible = feasible;
 	}
 
 	@Override
-	public void accept(Object object) {
+	public void accept(final Object object) {
 		feasible.tryAccept(object.getClass());
 	}
 
 	@Override
-	public boolean isAcceptable(Object object) {
+	public boolean isAcceptable(final Object object) {
 		return feasible.isAcceptable(object);
 	}
 

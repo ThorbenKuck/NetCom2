@@ -11,7 +11,7 @@ public interface ReceivePipelineCondition<T> {
 		return new EmptyReceivePipelineCondition<>();
 	}
 
-	void withRequirement(BiPredicate<Session, T> userPredicate);
+	void withRequirement(final BiPredicate<Session, T> userPredicate);
 
-	void withRequirement(Predicate<Session> userPredicate);
+	void withRequirement(final Predicate<Session> userPredicate);
 }

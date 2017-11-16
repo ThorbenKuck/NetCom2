@@ -13,12 +13,13 @@ import java.net.Socket;
 @Synchronized
 public class UDPDefaultConnection extends AbstractConnection {
 
-	UDPDefaultConnection(Socket socket, Session session, ReceivingService receivingService, SendingService sendingService, Class<?> key) {
+	UDPDefaultConnection(final Socket socket, final Session session, final ReceivingService receivingService,
+						 final SendingService sendingService, final Class<?> key) {
 		super(socket, sendingService, receivingService, session, key);
 	}
 
 	@Override
-	void receivedObject(Object o) {
+	void receivedObject(final Object o) {
 		logging.debug("[UDP] Received " + o + " from Connection");
 	}
 
@@ -28,12 +29,12 @@ public class UDPDefaultConnection extends AbstractConnection {
 	}
 
 	@Override
-	protected void beforeSend(Object o) {
+	protected void beforeSend(final Object o) {
 		logging.debug("[UDP] Preparing to send " + o + " over the Connection!");
 	}
 
 	@Override
-	protected void afterSend(Object o) {
+	protected void afterSend(final Object o) {
 		logging.debug("[UDP] Send " + o + " over the Connection!");
 	}
 }
