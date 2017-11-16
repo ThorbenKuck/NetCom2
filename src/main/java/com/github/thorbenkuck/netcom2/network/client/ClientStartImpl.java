@@ -28,7 +28,7 @@ public class ClientStartImpl implements ClientStart {
 	private final ClientConnector clientConnector;
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
-	AtomicBoolean launched;
+	AtomicBoolean launched = new AtomicBoolean(false);
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
 	private Client client;
