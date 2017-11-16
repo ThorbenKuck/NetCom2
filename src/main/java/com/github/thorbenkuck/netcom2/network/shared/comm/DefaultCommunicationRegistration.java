@@ -9,7 +9,9 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +29,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> ReceivePipeline<T> register(Class<T> clazz) {
+	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
 		mapping.computeIfAbsent(clazz, k -> {
 			logging.trace("Creating ReceivingPipeline for " + clazz);
 			return new QueuedReceivePipeline<>(clazz);
@@ -37,7 +39,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@Override
-	public void unRegister(Class clazz) {
+	public void unRegister(final Class clazz) {
 		if (!isRegistered(clazz)) {
 			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
 			return;
@@ -53,7 +55,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@Override
-	public <T> void trigger(Class<T> clazz, Connection connection, Session session, Object o)
+	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
 		requireNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
@@ -68,18 +70,19 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@Override
-	public void addDefaultCommunicationHandler(OnReceiveSingle<Object> defaultCommunicationHandler) {
+	public void addDefaultCommunicationHandler(final OnReceiveSingle<Object> defaultCommunicationHandler) {
 		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
 	}
 
 	@Override
-	public void addDefaultCommunicationHandler(OnReceive<Object> defaultCommunicationHandler) {
+	public void addDefaultCommunicationHandler(final OnReceive<Object> defaultCommunicationHandler) {
 		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
 	}
 
 	@Override
-	public void addDefaultCommunicationHandler(OnReceiveTriple<Object> defaultCommunicationHandler) {
+	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
+		requireNotNull(defaultCommunicationHandler);
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
@@ -95,12 +98,12 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public void clearAllEmptyPipelines() {
 		logging.trace("Trying to find empty ReceivePipelines and deleting them to free memory");
-		List<Class> keyList;
+		final List<Class> keyList;
 		synchronized (mapping) {
 			keyList = new ArrayList<>(mapping.keySet());
 		}
 
-		for (Class key : keyList) {
+		for (final Class key : keyList) {
 			ReceivePipeline receivePipeline = mapping.get(key);
 			// Skip the sealed.
 			if (receivePipeline.isSealed()) {
@@ -113,7 +116,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@Override
-	public void updateBy(CommunicationRegistration communicationRegistration) {
+	public void updateBy(final CommunicationRegistration communicationRegistration) {
 		try {
 			communicationRegistration.acquire();
 			mapping.clear();
@@ -138,12 +141,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void requireNotNull(Object... objects) {
-		for (Object o : objects) {
-			Objects.requireNonNull(o);
-		}
+		Requirements.assertNotNull(objects);
 	}
 
-	private void sanityCheck(Class<?> clazz, Object o) {
+	private void sanityCheck(final Class<?> clazz, final Object o) {
 		if (!(o != null && clazz.equals(o.getClass()))) {
 			throw new IllegalArgumentException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
@@ -151,7 +152,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void handleNotRegistered(Class<?> clazz, Connection connection, Session session, Object o)
+	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
@@ -163,13 +164,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> void triggerExisting(Class<T> clazz, Connection connection, Session session, Object o) {
+	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session, final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 		try {
 			logging.trace("Performing required type casts ..");
 			logging.trace("Casting ReceivePipeline ..");
-			ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
+			final ReceivePipeline<T> receivePipeline = (ReceivePipeline<T>) mapping.get(clazz);
 			if (receivePipeline == null) {
 				throw new ConcurrentModificationException(
 						"ReceivePipeline for " + clazz + " was removed whilst trying to trigger it!");
@@ -183,8 +184,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void runDefaultCommunicationHandler(Connection connection, Session session, Object o) {
-		List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
+	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
+		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
@@ -197,7 +198,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private <T> void handleRegistered(ReceivePipeline<T> pipeline, Connection connection, Session session, T o) {
+	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection, final Session session, final T o) {
 		try {
 			pipeline.acquire();
 			pipeline.run(connection, session, o);

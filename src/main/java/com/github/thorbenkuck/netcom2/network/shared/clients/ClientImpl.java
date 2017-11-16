@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
-import com.github.thorbenkuck.netcom2.utility.Validate;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.IOException;
 import java.util.*;
@@ -351,7 +351,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setID(ClientID id) {
-		Validate.parameterNotNull(id);
+		Requirements.parameterNotNull(id);
 		try {
 			idLock.lock();
 			if (!ClientID.isEmpty(this.id)) {
@@ -368,7 +368,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setConnection(Class key, Connection connection) {
-		Validate.parameterNotNull(key, connection);
+		Requirements.parameterNotNull(key, connection);
 		logging.debug("Setting new Connection for " + key);
 		try {
 			connectionLock.lock();
@@ -386,7 +386,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void routeConnection(Class originalKey, Class newKey) {
-		Validate.parameterNotNull(originalKey);
+		Requirements.parameterNotNull(originalKey);
 
 		Connection connection;
 		try {
@@ -398,7 +398,7 @@ class ClientImpl implements Client {
 			connectionLock.unlock();
 		}
 
-		Validate.parameterNotNull(connection, "No Connection found for given key: " + originalKey);
+		Requirements.parameterNotNull(connection, "No Connection found for given key: " + originalKey);
 
 		routeConnection(connection, newKey);
 	}
@@ -431,7 +431,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void routeConnection(Connection originalConnection, Class newKey) {
-		Validate.parameterNotNull(originalConnection);
+		Requirements.parameterNotNull(originalConnection);
 
 		try {
 			connectionLock.lock();
