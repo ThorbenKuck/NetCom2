@@ -11,7 +11,7 @@ public class ClientID implements Serializable {
 
 	private final UUID id;
 
-	private ClientID(UUID id) {
+	private ClientID(final UUID id) {
 		this.id = id;
 	}
 
@@ -27,11 +27,11 @@ public class ClientID implements Serializable {
 		return new ClientID(UUID.fromString(s));
 	}
 
-	public static boolean isEmpty(ClientID clientID) {
+	public static boolean isEmpty(final ClientID clientID) {
 		return clientID.id == null;
 	}
 
-	public void ifEmpty(Runnable runnable) {
+	public void ifEmpty(final Runnable runnable) {
 		if (isEmpty()) {
 			runnable.run();
 		}
@@ -41,14 +41,14 @@ public class ClientID implements Serializable {
 		return id == null;
 	}
 
-	public void ifNotEmpty(Runnable runnable) {
+	public void ifNotEmpty(final Runnable runnable) {
 		if (! isEmpty()) {
 			runnable.run();
 		}
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		return o != null && (o.getClass().equals(ClientID.class) && ((ClientID) o).id.equals(id));
 	}
 

@@ -2,15 +2,15 @@ package com.github.thorbenkuck.netcom2.exceptions;
 
 public class NetComRuntimeException extends RuntimeException {
 
-	public NetComRuntimeException(String message) {
+	public NetComRuntimeException(final String message) {
 		super(message);
 	}
 
-	public NetComRuntimeException(Throwable throwable) {
+	public NetComRuntimeException(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public NetComRuntimeException(String message, Throwable throwable) {
+	public NetComRuntimeException(final String message, final Throwable throwable) {
 		super(message, throwable);
 	}
 

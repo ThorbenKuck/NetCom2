@@ -15,7 +15,7 @@ public abstract class AbstractSynchronize implements Synchronize {
 		this(1);
 	}
 
-	protected AbstractSynchronize(int numberOfActions) {
+	protected AbstractSynchronize(final int numberOfActions) {
 		if (numberOfActions < 1) {
 			throw new IllegalArgumentException("Number of actions cannot be smaller than 1!");
 		}

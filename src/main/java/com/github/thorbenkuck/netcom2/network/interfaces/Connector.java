@@ -6,9 +6,9 @@ import java.io.IOException;
 
 public interface Connector<Factory, Return> {
 
-	Return establishConnection(Factory factory) throws IOException, StartFailedException;
+	Return establishConnection(final Factory factory) throws IOException, StartFailedException;
 
-	Return establishConnection(Class key, Factory factory) throws IOException, StartFailedException;
+	Return establishConnection(final Class key, final Factory factory) throws IOException, StartFailedException;
 
 	void shutDown() throws IOException;
 

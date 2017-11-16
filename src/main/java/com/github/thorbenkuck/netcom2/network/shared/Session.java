@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.server.ClientSendBridge;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
@@ -22,7 +23,7 @@ import java.util.Properties;
  *
  * Otherwise you can feel free to create an custom Session.
  */
-public interface Session {
+public interface Session extends Mutex {
 
 	/**
 	 * Returns a new instance of the internal implementation of this interface.
@@ -57,7 +58,7 @@ public interface Session {
 	 *
 	 * @param identified the new boolean value
 	 */
-	void setIdentified(boolean identified);
+	void setIdentified(final boolean identified);
 
 	/**
 	 * Returns the unique identifier of this Session.
@@ -76,7 +77,7 @@ public interface Session {
 	 *
 	 * @param identifier the new Identifier for this particular Session
 	 */
-	void setIdentifier(String identifier);
+	void setIdentifier(final String identifier);
 
 	/**
 	 * Returns the internal {@link Properties} instance.
@@ -96,7 +97,7 @@ public interface Session {
 	 *
 	 * @param properties the new {@link Properties} instance that this Session will use
 	 */
-	void setProperties(Properties properties);
+	void setProperties(final Properties properties);
 
 	/**
 	 * Sends an Object over the Network.
@@ -117,7 +118,7 @@ public interface Session {
 	 *
 	 * @param o the Object that should be send over the Network.
 	 */
-	void send(Object o);
+	void send(final Object o);
 
 	/**
 	 * Prepares and returns an {@link Pipeline} instance for an given Class.
@@ -132,7 +133,7 @@ public interface Session {
 	 * @param <T>   Generic type about the type, which this Pipeline is going to handle
 	 * @return An {@link Pipeline}-implementation, to add or modify the Event
 	 */
-	<T> Pipeline<T> eventOf(Class<T> clazz);
+	<T> Pipeline<T> eventOf(final Class<T> clazz);
 
 	/**
 	 * Triggers an before set Event, using {@link #eventOf(Class)}.
@@ -145,7 +146,7 @@ public interface Session {
 	 * @param <T>   the Type of the Pipeline
 	 * @throws IllegalArgumentException if no Pipeline is set
 	 */
-	<T> void triggerEvent(Class<T> clazz, T t);
+	<T> void triggerEvent(final Class<T> clazz, T t);
 
 	/**
 	 * Adds and holds an {@link HeartBeat}, which handles any Session.
@@ -155,14 +156,14 @@ public interface Session {
 	 *
 	 * @param heartBeat the HeartBeat that should be added to this Session
 	 */
-	void addHeartBeat(HeartBeat<Session> heartBeat);
+	void addHeartBeat(final HeartBeat<Session> heartBeat);
 
 	/**
 	 * Removes an previously set {@link HeartBeat} instance, using the {@link #addHeartBeat(HeartBeat)} method.
 	 *
 	 * @param heartBeat the HeartBeat that should be removed from this Session
 	 */
-	void removeHeartBeat(HeartBeat<Session> heartBeat);
+	void removeHeartBeat(final HeartBeat<Session> heartBeat);
 
 	/**
 	 * This method is only used by the {@link com.github.thorbenkuck.netcom2.network.shared.clients.ClientImpl}.
@@ -193,4 +194,14 @@ public interface Session {
 	 * The use of this Method is certainly not forbidden, but discouraged. Calling this method might screw up the internal mechanisms.
 	 */
 	void newPrimation();
+
+	/**
+	 * This is a functional style of updating the Session.
+	 *
+	 * If you use this on the Client-Side, note that calling {@link SessionUpdater#sendOverNetwork()} will NOT update the
+	 * Session on the Server-Side
+	 *
+	 * @return a new {@link SessionUpdater} instance for you to use.
+	 */
+	SessionUpdater update();
 }

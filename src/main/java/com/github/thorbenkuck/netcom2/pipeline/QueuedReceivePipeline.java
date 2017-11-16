@@ -11,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -22,27 +23,28 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
 	private final ReceiveObjectHandlerWrapper receiveObjectHandlerWrapper = new ReceiveObjectHandlerWrapper();
+	private final Semaphore semaphore = new Semaphore(1);
 	private boolean closed = false;
 	private boolean sealed = false;
 	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
 
-	public QueuedReceivePipeline(Class<T> clazz) {
+	public QueuedReceivePipeline(final Class<T> clazz) {
 		this.clazz = clazz;
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLast(OnReceive<T> onReceive) {
+	public ReceivePipelineCondition<T> addLast(final OnReceive<T> onReceive) {
 		return addLast(new OnReceiveWrapper<>(onReceive));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> onReceiveSingle) {
+	public ReceivePipelineCondition<T> addLast(final OnReceiveSingle<T> onReceiveSingle) {
 		return addLast(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLast(OnReceiveTriple<T> pipelineService) {
-		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
+	public ReceivePipelineCondition<T> addLast(final OnReceiveTriple<T> pipelineService) {
+		final PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
 		ifClosed(() -> falseAdd(pipelineService));
 		ifOpen(() -> {
 			synchronized (core) {
@@ -55,23 +57,23 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirst(OnReceive<T> onReceive) {
+	public ReceivePipelineCondition<T> addFirst(final OnReceive<T> onReceive) {
 		return addFirst(new OnReceiveWrapper<>(onReceive));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirst(OnReceiveSingle<T> pipelineService) {
+	public ReceivePipelineCondition<T> addFirst(final OnReceiveSingle<T> pipelineService) {
 		return addFirst(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirst(OnReceiveTriple<T> pipelineService) {
-		PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
+	public ReceivePipelineCondition<T> addFirst(final OnReceiveTriple<T> pipelineService) {
+		final PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
 
 		if (isClosed()) {
 			falseAdd(pipelineService);
 		} else {
-			Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
+			final Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
 			newCore.add(pipelineReceiver);
 			synchronized (core) {
 				newCore.addAll(core);
@@ -85,49 +87,49 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirstIfNotContained(OnReceive<T> pipelineService) {
+	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceive<T> pipelineService) {
 		return addFirstIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveSingle<T> pipelineService) {
+	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveSingle<T> pipelineService) {
 		return addFirstIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveTriple<T> pipelineService) {
+		if (!contains(pipelineService)) {
 			return addFirst(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLastIfNotContained(OnReceive<T> pipelineService) {
+	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceive<T> pipelineService) {
 		return addLastIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveSingle<T> pipelineService) {
+	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveSingle<T> pipelineService) {
 		return addLastIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService) {
+		if (!contains(pipelineService)) {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
 	}
 
 	@Override
-	public ReceivePipelineCondition<T> to(Object object) {
+	public ReceivePipelineCondition<T> to(final Object object) {
 		requiresOpen();
 		requiredNotSealed();
 		try {
 			policyLock.lock();
 			receivePipelineHandlerPolicy.prepare(this);
-			ReceivePipelineCondition<T> toReturn = addFirst(receiveObjectHandlerWrapper.wrap(object, clazz));
+			final ReceivePipelineCondition<T> toReturn = addFirst(receiveObjectHandlerWrapper.wrap(object, clazz));
 			receivePipelineHandlerPolicy.afterAdding(this);
 			return toReturn;
 		} finally {
@@ -148,17 +150,17 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public boolean contains(OnReceiveTriple<T> onReceiveTriple) {
+	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
 		return core.contains(new PipelineReceiverImpl<>(onReceiveTriple));
 	}
 
 	@Override
-	public boolean contains(OnReceive<T> onReceive) {
+	public boolean contains(final OnReceive<T> onReceive) {
 		return contains(new OnReceiveWrapper<>(onReceive));
 	}
 
 	@Override
-	public boolean contains(OnReceiveSingle<T> onReceiveSingle) {
+	public boolean contains(final OnReceiveSingle<T> onReceiveSingle) {
 		return contains(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
@@ -178,19 +180,19 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public void ifClosed(Consumer<ReceivePipeline<T>> consumer) {
+	public void ifClosed(final Consumer<ReceivePipeline<T>> consumer) {
 		ifClosed(() -> consumer.accept(this));
 	}
 
 	@Override
-	public void ifClosed(Runnable runnable) {
+	public void ifClosed(final Runnable runnable) {
 		if (closed) {
 			runnable.run();
 		}
 	}
 
 	@Override
-	public void setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy) {
+	public void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy) {
 		try {
 			policyLock.lock();
 			this.receivePipelineHandlerPolicy = receivePipelineHandlerPolicy;
@@ -200,7 +202,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public void remove(OnReceive<T> pipelineService) {
+	public void remove(final OnReceive<T> pipelineService) {
 		synchronized (core) {
 			core.remove(new PipelineReceiverImpl<>(new OnReceiveWrapper<>(pipelineService)));
 			pipelineService.onUnRegistration();
@@ -217,16 +219,17 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
-	public void run(Connection connection, Session session, T t) {
+	public void run(final Connection connection, final Session session, final T t) {
 		try {
 			synchronized (core) {
 				core.stream()
 						.filter(pipelineReceiver -> pipelineReceiver.test(connection, session, t))
-						.forEachOrdered(pipelineReceiver -> pipelineReceiver.getOnReceive().accept(connection, session, t));
+						.forEachOrdered(
+								pipelineReceiver -> pipelineReceiver.getOnReceive().accept(connection, session, t));
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			logging.error("Encountered exception!", e);
 		}
 	}
@@ -251,12 +254,12 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		closed = false;
 	}
 
-	private void falseAdd(CanBeRegistered canBeRegistered) {
+	private void falseAdd(final CanBeRegistered canBeRegistered) {
 		canBeRegistered.onAddFailed();
 	}
 
-	private void ifOpen(Runnable runnable) {
-		if (! closed) {
+	private void ifOpen(final Runnable runnable) {
+		if (!closed) {
 			runnable.run();
 		}
 	}
@@ -275,30 +278,48 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof QueuedReceivePipeline)) return false;
+		if (!(o instanceof QueuedReceivePipeline)) return false;
 
-		QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
+		final QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
+		try {
+			that.acquire();
 
-		if (closed != that.closed) return false;
-		if (sealed != that.sealed) return false;
-		if (! core.equals(that.core)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! policyLock.equals(that.policyLock)) return false;
-		if (! clazz.equals(that.clazz)) return false;
-		if (! receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
+			if (closed != that.closed) return false;
+			if (sealed != that.sealed) return false;
+			if (!core.equals(that.core)) return false;
+			if (!logging.equals(that.logging)) return false;
+			if (!policyLock.equals(that.policyLock)) return false;
+			if (!clazz.equals(that.clazz)) return false;
+			if (!receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
+				return false;
+			return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+		} catch (final InterruptedException e) {
+			logging.catching(e);
 			return false;
-		return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+		} finally {
+			that.release();
+		}
 	}
 
 	@Override
 	public String toString() {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
-				", open=" + ! closed +
+				", open=" + !closed +
 				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
 				", core=" + core +
 				'}';
+	}
+
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
 	}
 }

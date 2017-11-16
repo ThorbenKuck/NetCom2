@@ -9,17 +9,17 @@ class ReceivePipelineConditionImpl<T> implements ReceivePipelineCondition<T> {
 
 	private final PipelineReceiverImpl<T> receiver;
 
-	ReceivePipelineConditionImpl(PipelineReceiverImpl<T> receiver) {
+	ReceivePipelineConditionImpl(final PipelineReceiverImpl<T> receiver) {
 		this.receiver = receiver;
 	}
 
 	@Override
-	public final void withRequirement(BiPredicate<Session, T> userPredicate) {
+	public final void withRequirement(final BiPredicate<Session, T> userPredicate) {
 		receiver.addTriPredicate(new OnReceivePredicateWrapper<>(userPredicate));
 	}
 
 	@Override
-	public final void withRequirement(Predicate<Session> userPredicate) {
+	public final void withRequirement(final Predicate<Session> userPredicate) {
 		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
 	}
 }

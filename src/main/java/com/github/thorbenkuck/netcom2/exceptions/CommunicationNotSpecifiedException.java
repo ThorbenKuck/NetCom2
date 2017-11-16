@@ -2,15 +2,15 @@ package com.github.thorbenkuck.netcom2.exceptions;
 
 public class CommunicationNotSpecifiedException extends NetComException {
 
-	public CommunicationNotSpecifiedException(String s) {
+	public CommunicationNotSpecifiedException(final String s) {
 		super(s);
 	}
 
-	public CommunicationNotSpecifiedException(Throwable throwable) {
+	public CommunicationNotSpecifiedException(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public CommunicationNotSpecifiedException(String s, Throwable throwable) {
+	public CommunicationNotSpecifiedException(final String s, final Throwable throwable) {
 		super(s, throwable);
 	}
 }

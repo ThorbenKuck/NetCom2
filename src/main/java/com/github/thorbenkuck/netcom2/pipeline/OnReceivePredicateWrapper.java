@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -19,13 +20,13 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 
 	private final BiPredicate<Session, T> biPredicate;
 
-	OnReceivePredicateWrapper(BiPredicate<Session, T> biPredicate) {
-		Objects.requireNonNull(biPredicate);
+	OnReceivePredicateWrapper(final BiPredicate<Session, T> biPredicate) {
+		Requirements.assertNotNull(biPredicate);
 		this.biPredicate = biPredicate;
 	}
 
 	@Override
-	public final boolean test(Connection connection, Session session, T t) {
+	public final boolean test(final Connection connection, final Session session, final T t) {
 		return biPredicate.test(session, t);
 	}
 
@@ -36,7 +37,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 
 	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
-	public final boolean equals(Object o) {
+	public final boolean equals(final Object o) {
 		return o != null && biPredicate.equals(o);
 	}
 

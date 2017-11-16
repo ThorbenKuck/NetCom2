@@ -11,13 +11,13 @@ public class CachePushHandler implements OnReceiveSingle<CachePush> {
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
 
-	public CachePushHandler(Cache cache) {
+	public CachePushHandler(final Cache cache) {
 		this.cache = cache;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(CachePush o) {
+	public void accept(final CachePush o) {
 		logging.debug("Updating cache, based on received information!");
 		cache.addAndOverride(o.getObject());
 	}

@@ -20,19 +20,19 @@ public interface Connection extends Loggable {
 
 	void setup();
 
-	void removeOnDisconnectedConsumer(Consumer<Connection> consumer);
+	void removeOnDisconnectedConsumer(final Consumer<Connection> consumer);
 
-	void write(Object object);
+	void write(final Object object);
 
-	void addObjectSendListener(CallBack<Object> callBack);
+	void addObjectSendListener(final CallBack<Object> callBack);
 
-	void addObjectReceivedListener(CallBack<Object> callBack);
+	void addObjectReceivedListener(final CallBack<Object> callBack);
 
-	void setThreadPool(ExecutorService executorService);
+	void setThreadPool(final ExecutorService executorService);
 
 	Awaiting startListening();
 
-	PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer);
+	PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer);
 
 	InputStream getInputStream() throws IOException;
 
@@ -42,7 +42,7 @@ public interface Connection extends Loggable {
 
 	Session getSession();
 
-	void setSession(Session session);
+	void setSession(final Session session);
 
 	String getFormattedAddress();
 
@@ -54,5 +54,5 @@ public interface Connection extends Loggable {
 
 	Class<?> getKey();
 
-	void setKey(Class<?> connectionKey);
+	void setKey(final Class<?> connectionKey);
 }

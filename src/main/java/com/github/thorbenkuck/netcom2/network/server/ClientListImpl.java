@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -8,22 +9,24 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 @Synchronized
-class ClientListImpl extends Observable implements ClientList {
+class ClientListImpl extends Observable implements ClientList, Mutex {
 
 	private final Map<ClientID, Client> clients = new HashMap<>();
 	private final Lock clientLock = new ReentrantLock(true);
 	private final Logging logging = new NetComLogging();
+	private final Semaphore semaphore = new Semaphore(1);
 
 	ClientListImpl() {
 	}
 
 	@Override
-	public void add(Client client) {
+	public void add(final Client client) {
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
 		try {
 			clientLock.lock();
@@ -41,7 +44,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	@Override
-	public void remove(Client client) {
+	public void remove(final Client client) {
 		logging.debug("Removing Client " + client.getID() + " from ClientList");
 		try {
 			clientLock.lock();
@@ -65,7 +68,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	@Override
-	public Optional<Client> getClient(Session session) {
+	public Optional<Client> getClient(final Session session) {
 		try {
 			clientLock.lock();
 			return clients.values().stream().filter(client -> client.getSession().equals(session)).findFirst();
@@ -75,7 +78,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	@Override
-	public Optional<Client> getClient(ClientID id) {
+	public Optional<Client> getClient(final ClientID id) {
 		try {
 			clientLock.lock();
 			return clients.values().stream().filter(client -> client.getID().equals(id)).findFirst();
@@ -117,12 +120,22 @@ class ClientListImpl extends Observable implements ClientList {
 		return new ArrayList<>(clients.values());
 	}
 
+	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}
+
+	@Override
+	public void release() {
+		semaphore.release();
+	}
+
 	private class ClientIterator implements Iterator<Client> {
 
 		private Queue<Client> clients;
 		private Client current;
 
-		public ClientIterator(ClientListImpl clientList) {
+		public ClientIterator(final ClientListImpl clientList) {
 			try {
 				clientLock.lock();
 				clients = new LinkedList<>(clientList.accessInternals());

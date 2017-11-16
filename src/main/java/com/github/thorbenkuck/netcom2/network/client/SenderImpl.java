@@ -1,10 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.exceptions.UnregistrationException;
+import com.github.thorbenkuck.netcom2.exceptions.UnRegistrationException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -19,78 +18,76 @@ public class SenderImpl implements InternalSender, Loggable {
 
 	private final Client client;
 	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
-	private final Cache cache;
 	private Logging logging = new NetComLogging();
 
-	public SenderImpl(Client client, Cache cache) {
+	public SenderImpl(final Client client) {
 		this.client = client;
-		this.cache = cache;
 	}
 
 	@Override
-	public ReceiveOrSendSynchronization objectToServer(Object o) {
+	public ReceiveOrSendSynchronization objectToServer(final Object o) {
 		return client.send(o);
 	}
 
 	@Override
-	public ReceiveOrSendSynchronization objectToServer(Object o, Connection connection) {
+	public ReceiveOrSendSynchronization objectToServer(final Object o, final Connection connection) {
 		return client.send(connection, o);
 	}
 
 	@Override
-	public ReceiveOrSendSynchronization objectToServer(Object o, Class connectionKey) {
+	public ReceiveOrSendSynchronization objectToServer(final Object o, final Class connectionKey) {
 		return client.send(connectionKey, o);
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer, final Connection connection) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer, final Class connectionKey) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz) {
+	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
 		}
-		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
+		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz, Connection connection) {
+	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
 		}
-		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
+		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz, Class connectionKey) {
+	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
 		}
-		throw new UnregistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
+		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
 	@Override
@@ -103,7 +100,7 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public <T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer) {
+	public <T> void addPendingObserver(final Class<T> clazz, final CacheObserver<T> observer) {
 		if (observer.accept(clazz)) {
 			logging.debug("Added pending CacheObserver for " + clazz);
 			synchronized (pendingObservers) {
@@ -122,7 +119,7 @@ public class SenderImpl implements InternalSender, Loggable {
 
 	@SuppressWarnings ("unchecked")
 	@Override
-	public synchronized <T> CacheObserver<T> getPendingObserver(Class<T> clazz) {
+	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
@@ -130,7 +127,6 @@ public class SenderImpl implements InternalSender, Loggable {
 	public String toString() {
 		return "Sender{" +
 				"clientImpl=" + client +
-				", cache=" + cache +
 				", logging=" + logging +
 				'}';
 	}

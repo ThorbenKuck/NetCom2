@@ -10,13 +10,13 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 
 	void cleanUpCallBacks();
 
-	void addReceivingCallback(CallBack<Object> callBack);
+	void addReceivingCallback(final CallBack<Object> callBack);
 
-	void setup(Connection connection, Session session);
+	void setup(final Connection connection, final Session session);
 
-	void setSession(Session session);
+	void setSession(final Session session);
 
-	void onDisconnect(Runnable runnable);
+	void onDisconnect(final Runnable runnable);
 
 	Awaiting started();
 }

@@ -13,15 +13,15 @@ public interface ClientList extends Iterable<Client> {
 		return new ClientListImpl();
 	}
 
-	void add(Client client);
+	void add(final Client client);
 
-	void remove(Client client);
+	void remove(final Client client);
 
 	void clear();
 
-	Optional<Client> getClient(Session session);
+	Optional<Client> getClient(final Session session);
 
-	Optional<Client> getClient(ClientID ID);
+	Optional<Client> getClient(final ClientID ID);
 
 	Stream<Session> sessionStream();
 

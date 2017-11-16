@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 @FunctionalInterface
 public interface DisconnectedHandler {
-	void handle(Client client);
+	void handle(final Client client);
 
 	default int getPriority() {
 		return 10;

@@ -11,7 +11,7 @@ public class DefaultServerSocketFactory implements Factory<Integer, ServerSocket
 	private final Logging logging = Logging.unified();
 
 	@Override
-	public ServerSocket create(Integer integer) {
+	public ServerSocket create(final Integer integer) {
 		try {
 			logging.debug("Creating java.net.ServerSocket(" + integer + ")");
 			return new ServerSocket(integer);

@@ -5,25 +5,33 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
 
-class UnRegisterResponseHandler implements OnReceive<UnRegisterResponse> {
+class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
 	private final InternalSender sender;
 
-	UnRegisterResponseHandler(Cache cache, InternalSender sender) {
+	UnRegisterResponseHandler(final Cache cache, final InternalSender sender) {
 		this.cache = cache;
 		this.sender = sender;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, UnRegisterResponse o) {
+	public void accept(final UnRegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
-			logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			try {
+				cache.acquire();
+				cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				cache.release();
+			}
 		}
 	}
 }

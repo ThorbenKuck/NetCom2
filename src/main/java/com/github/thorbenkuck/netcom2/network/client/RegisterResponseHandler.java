@@ -13,17 +13,24 @@ class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 	private final Cache cache;
 	private final InternalSender sender;
 
-	RegisterResponseHandler(Cache cache, InternalSender sender) {
+	RegisterResponseHandler(final Cache cache, final InternalSender sender) {
 		this.cache = cache;
 		this.sender = sender;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, RegisterResponse o) {
+	public void accept(final Session session, final RegisterResponse o) {
 		if (o.isOkay()) {
-			cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
-			logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			try {
+				cache.acquire();
+				cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
+				logging.debug("Registered to Server-Push at " + o.getRequest().getCorrespondingClass());
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			} finally {
+				cache.release();
+			}
 		}
 	}
 }

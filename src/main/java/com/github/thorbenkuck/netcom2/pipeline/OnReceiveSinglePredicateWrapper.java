@@ -10,12 +10,12 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 
 	private final Predicate<Session> predicate;
 
-	OnReceiveSinglePredicateWrapper(Predicate<Session> predicate) {
+	OnReceiveSinglePredicateWrapper(final Predicate<Session> predicate) {
 		this.predicate = predicate;
 	}
 
 	@Override
-	public final boolean test(Connection connection, Session session, T t) {
+	public final boolean test(final Connection connection, final Session session, final T t) {
 		return predicate.test(session);
 	}
 
@@ -26,7 +26,7 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 
 	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
-	public final boolean equals(Object o) {
+	public final boolean equals(final Object o) {
 		return o != null && predicate.equals(o);
 	}
 

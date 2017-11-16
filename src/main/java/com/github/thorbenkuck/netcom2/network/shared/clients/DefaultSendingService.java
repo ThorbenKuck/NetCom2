@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.CallBack;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -34,9 +35,9 @@ class DefaultSendingService implements SendingService {
 	private boolean running = false;
 	private boolean setup = false;
 
-	DefaultSendingService(SerializationAdapter<Object, String> mainSerializationAdapter,
-						  Set<SerializationAdapter<Object, String>> fallBackSerialization,
-						  EncryptionAdapter encryptionAdapter) {
+	DefaultSendingService(final SerializationAdapter<Object, String> mainSerializationAdapter,
+						  final Set<SerializationAdapter<Object, String>> fallBackSerialization,
+						  final EncryptionAdapter encryptionAdapter) {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
 		this.encryptionAdapter = encryptionAdapter;
@@ -52,7 +53,7 @@ class DefaultSendingService implements SendingService {
 		synchronize.goOn();
 		while (running()) {
 			try {
-				Object o = toSend.take();
+				final Object o = toSend.take();
 				// Take it first, then beforeSend it in another thread!
 				threadPool.submit(() -> send(o));
 			} catch (InterruptedException e) {
@@ -65,7 +66,7 @@ class DefaultSendingService implements SendingService {
 		logging.info("SendingService stopped!");
 	}
 
-	private void send(Object o) {
+	private void send(final Object o) {
 		try {
 			logging.debug("Sending " + o + " ..");
 			logging.trace("Serializing " + o + " ..");
@@ -76,8 +77,6 @@ class DefaultSendingService implements SendingService {
 			printWriter.println(encryptionAdapter.get(toSend));
 			printWriter.flush();
 			logging.trace("Successfully wrote " + toSend + "!");
-			// help the GC
-			toSend = null;
 			logging.trace("Accepting CallBacks ..");
 			triggerCallbacks(o);
 		} catch (SerializationFailedException e) {
@@ -87,15 +86,15 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
-	private String serialize(Object o) throws SerializationFailedException {
-		SerializationFailedException serializationFailedException;
+	private String serialize(final Object o) throws SerializationFailedException {
+		final SerializationFailedException serializationFailedException;
 		try {
 			logging.trace("Trying to use mainSerializationAdapter for " + o + " .. ");
 			return mainSerializationAdapter.get(o);
 		} catch (SerializationFailedException ex) {
 			logging.trace("Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
 			serializationFailedException = new SerializationFailedException(ex);
-			for (SerializationAdapter<Object, String> adapter : fallBackSerialization) {
+			for (final SerializationAdapter<Object, String> adapter : fallBackSerialization) {
 				try {
 					logging.trace("Trying to use: " + adapter + " ..");
 					return adapter.get(o);
@@ -109,12 +108,12 @@ class DefaultSendingService implements SendingService {
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
-	private String encrypt(String s) {
+	private String encrypt(final String s) {
 		return encryptionAdapter.get(s);
 	}
 
-	private void triggerCallbacks(Object o) {
-		List<CallBack<Object>> temp;
+	private void triggerCallbacks(final Object o) {
+		final List<CallBack<Object>> temp;
 		synchronized (callBacks) {
 			temp = new ArrayList<>(callBacks);
 		}
@@ -125,7 +124,7 @@ class DefaultSendingService implements SendingService {
 		threadPool.submit(this::tryClearCallBacks);
 	}
 
-	private void deleteCallBack(CallBack<Object> callBack) {
+	private void deleteCallBack(final CallBack<Object> callBack) {
 		logging.debug("Removing " + callBack + " from SendingService ..");
 		synchronized (callBacks) {
 			callBacks.remove(callBack);
@@ -133,7 +132,7 @@ class DefaultSendingService implements SendingService {
 	}
 
 	private void tryClearCallBacks() {
-		List<CallBack<Object>> removable = new ArrayList<>();
+		final List<CallBack<Object>> removable = new ArrayList<>();
 
 		synchronized (callBacks) {
 			callBacks.stream()
@@ -148,23 +147,22 @@ class DefaultSendingService implements SendingService {
 	}
 
 	@Override
-	public void addSendDoneCallback(CallBack<Object> callback) {
+	public void addSendDoneCallback(final CallBack<Object> callback) {
 		synchronized (callBacks) {
 			callBacks.add(callback);
 		}
 	}
 
 	@Override
-	public void overrideSendingQueue(BlockingQueue<Object> linkedBlockingQueue) {
+	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
 		Objects.requireNonNull(linkedBlockingQueue);
 		logging.warn("Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
 
 	@Override
-	public void setup(OutputStream outputStream, BlockingQueue<Object> toSendFrom) {
-		Objects.requireNonNull(outputStream);
-		Objects.requireNonNull(toSendFrom);
+	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
+		Requirements.assertNotNull(outputStream, toSendFrom);
 		this.printWriter = new PrintWriter(outputStream);
 		this.toSend = toSendFrom;
 		setup = true;

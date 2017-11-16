@@ -2,20 +2,20 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
 
-class DefaultReceiveOrSendSynch implements ReceiveOrSendSynchronization {
+class DefaultReceiveOrSendSync implements ReceiveOrSendSynchronization {
 
 	private final Class<?> sendType;
-	private ListenAndExpect send;
-	private ListenAndExpect received;
+	private final ListenAndExpect send;
+	private final ListenAndExpect received;
 
-	DefaultReceiveOrSendSynch(ListenAndExpect send, ListenAndExpect received, Class<?> sendType) {
+	DefaultReceiveOrSendSync(final ListenAndExpect send, final ListenAndExpect received, final Class<?> sendType) {
 		this.send = send;
 		this.received = received;
 		this.sendType = sendType;
 	}
 
 	@Override
-	public void andWaitForReceiving(Class clazz) throws InterruptedException {
+	public void andWaitForReceiving(final Class clazz) throws InterruptedException {
 		send.andWaitFor(clazz);
 	}
 

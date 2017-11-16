@@ -13,7 +13,7 @@ class NewConnectionRequestHandler implements OnReceiveTriple<NewConnectionReques
 
 	@Asynchronous
 	@Override
-	public void accept(Connection connection, Session session, NewConnectionRequest o) {
+	public void accept(final Connection connection, final Session session, final NewConnectionRequest o) {
 		logging.info("Client of Session " + session + " requested new Connection with key: " + o.getKey());
 		logging.trace("Acknowledging request..");
 		connection.write(o);

@@ -16,10 +16,10 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	private final Logging logging = Logging.unified();
 	private final ConnectionFactory connectionFactory = new ConnectionFactory();
 	private final Client client;
-	private String address;
-	private int port;
+	private final String address;
+	private final int port;
 
-	ClientConnector(String address, int port, Client client) {
+	ClientConnector(final String address, final int port, final Client client) {
 		this.address = address;
 		this.port = port;
 		this.client = client;
@@ -28,12 +28,12 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	@Asynchronous
 	@Override
-	public Connection establishConnection(SocketFactory factory) throws IOException {
+	public Connection establishConnection(final SocketFactory factory) throws IOException {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
-		Socket socket = factory.create(port, address);
+		final Socket socket = factory.create(port, address);
 		logging.trace("Creating Connection ..");
-		Connection connection = connectionFactory.create(socket, client);
+		final Connection connection = connectionFactory.create(socket, client);
 		logging.trace("Starting to listen on new Connection ..");
 		try {
 			logging.trace("Awaiting Synchronization of new Connection ..");
@@ -49,11 +49,11 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	@Asynchronous
 	@Override
-	public Connection establishConnection(Class key, SocketFactory factory) throws IOException {
-		String prefix = "[Connection@" + key + "]: ";
+	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
+		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");
-		Connection connection = connectionFactory.create(factory.create(port, address), client, key);
+		final Connection connection = connectionFactory.create(factory.create(port, address), client, key);
 		logging.trace(prefix + "Starting to listen on new Connection ..");
 		try {
 			logging.trace(prefix + "Awaiting Synchronization of new Connection");

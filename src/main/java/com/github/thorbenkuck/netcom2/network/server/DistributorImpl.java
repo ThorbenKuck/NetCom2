@@ -38,7 +38,7 @@ class DistributorImpl implements InternalDistributor {
 	@Asynchronous
 	@Override
 	@SafeVarargs
-	public synchronized final void toSpecific(Object o, Predicate<Session>... predicates) {
+	public synchronized final void toSpecific(final Object o, final Predicate<Session>... predicates) {
 		final List<Session> clientsToSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -50,28 +50,28 @@ class DistributorImpl implements InternalDistributor {
 
 	@Asynchronous
 	@Override
-	public final void toAllIdentified(Object o) {
+	public final void toAllIdentified(final Object o) {
 		toSpecific(o, Session::isIdentified);
 	}
 
 	@Asynchronous
 	@SafeVarargs
 	@Override
-	public final void toAllIdentified(Object o, Predicate<Session>... predicates) {
-		predicates[predicates.length] = Session::isIdentified;
+	public final void toAllIdentified(final Object o, final Predicate<Session>... predicates) {
+		predicates[predicates.length - 1] = Session::isIdentified;
 		toSpecific(o, predicates);
 	}
 
 	@Asynchronous
 	@Override
-	public final void toAll(Object o) {
+	public final void toAll(final Object o) {
 		toSpecific(o, Objects::nonNull);
 	}
 
 	@Asynchronous
 	@SafeVarargs
 	@Override
-	public synchronized final void toAllExcept(Object o, Predicate<Session>... predicates) {
+	public synchronized final void toAllExcept(final Object o, final Predicate<Session>... predicates) {
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -83,15 +83,15 @@ class DistributorImpl implements InternalDistributor {
 
 	@Asynchronous
 	@Override
-	public final void toRegistered(Object o) {
+	public final void toRegistered(final Object o) {
 		toRegistered(o, Objects::nonNull);
 	}
 
 	@Asynchronous
 	@Override
 	@SafeVarargs
-	public final void toRegistered(Object o, Predicate<Session>... predicates) {
-		List<Session> toSendTo;
+	public final void toRegistered(final Object o, final Predicate<Session>... predicates) {
+		final List<Session> toSendTo;
 		synchronized (distributorRegistration) {
 			toSendTo = distributorRegistration.getRegistered(o.getClass());
 		}
@@ -105,8 +105,8 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 	@SafeVarargs
-	private final boolean testAgainst(Session session, Predicate<Session>... predicates) {
-		for (Predicate<Session> predicate : predicates) {
+	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
+		for (final Predicate<Session> predicate : predicates) {
 			if (! predicate.test(session)) {
 				return false;
 			}

@@ -7,19 +7,21 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 public class NewConnectionInitializerHandler implements OnReceiveTriple<NewConnectionInitializer> {
 
 	private final Logging logging = Logging.unified();
 	private final Client client;
 
-	public NewConnectionInitializerHandler(Client client) {
+	public NewConnectionInitializerHandler(final Client client) {
 		this.client = client;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
+	public void accept(final Connection connection, final Session session, final NewConnectionInitializer newConnectionInitializer) {
+		Requirements.assertNotNull(connection, newConnectionInitializer);
 		logging.info("Setting new Connection to Key " + newConnectionInitializer.getConnectionKey());
 		client.setConnection(newConnectionInitializer.getConnectionKey(), connection);
 	}

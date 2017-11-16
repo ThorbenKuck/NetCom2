@@ -39,21 +39,21 @@ public interface Logging {
 		return new ErrorLogging();
 	}
 
-	void trace(String s);
+	void trace(final String s);
 
-	void debug(String s);
+	void debug(final String s);
 
-	void info(String s);
+	void info(final String s);
 
-	void warn(String s);
+	void warn(final String s);
 
-	void error(String s);
+	void error(final String s);
 
-	void error(String s, Throwable throwable);
+	void error(final String s, final Throwable throwable);
 
-	void fatal(String s);
+	void fatal(final String s);
 
-	void fatal(String s, Throwable throwable);
+	void fatal(final String s, final Throwable throwable);
 
-	void catching(Throwable throwable);
+	void catching(final Throwable throwable);
 }

@@ -6,7 +6,7 @@ package com.github.thorbenkuck.netcom2.network.shared;
  * Calling the {@link Awaiting#synchronize()} method, will block the current thread, until the parallel operation is finished.
  * <p>
  * The object, that creates this element will, in some form or another create a thread, that does stuff. As soon, as it
- * is finish, the implementation of this interface will, in some form, let the synchronize method continue.
+ * is sendOverNetwork, the implementation of this interface will, in some form, let the synchronize method continue.
  */
 @FunctionalInterface
 public interface Awaiting {

@@ -8,7 +8,8 @@ import java.net.Socket;
 
 class TCPConnectionFactoryHook implements ConnectionFactoryHook {
 	@Override
-	public Connection hookup(Socket socket, Session session, SendingService sendingService, ReceivingService receivingService, Class<?> key) {
+	public Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
+							 final ReceivingService receivingService, final Class<?> key) {
 		return new TCPDefaultConnection(socket, sendingService, receivingService, session, key);
 	}
 }

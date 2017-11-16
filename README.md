@@ -6,7 +6,10 @@ It is designed to function as an over-network EventBus.
 NOTE: The documentation is still in Work!
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)    
+[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser)    
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+          
 ----
 
 ## About this framework
@@ -50,6 +53,11 @@ Also there is a NIGHTLY branch, for the inpatient.
 
 0.3_BETA (Release 09.07.2017)
 
+#### Current Development
+
+ * Completion of JavaDOC
+ * Connection Routes
+
 ## For whom this is
 
 If you are searching for a easy to use framework, that gives you the option to fastly create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
@@ -92,7 +100,7 @@ Getting started is easy. You should have basic knowledge about how a Client-Serv
 To create a server, you simply say:
 
 ```java
-ServerStart serverStart = ServerStart.of(/* your port number here */88888);
+ServerStart serverStart = ServerStart.at(/* your port number here */88888);
 ```
 
 With that done, you have to tell the ServerStart-Object to listen to Clients
@@ -114,7 +122,7 @@ Launch creates internal dependencies and acceptAllNextClients(); waits for the n
 You create a Client similiiar to a Server. You just say:
 
 ```java
-ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
+ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 ```
 
 Now, to connect, simply say:
@@ -142,14 +150,14 @@ public class Test implements Serializable {
 
 Now we want to send this from the Client to the Server. We realize this by saying:
 ```java
-ClientStart clientStart = ClientStart.of(/* address of Server */"localhost", /* port of Server*/88888);
+ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
 clientStart.send().objectToServer(new Test());
 ```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
 ```java
-ServerStart serverStart = ServerStart.of(88888);
+ServerStart serverStart = ServerStart.at(88888);
 serverStart.launch();
 
 serverStart.getCommunicationRegistration().register(Test.class).addFirst((session, o) -> {

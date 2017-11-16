@@ -6,17 +6,17 @@ import java.util.function.Predicate;
 
 public interface Distributor {
 
-	void toSpecific(Object o, Predicate<Session>... predicates);
+	void toSpecific(final Object o, final Predicate<Session>... predicates);
 
-	void toAll(Object o);
+	void toAll(final Object o);
 
-	void toAllExcept(Object o, Predicate<Session>... predicates);
+	void toAllExcept(final Object o, final Predicate<Session>... predicates);
 
-	void toAllIdentified(Object o);
+	void toAllIdentified(final Object o);
 
-	void toAllIdentified(Object o, Predicate<Session>... predicates);
+	void toAllIdentified(final Object o, final Predicate<Session>... predicates);
 
-	void toRegistered(Object o);
+	void toRegistered(final Object o);
 
-	void toRegistered(Object o, Predicate<Session>... predicates);
+	void toRegistered(final Object o, final Predicate<Session>... predicates);
 }

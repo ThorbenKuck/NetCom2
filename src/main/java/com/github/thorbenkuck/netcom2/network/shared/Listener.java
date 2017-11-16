@@ -18,7 +18,7 @@ public class Listener implements ListenAndExpect {
 	}
 
 	@Override
-	public final void andWaitFor(Class clazz) throws InterruptedException {
+	public final void andWaitFor(final Class clazz) throws InterruptedException {
 		removable = false;
 		this.t = clazz;
 		await();
@@ -31,7 +31,7 @@ public class Listener implements ListenAndExpect {
 	}
 
 	@Override
-	public final void tryAccept(Class clazz) {
+	public final void tryAccept(final Class clazz) {
 		logging.trace("Trying to match " + clazz + " to " + t);
 		if (t.equals(clazz)) {
 			trigger();
@@ -44,7 +44,7 @@ public class Listener implements ListenAndExpect {
 	}
 
 	@Override
-	public final boolean isAcceptable(Object o) {
+	public final boolean isAcceptable(final Object o) {
 		return o != null && o.getClass().equals(t);
 	}
 

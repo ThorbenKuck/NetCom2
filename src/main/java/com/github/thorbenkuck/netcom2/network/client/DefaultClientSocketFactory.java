@@ -8,7 +8,7 @@ import java.net.Socket;
 class DefaultClientSocketFactory implements SocketFactory {
 
 	@Override
-	public Socket create(int port, String address) throws IOException {
+	public Socket create(final int port, final String address) throws IOException {
 		try {
 			return new Socket(address, port);
 		} catch (IOException e) {

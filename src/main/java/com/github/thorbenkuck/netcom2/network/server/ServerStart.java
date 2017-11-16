@@ -15,19 +15,19 @@ import java.util.concurrent.ExecutorService;
 
 public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleConnections {
 
-	static ServerStart at(int port) {
+	static ServerStart at(final int port) {
 		return new ServerStartImpl(new ServerConnector(port));
 	}
 
 	void acceptAllNextClients() throws ClientConnectionFailedException;
 
-	void setPort(int port);
+	void setPort(final int port);
 
 	void acceptNextClient() throws ClientConnectionFailedException;
 
-	void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
+	void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler);
 
-	void removeClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
+	void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler);
 
 	Distributor distribute();
 
@@ -35,11 +35,11 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 
 	void disconnect();
 
-	void setServerSocketFactory(Factory<Integer, ServerSocket> factory);
+	void setServerSocketFactory(final Factory<Integer, ServerSocket> factory);
 
 	ClientList clientList();
 
 	CommunicationRegistration getCommunicationRegistration();
 
-	void setExecutorService(ExecutorService executorService);
+	void setExecutorService(final ExecutorService executorService);
 }

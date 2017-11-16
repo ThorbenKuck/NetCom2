@@ -5,14 +5,15 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Synchronized
 public class CacheObservable {
 
 	private final List<CacheObserver<?>> obs = new ArrayList<>();
-	private boolean changed = false;
+	private AtomicBoolean changed = new AtomicBoolean(false);
 
-	public <T> void addObserver(CacheObserver<T> cacheObserver) {
+	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
 		Objects.requireNonNull(cacheObserver);
 		synchronized (obs) {
 			if (! this.obs.contains(cacheObserver)) {
@@ -21,14 +22,14 @@ public class CacheObservable {
 		}
 	}
 
-	public void deleteObserver(CacheObserver<?> cacheObserver) {
+	public void deleteObserver(final CacheObserver<?> cacheObserver) {
 		synchronized (obs) {
 			obs.remove(cacheObserver);
 		}
 	}
 
-	protected <T> void newEntry(T o) {
-		Object[] observers = observersToArray();
+	protected <T> void newEntry(final T o) {
+		final Object[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; -- i) {
 			if (((CacheObserver) observers[i]).accept(o)) {
@@ -38,9 +39,9 @@ public class CacheObservable {
 	}
 
 	private Object[] observersToArray() {
-		Object[] var2;
+		final Object[] var2;
 		synchronized (this) {
-			if (! this.changed) {
+			if (! this.changed.get()) {
 				return new ArrayList().toArray();
 			}
 
@@ -51,18 +52,18 @@ public class CacheObservable {
 	}
 
 	protected void clearChanged() {
-		this.changed = false;
+		this.changed.set(false);
 	}
 
-	protected void updatedEntry(Object o) {
-		Object[] observers = observersToArray();
+	protected void updatedEntry(final Object o) {
+		final Object[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; -- i) {
 			((CacheObserver) observers[i]).updatedEntry(o, this);
 		}
 	}
 
-	protected void deletedEntry(Object o) {
+	protected void deletedEntry(final Object o) {
 		Object[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; -- i) {
@@ -71,7 +72,7 @@ public class CacheObservable {
 	}
 
 	protected void setChanged() {
-		this.changed = true;
+		this.changed.set(true);
 	}
 
 	protected void deleteObservers() {
@@ -79,7 +80,7 @@ public class CacheObservable {
 	}
 
 	public boolean hasChanged() {
-		return this.changed;
+		return this.changed.get();
 	}
 
 	public int countObservers() {

@@ -1,53 +1,54 @@
 package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 public class NetComLogging implements Logging {
 
 	private static Logging logging = Logging.getDefault();
 
 	@Override
-	public void trace(String s) {
+	public void trace(final String s) {
 		NetComLogging.getLogging().trace(s);
 	}
 
 	@Override
-	public void debug(String s) {
+	public void debug(final String s) {
 		NetComLogging.getLogging().debug(s);
 	}
 
 	@Override
-	public void info(String s) {
+	public void info(final String s) {
 		NetComLogging.getLogging().info(s);
 	}
 
 	@Override
-	public void warn(String s) {
+	public void warn(final String s) {
 		NetComLogging.getLogging().warn(s);
 	}
 
 	@Override
-	public void error(String s) {
+	public void error(final String s) {
 		NetComLogging.getLogging().error(s);
 	}
 
 	@Override
-	public void error(String s, Throwable throwable) {
+	public void error(final String s, final Throwable throwable) {
 		NetComLogging.getLogging().error(s, throwable);
 	}
 
 	@Override
-	public void fatal(String s) {
+	public void fatal(final String s) {
 		NetComLogging.getLogging().fatal(s);
 	}
 
 	@Override
-	public void fatal(String s, Throwable throwable) {
+	public void fatal(final String s, final Throwable throwable) {
 		NetComLogging.getLogging().fatal(s, throwable);
 	}
 
 	@Override
-	public void catching(Throwable throwable) {
+	public void catching(final Throwable throwable) {
 		NetComLogging.getLogging().catching(throwable);
 	}
 
@@ -55,11 +56,8 @@ public class NetComLogging implements Logging {
 		return logging;
 	}
 
-	public static void setLogging(Logging logging) {
-		if (logging == null) {
-			throw new IllegalArgumentException("Setting Logging to null is prohibited!\n" +
-					"Expected an implementation of " + Logging.class + " received: " + null);
-		}
+	public static void setLogging(final Logging logging) {
+		Requirements.parameterNotNull(logging);
 		if (NetComLogging.logging == logging) {
 			throw new IllegalArgumentException("Cyclic dependency!");
 		}

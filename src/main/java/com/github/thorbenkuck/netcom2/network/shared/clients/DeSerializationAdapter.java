@@ -17,5 +17,5 @@ public interface DeSerializationAdapter<F, T> {
 		return toReturn;
 	}
 
-	T get(F f) throws DeSerializationFailedException;
+	T get(final F f) throws DeSerializationFailedException;
 }

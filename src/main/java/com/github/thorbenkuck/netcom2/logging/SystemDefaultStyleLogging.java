@@ -19,7 +19,7 @@ public class SystemDefaultStyleLogging implements Logging {
 		this(System.out);
 	}
 
-	public SystemDefaultStyleLogging(PrintStream printStream) {
+	public SystemDefaultStyleLogging(final PrintStream printStream) {
 		out = printStream;
 	}
 
@@ -29,56 +29,56 @@ public class SystemDefaultStyleLogging implements Logging {
 	}
 
 	@Override
-	public void trace(String s) {
+	public void trace(final String s) {
 		println(getPrefix() + "TRACE : " + s);
 	}
 
 	@Override
-	public void debug(String s) {
+	public void debug(final String s) {
 		println(getPrefix() + "DEBUG : " + s);
 	}
 
 	@Override
-	public void info(String s) {
+	public void info(final String s) {
 		println(getPrefix() + "INFO : " + s);
 	}
 
 	@Override
-	public void warn(String s) {
+	public void warn(final String s) {
 		println(getPrefix() + "WARN : " + s);
 	}
 
 	@Override
-	public void error(String s) {
+	public void error(final String s) {
 		println(getPrefix() + "ERROR : " + s);
 	}
 
 	@Override
-	public void error(String s, Throwable throwable) {
+	public void error(final String s, final Throwable throwable) {
 		error(s);
 		catching(throwable);
 	}
 
 	@Override
-	public void fatal(String s) {
+	public void fatal(final String s) {
 		println(getPrefix() + "FATAL : " + s);
 	}
 
 	@Override
-	public void fatal(String s, Throwable throwable) {
+	public void fatal(final String s, final Throwable throwable) {
 		fatal(s);
 		catching(throwable);
 	}
 
 	@Override
-	public void catching(Throwable throwable) {
+	public void catching(final Throwable throwable) {
 		StringWriter sw = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(sw));
 		String stacktrace = sw.toString();
 		println(stacktrace);
 	}
 
-	private void println(String s) {
+	private void println(final String s) {
 		synchronized (out) {
 			out.println(s);
 		}

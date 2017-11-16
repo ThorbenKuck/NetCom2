@@ -11,13 +11,13 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	private final OnReceive<O> onReceive;
 
-	OnReceiveWrapper(OnReceive<O> onReceive) {
+	OnReceiveWrapper(final OnReceive<O> onReceive) {
 		Objects.requireNonNull(onReceive);
 		this.onReceive = onReceive;
 	}
 
 	@Override
-	public final void accept(Connection connection, Session session, O o) {
+	public final void accept(final Connection connection, final Session session, final O o) {
 		onReceive.accept(session, o);
 	}
 
@@ -43,7 +43,7 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
-	public final boolean equals(Object o) {
+	public final boolean equals(final Object o) {
 		return o != null && onReceive.equals(o);
 	}
 

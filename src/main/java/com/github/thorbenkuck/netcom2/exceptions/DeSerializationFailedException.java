@@ -2,15 +2,15 @@ package com.github.thorbenkuck.netcom2.exceptions;
 
 public class DeSerializationFailedException extends NetComException {
 
-	public DeSerializationFailedException(String message) {
+	public DeSerializationFailedException(final String message) {
 		super(message);
 	}
 
-	public DeSerializationFailedException(String message, Throwable cause) {
+	public DeSerializationFailedException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public DeSerializationFailedException(Throwable cause) {
+	public DeSerializationFailedException(final Throwable cause) {
 		super(cause);
 	}
 }

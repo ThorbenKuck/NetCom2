@@ -10,15 +10,15 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRespon
 class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 
 	private final Logging logging = Logging.unified();
-	private DistributorRegistration distributorRegistration;
+	private final DistributorRegistration distributorRegistration;
 
-	UnRegisterRequestReceiveHandler(DistributorRegistration distributorRegistration) {
+	UnRegisterRequestReceiveHandler(final DistributorRegistration distributorRegistration) {
 		this.distributorRegistration = distributorRegistration;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, UnRegisterRequest o) {
+	public void accept(final Session session, final UnRegisterRequest o) {
 		logging.debug("Trying to unregister session " + session + " from " + o.getCorrespondingClass());
 		distributorRegistration.removeRegistration(o.getCorrespondingClass(), session);
 		session.send(new UnRegisterResponse(o, true));

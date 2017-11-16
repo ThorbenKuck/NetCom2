@@ -37,10 +37,10 @@ class DefaultReceivingService implements ReceivingService {
 	private boolean running = false;
 	private Logging logging = Logging.unified();
 
-	DefaultReceivingService(CommunicationRegistration communicationRegistration,
-							DeSerializationAdapter<String, Object> deSerializationAdapter,
-							Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
-							DecryptionAdapter decryptionAdapter) {
+	DefaultReceivingService(final CommunicationRegistration communicationRegistration,
+							final DeSerializationAdapter<String, Object> deSerializationAdapter,
+							final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
+							final DecryptionAdapter decryptionAdapter) {
 		this.communicationRegistration = communicationRegistration;
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
@@ -54,7 +54,7 @@ class DefaultReceivingService implements ReceivingService {
 		synchronize.goOn();
 		while (running()) {
 			try {
-				String string = in.nextLine();
+				final String string = in.nextLine();
 				// First get, then execute!
 				threadPool.submit(() -> handle(string));
 			} catch (NoSuchElementException e) {
@@ -67,7 +67,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Asynchronous
-	private void handle(String string) {
+	private void handle(final String string) {
 		logging.trace("Handling " + string + " ..");
 		Object object = null;
 		try {
@@ -81,9 +81,9 @@ class DefaultReceivingService implements ReceivingService {
 			trigger(object);
 			logging.trace("Notifying Callbacks ..");
 			callBack(object);
-		} catch (DeSerializationFailedException e) {
+		} catch (final DeSerializationFailedException e) {
 			logging.error("Could not Serialize!", e);
-		} catch (Throwable throwable) {
+		} catch (final Throwable throwable) {
 			logging.error("Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!", throwable);
 		}
 	}
@@ -98,21 +98,21 @@ class DefaultReceivingService implements ReceivingService {
 		onDisconnect.run();
 	}
 
-	private String decrypt(String s) {
+	private String decrypt(final String s) {
 		return decryptionAdapter.get(s);
 	}
 
-	private Object deserialize(String string) throws DeSerializationFailedException {
-		String toDeserialize = decryptionAdapter.get(string);
-		DeSerializationFailedException deSerializationFailedException;
+	private Object deserialize(final String string) throws DeSerializationFailedException {
+		final String toDeserialize = decryptionAdapter.get(string);
+		final DeSerializationFailedException deSerializationFailedException;
 		try {
 			return deSerializationAdapter.get(toDeserialize);
-		} catch (DeSerializationFailedException ex) {
+		} catch (final DeSerializationFailedException ex) {
 			deSerializationFailedException = new DeSerializationFailedException(ex);
-			for (DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization) {
+			for (final DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization) {
 				try {
 					return adapter.get(toDeserialize);
-				} catch (DeSerializationFailedException e) {
+				} catch (final DeSerializationFailedException e) {
 					deSerializationFailedException.addSuppressed(e);
 				}
 			}
@@ -120,15 +120,22 @@ class DefaultReceivingService implements ReceivingService {
 		throw new DeSerializationFailedException(deSerializationFailedException);
 	}
 
-	private void trigger(Object object) {
+	private void trigger(final Object object) {
 		try {
-			communicationRegistration.trigger(object.getClass(), connection, session, object);
-		} catch (CommunicationNotSpecifiedException e) {
+			try {
+				communicationRegistration.acquire();
+				communicationRegistration.trigger(object.getClass(), connection, session, object);
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				communicationRegistration.release();
+			}
+		} catch (final CommunicationNotSpecifiedException e) {
 			logging.catching(e);
 		}
 	}
 
-	private void callBack(Object object) {
+	private void callBack(final Object object) {
 		logging.debug("Accepting CallBacks(" + object + ")!");
 		runSynchronizedOverCallbacks(() -> {
 			logging.trace("Calling all callbacks, that want to be called ..");
@@ -143,7 +150,7 @@ class DefaultReceivingService implements ReceivingService {
 		cleanUpCallBacks();
 	}
 
-	private void runSynchronizedOverCallbacks(Runnable runnable) {
+	private void runSynchronizedOverCallbacks(final Runnable runnable) {
 		logging.trace("Awaiting ThreadAccess over callBacks ..");
 		synchronized (callBacks) {
 			logging.trace("Acquired ThreadAccess over callBacks!");
@@ -154,7 +161,7 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public void cleanUpCallBacks() {
 		logging.debug("CallBack cleanup requested!");
-		List<CallBack<Object>> toRemove = new ArrayList<>();
+		final List<CallBack<Object>> toRemove = new ArrayList<>();
 		callBacks.stream()
 				.filter(CallBack::isRemovable)
 				.forEach(callBack -> {
@@ -166,14 +173,14 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Override
-	public void addReceivingCallback(CallBack<Object> callBack) {
+	public void addReceivingCallback(final CallBack<Object> callBack) {
 		logging.debug("Trying to add CallBack " + callBack);
 		runSynchronizedOverCallbacks(() -> callBacks.add(callBack));
 		logging.trace("Added Callback: " + callBack);
 	}
 
 	@Override
-	public void setup(Connection connection, Session session) {
+	public void setup(final Connection connection, final Session session) {
 		this.connection = connection;
 		this.session = session;
 		try {
@@ -186,12 +193,12 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Override
-	public void setSession(Session session) {
+	public void setSession(final Session session) {
 		this.session = session;
 	}
 
 	@Override
-	public void onDisconnect(Runnable runnable) {
+	public void onDisconnect(final Runnable runnable) {
 		this.onDisconnect = runnable;
 	}
 
@@ -206,7 +213,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Asynchronous
-	private void removeCallback(CallBack<Object> toRemove) {
+	private void removeCallback(final CallBack<Object> toRemove) {
 		logging.trace("Preparing to isRemovable CallBack: " + toRemove);
 		toRemove.onRemove();
 		logging.debug("Removing CallBack " + toRemove);

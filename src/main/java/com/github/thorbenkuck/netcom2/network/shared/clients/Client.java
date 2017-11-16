@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -34,7 +35,7 @@ import java.util.concurrent.ExecutorService;
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
  */
-public interface Client {
+public interface Client extends Mutex {
 
 	/**
 	 * Returns a new instance of the internal implementation of this interface.
@@ -47,7 +48,7 @@ public interface Client {
 	 * @param communicationRegistration the {@link CommunicationRegistration}, which is used by all Connections to handle received Objects
 	 * @return an instance of the internal Client implementation
 	 */
-	static Client create(CommunicationRegistration communicationRegistration) {
+	static Client create(final CommunicationRegistration communicationRegistration) {
 		return new ClientImpl(communicationRegistration);
 	}
 
@@ -63,7 +64,7 @@ public interface Client {
 	 *
 	 * @param executorService the new ExecutorService to be used within every sub class.
 	 */
-	void setThreadPool(ExecutorService executorService);
+	void setThreadPool(final ExecutorService executorService);
 
 	/**
 	 * This Method initially set's up the Client.
@@ -137,7 +138,7 @@ public interface Client {
 	 *
 	 * @param session the current internal set Session or null.
 	 */
-	void setSession(Session session);
+	void setSession(final Session session);
 
 	/**
 	 * Deletes the internal Session.
@@ -165,7 +166,7 @@ public interface Client {
 	 *
 	 * @param disconnectedHandler an instance of an DisconnectedHandler.
 	 */
-	void addDisconnectedHandler(DisconnectedHandler disconnectedHandler);
+	void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler);
 
 	/**
 	 * This Method will try to send an Object over an Connection.
@@ -179,7 +180,7 @@ public interface Client {
 	 * @param object the Object to be send over the Connection, must meet the Connection requirements to be send successfully
 	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
 	 */
-	ReceiveOrSendSynchronization send(Object object);
+	ReceiveOrSendSynchronization send(final Object object);
 
 	/**
 	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the connectionKey of an existing
@@ -190,7 +191,7 @@ public interface Client {
 	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
 	 * @see #send(Object)
 	 */
-	ReceiveOrSendSynchronization send(Class connectionKey, Object object);
+	ReceiveOrSendSynchronization send(final Class connectionKey, final Object object);
 
 	/**
 	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the concrete Connection the given Object
@@ -201,7 +202,7 @@ public interface Client {
 	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
 	 * @see #send(Object)
 	 */
-	ReceiveOrSendSynchronization send(Connection connection, Object object);
+	ReceiveOrSendSynchronization send(final Connection connection, final Object object);
 
 	/**
 	 * Returns an respective Connection for a given ConnectionKey.
@@ -211,7 +212,7 @@ public interface Client {
 	 * @param connectionKey the Key for the Connection
 	 * @return the Optional.of(connection for connectionKey)
 	 */
-	Optional<Connection> getConnection(Class connectionKey);
+	Optional<Connection> getConnection(final Class connectionKey);
 
 	/**
 	 * Creates an new Connection based upon an Class.
@@ -231,7 +232,7 @@ public interface Client {
 	 * @param connectionKey a Class as an key to identify the Connection.
 	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
 	 */
-	Awaiting createNewConnection(Class connectionKey);
+	Awaiting createNewConnection(final Class connectionKey);
 
 	/**
 	 * Returns a random Connection from this Client
@@ -272,7 +273,7 @@ public interface Client {
 	 * @param id the new ID for this client
 	 * @throws IllegalArgumentException if id == null
 	 */
-	void setID(ClientID id);
+	void setID(final ClientID id);
 
 	/**
 	 * Safes an connection for this Client.
@@ -302,7 +303,7 @@ public interface Client {
 	 * @param key        the key, through which the Connection can be used
 	 * @param connection the Connection, that should be used, when asked for the Connection
 	 */
-	void setConnection(Class key, Connection connection);
+	void setConnection(final Class key, final Connection connection);
 
 	/**
 	 * Searches for the set {@link Connection}s for the originalKey.
@@ -311,7 +312,7 @@ public interface Client {
 	 * @param newKey      the new key, which this {@link Connection} should be accessible through
 	 * @see #routeConnection(Connection, Class)
 	 */
-	void routeConnection(Class originalKey, Class newKey);
+	void routeConnection(final Class originalKey, final Class newKey);
 
 	/**
 	 * This Method routs an given {@link Connection} to an new Key.
@@ -342,7 +343,7 @@ public interface Client {
 	 * @param originalConnection the {@link Connection} that should be rerouted
 	 * @param newKey             the new key, under which the given {@link Connection} is accessible
 	 */
-	void routeConnection(Connection originalConnection, Class newKey);
+	void routeConnection(final Connection originalConnection, final Class newKey);
 
 	/**
 	 * Returns the {@link CommunicationRegistration} used by this Client.
@@ -359,7 +360,7 @@ public interface Client {
 	 *
 	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
 	 */
-	void addFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
+	void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
 
 	/**
 	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
@@ -367,14 +368,14 @@ public interface Client {
 	 * @deprecated use {@link #addFallBackSerializationAdapter(List)}
 	 */
 	@Deprecated
-	void setFallBackSerializationAdapter(List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
+	void setFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
 
 	/**
 	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
 	 *
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
 	 */
-	void addFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
+	void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 
 	/**
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
@@ -382,7 +383,7 @@ public interface Client {
 	 * @deprecated use {@link #addFallBackDeSerializationAdapter(List)}
 	 */
 	@Deprecated
-	void setFallBackDeSerializationAdapter(List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
+	void setFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 
 	/**
 	 * Adds an FallbackSerialization in form of an SerializationAdapter.
@@ -392,7 +393,7 @@ public interface Client {
 	 *
 	 * @param serializationAdapter an SerializationAdapter to be used, if the main Adapter fails
 	 */
-	void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter);
+	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
 
 	/**
 	 * Adds an FallbackDeSerialization in form of an DeSerializationAdapter.
@@ -402,7 +403,7 @@ public interface Client {
 	 *
 	 * @param deSerializationAdapter an DeSerializationAdapter to be used, if the main Adapter fails
 	 */
-	void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter);
+	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
 
 	/**
 	 * @return the set MainSerializationAdapter
@@ -420,7 +421,7 @@ public interface Client {
 	 *
 	 * @param mainSerializationAdapter the new MainSerializationAdapter
 	 */
-	void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter);
+	void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter);
 
 	/**
 	 * @return the set MainDeSerializationAdapter
@@ -436,7 +437,7 @@ public interface Client {
 	 *
 	 * @param mainDeSerializationAdapter the new Main-DeSerializationAdapter
 	 */
-	void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
 
 	/**
 	 * @return the set Set of all Fallback SerializationAdapter
@@ -461,7 +462,7 @@ public interface Client {
 	 *
 	 * @param decryptionAdapter the {@link DecryptionAdapter} that should be used in all {@link Connection} of this Client
 	 */
-	void setDecryptionAdapter(DecryptionAdapter decryptionAdapter);
+	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
 
 	/**
 	 * @return the set set EncryptionAdapter
@@ -476,7 +477,7 @@ public interface Client {
 	 *
 	 * @param encryptionAdapter the {@link EncryptionAdapter} that should be used in all {@link Connection} of this Client
 	 */
-	void setEncryptionAdapter(EncryptionAdapter encryptionAdapter);
+	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
 
 	/**
 	 * Prepares a {@link Connection} to be established soon.
@@ -500,7 +501,7 @@ public interface Client {
 	 * @param clazz the key for the new {@link Connection}, that is going to be established
 	 * @return the {@link Awaiting} to synchronize and wait for the Connection to be established.
 	 */
-	Awaiting prepareConnection(Class clazz);
+	Awaiting prepareConnection(final Class clazz);
 
 	/**
 	 * Returns, whether or not an Connection is prepared.
@@ -516,7 +517,7 @@ public interface Client {
 	 * @param clazz the identifier of the Connection
 	 * @return whether or not the Connection is prepared but not released
 	 */
-	boolean isConnectionPrepared(Class clazz);
+	boolean isConnectionPrepared(final Class clazz);
 
 	/**
 	 * Releases the internal {@link Awaiting} instance, waiting for any Connection prepared, identified by the parameter.
@@ -530,7 +531,7 @@ public interface Client {
 	 * This Method may release the internal {@link Awaiting}, but the implementation of the Awaiting is defined by the implementation
 	 * of this Client.
 	 */
-	void notifyAboutPreparedConnection(Class clazz);
+	void notifyAboutPreparedConnection(final Class clazz);
 
 	/**
 	 * Adds an faulty ID, that this Client is falsely associated with.
@@ -546,7 +547,7 @@ public interface Client {
 	 *
 	 * @param clientID the {@link ClientID} of an Client, that was created falsely
 	 */
-	void addFalseID(ClientID clientID);
+	void addFalseID(final ClientID clientID);
 
 	/**
 	 * Returns all false {@link ClientID}.
@@ -562,7 +563,7 @@ public interface Client {
 	 * @param clientID the ClientID, that should be removed
 	 * @see #addFalseID(ClientID)
 	 */
-	void removeFalseID(ClientID clientID);
+	void removeFalseID(final ClientID clientID);
 
 	/**
 	 * Removes all given false IDs from this Client.
@@ -570,5 +571,5 @@ public interface Client {
 	 * @param clientIDS a list, containing ClientIDs, that should be removed
 	 * @see #removeFalseID(ClientID)
 	 */
-	void removeFalseIDs(List<ClientID> clientIDS);
+	void removeFalseIDs(final List<ClientID> clientIDS);
 }

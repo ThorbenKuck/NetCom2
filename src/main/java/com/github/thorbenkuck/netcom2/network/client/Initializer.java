@@ -14,6 +14,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 @Synchronized
 class Initializer {
@@ -29,6 +30,7 @@ class Initializer {
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
 				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
 				final SocketFactory socketFactory) {
+		Requirements.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
@@ -45,7 +47,6 @@ class Initializer {
 	}
 
 	private synchronized void register() {
-
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
 		registerCriticalSingle(Ping.class, new PingHandler(client));
@@ -54,11 +55,18 @@ class Initializer {
 				.withRequirement((session, newConnectionInitializer) -> client.getID().equals(newConnectionInitializer.getID()) && ! ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
 
-		ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
-		pipeline.addFirst(o -> {
-		});
-		pipeline.close();
-		pipeline.seal();
+		final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
+		try {
+			pipeline.acquire();
+			pipeline.addFirst(o -> {
+			});
+			pipeline.close();
+			pipeline.seal();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			pipeline.release();
+		}
 	}
 
 	private void awaitHandshake() throws StartFailedException {
@@ -74,7 +82,8 @@ class Initializer {
 		logging.trace("Handshake complete!");
 	}
 
-	private <T> void registerCriticalSingle(Class<T> clazz, OnReceive<T> onReceive) {
+	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
+		Requirements.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		communicationRegistration.register(clazz)
@@ -82,16 +91,18 @@ class Initializer {
 		close(clazz);
 	}
 
-	private <T> ReceivePipelineCondition<T> registerCriticalSingle(Class<T> clazz, OnReceiveTriple<T> onReceive) {
+	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {
+		Requirements.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
-		ReceivePipelineCondition<T> toReturn = communicationRegistration.register(clazz)
+		final ReceivePipelineCondition<T> toReturn = communicationRegistration.register(clazz)
 				.addFirst(onReceive);
 		close(clazz);
 		return toReturn;
 	}
 
-	private <T> void registerCriticalSingle(Class<T> clazz, OnReceiveSingle<T> onReceive) {
+	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
+		Requirements.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		communicationRegistration.register(clazz)
@@ -99,15 +110,16 @@ class Initializer {
 		close(clazz);
 	}
 
-	private void close(Class<?> clazz) {
+	private void close(final Class<?> clazz) {
+		Requirements.assertNotNull(clazz);
 		logging.trace("Closing, but not sealing the CachePushReceivePipeline");
 		communicationRegistration.register(clazz).close();
 	}
 
-	private <T> void requireClear(Class<T> clazz) {
+	private <T> void requireClear(final Class<T> clazz) {
+		Requirements.assertNotNull(clazz);
 		logging.trace("Checking for the Receive Pipeline of Class " + clazz);
-		ReceivePipeline<T> receivePipeline;
-		receivePipeline = communicationRegistration.register(clazz);
+		final ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
 
 		if (receivePipeline.isSealed()) {
 			logging.warn("Found sealed ReceivePipeline " + receivePipeline + "! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
@@ -127,7 +139,8 @@ class Initializer {
 		}
 	}
 
-	private <T> void reset(Class<T> clazz) {
+	private <T> void reset(final Class<T> clazz) {
+		Requirements.assertNotNull(clazz);
 		logging.trace("Unregister of Class " + clazz + " will be performed");
 		communicationRegistration.unRegister(clazz);
 	}
@@ -145,11 +158,11 @@ class Initializer {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) return true;
 		if (! (o instanceof Initializer)) return false;
 
-		Initializer that = (Initializer) o;
+		final Initializer that = (Initializer) o;
 
 		if (! client.equals(that.client)) return false;
 		if (! communicationRegistration.equals(that.communicationRegistration)) return false;

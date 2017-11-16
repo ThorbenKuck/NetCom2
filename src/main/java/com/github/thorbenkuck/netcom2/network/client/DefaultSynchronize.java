@@ -9,7 +9,7 @@ public class DefaultSynchronize extends AbstractSynchronize {
 		this(1);
 	}
 
-	public DefaultSynchronize(int numberOfActions) {
+	public DefaultSynchronize(final int numberOfActions) {
 		super(numberOfActions);
 	}
 

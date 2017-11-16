@@ -1,18 +1,17 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 interface InternalSender extends Sender {
 
-	static InternalSender create(Client client, Cache cache) {
-		return new SenderImpl(client, cache);
+	static InternalSender create(final Client client) {
+		return new SenderImpl(client);
 	}
 
-	<T> void addPendingObserver(Class<T> clazz, CacheObserver<T> observer);
+	<T> void addPendingObserver(final Class<T> clazz, final CacheObserver<T> observer);
 
-	<T> CacheObserver<T> removePendingObserver(Class clazz);
+	<T> CacheObserver<T> removePendingObserver(final Class clazz);
 
-	<T> CacheObserver<T> getPendingObserver(Class<T> clazz);
+	<T> CacheObserver<T> getPendingObserver(final Class<T> clazz);
 }

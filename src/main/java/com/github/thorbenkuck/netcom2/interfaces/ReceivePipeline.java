@@ -11,38 +11,38 @@ import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
 import java.util.function.Consumer;
 
-public interface ReceivePipeline<T> {
-	ReceivePipelineCondition<T> addLast(OnReceive<T> pipelineService);
+public interface ReceivePipeline<T> extends Mutex {
+	ReceivePipelineCondition<T> addLast(final OnReceive<T> pipelineService);
 
-	ReceivePipelineCondition<T> addLast(OnReceiveSingle<T> pipelineService);
+	ReceivePipelineCondition<T> addLast(final OnReceiveSingle<T> pipelineService);
 
-	ReceivePipelineCondition<T> addLast(OnReceiveTriple<T> pipelineService);
+	ReceivePipelineCondition<T> addLast(final OnReceiveTriple<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirst(OnReceive<T> pipelineService);
+	ReceivePipelineCondition<T> addFirst(final OnReceive<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirst(OnReceiveSingle<T> pipelineService);
+	ReceivePipelineCondition<T> addFirst(final OnReceiveSingle<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirst(OnReceiveTriple<T> pipelineService);
+	ReceivePipelineCondition<T> addFirst(final OnReceiveTriple<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceive<T> pipelineService);
+	ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceive<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveSingle<T> pipelineService);
+	ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveSingle<T> pipelineService);
 
-	ReceivePipelineCondition<T> addFirstIfNotContained(OnReceiveTriple<T> pipelineService);
+	ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveTriple<T> pipelineService);
 
-	ReceivePipelineCondition<T> addLastIfNotContained(OnReceive<T> pipelineService);
+	ReceivePipelineCondition<T> addLastIfNotContained(final OnReceive<T> pipelineService);
 
-	ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveSingle<T> pipelineService);
+	ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveSingle<T> pipelineService);
 
-	ReceivePipelineCondition<T> addLastIfNotContained(OnReceiveTriple<T> pipelineService);
+	ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService);
 
-	ReceivePipelineCondition<T> to(Object object);
+	ReceivePipelineCondition<T> to(final Object object);
 
-	boolean contains(OnReceiveTriple<T> onReceiveTriple);
+	boolean contains(final OnReceiveTriple<T> onReceiveTriple);
 
-	boolean contains(OnReceive<T> onReceive);
+	boolean contains(final OnReceive<T> onReceive);
 
-	boolean contains(OnReceiveSingle<T> onReceiveSingle);
+	boolean contains(final OnReceiveSingle<T> onReceiveSingle);
 
 	boolean isSealed();
 
@@ -50,17 +50,17 @@ public interface ReceivePipeline<T> {
 
 	boolean isEmpty();
 
-	void ifClosed(Consumer<ReceivePipeline<T>> consumer);
+	void ifClosed(final Consumer<ReceivePipeline<T>> consumer);
 
-	void ifClosed(Runnable runnable);
+	void ifClosed(final Runnable runnable);
 
-	void setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy);
+	void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy);
 
-	void remove(OnReceive<T> pipelineService);
+	void remove(final OnReceive<T> pipelineService);
 
 	void clear();
 
-	void run(Connection connection, Session session, T t);
+	void run(final Connection connection, final Session session, final T t);
 
 	void close();
 
