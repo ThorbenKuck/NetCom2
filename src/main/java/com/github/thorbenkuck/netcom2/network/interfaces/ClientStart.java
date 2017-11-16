@@ -14,31 +14,31 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 
 public interface ClientStart extends Launch, Loggable {
 
-	static ClientStart at(String address, int port) {
+	static ClientStart at(final String address, final int port) {
 		return new ClientStartImpl(address, port);
 	}
 
 	Cache cache();
 
-	Awaiting createNewConnection(Class key);
+	Awaiting createNewConnection(final Class key);
 
-	void setSocketFactory(SocketFactory factory);
+	void setSocketFactory(final SocketFactory factory);
 
 	Sender send();
 
-	void addFallBackSerialization(SerializationAdapter<Object, String> serializationAdapter);
+	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
 
-	void addFallBackDeSerialization(DeSerializationAdapter<String, Object> deSerializationAdapter);
+	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
 
-	void setMainSerializationAdapter(SerializationAdapter<Object, String> mainSerializationAdapter);
+	void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter);
 
-	void setMainDeSerializationAdapter(DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
 
-	void addDisconnectedHandler(DisconnectedHandler disconnectedHandler);
+	void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler);
 
-	void setDecryptionAdapter(DecryptionAdapter decryptionAdapter);
+	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
 
-	void setEncryptionAdapter(EncryptionAdapter encryptionAdapter);
+	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
 
 	CommunicationRegistration getCommunicationRegistration();
 

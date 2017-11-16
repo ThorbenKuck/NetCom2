@@ -1,15 +1,15 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 public class HandlerInvocationException extends NetComRuntimeException {
-	public HandlerInvocationException(String message) {
+	public HandlerInvocationException(final String message) {
 		super(message);
 	}
 
-	public HandlerInvocationException(Throwable throwable) {
+	public HandlerInvocationException(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public HandlerInvocationException(String message, Throwable throwable) {
+	public HandlerInvocationException(final String message, final Throwable throwable) {
 		super(message, throwable);
 	}
 }

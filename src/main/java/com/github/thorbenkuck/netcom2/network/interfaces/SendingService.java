@@ -8,11 +8,11 @@ import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
 
 public interface SendingService extends Runnable, SoftStoppable {
-	void addSendDoneCallback(CallBack<Object> callback);
+	void addSendDoneCallback(final CallBack<Object> callback);
 
-	void overrideSendingQueue(BlockingQueue<Object> linkedBlockingQueue);
+	void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue);
 
-	void setup(OutputStream outputStream, BlockingQueue<Object> toSendFrom);
+	void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom);
 
 	Awaiting started();
 }

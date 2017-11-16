@@ -11,9 +11,9 @@ public interface ClientConnectedHandler {
 		return null;
 	}
 
-	void handle(Client client);
+	void handle(final Client client);
 
-	default void assertNotNull(Object o) {
+	default void assertNotNull(final Object o) {
 		if (o == null) throw new NullPointerException();
 	}
 }

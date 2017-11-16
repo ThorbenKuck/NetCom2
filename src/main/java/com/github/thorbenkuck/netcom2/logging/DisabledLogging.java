@@ -4,38 +4,38 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class DisabledLogging implements Logging {
 	@Override
-	public void trace(String s) {
+	public void trace(final String s) {
 	}
 
 	@Override
-	public void debug(String s) {
+	public void debug(final String s) {
 	}
 
 	@Override
-	public void info(String s) {
+	public void info(final String s) {
 	}
 
 	@Override
-	public void warn(String s) {
+	public void warn(final String s) {
 	}
 
 	@Override
-	public void error(String s) {
+	public void error(final String s) {
 	}
 
 	@Override
-	public void error(String s, Throwable throwable) {
+	public void error(final String s, final Throwable throwable) {
 	}
 
 	@Override
-	public void fatal(String s) {
+	public void fatal(final String s) {
 	}
 
 	@Override
-	public void fatal(String s, Throwable throwable) {
+	public void fatal(final String s, final Throwable throwable) {
 	}
 
 	@Override
-	public void catching(Throwable throwable) {
+	public void catching(final Throwable throwable) {
 	}
 }

@@ -11,12 +11,12 @@ public class ClientSendBridge implements SendBridge {
 	private final Client client;
 	private final Logging logging = Logging.unified();
 
-	public ClientSendBridge(Client client) {
+	public ClientSendBridge(final Client client) {
 		this.client = client;
 	}
 
 	@Override
-	public void send(Object o) {
+	public void send(final Object o) {
 		try {
 			client.primed().synchronize();
 			client.send(o);

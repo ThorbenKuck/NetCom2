@@ -17,19 +17,19 @@ public class DistributorRegistration {
 	DistributorRegistration() {
 	}
 
-	public void addRegistration(Class s, Session session) {
+	public void addRegistration(final Class s, final Session session) {
 		synchronized (registration) {
 			getAndCreate(s).add(session);
 		}
 		logging.debug("Session " + session + " registered for " + s);
 	}
 
-	private Set<Session> getAndCreate(Class s) {
+	private Set<Session> getAndCreate(final Class s) {
 		registration.computeIfAbsent(s, k -> new HashSet<>());
 		return registration.get(s);
 	}
 
-	public void removeRegistration(Session session) {
+	public void removeRegistration(final Session session) {
 		final List<Class> keys;
 		synchronized (registration) {
 			keys = registration.keySet().stream()
@@ -39,8 +39,8 @@ public class DistributorRegistration {
 		keys.forEach(clazz -> removeRegistration(clazz, session));
 	}
 
-	public void removeRegistration(Class s, Session session) {
-		Set<Session> set;
+	public void removeRegistration(final Class s, final Session session) {
+		final Set<Session> set;
 		synchronized (registration) {
 			set = get(s);
 			set.remove(session);
@@ -54,11 +54,11 @@ public class DistributorRegistration {
 		}
 	}
 
-	private Set<Session> get(Class s) {
+	private Set<Session> get(final Class s) {
 		return registration.get(s) != null ? registration.get(s) : new HashSet<>();
 	}
 
-	public List<Session> getRegistered(Class s) {
+	public List<Session> getRegistered(final Class s) {
 		synchronized (registration) {
 			return new ArrayList<>(get(s));
 		}

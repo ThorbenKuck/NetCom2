@@ -12,7 +12,7 @@ class ClientConnectionEstablish {
 	private final Logging logging = new NetComLogging();
 
 	@Asynchronous
-	public Awaiting newFor(Class key, Client client) {
+	public Awaiting newFor(final Class key, final Client client) {
 		Awaiting awaiting = client.prepareConnection(key);
 		logging.debug("[" + key + "]: Awaiting response from Server to establish new Connection ..");
 		client.send(new NewConnectionRequest(key));

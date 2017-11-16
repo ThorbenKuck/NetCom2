@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -10,6 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -24,9 +27,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private Connection connection;
 	private Logging logging = Logging.unified();
 
-	DefaultClientHandler(ClientList clientList, InternalDistributor distributor,
-						 CommunicationRegistration communicationRegistration,
-						 DistributorRegistration distributorRegistration) {
+	DefaultClientHandler(final ClientList clientList, final InternalDistributor distributor,
+						 final CommunicationRegistration communicationRegistration,
+						 final DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
@@ -35,12 +38,13 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	@Asynchronous
 	@Override
-	public Client create(Socket socket) {
-		Client client = Client.create(communicationRegistration);
-		ClientID id = ClientID.create();
+	public Client create(final Socket socket) {
+		assertNotNull(socket);
+		final Client client = Client.create(communicationRegistration);
+		final ClientID id = ClientID.create();
 		logging.trace("Setting new id to Client ..");
 		client.setID(id);
-		Connection connection = connectionFactory.create(socket, client);
+		final Connection connection = connectionFactory.create(socket, client);
 		logging.trace(toString() + " created Client(" + connection.getFormattedAddress() + ") ..");
 		try {
 			logging.trace("Awaiting listening finalization of connection..");
@@ -50,7 +54,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 				connection.close();
 			} catch (IOException e1) {
 				e1.addSuppressed(e);
-				throw new Error(e1);
+				throw new ClientCreationFailedException(e1);
 			}
 			throw new IllegalStateException("Cannot continue!", e);
 		}
@@ -65,10 +69,10 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	@Asynchronous
 	@Override
-	public void handle(Client client) {
+	public void handle(final Client client) {
 		assertNotNull(client);
 		logging.trace("Pinging Client ..");
-		Awaiting awaiting = client.primed();
+		final Awaiting awaiting = client.primed();
 		client.send(new Ping(client.getID()));
 		logging.trace("Adding disconnect routine");
 		client.addDisconnectedHandler(this::clearClient);
@@ -89,7 +93,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 				'}';
 	}
 
-	private void clearClient(Client client) {
+	private void clearClient(final Client client) {
 		logging.info("disconnected " + client + " ");
 		logging.trace("Removing Client(" + client + ") from ClientList");
 		clientList.remove(client);

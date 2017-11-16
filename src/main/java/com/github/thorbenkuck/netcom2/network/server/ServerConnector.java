@@ -14,7 +14,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 	private final Logging logging = Logging.unified();
 	private ServerSocket serverSocket;
 
-	ServerConnector(int port) {
+	ServerConnector(final int port) {
 		this.port = port;
 	}
 
@@ -27,7 +27,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 	}
 
 	@Override
-	public synchronized ServerSocket establishConnection(Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
+	public synchronized ServerSocket establishConnection(final Factory<Integer, ServerSocket> factory) throws IOException, StartFailedException {
 		logging.debug("Establishing ServerConnection to: " + port);
 		if (this.serverSocket == null) {
 			logging.trace("Trying to create new ServerSocket ..");
@@ -43,7 +43,7 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 	}
 
 	@Override
-	public ServerSocket establishConnection(Class key, Factory<Integer, ServerSocket> integerServerSocketFactory) throws IOException, StartFailedException {
+	public ServerSocket establishConnection(final Class key, final Factory<Integer, ServerSocket> integerServerSocketFactory) throws IOException, StartFailedException {
 		return establishConnection(integerServerSocketFactory);
 	}
 

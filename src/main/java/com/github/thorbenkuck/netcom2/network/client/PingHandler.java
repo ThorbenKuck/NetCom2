@@ -20,7 +20,7 @@ class PingHandler implements OnReceiveTriple<Ping> {
 
 	@Asynchronous
 	@Override
-	public void accept(Connection connection, Session session, Ping ping) {
+	public void accept(final Connection connection, final Session session, final Ping ping) {
 		if (! ClientID.isEmpty(client.getID())) {
 			logging.debug("Received faulty Ping..");
 			client.addFalseID(ping.getId());
@@ -42,11 +42,11 @@ class PingHandler implements OnReceiveTriple<Ping> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) return true;
 		if (! (o instanceof PingHandler)) return false;
 
-		PingHandler that = (PingHandler) o;
+		final PingHandler that = (PingHandler) o;
 
 		if (! logging.equals(that.logging)) return false;
 		return client.equals(that.client);

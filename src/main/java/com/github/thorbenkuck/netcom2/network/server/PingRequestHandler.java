@@ -20,15 +20,15 @@ class PingRequestHandler implements OnReceive<Ping> {
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, Ping ping) {
+	public void accept(final Session session, final Ping ping) {
 		logging.debug("Ping received from Session " + session);
 		logging.trace("Receiving Client for Session " + session);
-		Optional<Client> clientOptional = clients.getClient(session);
+		final Optional<Client> clientOptional = clients.getClient(session);
 		if (! clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session" + session);
 			return;
 		}
-		Client client = clientOptional.get();
+		final Client client = clientOptional.get();
 		logging.trace("Checking client! Comparing IDs: Known ID: " + client.getID() + " received ID: " + ping.getId());
 		if (client.getSession().equals(session)) {
 			logging.debug("Acknowledged!");

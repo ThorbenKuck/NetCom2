@@ -4,56 +4,56 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 public class InfoLogging implements Logging {
 
-	private final Logging logging;
+	private final Logging style;
 
 	public InfoLogging() {
 		this(new SystemDefaultStyleLogging());
 	}
 
-	public InfoLogging(Logging base) {
-		this.logging = base;
+	public InfoLogging(final Logging base) {
+		this.style = base;
 	}
 
 	@Override
-	public void trace(String s) {
+	public void trace(final String s) {
 	}
 
 	@Override
-	public void debug(String s) {
+	public void debug(final String s) {
 	}
 
 	@Override
-	public void info(String s) {
-		logging.info(s);
+	public void info(final String s) {
+		style.info(s);
 	}
 
 	@Override
-	public void warn(String s) {
-		logging.warn(s);
+	public void warn(final String s) {
+		style.warn(s);
 	}
 
 	@Override
-	public void error(String s) {
-		logging.error(s);
+	public void error(final String s) {
+		style.error(s);
 	}
 
 	@Override
-	public void error(String s, Throwable throwable) {
-		logging.error(s, throwable);
+	public void error(final String s, final Throwable throwable) {
+		style.error(s, throwable);
 	}
 
 	@Override
-	public void fatal(String s) {
-		logging.fatal(s);
+	public void fatal(final String s) {
+		style.fatal(s);
 	}
 
 	@Override
-	public void fatal(String s, Throwable throwable) {
-		logging.fatal(s, throwable);
+	public void fatal(final String s, final Throwable throwable) {
+		style.fatal(s, throwable);
 	}
 
 	@Override
-	public void catching(Throwable throwable) {
-		logging.catching(throwable);
+	public void catching(final Throwable throwable) {
+		style.catching(throwable);
 	}
 }

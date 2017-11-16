@@ -1,15 +1,15 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 public class NoCorrectHandlerFoundException extends NetComRuntimeException {
-	public NoCorrectHandlerFoundException(String message) {
+	public NoCorrectHandlerFoundException(final String message) {
 		super(message);
 	}
 
-	public NoCorrectHandlerFoundException(Throwable throwable) {
+	public NoCorrectHandlerFoundException(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public NoCorrectHandlerFoundException(String message, Throwable throwable) {
+	public NoCorrectHandlerFoundException(final String message, final Throwable throwable) {
 		super(message, throwable);
 	}
 }

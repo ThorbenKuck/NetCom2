@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.exceptions.ConnectionCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -32,9 +33,9 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, NewConnectionRequest o) {
-		Class key = o.getKey();
-		String prefix = "[" + key + "]: ";
+	public void accept(final Session session, final NewConnectionRequest o) {
+		final Class key = o.getKey();
+		final String prefix = "[" + key + "]: ";
 		client.newPrimation();
 		try {
 			logging.debug(prefix + "Got response from Server to establish new Connection! Creating the new Connection...");
@@ -45,7 +46,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			client.primed().synchronize();
 			logging.trace(prefix + "Received default ping! Client is now primed!");
 			logging.debug(prefix + "Sending a NewConnectionInitializer over the new Connection");
-			List<ClientID> toRemove = new ArrayList<>();
+			final List<ClientID> toRemove = new ArrayList<>();
 			for (ClientID toDeleteID : client.getFalseIDs()) {
 				logging.trace(prefix + "Requesting deletion of old key: " + toDeleteID);
 				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andWaitForReceiving(NewConnectionInitializer.class);
@@ -60,11 +61,11 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			}
 		} catch (IOException e) {
 			logging.fatal("Could not create Connection!", e);
-			throw new Error(e);
+			throw new ConnectionCreationFailedException(e);
 		} catch (InterruptedException e) {
 			logging.fatal("Encountered Exception while synchronizing!", e);
 			logging.fatal("No fallback! Server and Client are now possibly desynchronized!");
-			throw new Error(e);
+			throw new ConnectionCreationFailedException(e);
 		}
 	}
 }

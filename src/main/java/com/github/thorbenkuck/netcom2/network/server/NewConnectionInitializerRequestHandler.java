@@ -15,25 +15,25 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 	private final Logging logging = Logging.unified();
 	private final ClientList clients;
 
-	NewConnectionInitializerRequestHandler(ClientList clients) {
+	NewConnectionInitializerRequestHandler(final ClientList clients) {
 		this.clients = clients;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
-		Class connectionKey = newConnectionInitializer.getConnectionKey();
+	public void accept(final Connection connection, final Session session, final NewConnectionInitializer newConnectionInitializer) {
+		final Class connectionKey = newConnectionInitializer.getConnectionKey();
 		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
 		logging.debug(clients.toString());
-		String identifier = newConnectionInitializer.getID() + "@" + connectionKey;
+		final String identifier = newConnectionInitializer.getID() + "@" + connectionKey;
 		logging.debug("Received ConnectionInitializer for: " + identifier);
 		logging.trace("[" + identifier + "]: Verifying Client ..");
-		Optional<Client> clientOptional = clients.getClient(newConnectionInitializer.getID());
-		Optional<Client> toDeleteClientOptional = clients.getClient(newConnectionInitializer.getToDeleteID());
+		final Optional<Client> clientOptional = clients.getClient(newConnectionInitializer.getID());
+		final Optional<Client> toDeleteClientOptional = clients.getClient(newConnectionInitializer.getToDeleteID());
 		if (clientOptional.isPresent() && toDeleteClientOptional.isPresent()) {
 			logging.trace("[" + identifier + "]: Client exists!");
-			Client client = clientOptional.get();
-			Client toDelete = toDeleteClientOptional.get();
+			final Client client = clientOptional.get();
+			final Client toDelete = toDeleteClientOptional.get();
 			try {
 				logging.trace("Awaiting primation of sending Client ..");
 				client.primed().synchronize();

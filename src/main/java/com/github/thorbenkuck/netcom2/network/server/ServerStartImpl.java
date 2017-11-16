@@ -42,7 +42,7 @@ class ServerStartImpl implements ServerStart {
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
-	ServerStartImpl(ServerConnector serverConnector) {
+	ServerStartImpl(final ServerConnector serverConnector) {
 		logging.debug("Instantiating ServerStart ..");
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
@@ -67,7 +67,7 @@ class ServerStartImpl implements ServerStart {
 			running = true;
 		} catch (IOException e) {
 			logging.fatal("Could not start! Shutting down safely ..", e);
-			StartFailedException startFailedException = new StartFailedException(e);
+			final StartFailedException startFailedException = new StartFailedException(e);
 			try {
 				serverConnector.shutDown();
 			} catch (IOException e1) {
@@ -75,7 +75,7 @@ class ServerStartImpl implements ServerStart {
 				startFailedException.addSuppressed(e1);
 			}
 			throw startFailedException;
-		} catch (Throwable throwable) {
+		} catch (final Throwable throwable) {
 			logging.fatal("Failed to start Server, because of an unexpected Throwable", throwable);
 			throw new StartFailedException(throwable);
 		}
@@ -89,9 +89,9 @@ class ServerStartImpl implements ServerStart {
 				acceptNextClient();
 			}
 			logging.info("SoftStop detected. Disconnecting ...");
-		} catch (ClientConnectionFailedException e) {
+		} catch (final ClientConnectionFailedException e) {
 			throw new ClientConnectionFailedException(e);
-		} catch (Throwable t) {
+		} catch (final Throwable t) {
 			logging.fatal("Caught unexpected Throwable while accepting Clients!", t);
 			logging.debug("Trying to at least disconnect ..");
 			disconnect();
@@ -101,7 +101,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void setPort(int port) {
+	public void setPort(final int port) {
 		serverConnector = new ServerConnector(port);
 	}
 
@@ -111,10 +111,10 @@ class ServerStartImpl implements ServerStart {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
-		ServerSocket serverSocket = serverConnector.getServerSocket();
+		final ServerSocket serverSocket = serverConnector.getServerSocket();
 		try {
 			logging.info("Awaiting new Connection ..");
-			Socket socket = serverSocket.accept();
+			final Socket socket = serverSocket.accept();
 			logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
 			logging.trace("Handling new Connection ..");
 			try {
@@ -130,7 +130,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
+	public void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
 		logging.debug("Added ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.add(clientConnectedHandler);
@@ -138,7 +138,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void removeClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
+	public void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
 		logging.debug("Removing ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.remove(clientConnectedHandler);
@@ -162,7 +162,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void setServerSocketFactory(Factory<Integer, ServerSocket> factory) {
+	public void setServerSocketFactory(final Factory<Integer, ServerSocket> factory) {
 		if (serverSocketFactory != null) {
 			logging.debug("Overriding existing Factory " + serverSocketFactory + " with " + factory);
 		}
@@ -181,7 +181,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void setExecutorService(ExecutorService executorService) {
+	public void setExecutorService(final ExecutorService executorService) {
 		try {
 			threadPoolLock.lock();
 			this.threadPool = executorService;
@@ -194,15 +194,15 @@ class ServerStartImpl implements ServerStart {
 	 * @param socket
 	 */
 	@Asynchronous
-	private void handle(Socket socket) {
+	private void handle(final Socket socket) {
 		logging.debug("Handling new Socket: " + socket);
 		Client client = null;
 		logging.trace("Requesting handling at clientConnectedHandlers ..");
-		List<ClientConnectedHandler> clientConnectedHandlerList;
+		final List<ClientConnectedHandler> clientConnectedHandlerList;
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
 		}
-		for (ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
+		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
 			if (client == null) {
 				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
 				client = clientConnectedHandler.create(socket);
@@ -249,7 +249,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	@Override
-	public void setLogging(Logging logging) {
+	public void setLogging(final Logging logging) {
 		this.logging.trace("Updating logging ..");
 		this.logging = logging;
 		this.logging.debug("Updated logging!");
@@ -268,10 +268,10 @@ class ServerStartImpl implements ServerStart {
 
 	@Asynchronous
 	@Override
-	public Awaiting createNewConnection(Session session, Class key) {
+	public Awaiting createNewConnection(final Session session, final Class key) {
 		logging.debug("Trying to create Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
-		Optional<Client> clientOptional = clientList.getClient(session);
+		final Optional<Client> clientOptional = clientList.getClient(session);
 		if (! clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session: " + session);
 			return Synchronize.empty();

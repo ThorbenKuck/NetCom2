@@ -2,15 +2,15 @@ package com.github.thorbenkuck.netcom2.exceptions;
 
 public class StartFailedException extends NetComException {
 
-	public StartFailedException(String s) {
+	public StartFailedException(final String s) {
 		super(s);
 	}
 
-	public StartFailedException(Throwable throwable) {
+	public StartFailedException(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public StartFailedException(String s, Throwable throwable) {
+	public StartFailedException(final String s, final Throwable throwable) {
 		super(s, throwable);
 	}
 

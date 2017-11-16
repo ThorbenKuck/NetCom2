@@ -6,6 +6,6 @@ import java.net.Socket;
 @FunctionalInterface
 public interface SocketFactory {
 
-	Socket create(int port, String address) throws IOException;
+	Socket create(final int port, final String address) throws IOException;
 
 }

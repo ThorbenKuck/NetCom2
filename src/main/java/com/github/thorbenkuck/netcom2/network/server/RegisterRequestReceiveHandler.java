@@ -15,16 +15,16 @@ class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 	private DistributorRegistration distributorRegistration;
 	private com.github.thorbenkuck.netcom2.network.shared.cache.Cache Cache;
 
-	RegisterRequestReceiveHandler(DistributorRegistration distributorRegistration, Cache Cache) {
+	RegisterRequestReceiveHandler(final DistributorRegistration distributorRegistration, final Cache Cache) {
 		this.distributorRegistration = distributorRegistration;
 		this.Cache = Cache;
 	}
 
 	@Asynchronous
 	@Override
-	public void accept(Session session, RegisterRequest o) {
+	public void accept(final Session session, final RegisterRequest o) {
 		logging.debug("Trying to register " + session + " to " + o.getCorrespondingClass());
-		Class<?> clazz = o.getCorrespondingClass();
+		final Class<?> clazz = o.getCorrespondingClass();
 		distributorRegistration.addRegistration(clazz, session);
 		session.send(new RegisterResponse(o, true));
 		Cache.get(clazz).ifPresent(object -> session.send(new CachePush(object)));

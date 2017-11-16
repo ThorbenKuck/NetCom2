@@ -20,8 +20,8 @@ class Initializer {
 	private final ClientList clients;
 	private Logging logging = Logging.unified();
 
-	Initializer(InternalDistributor distributor, CommunicationRegistration communicationRegistration,
-				Cache cache, ClientList clients) {
+	Initializer(final InternalDistributor distributor, final CommunicationRegistration communicationRegistration,
+				final Cache cache, final ClientList clients) {
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
@@ -57,7 +57,7 @@ class Initializer {
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
 
 			// TO NOT CHANGE THIS!
-			ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
+			final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
 			try {
 				pipeline.acquire();
 				pipeline.setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy.ALLOW_SINGLE);
@@ -92,26 +92,26 @@ class Initializer {
 
 		private Distributor distributor;
 
-		ObserverSender(Distributor distributor) {
+		ObserverSender(final Distributor distributor) {
 			this.distributor = distributor;
 		}
 
 		@Override
-		public void newEntry(Object o, CacheObservable observable) {
+		public void newEntry(final Object o, final CacheObservable observable) {
 			logging.debug("Received a new entry for the set Cache!");
 			logging.trace("Notifying registered Clients for Class " + o.getClass());
 			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void updatedEntry(Object o, CacheObservable observable) {
+		public void updatedEntry(final Object o, final CacheObservable observable) {
 			logging.debug("Received an updated entry for the set Cache!");
 			logging.trace("Notifying registered Clients for Class " + o.getClass());
 			distributor.toRegistered(o);
 		}
 
 		@Override
-		public void deletedEntry(Object o, CacheObservable observable) {
+		public void deletedEntry(final Object o, final CacheObservable observable) {
 			logging.fatal("TODO!");
 		}
 	}

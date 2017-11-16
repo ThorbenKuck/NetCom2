@@ -5,6 +5,6 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 public interface MultipleConnections {
 
-	Awaiting createNewConnection(Session client, Class key);
+	Awaiting createNewConnection(final Session client, final Class key);
 
 }
