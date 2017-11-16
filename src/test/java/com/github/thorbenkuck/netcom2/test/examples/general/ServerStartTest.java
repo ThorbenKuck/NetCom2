@@ -24,6 +24,7 @@ public class ServerStartTest {
 	private static int port = 44444;
 	private static Logging logging = Logging.unified();
 	private static ServerStart serverStart;
+	private static final LoggingHandler loggingHandler = new LoggingHandler();
 	private static Thread starter = new Thread(() -> {
 		try {
 			start();
@@ -54,6 +55,7 @@ public class ServerStartTest {
 	private static void create() {
 		serverStart = ServerStart.at(port);
 		serverStart.addClientConnectedHandler(client -> {
+			loggingHandler.handle(client);
 			client.addFallBackDeSerialization(new TestDeSerializer());
 			client.addFallBackSerialization(new TestSerializer());
 			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
@@ -142,7 +144,7 @@ public class ServerStartTest {
 
 		@Override
 		public void handle(Client client) {
-			client.getConnection(DefaultConnection.class).ifPresent(connection -> logging.debug(connection.getFormattedAddress()));
+			logging.debug(client.getFormattedAddress());
 		}
 	}
 }
