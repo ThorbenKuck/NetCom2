@@ -16,6 +16,7 @@ public interface ConnectionFactoryHook {
 		return new TCPConnectionFactoryHook();
 	}
 
-	Connection hookup(final Socket socket, final Session session, final SendingService sendingService, final ReceivingService receivingService, final Class<?> key);
+	Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
+					  final ReceivingService receivingService, final Class<?> key);
 
 }

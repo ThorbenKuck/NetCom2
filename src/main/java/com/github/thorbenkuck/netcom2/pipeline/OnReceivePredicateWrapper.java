@@ -6,7 +6,6 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
-import java.util.Objects;
 import java.util.function.BiPredicate;
 
 /**
@@ -35,7 +34,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 		return biPredicate.hashCode();
 	}
 
-	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
+	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
 		return o != null && biPredicate.equals(o);

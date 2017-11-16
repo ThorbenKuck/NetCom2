@@ -11,7 +11,8 @@ public class PingDeSerializationAdapter implements DeSerializationAdapter<String
 		if (s.startsWith("Ping")) {
 			return deSerializePing(s);
 		}
-		throw new DeSerializationFailedException("[" + getClass().getSimpleName() + "]: " + "Only DeSerialization of Ping supported!");
+		throw new DeSerializationFailedException(
+				"[" + getClass().getSimpleName() + "]: " + "Only DeSerialization of Ping supported!");
 	}
 
 	private Object deSerializePing(final String s) {

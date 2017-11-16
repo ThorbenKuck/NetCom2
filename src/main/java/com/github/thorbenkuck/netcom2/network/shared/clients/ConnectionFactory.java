@@ -47,7 +47,8 @@ public class ConnectionFactory {
 
 		// Synchonization, so only 1 Connection at a time can be established (real speaking)
 		synchronized (this) {
-			logging.trace("Creating connection..");try {
+			logging.trace("Creating connection..");
+			try {
 				session.acquire();
 				connection = getConnection(socket, session, sendingService, receivingService, key);
 			} catch (InterruptedException e) {
@@ -82,7 +83,8 @@ public class ConnectionFactory {
 	 */
 	private ReceivingService getReceivingService(final Client client) {
 		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
-				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(), client.getDecryptionAdapter());
+				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(),
+				client.getDecryptionAdapter());
 		receivingService.onDisconnect(client::disconnect);
 		return receivingService;
 
@@ -99,7 +101,8 @@ public class ConnectionFactory {
 				client.getEncryptionAdapter());
 	}
 
-	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService, final ReceivingService receivingService, final Class<?> key) {
+	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
+									 final ReceivingService receivingService, final Class<?> key) {
 		try {
 			connectionFactoryHookLock.lock();
 			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);

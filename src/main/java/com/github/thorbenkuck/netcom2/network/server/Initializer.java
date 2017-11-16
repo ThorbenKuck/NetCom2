@@ -40,12 +40,16 @@ class Initializer {
 		synchronized (communicationRegistration) {
 			logging.trace("Registering Handler for RegisterRequest.class ..");
 			communicationRegistration.register(RegisterRequest.class)
-					.addFirstIfNotContained(new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
-					.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+					.addFirstIfNotContained(
+							new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
+					.withRequirement((session, registerRequest) -> !distributor.getDistributorRegistration()
+							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for UnRegisterRequest.class ..");
 			communicationRegistration.register(UnRegisterRequest.class)
-					.addFirstIfNotContained(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
-					.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration().getRegistered(registerRequest.getCorrespondingClass()).contains(session));
+					.addFirstIfNotContained(
+							new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
+					.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration()
+							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for Ping.class ..");
 			communicationRegistration.register(Ping.class)
 					.addFirstIfNotContained(new PingRequestHandler(clients));

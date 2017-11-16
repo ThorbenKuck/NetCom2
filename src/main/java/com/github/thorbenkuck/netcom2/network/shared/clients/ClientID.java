@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.UUID;
 
 @Synchronized
@@ -42,7 +41,7 @@ public class ClientID implements Serializable {
 	}
 
 	public void ifNotEmpty(final Runnable runnable) {
-		if (! isEmpty()) {
+		if (!isEmpty()) {
 			runnable.run();
 		}
 	}

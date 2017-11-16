@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * This annotation states that an Class is Synchronized and does not do anything inside of other Threads at any point in
  * time if any Method is called.
  */
-@Target (ElementType.TYPE)
-@Retention (RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Synchronized {
 }

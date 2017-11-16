@@ -7,6 +7,18 @@ public class NetComLogging implements Logging {
 
 	private static Logging logging = Logging.getDefault();
 
+	private static Logging getLogging() {
+		return logging;
+	}
+
+	public static void setLogging(final Logging logging) {
+		Requirements.parameterNotNull(logging);
+		if (NetComLogging.logging == logging) {
+			throw new IllegalArgumentException("Cyclic dependency!");
+		}
+		NetComLogging.logging = logging;
+	}
+
 	@Override
 	public void trace(final String s) {
 		NetComLogging.getLogging().trace(s);
@@ -50,18 +62,6 @@ public class NetComLogging implements Logging {
 	@Override
 	public void catching(final Throwable throwable) {
 		NetComLogging.getLogging().catching(throwable);
-	}
-
-	private static Logging getLogging() {
-		return logging;
-	}
-
-	public static void setLogging(final Logging logging) {
-		Requirements.parameterNotNull(logging);
-		if (NetComLogging.logging == logging) {
-			throw new IllegalArgumentException("Cyclic dependency!");
-		}
-		NetComLogging.logging = logging;
 	}
 
 	@Override

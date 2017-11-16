@@ -79,7 +79,7 @@ public interface Client extends Mutex {
 	 * running Mechanism, which requires the Session.
 	 * <p>
 	 * This method is to be understood as the initial setup of an Client. It is called upon its creation and not again later.
-	 *
+	 * <p>
 	 * Implementation Aspects: Call this Method within the constructor, or make clear, that it has to be called as soon as
 	 * possible. Further you might disable any other call, after the first.
 	 */
@@ -375,7 +375,8 @@ public interface Client extends Mutex {
 	 *
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
 	 */
-	void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
+	void addFallBackDeSerializationAdapter(
+			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 
 	/**
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
@@ -383,7 +384,8 @@ public interface Client extends Mutex {
 	 * @deprecated use {@link #addFallBackDeSerializationAdapter(List)}
 	 */
 	@Deprecated
-	void setFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
+	void setFallBackDeSerializationAdapter(
+			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 
 	/**
 	 * Adds an FallbackSerialization in form of an SerializationAdapter.

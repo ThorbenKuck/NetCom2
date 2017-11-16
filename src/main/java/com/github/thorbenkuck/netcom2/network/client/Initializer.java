@@ -50,9 +50,12 @@ class Initializer {
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
 		registerCriticalSingle(Ping.class, new PingHandler(client));
-		registerCriticalSingle(NewConnectionRequest.class, new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
+		registerCriticalSingle(NewConnectionRequest.class,
+				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
-				.withRequirement((session, newConnectionInitializer) -> client.getID().equals(newConnectionInitializer.getID()) && ! ClientID.isEmpty(newConnectionInitializer.getID()));
+				.withRequirement((session, newConnectionInitializer) ->
+						client.getID().equals(newConnectionInitializer.getID()) &&
+								!ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
 
 		final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
@@ -91,7 +94,8 @@ class Initializer {
 		close(clazz);
 	}
 
-	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {
+	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz,
+																   final OnReceiveTriple<T> onReceive) {
 		Requirements.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
@@ -122,20 +126,24 @@ class Initializer {
 		final ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
 
 		if (receivePipeline.isSealed()) {
-			logging.warn("Found sealed ReceivePipeline " + receivePipeline + "! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
-			if (! receivePipeline.isClosed()) {
-				logging.fatal("You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
+			logging.warn("Found sealed ReceivePipeline " + receivePipeline +
+					"! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
+			if (!receivePipeline.isClosed()) {
+				logging.fatal(
+						"You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
 				reset(clazz);
 				logging.info("Do not seal open ReceivePipelines, that handle NetCom2 internal mechanisms!");
 				return;
 			}
 		}
 
-		if (! receivePipeline.isClosed() && ! receivePipeline.isEmpty()) {
-			logging.warn("Found non-empty, open ReceivePipeline " + receivePipeline + ". This should not happen. Clearing ReceivePipeline");
+		if (!receivePipeline.isClosed() && !receivePipeline.isEmpty()) {
+			logging.warn("Found non-empty, open ReceivePipeline " + receivePipeline +
+					". This should not happen. Clearing ReceivePipeline");
 			logging.trace("Clearing ReceivePipeline ..");
 			receivePipeline.clear();
-			logging.info("If you want to intersect the default-NetCom2-Communication, make sure to do so, after the internal requirements have been resolved and close it again!");
+			logging.info(
+					"If you want to intersect the default-NetCom2-Communication, make sure to do so, after the internal requirements have been resolved and close it again!");
 		}
 	}
 
@@ -160,16 +168,16 @@ class Initializer {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof Initializer)) return false;
+		if (!(o instanceof Initializer)) return false;
 
 		final Initializer that = (Initializer) o;
 
-		if (! client.equals(that.client)) return false;
-		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! cache.equals(that.cache)) return false;
-		if (! sender.equals(that.sender)) return false;
-		if (! clientConnector.equals(that.clientConnector)) return false;
+		if (!client.equals(that.client)) return false;
+		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (!logging.equals(that.logging)) return false;
+		if (!cache.equals(that.cache)) return false;
+		if (!sender.equals(that.sender)) return false;
+		if (!clientConnector.equals(that.clientConnector)) return false;
 		return socketFactory.equals(that.socketFactory);
 	}
 

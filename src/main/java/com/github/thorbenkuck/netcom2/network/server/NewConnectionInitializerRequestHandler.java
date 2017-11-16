@@ -21,9 +21,12 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 
 	@Asynchronous
 	@Override
-	public void accept(final Connection connection, final Session session, final NewConnectionInitializer newConnectionInitializer) {
+	public void accept(final Connection connection, final Session session,
+					   final NewConnectionInitializer newConnectionInitializer) {
 		final Class connectionKey = newConnectionInitializer.getConnectionKey();
-		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
+		logging.debug(
+				"Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" +
+						newConnectionInitializer.getToDeleteID());
 		logging.debug(clients.toString());
 		final String identifier = newConnectionInitializer.getID() + "@" + connectionKey;
 		logging.debug("Received ConnectionInitializer for: " + identifier);
@@ -54,11 +57,12 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 				logging.catching(e);
 			}
 		} else {
-			if (! clientOptional.isPresent()) {
+			if (!clientOptional.isPresent()) {
 				logging.warn("[" + identifier + "]: Could not find client for: " + newConnectionInitializer.getID());
 			}
-			if (! toDeleteClientOptional.isPresent()) {
-				logging.warn("[" + identifier + "]: Could not find faulty Client: " + newConnectionInitializer.getToDeleteID());
+			if (!toDeleteClientOptional.isPresent()) {
+				logging.warn("[" + identifier + "]: Could not find faulty Client: " +
+						newConnectionInitializer.getToDeleteID());
 			}
 		}
 	}

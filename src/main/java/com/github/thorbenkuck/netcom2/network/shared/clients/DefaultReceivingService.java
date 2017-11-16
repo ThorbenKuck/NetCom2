@@ -75,7 +75,8 @@ class DefaultReceivingService implements ReceivingService {
 			String toHandle = decrypt(string);
 			logging.trace("Deserialize " + toHandle + " ..");
 			object = deserialize(toHandle);
-			logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" + connection.getFormattedAddress());
+			logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" +
+					connection.getFormattedAddress());
 			Objects.requireNonNull(object);
 			logging.trace("Triggering Communication ..");
 			trigger(object);
@@ -84,7 +85,8 @@ class DefaultReceivingService implements ReceivingService {
 		} catch (final DeSerializationFailedException e) {
 			logging.error("Could not Serialize!", e);
 		} catch (final Throwable throwable) {
-			logging.error("Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!", throwable);
+			logging.error("Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!",
+					throwable);
 		}
 	}
 

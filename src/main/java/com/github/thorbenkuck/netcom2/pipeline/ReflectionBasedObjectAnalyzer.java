@@ -37,7 +37,7 @@ class ReflectionBasedObjectAnalyzer {
 	private <T> boolean containsOnlyAskedParameter(final Method method, final Class<T> clazz) {
 		boolean contains = false;
 		for (final Class clazzToCheck : method.getParameterTypes()) {
-			if (! clazzToCheck.equals(Connection.class) && ! clazzToCheck.equals(Session.class)) {
+			if (!clazzToCheck.equals(Connection.class) && !clazzToCheck.equals(Session.class)) {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
 				} else {

@@ -16,7 +16,7 @@ public class CacheObservable {
 	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
 		Objects.requireNonNull(cacheObserver);
 		synchronized (obs) {
-			if (! this.obs.contains(cacheObserver)) {
+			if (!this.obs.contains(cacheObserver)) {
 				this.obs.add(cacheObserver);
 			}
 		}
@@ -31,7 +31,7 @@ public class CacheObservable {
 	protected <T> void newEntry(final T o) {
 		final Object[] observers = observersToArray();
 
-		for (int i = observers.length - 1; i >= 0; -- i) {
+		for (int i = observers.length - 1; i >= 0; --i) {
 			if (((CacheObserver) observers[i]).accept(o)) {
 				((CacheObserver) observers[i]).newEntry(o, this);
 			}
@@ -41,7 +41,7 @@ public class CacheObservable {
 	private Object[] observersToArray() {
 		final Object[] var2;
 		synchronized (this) {
-			if (! this.changed.get()) {
+			if (!this.changed.get()) {
 				return new ArrayList().toArray();
 			}
 
@@ -58,7 +58,7 @@ public class CacheObservable {
 	protected void updatedEntry(final Object o) {
 		final Object[] observers = observersToArray();
 
-		for (int i = observers.length - 1; i >= 0; -- i) {
+		for (int i = observers.length - 1; i >= 0; --i) {
 			((CacheObserver) observers[i]).updatedEntry(o, this);
 		}
 	}
@@ -66,7 +66,7 @@ public class CacheObservable {
 	protected void deletedEntry(final Object o) {
 		Object[] observers = observersToArray();
 
-		for (int i = observers.length - 1; i >= 0; -- i) {
+		for (int i = observers.length - 1; i >= 0; --i) {
 			((CacheObserver) observers[i]).deletedEntry(o, this);
 		}
 	}

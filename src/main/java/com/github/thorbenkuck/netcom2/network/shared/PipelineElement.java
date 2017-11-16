@@ -22,7 +22,7 @@ class PipelineElement<T> {
 
 	public boolean test(final T t) {
 		for (final Predicate<T> predicate : predicates) {
-			if (! predicate.test(t)) {
+			if (!predicate.test(t)) {
 				return false;
 			}
 		}
@@ -39,6 +39,7 @@ class PipelineElement<T> {
 
 	@Override
 	public boolean equals(final Object obj) {
-		return obj != null && obj.getClass().equals(PipelineElement.class) && consumer.equals(((PipelineElement) obj).getConsumer());
+		return obj != null && obj.getClass().equals(PipelineElement.class) &&
+				consumer.equals(((PipelineElement) obj).getConsumer());
 	}
 }

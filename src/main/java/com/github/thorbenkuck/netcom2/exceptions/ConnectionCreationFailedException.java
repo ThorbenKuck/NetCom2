@@ -1,7 +1,5 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
-import com.github.thorbenkuck.netcom2.exceptions.NetComRuntimeException;
-
 public class ConnectionCreationFailedException extends NetComRuntimeException {
 	public ConnectionCreationFailedException(final String message) {
 		super(message);

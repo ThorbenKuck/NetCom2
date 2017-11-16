@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation is to used to signal, that a method-call is executing whatever it wants to do, within another Thread
  */
-@Retention (RetentionPolicy.SOURCE)
-@Target (ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.METHOD)
 public @interface Asynchronous {
 }

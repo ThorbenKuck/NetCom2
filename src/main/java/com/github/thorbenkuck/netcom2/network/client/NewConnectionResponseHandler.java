@@ -38,7 +38,8 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 		final String prefix = "[" + key + "]: ";
 		client.newPrimation();
 		try {
-			logging.debug(prefix + "Got response from Server to establish new Connection! Creating the new Connection...");
+			logging.debug(
+					prefix + "Got response from Server to establish new Connection! Creating the new Connection...");
 			logging.trace(prefix + "Creating Connection by socketFactory..");
 			clientConnector.establishConnection(key, socketFactory);
 			logging.trace(prefix + "Created Connection by socketFactory!");
@@ -49,7 +50,8 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			final List<ClientID> toRemove = new ArrayList<>();
 			for (ClientID toDeleteID : client.getFalseIDs()) {
 				logging.trace(prefix + "Requesting deletion of old key: " + toDeleteID);
-				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key).andWaitForReceiving(NewConnectionInitializer.class);
+				sender.objectToServer(new NewConnectionInitializer(key, client.getID(), toDeleteID), key)
+						.andWaitForReceiving(NewConnectionInitializer.class);
 				toRemove.add(toDeleteID);
 				logging.trace(prefix + "Marked for deletion " + toDeleteID);
 			}

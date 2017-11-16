@@ -25,9 +25,10 @@ class ReceiveObjectHandlerWrapper {
 
 	public <T> OnReceiveTriple<T> wrap(final Object o, final Class<T> clazz) {
 		final Optional<Method> methodOptional = getResponsibleForClass(o, clazz);
-		if (! methodOptional.isPresent()) {
-			throw new NoCorrectHandlerFoundException("Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
-					"Found more than one Object to handle!");
+		if (!methodOptional.isPresent()) {
+			throw new NoCorrectHandlerFoundException(
+					"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
+							"Found more than one Object to handle!");
 		}
 
 		return wrap(clazz, methodOptional.get(), o);
@@ -51,11 +52,11 @@ class ReceiveObjectHandlerWrapper {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ReceiveObjectHandlerWrapper)) return false;
+		if (!(o instanceof ReceiveObjectHandlerWrapper)) return false;
 
 		final ReceiveObjectHandlerWrapper that = (ReceiveObjectHandlerWrapper) o;
 
-		if (! logging.equals(that.logging)) return false;
+		if (!logging.equals(that.logging)) return false;
 		return reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
 	}
 
@@ -83,8 +84,9 @@ class ReceiveObjectHandlerWrapper {
 		@Override
 		public void accept(final Connection connection, final Session session, final T t) {
 			logging.debug("Trying to access " + t);
-			if (! t.getClass().equals(toExpect) || ! t.getClass().isAssignableFrom(toExpect)) {
-				throw new HandlerInvocationException("Could not invoke method: " + toInvoke + " awaiting class " + toExpect);
+			if (!t.getClass().equals(toExpect) || !t.getClass().isAssignableFrom(toExpect)) {
+				throw new HandlerInvocationException(
+						"Could not invoke method: " + toInvoke + " awaiting class " + toExpect);
 			}
 			logging.trace("applying ..");
 			invoke(getParametersInCorrectOder(connection, session, t));
@@ -95,7 +97,7 @@ class ReceiveObjectHandlerWrapper {
 			logging.trace("calling ..");
 			synchronized (toInvoke) {
 				logging.trace("Updating accessibility ..");
-				if (! accessible) {
+				if (!accessible) {
 					logging.trace("Setting method accessible ..");
 					toInvoke.setAccessible(true);
 				}

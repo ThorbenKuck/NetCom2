@@ -14,9 +14,11 @@ public interface Sender {
 
 	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer);
 
-	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection);
+	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
+														  Connection connection);
 
-	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey);
+	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
+														  Class connectionKey);
 
 	<T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz);
 

@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.network.handler;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.net.Socket;
-import java.util.UUID;
 
 @FunctionalInterface
 public interface ClientConnectedHandler {

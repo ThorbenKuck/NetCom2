@@ -16,9 +16,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Synchronized
@@ -101,21 +99,24 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	@Override
-	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
+	public synchronized void addFallBackDeSerialization(
+			final DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		Requirements.assertNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
 		client.addFallBackDeSerialization(deSerializationAdapter);
 	}
 
 	@Override
-	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
+	public synchronized void setMainSerializationAdapter(
+			final SerializationAdapter<Object, String> mainSerializationAdapter) {
 		Requirements.assertNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
 		client.setMainSerializationAdapter(mainSerializationAdapter);
 	}
 
 	@Override
-	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public synchronized void setMainDeSerializationAdapter(
+			final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		Requirements.assertNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
@@ -178,18 +179,18 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientStartImpl)) return false;
+		if (!(o instanceof ClientStartImpl)) return false;
 
 		final ClientStartImpl that = (ClientStartImpl) o;
 
 		if (launched != that.launched) return false;
-		if (! cache.equals(that.cache)) return false;
-		if (! clientConnector.equals(that.clientConnector)) return false;
-		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (! clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! socketFactory.equals(that.socketFactory)) return false;
-		if (! client.equals(that.client)) return false;
+		if (!cache.equals(that.cache)) return false;
+		if (!clientConnector.equals(that.clientConnector)) return false;
+		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (!clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
+		if (!logging.equals(that.logging)) return false;
+		if (!socketFactory.equals(that.socketFactory)) return false;
+		if (!client.equals(that.client)) return false;
 		return sender.equals(that.sender);
 	}
 

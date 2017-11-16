@@ -10,7 +10,6 @@ import com.github.thorbenkuck.netcom2.utility.Requirements;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

@@ -20,7 +20,8 @@ public class NewConnectionInitializerHandler implements OnReceiveTriple<NewConne
 
 	@Asynchronous
 	@Override
-	public void accept(final Connection connection, final Session session, final NewConnectionInitializer newConnectionInitializer) {
+	public void accept(final Connection connection, final Session session,
+					   final NewConnectionInitializer newConnectionInitializer) {
 		Requirements.assertNotNull(connection, newConnectionInitializer);
 		logging.info("Setting new Connection to Key " + newConnectionInitializer.getConnectionKey());
 		client.setConnection(newConnectionInitializer.getConnectionKey(), connection);

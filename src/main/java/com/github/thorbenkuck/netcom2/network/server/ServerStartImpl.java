@@ -46,7 +46,8 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Instantiating ServerStart ..");
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
-		addClientConnectedHandler(new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
+		addClientConnectedHandler(
+				new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
 		logging.trace("Setting DefaultServerSocketFactory ..");
 		setServerSocketFactory(new DefaultServerSocketFactory());
 	}
@@ -107,7 +108,7 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		if (! running) {
+		if (!running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
@@ -207,7 +208,8 @@ class ServerStartImpl implements ServerStart {
 				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
 				client = clientConnectedHandler.create(socket);
 				if (client != null) {
-					logging.trace("ClientConnectedHandler " + clientConnectedHandler + " successfully created Client! Blocking access to client-creation.");
+					logging.trace("ClientConnectedHandler " + clientConnectedHandler +
+							" successfully created Client! Blocking access to client-creation.");
 				}
 			}
 			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
@@ -272,7 +274,7 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Trying to create Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
 		final Optional<Client> clientOptional = clientList.getClient(session);
-		if (! clientOptional.isPresent()) {
+		if (!clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session: " + session);
 			return Synchronize.empty();
 		}

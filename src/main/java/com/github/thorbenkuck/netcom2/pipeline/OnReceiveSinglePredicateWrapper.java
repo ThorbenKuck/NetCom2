@@ -24,7 +24,7 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 		return predicate.hashCode();
 	}
 
-	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
+	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
 		return o != null && predicate.equals(o);

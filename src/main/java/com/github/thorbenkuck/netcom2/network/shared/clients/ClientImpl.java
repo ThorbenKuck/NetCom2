@@ -457,7 +457,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void addFallBackSerializationAdapter(
+			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
@@ -466,7 +467,8 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void setFallBackSerializationAdapter(
+			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		addFallBackSerializationAdapter(fallBackSerializationAdapter);
 	}
 
@@ -476,7 +478,8 @@ class ClientImpl implements Client {
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
 	 */
 	@Override
-	public void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void addFallBackDeSerializationAdapter(
+			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
 	}
 
@@ -485,7 +488,8 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void setFallBackDeSerializationAdapter(
+			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
@@ -536,7 +540,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public final void setMainDeSerializationAdapter(
+			final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Setting MainDeSerializationAdapter to " + mainDeSerializationAdapter);
 		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
 	}

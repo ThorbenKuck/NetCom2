@@ -33,7 +33,7 @@ class PipelineReceiverImpl<T> {
 	final boolean test(final Connection connection, final Session session, final T t) {
 		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
-			if (! predicateTemp.remove().test(connection, session, t)) {
+			if (!predicateTemp.remove().test(connection, session, t)) {
 				return false;
 			}
 		}
@@ -48,7 +48,7 @@ class PipelineReceiverImpl<T> {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof PipelineReceiverImpl)) return false;
+		if (!(o instanceof PipelineReceiverImpl)) return false;
 
 		final PipelineReceiverImpl<?> that = (PipelineReceiverImpl<?>) o;
 

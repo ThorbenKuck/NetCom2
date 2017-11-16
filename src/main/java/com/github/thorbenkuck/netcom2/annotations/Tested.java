@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Shows that a Class is thoroughly tested
  */
-@Target (ElementType.TYPE)
-@Retention (RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Tested {
 }

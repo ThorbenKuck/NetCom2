@@ -1,7 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.server.mapping;
 
-import com.github.thorbenkuck.netcom2.utility.Requirements;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

@@ -17,11 +17,12 @@ import java.util.Set;
  * This AnnotationProcessor can be used, to process the Exposed Annotation, which should ensure that any Method annotated
  * with @{@link Exposed} is used only for internal development.
  */
-@SupportedAnnotationTypes ("com.github.thorbenkuck.netcom2.annotations.Exposed")
-@SupportedSourceVersion (SourceVersion.RELEASE_8)
+@SupportedAnnotationTypes("com.github.thorbenkuck.netcom2.annotations.Exposed")
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExposedAnnotationProcessor extends AbstractProcessor {
 
-	private final static String ERROR_MESSAGE = "Methods annotated with @Exposed should not be public, private, protected or abstract!";
+	private final static String ERROR_MESSAGE =
+			"Methods annotated with @Exposed should not be public, private, protected or abstract!";
 
 	/**
 	 * {@inheritDoc}
@@ -33,9 +34,9 @@ public class ExposedAnnotationProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		Set<? extends Element> root = roundEnv.getElementsAnnotatedWith(Exposed.class);
 		System.out.println("Processing ..");
-		for(Element element : root) {
-			for(Modifier modifier : element.getModifiers()) {
-				if(modifier.equals(Modifier.ABSTRACT)
+		for (Element element : root) {
+			for (Modifier modifier : element.getModifiers()) {
+				if (modifier.equals(Modifier.ABSTRACT)
 						|| modifier.equals(Modifier.PRIVATE)
 						|| modifier.equals(Modifier.PUBLIC)
 						|| modifier.equals(Modifier.PROTECTED)) {

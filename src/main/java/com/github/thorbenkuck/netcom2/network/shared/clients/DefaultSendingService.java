@@ -45,7 +45,7 @@ class DefaultSendingService implements SendingService {
 
 	@Override
 	public void run() {
-		if (! setup) {
+		if (!setup) {
 			throw new Error("Setup required before run!");
 		}
 		running = true;

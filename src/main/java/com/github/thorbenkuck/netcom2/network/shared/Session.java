@@ -9,18 +9,18 @@ import java.util.Properties;
 
 /**
  * This interface describes an Session of any Network-Object.
- *
+ * <p>
  * On the {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart} side, this object is maintained, as
  * long, as the ClientStart stays connected to the Server.
- *
+ * <p>
  * On the {@link com.github.thorbenkuck.netcom2.network.server.ServerStart} side, this object is maintained within an {@link Client}
  * and shared across all Connection between each of the Connections of the Client.
- *
+ * <p>
  * If you wanted to, you could create an custom Session-Class and provide it to an Client using {@link Client#setSession(Session)}.
  * Note that especially the behaviour of the methods {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()}
  * should NOT be changed to maintain the Behaviour of the internal Mechanisms. Otherwise you might break the core Mechanisms between
  * Client-Server-Communication or Connection establishment.
- *
+ * <p>
  * Otherwise you can feel free to create an custom Session.
  */
 public interface Session extends Mutex {
@@ -197,7 +197,7 @@ public interface Session extends Mutex {
 
 	/**
 	 * This is a functional style of updating the Session.
-	 *
+	 * <p>
 	 * If you use this on the Client-Side, note that calling {@link SessionUpdater#sendOverNetwork()} will NOT update the
 	 * Session on the Server-Side
 	 *

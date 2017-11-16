@@ -40,21 +40,24 @@ public class SenderImpl implements InternalSender, Loggable {
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz,
+																 final CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer, final Connection connection) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
+																 final Connection connection) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
 	@Override
-	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer, final Class connectionKey) {
+	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
+																 final Class connectionKey) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
@@ -111,13 +114,13 @@ public class SenderImpl implements InternalSender, Loggable {
 		}
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		return (CacheObserver<T>) pendingObservers.remove(clazz);
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		return (CacheObserver<T>) pendingObservers.get(clazz);

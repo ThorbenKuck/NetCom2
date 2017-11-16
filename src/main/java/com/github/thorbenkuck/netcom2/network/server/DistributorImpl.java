@@ -75,7 +75,7 @@ class DistributorImpl implements InternalDistributor {
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
-					.filter(user -> ! testAgainst(user, predicates))
+					.filter(user -> !testAgainst(user, predicates))
 					.forEach(toSendTo::add);
 		}
 		toSendTo.forEach(session -> session.send(o));
@@ -107,7 +107,7 @@ class DistributorImpl implements InternalDistributor {
 	@SafeVarargs
 	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
 		for (final Predicate<Session> predicate : predicates) {
-			if (! predicate.test(session)) {
+			if (!predicate.test(session)) {
 				return false;
 			}
 		}

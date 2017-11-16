@@ -11,7 +11,6 @@ import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -152,7 +151,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session, final Object o)
+	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
+									 final Object o)
 			throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
@@ -164,7 +164,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session, final Object o) {
+	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
+									 final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 		try {
@@ -185,7 +186,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
-		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
+		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList =
+				new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
@@ -198,7 +200,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection, final Session session, final T o) {
+	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
+									  final Session session, final T o) {
 		try {
 			pipeline.acquire();
 			pipeline.run(connection, session, o);

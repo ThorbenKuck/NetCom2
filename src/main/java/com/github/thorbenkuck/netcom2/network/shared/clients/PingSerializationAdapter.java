@@ -11,7 +11,8 @@ public class PingSerializationAdapter implements SerializationAdapter<Object, St
 		if (o.getClass().equals(Ping.class)) {
 			return serializePing((Ping) o);
 		}
-		throw new SerializationFailedException("[" + getClass().getSimpleName() + "]: " + "Only Ping-Serialization supported!");
+		throw new SerializationFailedException(
+				"[" + getClass().getSimpleName() + "]: " + "Only Ping-Serialization supported!");
 	}
 
 	private String serializePing(final Ping o) {

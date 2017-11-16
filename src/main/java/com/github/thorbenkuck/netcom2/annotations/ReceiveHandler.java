@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
  * TODO AnnotationProcessor
  * TODO CommunicationRegistration extension
  */
-@Target (ElementType.METHOD)
-@Retention (RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ReceiveHandler {
 
 	boolean active() default true;
