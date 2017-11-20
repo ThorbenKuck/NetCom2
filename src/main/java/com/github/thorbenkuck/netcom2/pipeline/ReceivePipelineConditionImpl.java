@@ -7,9 +7,9 @@ import java.util.function.Predicate;
 
 class ReceivePipelineConditionImpl<T> implements ReceivePipelineCondition<T> {
 
-	private final PipelineReceiverImpl<T> receiver;
+	private final PipelineReceiver<T> receiver;
 
-	ReceivePipelineConditionImpl(final PipelineReceiverImpl<T> receiver) {
+	ReceivePipelineConditionImpl(final PipelineReceiver<T> receiver) {
 		this.receiver = receiver;
 	}
 

@@ -6,7 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that this method is not yet tested thoroughly
+ * Shows that this annotated class is not yet tested thoroughly.
+ *
+ * It might still function as proposed, but it is not recommended by unit-tests.
+ *
+ * Future: There might be a warning, when an class, annotated with Experimental is compiled
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)

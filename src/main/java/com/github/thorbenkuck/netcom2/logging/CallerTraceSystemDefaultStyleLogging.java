@@ -1,7 +1,18 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+/**
+ * This class is inherited from the {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to
+ * inject the the via reflection determined caller of any method.
+ */
 class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 
+	/**
+	 * Determines the caller of any method by analysing the stackTrace of the current Thread.
+	 *
+	 * This is very workload intensive and should be used with care!
+	 *
+	 * @return the class name of the class, calling any method to log something or null if no valid name is found
+	 */
 	public String getCaller() {
 		final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 		for (StackTraceElement stackTraceElement : stackTraceElements) {
@@ -16,6 +27,11 @@ class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @return the super.getPrefix combined with the {@link #getCaller()}
+	 */
 	@Override
 	public String getPrefix() {
 		return super.getPrefix() + "[" + getCaller() + "] ";

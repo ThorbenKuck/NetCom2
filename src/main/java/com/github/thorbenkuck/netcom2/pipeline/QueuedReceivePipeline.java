@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
-	private final Queue<PipelineReceiverImpl<T>> core = new LinkedList<>();
+	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();
 	private final Logging logging = Logging.unified();
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
@@ -44,7 +44,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceiveTriple<T> pipelineService) {
-		final PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
+		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
 		ifClosed(() -> falseAdd(pipelineService));
 		ifOpen(() -> {
 			synchronized (core) {
@@ -68,12 +68,12 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceiveTriple<T> pipelineService) {
-		final PipelineReceiverImpl<T> pipelineReceiver = new PipelineReceiverImpl<>(pipelineService);
+		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
 
 		if (isClosed()) {
 			falseAdd(pipelineService);
 		} else {
-			final Queue<PipelineReceiverImpl<T>> newCore = new LinkedList<>();
+			final Queue<PipelineReceiver<T>> newCore = new LinkedList<>();
 			newCore.add(pipelineReceiver);
 			synchronized (core) {
 				newCore.addAll(core);
@@ -151,7 +151,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	@Override
 	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
-		return core.contains(new PipelineReceiverImpl<>(onReceiveTriple));
+		return core.contains(new PipelineReceiver<>(onReceiveTriple));
 	}
 
 	@Override
@@ -204,7 +204,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public void remove(final OnReceive<T> pipelineService) {
 		synchronized (core) {
-			core.remove(new PipelineReceiverImpl<>(new OnReceiveWrapper<>(pipelineService)));
+			core.remove(new PipelineReceiver<>(new OnReceiveWrapper<>(pipelineService)));
 			pipelineService.onUnRegistration();
 		}
 	}

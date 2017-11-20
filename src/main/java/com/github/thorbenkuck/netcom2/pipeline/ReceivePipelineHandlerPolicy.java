@@ -33,7 +33,7 @@ public enum ReceivePipelineHandlerPolicy {
 			trace("Sealing closed Pipeline ..");
 			receivePipeline.seal();
 			debug("Blocked all access and sealed the pipeline " + receivePipeline + "!");
-			debug("The Pipeline will only consist of the provided Object-Handler, except if cleared and redeployed!");
+			debug("The Pipeline will only consist of the provided Object-Handler, except if recreated and redeployed!");
 		}
 	};
 

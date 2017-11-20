@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * This shows, that an Annotated Method is exposed to be used by the implementing developer. Therefor it should be
- * accessible, but NOT public
+ * accessible, but NOT public, private or protected!
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)

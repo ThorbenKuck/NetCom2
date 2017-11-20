@@ -21,53 +21,83 @@ public class SystemDefaultStyleLogging implements Logging {
 		out = printStream;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "{Default Logging-style for NetCom2Logging}";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void trace(final String s) {
 		println(getPrefix() + "TRACE : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void debug(final String s) {
 		println(getPrefix() + "DEBUG : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void info(final String s) {
 		println(getPrefix() + "INFO : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void warn(final String s) {
 		println(getPrefix() + "WARN : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void error(final String s) {
 		println(getPrefix() + "ERROR : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void error(final String s, final Throwable throwable) {
 		error(s);
 		catching(throwable);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void fatal(final String s) {
 		println(getPrefix() + "FATAL : " + s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void fatal(final String s, final Throwable throwable) {
 		fatal(s);
 		catching(throwable);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void catching(final Throwable throwable) {
 		StringWriter sw = new StringWriter();

@@ -2,12 +2,6 @@
 
 ## Changes
 
-### ClientConnectedHandler
-
-#### Methods
-
-* The getIdentifier Method has been removed, so that its creation is only depending on the DefaultClientConnectedHandler
-
 ### ClientSendBride
 
 #### Methods
@@ -30,6 +24,46 @@
 
 * The Method: SessionImpl#newPrimation() will now await the synchronization of the current element.
 * The Method: SessionImpl#addHeatBeat(HeartBeat<Session>) will now start the HeartBeat asynchronous (using .parallel())
+
+### AbstractConnection
+
+#### Other
+
+* Rearranged Methods
+
+### CallerReflectionTrace
+
+#### Methods
+
+* The Constructor now uses the new CallerTraceSystemDefaultStyleLogging for printing.
+
+### SystemDefaultStyleLogging
+
+#### Attributes
+
+* The Lock has been removed, because it was not needed
+
+#### Methods
+
+* All lock calls have been removed, because the print is already synchronized at the println method.
+
+### PipelineReceiverImpl
+
+#### Other
+
+* Renamed to PipelineReceiver, since it does not implement an interface
+* Changed all Objects.requireNotNull(Object) calls to Validate.parameterNotNull(Object)
+  * Since those variables are not used, but just stored, an IllegalArgumentException should be thrown instead of an NullPointerException
+* Added Java-Doc
+------
+
+## Interfaces
+
+### ClientConnectedHandler
+
+#### Methods
+
+* The getIdentifier Method has been removed, so that its creation is only depending on the DefaultClientConnectedHandler
 
 ### Client
 
@@ -55,27 +89,81 @@
 * Arrangement of the Methods has been changed
 * Added missing Java-Doc
 
-### AbstractConnection
+### Adapter
 
 #### Other
 
-* Rearranged Methods
+* Added Java-Doc
+* Added the @FunctionalInterface annotation, to signal, that the interface should contain exactly 1 non-default method
 
-### CallerReflectionTrace
+### Factory
+
+#### Other
+
+* Added Java-Doc
+
+### MultipleConnections
+
+#### Other
+
+* Added Java-Doc
+
+### ReceivePipeline
+
+#### Other
+
+* Added Java-Doc
+
+### SendBridge
+
+#### Other
+
+* Added Java-Doc
+
+### SimpleFactory
+
+#### Other
+
+* Added Java-Doc
+* Added the @FunctionalInterface annotation
+
+### SocketFactory
+
+#### Other
+
+* Added Java-Doc
+
+### SoftStoppable
+
+#### Other
+
+* Added Java-Doc
+
+### TriConsumer
 
 #### Methods
 
-* The Constructor now uses the new CallerTraceSystemDefaultStyleLogging for printing.
+* Added the andThen(TriConsumer) Method, which is like the Consumer#andThen(Consumer)
 
-### SystemDefaultStyleLogging
+#### Other
 
-#### Attributes
+* Added Java-Doc
 
-* The Lock has been removed, because it was not needed
+### TriPredicate
 
 #### Methods
 
-* All lock calls have been removed, because the print is already synchronized at the println method.
+* Added the and Method, which is like the Predicate#and(Predicate) Method
+* Added the negate Method, which is like the Predicate#negate() Method
+* Added the or Method, which is like the Predicate#or(Predicate) Method
+
+#### Other
+
+* Added Java-Doc
+
+------
+
+## Annotations
 
 ### Asynchronous-Annotation
 
@@ -94,6 +182,24 @@
 #### Other
 
 * This annotation is now used at Methods, to notify that a method is currently Experimental
+
+### Tested-Annotation
+
+#### Methods
+
+* added the responsibleTest method, to show of, what test is testing this annotated Class
+  * This Method takes a String, since the Test-Sources are not available at the source set
+* added the uniteTest method, which describes whether or not the responsible Test is a Unit Test
+
+#### Other
+
+* Added Java-Doc
+
+### ReceiveHandler-Annotation
+
+#### Other
+
+* Changed the Java-Doc
 
 ## Additions
 
