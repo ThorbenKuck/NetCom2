@@ -7,6 +7,10 @@ import java.net.Socket;
 
 class DefaultClientSocketFactory implements SocketFactory {
 
+	/**
+	 * This SocketFactory will create a {@link Socket}
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Socket create(final int port, final String address) throws IOException {
 		try {

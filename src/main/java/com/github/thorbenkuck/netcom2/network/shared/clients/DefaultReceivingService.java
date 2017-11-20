@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.CallBack;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
-	private final List<CallBack<Object>> callBacks = new ArrayList<>();
+	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private Runnable onDisconnect = () -> {
@@ -141,7 +141,7 @@ class DefaultReceivingService implements ReceivingService {
 		logging.debug("Accepting CallBacks(" + object + ")!");
 		runSynchronizedOverCallbacks(() -> {
 			logging.trace("Calling all callbacks, that want to be called ..");
-			callBacks.stream()
+			callbacks.stream()
 					.filter(callBack -> callBack.isAcceptable(object))
 					.forEach(callBack -> {
 						logging.trace("Calling " + callBack + " ..");
@@ -153,32 +153,32 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void runSynchronizedOverCallbacks(final Runnable runnable) {
-		logging.trace("Awaiting ThreadAccess over callBacks ..");
-		synchronized (callBacks) {
-			logging.trace("Acquired ThreadAccess over callBacks!");
+		logging.trace("Awaiting ThreadAccess over callbacks ..");
+		synchronized (callbacks) {
+			logging.trace("Acquired ThreadAccess over callbacks!");
 			runnable.run();
 		}
 	}
 
 	@Override
 	public void cleanUpCallBacks() {
-		logging.debug("CallBack cleanup requested!");
-		final List<CallBack<Object>> toRemove = new ArrayList<>();
-		callBacks.stream()
-				.filter(CallBack::isRemovable)
+		logging.debug("Callback cleanup requested!");
+		final List<Callback<Object>> toRemove = new ArrayList<>();
+		callbacks.stream()
+				.filter(Callback::isRemovable)
 				.forEach(callBack -> {
-					logging.trace("Marking CallBack " + callBack + " as isRemovable ..");
+					logging.trace("Marking Callback " + callBack + " as isRemovable ..");
 					toRemove.add(callBack);
 				});
 		runSynchronizedOverCallbacks(() -> toRemove.forEach(this::removeCallback));
-		logging.debug("CallBack cleanup done!");
+		logging.debug("Callback cleanup done!");
 	}
 
 	@Override
-	public void addReceivingCallback(final CallBack<Object> callBack) {
-		logging.debug("Trying to add CallBack " + callBack);
-		runSynchronizedOverCallbacks(() -> callBacks.add(callBack));
-		logging.trace("Added Callback: " + callBack);
+	public void addReceivingCallback(final Callback<Object> callback) {
+		logging.debug("Trying to add Callback " + callback);
+		runSynchronizedOverCallbacks(() -> callbacks.add(callback));
+		logging.trace("Added Callback: " + callback);
 	}
 
 	@Override
@@ -215,11 +215,11 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	@Asynchronous
-	private void removeCallback(final CallBack<Object> toRemove) {
-		logging.trace("Preparing to isRemovable CallBack: " + toRemove);
+	private void removeCallback(final Callback<Object> toRemove) {
+		logging.trace("Preparing to isRemovable Callback: " + toRemove);
 		toRemove.onRemove();
-		logging.debug("Removing CallBack " + toRemove);
-		callBacks.remove(toRemove);
+		logging.debug("Removing Callback " + toRemove);
+		callbacks.remove(toRemove);
 	}
 
 }

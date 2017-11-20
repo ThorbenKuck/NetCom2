@@ -32,6 +32,23 @@ public class ClientStartImpl implements ClientStart {
 	private Client client;
 	private InternalSender sender;
 
+	/**
+	 * The creation of the ClientStartImpl will:
+	 *
+	 * <li>
+	 *     <ul>Create an client, based upon the aggregated {@link CommunicationRegistration}</ul>
+	 *     <ul>Create a {@link ClientConnector}, based upon the provided address, port and the created Client</ul>
+	 *     <ul>Calling {@link #setSocketFactory(SocketFactory)} with the {@link DefaultClientSocketFactory}</ul>
+	 *     <ul>Create an {@link InternalSender} based upon the created Client</ul>
+	 *     <ul>Lastly add the {@link DefaultClientDisconnectedHandler}</ul>
+	 * </li>
+	 *
+	 * This is quit a lot, but needed. This should not be that workload intensive.
+	 *
+	 * @param address
+	 * @param port
+	 * @throws NullPointerException if the provided address or port is null
+	 */
 	public ClientStartImpl(final String address, final int port) {
 		Requirements.assertNotNull(address, port);
 		logging.debug("Instantiation ClientStart ..");
@@ -46,6 +63,10 @@ public class ClientStartImpl implements ClientStart {
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
 	}
 
+	/**
+	 * This Method is synchronized. Therefor only one Thread may launch the {@link ClientStart}!
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized void launch() throws StartFailedException {
 		if (launched.get()) {
@@ -67,11 +88,18 @@ public class ClientStartImpl implements ClientStart {
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Cache cache() {
 		return cache;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if provided key is null
+	 */
 	@Override
 	public Awaiting createNewConnection(final Class key) {
 		Requirements.assertNotNull(key);
@@ -79,18 +107,29 @@ public class ClientStartImpl implements ClientStart {
 		return clientConnectionEstablish.newFor(key, client);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the SocketFactory is null
+	 */
 	@Override
 	public synchronized void setSocketFactory(final SocketFactory factory) {
-		logging.debug("Set SocketFactory to: " + factory);
 		Requirements.assertNotNull(factory);
+		logging.debug("Set SocketFactory to: " + factory);
 		socketFactory = factory;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Sender send() {
 		return sender;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the SerializationAdapter is null
+	 */
 	@Override
 	public synchronized void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
 		Requirements.assertNotNull(serializationAdapter);
@@ -98,30 +137,43 @@ public class ClientStartImpl implements ClientStart {
 		client.addFallBackSerialization(serializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 */
 	@Override
-	public synchronized void addFallBackDeSerialization(
-			final DeSerializationAdapter<String, Object> deSerializationAdapter) {
+	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		Requirements.assertNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
 		client.addFallBackDeSerialization(deSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the SerializationAdapter is null
+	 */
 	@Override
-	public synchronized void setMainSerializationAdapter(
-			final SerializationAdapter<Object, String> mainSerializationAdapter) {
+	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
 		Requirements.assertNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
 		client.setMainSerializationAdapter(mainSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 */
 	@Override
-	public synchronized void setMainDeSerializationAdapter(
-			final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		Requirements.assertNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the DisconnectedHandler is null
+	 */
 	@Override
 	public synchronized void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		Requirements.assertNotNull(disconnectedHandler);
@@ -129,6 +181,10 @@ public class ClientStartImpl implements ClientStart {
 		client.addDisconnectedHandler(disconnectedHandler);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the DecryptionAdapter is null
+	 */
 	@Override
 	public synchronized void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
 		Requirements.assertNotNull(decryptionAdapter);
@@ -136,6 +192,10 @@ public class ClientStartImpl implements ClientStart {
 		client.setDecryptionAdapter(decryptionAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the EncryptionAdapter is null
+	 */
 	@Override
 	public synchronized void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
 		Requirements.assertNotNull(encryptionAdapter);
@@ -143,25 +203,38 @@ public class ClientStartImpl implements ClientStart {
 		client.setEncryptionAdapter(encryptionAdapter);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized void clearCache() {
 		logging.debug("Clearing cache ..");
 		cache.reset();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws NullPointerException if the logging is null
+	 */
 	@Override
 	public synchronized void setLogging(final Logging logging) {
-		Objects.requireNonNull(logging);
+		Requirements.assertNotNull(logging);
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = cache.hashCode();
@@ -176,6 +249,9 @@ public class ClientStartImpl implements ClientStart {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
@@ -194,6 +270,9 @@ public class ClientStartImpl implements ClientStart {
 		return sender.equals(that.sender);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "ClientStart{" +
@@ -204,6 +283,10 @@ public class ClientStartImpl implements ClientStart {
 				'}';
 	}
 
+	/**
+	 * This method lets runnable classes run synchronized.
+	 * @param runnable the Runnable, that should only be accessible by one Thread
+	 */
 	void runSynchronized(final Runnable runnable) {
 		Requirements.parameterNotNull(runnable);
 		synchronized (clientConnector) {

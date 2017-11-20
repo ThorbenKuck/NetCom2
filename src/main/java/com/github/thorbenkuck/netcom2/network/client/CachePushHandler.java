@@ -6,6 +6,12 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
+/**
+ * This Handler will handle an received CachePush at the Client-Side.
+ *
+ * It takes the received Object and puts it into the locally held cache. Further the mutex of the cache is used to ensure
+ * Thread-Safety
+ */
 public class CachePushHandler implements OnReceiveSingle<CachePush> {
 
 	private final Logging logging = Logging.unified();
@@ -15,10 +21,20 @@ public class CachePushHandler implements OnReceiveSingle<CachePush> {
 		this.cache = cache;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
-	public void accept(final CachePush o) {
+	public void accept(final CachePush cachePush) {
 		logging.debug("Updating cache, based on received information!");
-		cache.addAndOverride(o.getObject());
+		try {
+			cache.acquire();
+			cache.addAndOverride(cachePush.getObject());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			cache.release();
+		}
 	}
 }

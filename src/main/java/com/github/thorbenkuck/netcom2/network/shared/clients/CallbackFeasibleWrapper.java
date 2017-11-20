@@ -1,15 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.shared.CallBack;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Feasible;
 
 @Synchronized
-class CallBackFeasibleWrapper implements CallBack<Object> {
+class CallbackFeasibleWrapper implements Callback<Object> {
 
 	private final Feasible<Class> feasible;
 
-	CallBackFeasibleWrapper(final Feasible<Class> feasible) {
+	CallbackFeasibleWrapper(final Feasible<Class> feasible) {
 		this.feasible = feasible;
 	}
 

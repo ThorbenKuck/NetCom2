@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
-import com.github.thorbenkuck.netcom2.network.shared.CallBack;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Acknowledge;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
@@ -60,8 +60,8 @@ public class TCPDefaultConnection extends AbstractConnection {
 		synchronized (mapping) {
 			mapping.put(object.getClass(), semaphore);
 		}
-		logging.trace("[TCP] Setting up CallBack ..");
-		receivingService.addReceivingCallback(new TCPAckCallBack(object.getClass()));
+		logging.trace("[TCP] Setting up Callback ..");
+		receivingService.addReceivingCallback(new TCPAckCallback(object.getClass()));
 	}
 
 	@Override
@@ -109,12 +109,12 @@ public class TCPDefaultConnection extends AbstractConnection {
 		write(new Acknowledge(o.getClass()));
 	}
 
-	private class TCPAckCallBack implements CallBack<Object> {
+	private class TCPAckCallback implements Callback<Object> {
 
 		private final Class<?> hint;
 		private boolean removable = false;
 
-		private TCPAckCallBack(final Class<?> hint) {
+		private TCPAckCallback(final Class<?> hint) {
 			this.hint = hint;
 		}
 
@@ -136,7 +136,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 
 		@Override
 		public String toString() {
-			return "TCPAckCallBack{hint=" + hint + ", removable=" + removable + "}";
+			return "TCPAckCallback{hint=" + hint + ", removable=" + removable + "}";
 		}
 	}
 }

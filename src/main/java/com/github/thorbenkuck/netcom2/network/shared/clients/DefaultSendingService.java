@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.CallBack;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
@@ -29,7 +29,7 @@ class DefaultSendingService implements SendingService {
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
-	private final List<CallBack<Object>> callBacks = new ArrayList<>();
+	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private PrintWriter printWriter;
 	private BlockingQueue<Object> toSend;
 	private boolean running = false;
@@ -113,9 +113,9 @@ class DefaultSendingService implements SendingService {
 	}
 
 	private void triggerCallbacks(final Object o) {
-		final List<CallBack<Object>> temp;
-		synchronized (callBacks) {
-			temp = new ArrayList<>(callBacks);
+		final List<Callback<Object>> temp;
+		synchronized (callbacks) {
+			temp = new ArrayList<>(callbacks);
 		}
 		temp.stream()
 				.filter(callBack -> callBack.isAcceptable(o))
@@ -124,19 +124,19 @@ class DefaultSendingService implements SendingService {
 		threadPool.submit(this::tryClearCallBacks);
 	}
 
-	private void deleteCallBack(final CallBack<Object> callBack) {
-		logging.debug("Removing " + callBack + " from SendingService ..");
-		synchronized (callBacks) {
-			callBacks.remove(callBack);
+	private void deleteCallBack(final Callback<Object> callback) {
+		logging.debug("Removing " + callback + " from SendingService ..");
+		synchronized (callbacks) {
+			callbacks.remove(callback);
 		}
 	}
 
 	private void tryClearCallBacks() {
-		final List<CallBack<Object>> removable = new ArrayList<>();
+		final List<Callback<Object>> removable = new ArrayList<>();
 
-		synchronized (callBacks) {
-			callBacks.stream()
-					.filter(CallBack::isRemovable)
+		synchronized (callbacks) {
+			callbacks.stream()
+					.filter(Callback::isRemovable)
 					.forEachOrdered(callBack -> {
 						logging.debug("Marking " + callBack + " as to be removed ..");
 						removable.add(callBack);
@@ -147,9 +147,9 @@ class DefaultSendingService implements SendingService {
 	}
 
 	@Override
-	public void addSendDoneCallback(final CallBack<Object> callback) {
-		synchronized (callBacks) {
-			callBacks.add(callback);
+	public void addSendDoneCallback(final Callback<Object> callback) {
+		synchronized (callbacks) {
+			callbacks.add(callback);
 		}
 	}
 

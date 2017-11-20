@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -26,9 +27,15 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		logging.trace("Instantiated ClientConnector for " + address + ":" + port);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the factory is null
+	 */
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final SocketFactory factory) throws IOException {
+		Requirements.parameterNotNull(factory);
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
 		final Socket socket = factory.create(port, address);
@@ -47,9 +54,17 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		return connection;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the factory is null
+	 * @throws NullPointerException     if the provided Class is null
+	 */
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
+		Requirements.parameterNotNull(factory);
+		Requirements.assertNotNull(key);
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");
@@ -67,11 +82,17 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		return connection;
 	}
 
+	/**
+	 * This Method disconnects the Client.
+	 */
 	@Override
-	public void shutDown() throws IOException {
-		logging.error("Cannot shutdown here!");
+	public void shutDown() {
+		client.disconnect();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "ClientConnector{" +

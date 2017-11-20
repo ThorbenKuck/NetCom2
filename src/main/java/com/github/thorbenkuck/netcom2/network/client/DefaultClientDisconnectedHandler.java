@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 @Synchronized
 class DefaultClientDisconnectedHandler implements DisconnectedHandler {
@@ -17,9 +18,14 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		this.clientStart = clientStart;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws IllegalArgumentException is the provided client is null
+	 */
 	@Asynchronous
 	@Override
-	public void handle(Client client) {
+	public void handle(final Client client) {
+		Requirements.parameterNotNull(client);
 		logging.warn("Disconnected from Server! Cleaning up ..");
 		logging.debug("Disconnection requested!");
 		logging.trace("Clearing internal Cache ..");
@@ -44,11 +50,19 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		});
 	}
 
+	/**
+	 * This DisconnectedHandler will always have the same priority
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getPriority() {
 		return 1;
 	}
 
+	/**
+	 * This DisconnectedHandler will always be true
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean active() {
 		return true;

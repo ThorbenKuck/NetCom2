@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.CallBack;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.PipelineCondition;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
@@ -24,9 +24,9 @@ public interface Connection extends Loggable {
 
 	void write(final Object object);
 
-	void addObjectSendListener(final CallBack<Object> callBack);
+	void addObjectSendListener(final Callback<Object> callback);
 
-	void addObjectReceivedListener(final CallBack<Object> callBack);
+	void addObjectReceivedListener(final Callback<Object> callback);
 
 	void setThreadPool(final ExecutorService executorService);
 

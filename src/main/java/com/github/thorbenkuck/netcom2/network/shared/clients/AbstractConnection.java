@@ -78,7 +78,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			}
 			logging.trace("ReceivingService was successfully setup!");
 			logging.trace("Adding Call-Back-Hook to ReceivingService");
-			receivingService.addReceivingCallback(new DefaultReceiveCallBack());
+			receivingService.addReceivingCallback(new DefaultReceiveCallback());
 		} catch (IOException e) {
 			try {
 				logging.warn("Encountered Exception while ConnectionSetup!");
@@ -183,13 +183,13 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void addObjectSendListener(final CallBack<Object> callBack) {
-		sendingService.addSendDoneCallback(callBack);
+	public void addObjectSendListener(final Callback<Object> callback) {
+		sendingService.addSendDoneCallback(callback);
 	}
 
 	@Override
-	public void addObjectReceivedListener(final CallBack<Object> callBack) {
-		receivingService.addReceivingCallback(callBack);
+	public void addObjectReceivedListener(final Callback<Object> callback) {
+		receivingService.addReceivingCallback(callback);
 	}
 
 	@Override
@@ -296,7 +296,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		semaphore.release();
 	}
 
-	private class DefaultReceiveCallBack implements CallBack<Object> {
+	private class DefaultReceiveCallback implements Callback<Object> {
 		@Override
 		public boolean isRemovable() {
 			return !started;
@@ -309,7 +309,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 		@Override
 		public String toString() {
-			return "DefaultReceiveCallBack{removable=" + !started + "}";
+			return "DefaultReceiveCallback{removable=" + !started + "}";
 		}
 	}
 }

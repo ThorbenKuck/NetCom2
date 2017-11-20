@@ -285,8 +285,8 @@ class ClientImpl implements Client {
 		threadPool.submit(() -> {
 			try {
 				connectionLock.lock();
-				connection.addObjectSendListener(new CallBackListener(sendExpectable));
-				connection.addObjectReceivedListener(new CallBackListener(receivedExpectable));
+				connection.addObjectSendListener(new CallbackListener(sendExpectable));
+				connection.addObjectReceivedListener(new CallbackListener(receivedExpectable));
 				logging.trace("Writing Object to connection");
 				connection.write(object);
 			} catch (Exception e) {

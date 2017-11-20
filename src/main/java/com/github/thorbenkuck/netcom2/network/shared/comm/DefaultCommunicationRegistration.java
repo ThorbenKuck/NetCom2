@@ -186,8 +186,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
-		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList =
-				new ArrayList<>(defaultCommunicationHandlers);
+		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
