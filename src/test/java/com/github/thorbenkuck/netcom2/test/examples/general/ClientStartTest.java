@@ -34,6 +34,7 @@ public class ClientStartTest {
 
 		try {
 			start();
+			remoteObjectTest();
 			send();
 		} catch (StartFailedException e) {
 			e.printStackTrace();
@@ -111,6 +112,17 @@ public class ClientStartTest {
 		clientStart.getCommunicationRegistration()
 				.register(TestObjectThree.class)
 				.addLast(o -> System.out.println("----\n" + o.getMsg() + "\n----"));
+
+		clientStart.getCommunicationRegistration()
+				.register(MessageFromServer.class)
+				.addFirst(o -> System.out.println("----\n" + o.getMessage() + "\n----"));
+	}
+
+	private void remoteObjectTest() {
+		System.out.println("\n\n\n\n\n");
+		Test test = clientStart.getRemoteObject(Test.class);
+
+		test.fire();
 	}
 
 	@ReceiveHandler

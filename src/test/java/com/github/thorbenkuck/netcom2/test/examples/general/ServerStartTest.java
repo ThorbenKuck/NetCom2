@@ -104,6 +104,8 @@ public class ServerStartTest {
 	}
 
 	private static void register() {
+		serverStart.remoteObjects()
+				.register((Test) () -> serverStart.distribute().toAll(new MessageFromServer("Der test lief durch!")), Test.class);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addLast((session, o) -> System.out.println("------received " + o.getHello() + " from " + session + "-------"))

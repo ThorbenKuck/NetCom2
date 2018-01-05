@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
+import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
@@ -18,14 +19,16 @@ class Initializer {
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
 	private final ClientList clients;
+	private final RemoteObjectRegistration remoteObjectRegistration;
 	private Logging logging = Logging.unified();
 
 	Initializer(final InternalDistributor distributor, final CommunicationRegistration communicationRegistration,
-				final Cache cache, final ClientList clients) {
+				final Cache cache, final ClientList clients, final RemoteObjectRegistration remoteObjectRegistration) {
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
 		this.clients = clients;
+		this.remoteObjectRegistration = remoteObjectRegistration;
 	}
 
 	void init() {
@@ -59,6 +62,9 @@ class Initializer {
 			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
+
+			communicationRegistration.register(RemoteAccessCommunicationModelRequest.class)
+					.addFirst(new RemoteObjectRequestHandler(remoteObjectRegistration));
 
 			// TO NOT CHANGE THIS!
 			final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);

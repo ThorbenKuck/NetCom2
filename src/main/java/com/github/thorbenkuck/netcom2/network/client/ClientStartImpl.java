@@ -16,7 +16,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Synchronized
@@ -31,6 +30,7 @@ public class ClientStartImpl implements ClientStart {
 	private SocketFactory socketFactory;
 	private Client client;
 	private InternalSender sender;
+	private RemoteObjectFactory remoteObjectFactory;
 
 	/**
 	 * The creation of the ClientStartImpl will:
@@ -61,6 +61,7 @@ public class ClientStartImpl implements ClientStart {
 		logging.trace("Creating Sender ..");
 		sender = InternalSender.create(client);
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
+		remoteObjectFactory = new RemoteObjectFactory(sender);
 	}
 
 	/**
@@ -82,7 +83,8 @@ public class ClientStartImpl implements ClientStart {
 				throw new StartFailedException(e);
 			}
 			logging.trace("Initializing new Connection ..");
-			new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory).init();
+			new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory,
+					remoteObjectFactory.getRemoteAccessBlockRegistration()).init();
 			launched.set(true);
 		}
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
@@ -281,6 +283,17 @@ public class ClientStartImpl implements ClientStart {
 				", communicationRegistration=" + communicationRegistration +
 				", clientImpl=" + client +
 				'}';
+	}
+
+	/**
+	 * TODO
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	@Override
+	public <T> T getRemoteObject(final Class<T> clazz) {
+		return remoteObjectFactory.createRemoteObject(clazz);
 	}
 
 	/**

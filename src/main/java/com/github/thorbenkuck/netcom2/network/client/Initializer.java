@@ -26,10 +26,12 @@ class Initializer {
 	private final InternalSender sender;
 	private final ClientConnector clientConnector;
 	private final SocketFactory socketFactory;
+	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
 				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
-				final SocketFactory socketFactory) {
+				final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
+		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		Requirements.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
@@ -52,6 +54,7 @@ class Initializer {
 		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(NewConnectionRequest.class,
 				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
+		registerCriticalSingle(RemoteAccessCommunicationModelResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
