@@ -106,12 +106,27 @@ public class SystemDefaultStyleLogging implements Logging {
 		println(stacktrace);
 	}
 
+	/**
+	 * This Method synchronized prints the given String s to the provided {@link PrintStream} out
+	 *
+	 * @param s the String, that should be printed
+	 */
 	private void println(final String s) {
 		synchronized (out) {
 			out.println(s);
 		}
 	}
 
+	/**
+	 * Returns a unified prefix.
+	 *
+	 * This is the default prefix, which is universally used by this class.
+	 * You may reuse it or ignore it out right.
+	 *
+	 * It utilizes the {@link LocalDateTime} and {@link Thread#currentThread()} to give you the best information
+	 *
+	 * @return the prefix
+	 */
 	String getPrefix() {
 		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
 	}

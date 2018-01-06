@@ -11,6 +11,11 @@ public class NetComLogging implements Logging {
 		return logging;
 	}
 
+	/**
+	 * By calling this method, the {@link Logging#unified()} and any Object using it, will receive the new Logging
+	 *
+	 * @param logging the Logging that should be used universally
+	 */
 	public static void setLogging(final Logging logging) {
 		Requirements.parameterNotNull(logging);
 		if (NetComLogging.logging == logging) {

@@ -14,6 +14,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
+import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
 @Synchronized
@@ -86,12 +87,11 @@ class Initializer {
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
-		logging.trace("Registering Handler for " + clazz + " ..");
-		requireClear(clazz);
-		communicationRegistration.register(clazz)
-				.addFirst(onReceive);
-		close(clazz);
+		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
+	}
+
+	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
+		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
 	}
 
 	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz,
@@ -103,15 +103,6 @@ class Initializer {
 				.addFirst(onReceive);
 		close(clazz);
 		return toReturn;
-	}
-
-	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
-		logging.trace("Registering Handler for " + clazz + " ..");
-		requireClear(clazz);
-		communicationRegistration.register(clazz)
-				.addFirst(onReceive);
-		close(clazz);
 	}
 
 	private void close(final Class<?> clazz) {
@@ -129,8 +120,7 @@ class Initializer {
 			logging.warn("Found sealed ReceivePipeline " + receivePipeline +
 					"! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
 			if (!receivePipeline.isClosed()) {
-				logging.fatal(
-						"You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
+				logging.error("You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
 				reset(clazz);
 				logging.info("Do not seal open ReceivePipelines, that handle NetCom2 internal mechanisms!");
 				return;
@@ -142,8 +132,7 @@ class Initializer {
 					". This should not happen. Clearing ReceivePipeline");
 			logging.trace("Clearing ReceivePipeline ..");
 			receivePipeline.clear();
-			logging.info(
-					"If you want to intersect the default-NetCom2-Communication, make sure to do so, after the internal requirements have been resolved and close it again!");
+			logging.info("If you want to intersect the default-NetCom2-Communication, make sure to do so, after the internal requirements have been resolved and close it again!");
 		}
 	}
 

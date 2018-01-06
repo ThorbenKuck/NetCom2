@@ -27,9 +27,13 @@ package com.github.thorbenkuck.netcom2.interfaces;
 public interface Adapter<F, T> {
 
 	/**
-	 * This method
-	 * @param f
-	 * @return
+	 * This method is used, to adapt any Object (F) to another Object (T)
+	 *
+	 * By calling this Method, the responsible Object T is returned.
+	 * Whether or not the Object T is created or reused is not determined, in contrast to the {@link Factory} interface
+	 *
+	 * @param f the Object, that should be adapted
+	 * @return the adaptation of the parameter
 	 */
 	T get(final F f);
 }
