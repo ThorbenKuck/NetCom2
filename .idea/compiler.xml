@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="NetCom2" />
+        <module name="NetCom2 (1)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -118,7 +118,10 @@ public class SessionImpl implements Session {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
-		pipelines.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
+		pipelines.computeIfAbsent(clazz, k -> {
+			logging.trace("Adding new SessionEventPipeline for " + clazz);
+			return new QueuedPipeline<>();
+		});
 		return (Pipeline<T>) pipelines.get(clazz);
 	}
 

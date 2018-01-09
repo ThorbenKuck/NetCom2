@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
@@ -9,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 public class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunicationModelRequest> {
 
 	private final RemoteObjectRegistration remoteObjectRegistration;
+	private final Logging logging = Logging.unified();
 
 	public RemoteObjectRequestHandler(final RemoteObjectRegistration remoteObjectRegistration) {
 		this.remoteObjectRegistration = remoteObjectRegistration;
@@ -22,6 +25,10 @@ public class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessC
 	 */
 	@Override
 	public void accept(final Connection connection, final Session session, final RemoteAccessCommunicationModelRequest remoteAccessCommunicationModelRequest) {
-		remoteObjectRegistration.run(remoteAccessCommunicationModelRequest, connection);
+		try {
+			remoteObjectRegistration.run(remoteAccessCommunicationModelRequest, connection);
+		} catch (RemoteRequestException e) {
+			logging.error("Could not run RemoteObjectRequest", e);
+		}
 	}
 }

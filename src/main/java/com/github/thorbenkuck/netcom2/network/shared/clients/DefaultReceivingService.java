@@ -50,7 +50,7 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public synchronized void run() {
 		running = true;
-		logging.debug("Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
+		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
 		synchronize.goOn();
 		while (running()) {
 			try {
@@ -58,34 +58,34 @@ class DefaultReceivingService implements ReceivingService {
 				// First get, then execute!
 				threadPool.submit(() -> handle(string));
 			} catch (NoSuchElementException e) {
-				logging.info("Disconnection detected!");
+				logging.info("[ReceivingService] Disconnection detected!");
 				softStop();
 			}
 		}
 		onDisconnect();
-		logging.trace("Receiving Service stopped!");
+		logging.trace("[ReceivingService] Receiving Service stopped!");
 	}
 
 	@Asynchronous
 	private void handle(final String string) {
-		logging.trace("Handling " + string + " ..");
+		logging.trace("[ReceivingService] Handling " + string + " ..");
 		Object object = null;
 		try {
-			logging.trace("Decrypting " + string);
+			logging.trace("[ReceivingService] Decrypting " + string);
 			String toHandle = decrypt(string);
-			logging.trace("Deserialize " + toHandle + " ..");
+			logging.trace("[ReceivingService] Deserialize " + toHandle + " ..");
 			object = deserialize(toHandle);
-			logging.debug("Received: " + object + " at Connection " + connection.getKey() + "@" +
+			logging.debug("[ReceivingService] Received: " + object + " at Connection " + connection.getKey() + "@" +
 					connection.getFormattedAddress());
 			Objects.requireNonNull(object);
-			logging.trace("Triggering Communication ..");
+			logging.trace("[ReceivingService] Triggering Communication ..");
 			trigger(object);
-			logging.trace("Notifying Callbacks ..");
+			logging.trace("[ReceivingService] Notifying Callbacks ..");
 			callBack(object);
 		} catch (final DeSerializationFailedException e) {
-			logging.error("Could not Serialize!", e);
+			logging.error("[ReceivingService] Could not Serialize!", e);
 		} catch (final Throwable throwable) {
-			logging.error("Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!",
+			logging.error("[ReceivingService] Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!",
 					throwable);
 		}
 	}
@@ -96,7 +96,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void onDisconnect() {
-		logging.info("Shutting down ReceivingService!");
+		logging.info("[ReceivingService] Shutting down ReceivingService!");
 		onDisconnect.run();
 	}
 
@@ -138,13 +138,13 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void callBack(final Object object) {
-		logging.debug("Accepting CallBacks(" + object + ")!");
+		logging.debug("[ReceivingService] Accepting CallBacks(" + object + ")!");
 		runSynchronizedOverCallbacks(() -> {
-			logging.trace("Calling all callbacks, that want to be called ..");
+			logging.trace("[ReceivingService] Calling all callbacks, that want to be called ..");
 			callbacks.stream()
 					.filter(callBack -> callBack.isAcceptable(object))
 					.forEach(callBack -> {
-						logging.trace("Calling " + callBack + " ..");
+						logging.trace("[ReceivingService] Calling " + callBack + " ..");
 						callBack.accept(object);
 					});
 		});
@@ -153,32 +153,35 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private void runSynchronizedOverCallbacks(final Runnable runnable) {
-		logging.trace("Awaiting ThreadAccess over callbacks ..");
+		logging.trace("[ReceivingService] Awaiting ThreadAccess over callbacks ..");
 		synchronized (callbacks) {
-			logging.trace("Acquired ThreadAccess over callbacks!");
+			logging.trace("[ReceivingService] Acquired ThreadAccess over callbacks!");
 			runnable.run();
 		}
 	}
 
 	@Override
 	public void cleanUpCallBacks() {
-		logging.debug("Callback cleanup requested!");
+		logging.debug("[ReceivingService] Callback cleanup requested!");
 		final List<Callback<Object>> toRemove = new ArrayList<>();
-		callbacks.stream()
+		runSynchronizedOverCallbacks(() -> {
+			callbacks.stream()
 				.filter(Callback::isRemovable)
 				.forEach(callBack -> {
-					logging.trace("Marking Callback " + callBack + " as isRemovable ..");
+					logging.trace("[ReceivingService] Marking Callback " + callBack + " as to be removed ..");
 					toRemove.add(callBack);
 				});
-		runSynchronizedOverCallbacks(() -> toRemove.forEach(this::removeCallback));
-		logging.debug("Callback cleanup done!");
+			toRemove.forEach(this::removeCallback);
+		});
+
+		logging.debug("[ReceivingService] Callback cleanup done!");
 	}
 
 	@Override
 	public void addReceivingCallback(final Callback<Object> callback) {
-		logging.debug("Trying to add Callback " + callback);
+		logging.debug("[ReceivingService] Trying to add Callback " + callback);
 		runSynchronizedOverCallbacks(() -> callbacks.add(callback));
-		logging.trace("Added Callback: " + callback);
+		logging.trace("[ReceivingService] Added Callback: " + callback);
 	}
 
 	@Override
@@ -216,9 +219,9 @@ class DefaultReceivingService implements ReceivingService {
 
 	@Asynchronous
 	private void removeCallback(final Callback<Object> toRemove) {
-		logging.trace("Preparing to isRemovable Callback: " + toRemove);
+		logging.trace("[ReceivingService] Preparing to remove Callback: " + toRemove);
 		toRemove.onRemove();
-		logging.debug("Removing Callback " + toRemove);
+		logging.debug("[ReceivingService] Removing Callback " + toRemove);
 		callbacks.remove(toRemove);
 	}
 

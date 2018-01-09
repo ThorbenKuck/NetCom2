@@ -106,6 +106,9 @@ public class ServerStartTest {
 	private static void register() {
 		serverStart.remoteObjects()
 				.register((Test) () -> serverStart.distribute().toAll(new MessageFromServer("Der test lief durch!")), Test.class);
+		serverStart.remoteObjects()
+				.register((ReturnTest) () -> "Das ist Remote invoked vom Server!", ReturnTest.class);
+
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addLast((session, o) -> System.out.println("------received " + o.getHello() + " from " + session + "-------"))
@@ -114,10 +117,12 @@ public class ServerStartTest {
 				.register(TestObject.class)
 				.addLast((connection, session, o) -> connection.write(new TestObject(connection.getKey() + ":" + o.getHello())))
 				.withRequirement(Session::isIdentified);
-
 		serverStart.getCommunicationRegistration()
 				.register(Login.class)
 				.addLast((session, o) -> session.triggerEvent(Login.class, o));
+		serverStart.getCommunicationRegistration()
+				.register(Login.class)
+				.addLast((session, o) -> session.send(new TestObjectThree("okay.. Login complete")));
 
 		serverStart.getCommunicationRegistration()
 				.addDefaultCommunicationHandler(object -> logging.error("Ich kenne das Object: " + object.getClass() + " nicht!"));

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -9,26 +10,37 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
+class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private final Map<Class<?>, Object> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
 
-	@Override
-	public <T> void register(final T t) {
-		register(t, t.getClass());
+	RemoteObjectRegistrationImpl() {
+		logging.debug("RemoteObjectRegistration established!");
 	}
 
 	@Override
-	public <T> void register(final Object o, final Class<T> identifier) {
-		if(!o.getClass().isAssignableFrom(identifier)) {
-			logging.error("The Object " + o.getClass() + " is not assignable from " + identifier);
-		}
-		synchronized (mapping) {
-			mapping.put(identifier, o);
+	public void register(final Object object) {
+		register(object, object.getClass());
+	}
+
+	@Override
+	public void register(final Object o, final Class<?>... identifier) {
+		logging.debug("Trying to register " + o.getClass() + " by " + Arrays.asList(identifier));
+		for(Class<?> clazz : identifier) {
+			logging.debug("Assignable " + clazz.isAssignableFrom(o.getClass()));
+			if (!clazz.isAssignableFrom(o.getClass())) {
+				logging.error("The Object " + o.getClass() + " is not assignable from " + clazz);
+				continue;
+			}
+			logging.trace("Registering " + clazz + " as RemoteUsable by Object " + o.getClass());
+			synchronized (mapping) {
+				mapping.put(clazz, o);
+			}
 		}
 	}
 
@@ -40,15 +52,19 @@ public class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	}
 
 	@Override
-	public void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) {
+	public void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) throws RemoteRequestException {
 		Class clazz = request.getClazz();
 		Object o;
 		synchronized (mapping) {
 			o = mapping.get(clazz);
 		}
 		if(o == null) {
-			throw new IllegalArgumentException("Nothing is registered for " + request.getClazz());
+			RemoteAccessCommunicationModelResponse response = new RemoteAccessCommunicationModelResponse(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null);
+			connection.write(response);
+			System.out.println(mapping.keySet());
+			throw new RemoteRequestException("No registered Object found for " + request.getClazz());
 		}
+
 		Throwable throwableThrown = null;
 		Object result = null;
 

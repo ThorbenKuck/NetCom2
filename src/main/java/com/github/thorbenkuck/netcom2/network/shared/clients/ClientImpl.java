@@ -285,8 +285,8 @@ class ClientImpl implements Client {
 		threadPool.submit(() -> {
 			try {
 				connectionLock.lock();
-				connection.addObjectSendListener(new CallbackListener(sendExpectable));
-				connection.addObjectReceivedListener(new CallbackListener(receivedExpectable));
+				connection.addObjectSendListener(new CallbackListenerWrapper(sendExpectable));
+				connection.addObjectReceivedListener(new CallbackListenerWrapper(receivedExpectable));
 				logging.trace("Writing Object to connection");
 				connection.write(object);
 			} catch (Exception e) {
@@ -322,7 +322,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final Connection getAnyConnection() {
-		return connections.get(ThreadLocalRandom.current().nextInt(connections.size()));
+		return connections.values().toArray(new Connection[connections.size()])[ThreadLocalRandom.current().nextInt(connections.size())];
 	}
 
 	/**

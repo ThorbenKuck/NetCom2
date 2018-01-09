@@ -49,8 +49,7 @@ class Initializer {
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for UnRegisterRequest.class ..");
 			communicationRegistration.register(UnRegisterRequest.class)
-					.addFirstIfNotContained(
-							new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
+					.addFirstIfNotContained(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
 					.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration()
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for Ping.class ..");
