@@ -1,22 +1,28 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-public class RemoteInformationInvocationHandler implements InvocationHandler {
+@APILevel
+class JavaRemoteInformationInvocationHandler implements InvocationHandler {
 
 	private final Sender sender;
-	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
+	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 	private final Class<?> clazz;
 	private final UUID uuid;
 
-	public RemoteInformationInvocationHandler(final Sender sender, final RemoteAccessBlockRegistration remoteAccessBlockRegistration,
-											  final Class<?> clazz, final UUID uuid) {
+	@APILevel
+	JavaRemoteInformationInvocationHandler(final Sender sender, final RemoteAccessBlockRegistration remoteAccessBlockRegistration,
+												  final Class<?> clazz, final UUID uuid) {
 		this.sender = sender;
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		this.clazz = clazz;
@@ -57,7 +63,7 @@ public class RemoteInformationInvocationHandler implements InvocationHandler {
 	 */
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-		RemoteAccessCommunicationModelRequest request = new RemoteAccessCommunicationModelRequest(method.getName(), clazz, uuid);
+		RemoteAccessCommunicationModelRequest request = new RemoteAccessCommunicationModelRequest(method.getName(), clazz, uuid, args);
 		Semaphore semaphore = remoteAccessBlockRegistration.await(request);
 
 		sender.objectToServer(request);
@@ -69,9 +75,25 @@ public class RemoteInformationInvocationHandler implements InvocationHandler {
 		semaphore.release();
 
 		if(response.getThrownThrowable() != null) {
-			throw response.getThrownThrowable();
+			testForThrow(clazz, new RemoteRequestException(response.getThrownThrowable()));
 		}
 
 		return response.getResult();
+	}
+
+	private void testForThrow(Class<?> clazz, Throwable throwable) throws Throwable {
+		if(throwable == null) {
+			return;
+		}
+
+		IgnoreRemoteExceptions annotation = clazz.getAnnotation(IgnoreRemoteExceptions.class);
+		if(annotation != null) {
+			Class<? extends Throwable>[] toThrowAnyways = annotation.exceptTypes();
+			if(Arrays.asList(toThrowAnyways).contains(throwable.getClass())) {
+				throw throwable;
+			}
+		} else {
+			throw throwable;
+		}
 	}
 }

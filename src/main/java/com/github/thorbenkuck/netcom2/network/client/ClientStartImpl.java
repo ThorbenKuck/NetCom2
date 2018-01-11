@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
@@ -24,8 +25,8 @@ public class ClientStartImpl implements ClientStart {
 	private final Cache cache = Cache.create();
 	private final ClientConnector clientConnector;
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
-	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
-	AtomicBoolean launched = new AtomicBoolean(false);
+	@APILevel private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
+	@APILevel AtomicBoolean launched = new AtomicBoolean(false);
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
 	private Client client;
@@ -286,10 +287,7 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	/**
-	 * TODO
-	 * @param clazz
-	 * @param <T>
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public <T> T getRemoteObject(final Class<T> clazz) {
@@ -297,9 +295,22 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
+		try {
+			remoteObjectFactory.setInvocationHandlerProducer(invocationHandlerProducer);
+		} catch (InterruptedException e) {
+			logging.catching(e);
+		}
+	}
+
+	/**
 	 * This method lets runnable classes run synchronized.
 	 * @param runnable the Runnable, that should only be accessible by one Thread
 	 */
+	@APILevel
 	void runSynchronized(final Runnable runnable) {
 		Requirements.parameterNotNull(runnable);
 		synchronized (clientConnector) {

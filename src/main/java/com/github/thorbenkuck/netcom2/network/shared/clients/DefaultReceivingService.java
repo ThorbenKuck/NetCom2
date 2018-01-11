@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
@@ -19,10 +20,12 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@APILevel
 @Synchronized
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
+	@APILevel
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -37,6 +40,7 @@ class DefaultReceivingService implements ReceivingService {
 	private boolean running = false;
 	private Logging logging = Logging.unified();
 
+	@APILevel
 	DefaultReceivingService(final CommunicationRegistration communicationRegistration,
 							final DeSerializationAdapter<String, Object> deSerializationAdapter,
 							final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,

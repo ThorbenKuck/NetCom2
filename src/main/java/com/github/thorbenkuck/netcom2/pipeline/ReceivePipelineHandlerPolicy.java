@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -44,6 +45,7 @@ public enum ReceivePipelineHandlerPolicy {
 	void afterAdding(final ReceivePipeline receivePipeline) {
 	}
 
+	@APILevel
 	final void requireNotSealed(final ReceivePipeline receivePipeline) {
 		if (receivePipeline.isSealed()) {
 			fatal("ReceivePipelineHandlerPolicy not applicable to sealed Pipeline!");
@@ -51,18 +53,22 @@ public enum ReceivePipelineHandlerPolicy {
 		}
 	}
 
+	@APILevel
 	final void fatal(final String s) {
 		logging.fatal(s);
 	}
 
+	@APILevel
 	final void trace(final String s) {
 		logging.trace(s);
 	}
 
+	@APILevel
 	final void debug(final String s) {
 		logging.debug(s);
 	}
 
+	@APILevel
 	final void warn(final String s) {
 		logging.warn(s);
 	}

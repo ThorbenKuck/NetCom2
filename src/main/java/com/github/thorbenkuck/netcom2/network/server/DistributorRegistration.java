@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -8,20 +9,15 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@APILevel
 @Synchronized
-public class DistributorRegistration {
+class DistributorRegistration {
 
 	private final Logging logging = new NetComLogging();
 	private final Map<Class, Set<Session>> registration = new HashMap<>();
 
+	@APILevel
 	DistributorRegistration() {
-	}
-
-	public void addRegistration(final Class s, final Session session) {
-		synchronized (registration) {
-			getAndCreate(s).add(session);
-		}
-		logging.debug("Session " + session + " registered for " + s);
 	}
 
 	private Set<Session> getAndCreate(final Class s) {
@@ -29,7 +25,20 @@ public class DistributorRegistration {
 		return registration.get(s);
 	}
 
-	public void removeRegistration(final Session session) {
+	private Set<Session> get(final Class s) {
+		return registration.get(s) != null ? registration.get(s) : new HashSet<>();
+	}
+
+	@APILevel
+	void addRegistration(final Class s, final Session session) {
+		synchronized (registration) {
+			getAndCreate(s).add(session);
+		}
+		logging.debug("Session " + session + " registered for " + s);
+	}
+
+	@APILevel
+	void removeRegistration(final Session session) {
 		final List<Class> keys;
 		synchronized (registration) {
 			keys = registration.keySet().stream()
@@ -39,7 +48,8 @@ public class DistributorRegistration {
 		keys.forEach(clazz -> removeRegistration(clazz, session));
 	}
 
-	public void removeRegistration(final Class s, final Session session) {
+	@APILevel
+	void removeRegistration(final Class s, final Session session) {
 		final Set<Session> set;
 		synchronized (registration) {
 			set = get(s);
@@ -54,11 +64,8 @@ public class DistributorRegistration {
 		}
 	}
 
-	private Set<Session> get(final Class s) {
-		return registration.get(s) != null ? registration.get(s) : new HashSet<>();
-	}
-
-	public List<Session> getRegistered(final Class s) {
+	@APILevel
+	List<Session> getRegistered(final Class s) {
 		synchronized (registration) {
 			return new ArrayList<>(get(s));
 		}

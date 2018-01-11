@@ -1,10 +1,12 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 
 import java.io.IOException;
 import java.net.Socket;
 
+@APILevel
 class DefaultClientSocketFactory implements SocketFactory {
 
 	/**

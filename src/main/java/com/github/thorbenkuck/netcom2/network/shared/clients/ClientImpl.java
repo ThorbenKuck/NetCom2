@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
@@ -65,6 +66,7 @@ class ClientImpl implements Client {
 	 *
 	 * @param communicationRegistration the CommunicationRegistration which is used for the internal Connections
 	 */
+	@APILevel
 	ClientImpl(final CommunicationRegistration communicationRegistration) {
 		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;

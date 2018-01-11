@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
@@ -16,13 +17,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+@APILevel
 @Synchronized
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
+	@APILevel
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
+	@APILevel
 	private final Wrapper wrapper = new Wrapper();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 

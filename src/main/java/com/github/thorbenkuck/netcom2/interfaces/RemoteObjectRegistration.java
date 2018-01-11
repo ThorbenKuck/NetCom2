@@ -45,6 +45,6 @@ public interface RemoteObjectRegistration {
 
 	void unregister(Object object);
 
-	void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) throws RemoteRequestException;
+	Object run(final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException;
 
 }

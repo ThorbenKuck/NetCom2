@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -14,11 +15,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+@APILevel
 class ReceiveObjectHandlerWrapper {
 
 	private final Logging logging = Logging.unified();
 	private final ReflectionBasedObjectAnalyzer reflectionBasedObjectAnalyzer;
 
+	@APILevel
 	ReceiveObjectHandlerWrapper() {
 		reflectionBasedObjectAnalyzer = new ReflectionBasedObjectAnalyzer();
 	}
@@ -67,6 +70,7 @@ class ReceiveObjectHandlerWrapper {
 				'}';
 	}
 
+	@APILevel
 	class InvokeWrapper<T> implements OnReceiveTriple<T> {
 
 		private final Method toInvoke;

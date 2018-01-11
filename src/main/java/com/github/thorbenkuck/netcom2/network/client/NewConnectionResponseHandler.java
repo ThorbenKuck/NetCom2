@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@APILevel
 class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 
 	private final Logging logging = Logging.unified();
@@ -23,6 +25,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 	private final SocketFactory socketFactory;
 	private final Sender sender;
 
+	@APILevel
 	NewConnectionResponseHandler(final Client client, final ClientConnector clientConnector,
 								 final SocketFactory socketFactory, final Sender sender) {
 		this.client = client;

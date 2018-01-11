@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations.processors;
 
-import com.github.thorbenkuck.netcom2.annotations.Exposed;
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -14,15 +14,15 @@ import javax.tools.Diagnostic;
 import java.util.Set;
 
 /**
- * This AnnotationProcessor can be used, to process the Exposed Annotation, which should ensure that any Method annotated
- * with @{@link Exposed} is used only for internal development.
+ * This AnnotationProcessor can be used, to process the APILevel Annotation, which should ensure that any Method annotated
+ * with @{@link APILevel} is used only for internal development.
  */
-@SupportedAnnotationTypes("com.github.thorbenkuck.netcom2.annotations.Exposed")
+@SupportedAnnotationTypes("com.github.thorbenkuck.netcom2.annotations.APILevel")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExposedAnnotationProcessor extends AbstractProcessor {
 
 	private final static String ERROR_MESSAGE =
-			"Methods annotated with @Exposed should not be public, private, protected or abstract!";
+			"Methods annotated with @APILevel should not be public, private, protected or abstract!";
 
 	/**
 	 * {@inheritDoc}
@@ -32,7 +32,7 @@ public class ExposedAnnotationProcessor extends AbstractProcessor {
 	 */
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		Set<? extends Element> root = roundEnv.getElementsAnnotatedWith(Exposed.class);
+		Set<? extends Element> root = roundEnv.getElementsAnnotatedWith(APILevel.class);
 		System.out.println("Processing ..");
 		for (Element element : root) {
 			for (Modifier modifier : element.getModifiers()) {

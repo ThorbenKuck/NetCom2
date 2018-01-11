@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
@@ -30,12 +31,15 @@ import java.util.concurrent.locks.ReentrantLock;
 @Synchronized
 class ServerStartImpl implements ServerStart {
 
+	@APILevel
 	private final List<ClientConnectedHandler> clientConnectedHandlers = new ArrayList<>();
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private final ClientList clientList = ClientList.create();
+	@APILevel
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
+	@APILevel
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -44,7 +48,7 @@ class ServerStartImpl implements ServerStart {
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
-	ServerStartImpl(final ServerConnector serverConnector) {
+	ServerStartImpl(@APILevel final ServerConnector serverConnector) {
 		logging.debug("Instantiating ServerStart ..");
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -8,9 +9,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+@APILevel
 class ReflectionBasedObjectAnalyzer {
 
-	public <T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
+	@APILevel
+	<T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
 		return getCorrespondingMethod(o, clazz);
 	}
 

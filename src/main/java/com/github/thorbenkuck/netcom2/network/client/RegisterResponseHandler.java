@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -7,12 +8,14 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 
+@APILevel
 class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
 	private final InternalSender sender;
 
+	@APILevel
 	RegisterResponseHandler(final Cache cache, final InternalSender sender) {
 		this.cache = cache;
 		this.sender = sender;

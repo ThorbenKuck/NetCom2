@@ -1,12 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
 import java.util.function.Predicate;
 
-public class PipelineConditionImpl<T> implements PipelineCondition<T> {
+@APILevel
+class PipelineConditionImpl<T> implements PipelineCondition<T> {
 
 	private final PipelineElement<T> pipelineElement;
 
-	public PipelineConditionImpl(final PipelineElement<T> pipelineElement) {
+	PipelineConditionImpl(final PipelineElement<T> pipelineElement) {
 		this.pipelineElement = pipelineElement;
 	}
 

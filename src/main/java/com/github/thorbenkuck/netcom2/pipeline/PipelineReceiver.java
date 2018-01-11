@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -15,6 +16,7 @@ import java.util.Queue;
  *
  * @param <T> The object, that is handled by the {@link OnReceiveTriple} and tested by the {@link TriPredicate}
  */
+@APILevel
 class PipelineReceiver<T> {
 
 	private final OnReceiveTriple<T> onReceive;
@@ -26,6 +28,7 @@ class PipelineReceiver<T> {
 	 *
 	 * @param onReceive the OnReceive to be handled
 	 */
+	@APILevel
 	PipelineReceiver(final OnReceiveTriple<T> onReceive) {
 		this.onReceive = onReceive;
 	}
@@ -38,17 +41,20 @@ class PipelineReceiver<T> {
 	 *
 	 * @return an PipelineReceiver Null-Object
 	 */
-	static final PipelineReceiver empty() {
+	@APILevel
+	static PipelineReceiver empty() {
 		final PipelineReceiver<Object> pipelineReceiver = new PipelineReceiver<>(null);
 		pipelineReceiver.addTriPredicate(((object, object2, object3) -> false));
 		return pipelineReceiver;
 	}
 
+	@APILevel
 	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
 		Requirements.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
+	@APILevel
 	final boolean test(Connection connection, Session session, T t) {
 		Requirements.parameterNotNull(connection, session, t);
 		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
@@ -60,6 +66,7 @@ class PipelineReceiver<T> {
 		return true;
 	}
 
+	@APILevel
 	final OnReceiveTriple<T> getOnReceive() {
 		return onReceive;
 	}

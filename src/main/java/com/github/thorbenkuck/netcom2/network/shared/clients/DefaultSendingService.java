@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
@@ -21,6 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@APILevel
 class DefaultSendingService implements SendingService {
 
 	private final SerializationAdapter<Object, String> mainSerializationAdapter;
@@ -31,10 +33,12 @@ class DefaultSendingService implements SendingService {
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private PrintWriter printWriter;
+	@APILevel
 	private BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
 
+	@APILevel
 	DefaultSendingService(final SerializationAdapter<Object, String> mainSerializationAdapter,
 						  final Set<SerializationAdapter<Object, String>> fallBackSerialization,
 						  final EncryptionAdapter encryptionAdapter) {

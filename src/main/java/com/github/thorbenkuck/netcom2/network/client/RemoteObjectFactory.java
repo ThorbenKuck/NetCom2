@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+@APILevel
 class RemoteObjectFactory {
 
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
@@ -19,7 +21,8 @@ class RemoteObjectFactory {
 	private final Map<Class<?>, InvocationHandler> singletons = new HashMap<>();
 	private InvocationHandlerProducer invocationHandlerProducer;
 
-	RemoteObjectFactory(final Sender sender) {
+	@APILevel
+	RemoteObjectFactory(@APILevel final Sender sender) {
 		invocationHandlerProducer = new JavaInvocationHandlerProducer(sender, remoteAccessBlockRegistration);
 	}
 
@@ -61,6 +64,7 @@ class RemoteObjectFactory {
 		return UUID.randomUUID();
 	}
 
+	@APILevel
 	@SuppressWarnings("unchecked")
 	<T> T createRemoteObject(Class<T> clazz) {
 		Requirements.parameterNotNull(clazz);
@@ -74,10 +78,12 @@ class RemoteObjectFactory {
 		return (T) Proxy.newProxyInstance(RemoteObjectFactory.class.getClassLoader(), new Class[]{clazz}, invocationHandler);
 	}
 
+	@APILevel
 	RemoteAccessBlockRegistration getRemoteAccessBlockRegistration() {
 		return remoteAccessBlockRegistration;
 	}
 
+	@APILevel
 	void setInvocationHandlerProducer(InvocationHandlerProducer producer) throws InterruptedException {
 		Requirements.assertNotNull(producer);
 		try {

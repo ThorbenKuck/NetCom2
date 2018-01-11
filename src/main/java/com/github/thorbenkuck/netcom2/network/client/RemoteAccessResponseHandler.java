@@ -1,13 +1,16 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
 
+@APILevel
 class RemoteAccessResponseHandler implements OnReceive<RemoteAccessCommunicationModelResponse> {
 
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
+	@APILevel
 	RemoteAccessResponseHandler(final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 	}

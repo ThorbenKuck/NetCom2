@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
@@ -16,6 +17,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
+@APILevel
 @Synchronized
 class Initializer {
 
@@ -23,11 +25,12 @@ class Initializer {
 	private final CommunicationRegistration communicationRegistration;
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
-	private final InternalSender sender;
-	private final ClientConnector clientConnector;
 	private final SocketFactory socketFactory;
-	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
+	@APILevel private final InternalSender sender;
+	@APILevel private final ClientConnector clientConnector;
+	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
+	@APILevel
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
 				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
 				final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
@@ -41,6 +44,7 @@ class Initializer {
 		this.socketFactory = socketFactory;
 	}
 
+	@APILevel
 	void init() throws StartFailedException {
 		logging.trace("Registering internal Components ..");
 		register();

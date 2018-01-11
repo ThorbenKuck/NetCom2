@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
@@ -12,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
+@APILevel
 @Synchronized
 class Initializer {
 
@@ -22,6 +24,7 @@ class Initializer {
 	private final RemoteObjectRegistration remoteObjectRegistration;
 	private Logging logging = Logging.unified();
 
+	@APILevel
 	Initializer(final InternalDistributor distributor, final CommunicationRegistration communicationRegistration,
 				final Cache cache, final ClientList clients, final RemoteObjectRegistration remoteObjectRegistration) {
 		this.distributor = distributor;
@@ -31,6 +34,7 @@ class Initializer {
 		this.remoteObjectRegistration = remoteObjectRegistration;
 	}
 
+	@APILevel
 	void init() {
 		logging.trace("Creating internal dependencies");
 		logging.trace("Registering internal commands ..");
@@ -101,6 +105,7 @@ class Initializer {
 
 		private Distributor distributor;
 
+		@APILevel
 		ObserverSender(final Distributor distributor) {
 			this.distributor = distributor;
 		}

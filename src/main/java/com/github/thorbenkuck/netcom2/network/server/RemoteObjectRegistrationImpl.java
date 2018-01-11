@@ -1,25 +1,24 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
 import com.github.thorbenkuck.netcom2.utility.Requirements;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@APILevel
 class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private final Map<Class<?>, Object> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
 
+	@APILevel
 	RemoteObjectRegistrationImpl() {
 		logging.debug("RemoteObjectRegistration established!");
 	}
@@ -82,14 +81,14 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) throws RemoteRequestException {
+	public Object run(final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException {
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());
 		}
 		if(handlingObject == null) {
-			writeResult(connection, request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null);
-			throw new RemoteRequestException("No registered Object found for " + request.getClazz());
+			logging.error("No registered Objects found for " + request.getClazz());
+			return generateResult(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null);
 		}
 
 		Throwable throwableThrown = null;
@@ -104,7 +103,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				}
 			}
 		}
-		writeResult(connection, request.getUuid(), throwableThrown, result);
+		return generateResult(request.getUuid(), throwableThrown, result);
 	}
 
 	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
@@ -118,9 +117,8 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		}
 	}
 
-	private void writeResult(Connection connection, UUID uuid, Throwable throwable, Object result) {
-		RemoteAccessCommunicationModelResponse response = new RemoteAccessCommunicationModelResponse(uuid, throwable, result);
-		connection.write(response);
+	private Object generateResult(UUID uuid, Throwable throwable, Object result) {
+		return new RemoteAccessCommunicationModelResponse(uuid, throwable, result);
 
 	}
 
