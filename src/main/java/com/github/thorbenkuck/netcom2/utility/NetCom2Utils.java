@@ -8,6 +8,7 @@ import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import java.util.Objects;
 
 public class NetCom2Utils {
+
 	public static void assertNotNull(final Object o) {
 		Objects.requireNonNull(o);
 	}
