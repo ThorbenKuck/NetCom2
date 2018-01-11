@@ -164,7 +164,7 @@ public class ServerStartTest {
 		}
 
 		@Override
-		public String concatAndReturn(String original) throws RemoteRequestException {
+		public String concatAndReturn(String original) {
 			return "Server says: " + original + " is okay! :)";
 		}
 	}
