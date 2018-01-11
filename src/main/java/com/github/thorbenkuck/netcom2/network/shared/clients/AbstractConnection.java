@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
@@ -52,7 +53,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	/**
 	 * This method is called if an object is received and after its Communication is triggered
 	 *
-	 * @param o
+	 * @param o the Object
 	 */
 	abstract void receivedObject(final Object o);
 
@@ -240,8 +241,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	/**
 	 * TODO Complete the formed out Algorithm
 	 *
-	 * @param executorService
+	 * @param executorService the executorSerive
 	 */
+	@Experimental
 	@Override
 	public void setThreadPool(final ExecutorService executorService) {
 		logging.error("This operation is not yet supported!");

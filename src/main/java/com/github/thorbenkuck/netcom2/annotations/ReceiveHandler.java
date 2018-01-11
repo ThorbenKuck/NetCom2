@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
  * For that there are some requirements:
  * <ul>
  * <li>AnnotationProcessor to verify the receiver at compileTime</li>
- * <li><strike>CommunicationRegistration extension to accept and run such an receive</strike> Was implemented within 0.3.0.0</li>
  * </ul>
  * <p>
  * TODO AnnotationProcessor

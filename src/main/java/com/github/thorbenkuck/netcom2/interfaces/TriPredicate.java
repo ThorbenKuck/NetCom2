@@ -9,9 +9,9 @@ import java.util.Objects;
  * utilizes this predicate to evaluate whether or not an {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}
  * should be executed or not.
  *
- * @param <T>
- * @param <U>
- * @param <V>
+ * @param <T> T
+ * @param <U> U
+ * @param <V> V
  */
 @FunctionalInterface
 public interface TriPredicate<T, U, V> {
@@ -31,7 +31,6 @@ public interface TriPredicate<T, U, V> {
 	 * AND of this predicate and another.  When evaluating the composed
 	 * triPredicate, if this triPredicate is {@code false}, then the {@code other}
 	 * triPredicate is not evaluated.
-	 * <p>
 	 * <p>Any exceptions thrown during evaluation of either triPredicate are relayed
 	 * to the caller; if evaluation of this triPredicate throws an exception, the
 	 * {@code other} triPredicate will not be evaluated.
@@ -64,7 +63,7 @@ public interface TriPredicate<T, U, V> {
 	 * triPredicate, if this predicate is {@code true}, then the {@code other}
 	 * triPredicate is not evaluated.
 	 * <p>
-	 * <p>Any exceptions thrown during evaluation of either triPredicate are relayed
+	 * Any exceptions thrown during evaluation of either triPredicate are relayed
 	 * to the caller; if evaluation of this triPredicate throws an exception, the
 	 * {@code other} triPredicate will not be evaluated.
 	 *

@@ -36,18 +36,18 @@ public class ClientStartImpl implements ClientStart {
 	/**
 	 * The creation of the ClientStartImpl will:
 	 *
-	 * <li>
-	 *     <ul>Create an client, based upon the aggregated {@link CommunicationRegistration}</ul>
-	 *     <ul>Create a {@link ClientConnector}, based upon the provided address, port and the created Client</ul>
-	 *     <ul>Calling {@link #setSocketFactory(SocketFactory)} with the {@link DefaultClientSocketFactory}</ul>
-	 *     <ul>Create an {@link InternalSender} based upon the created Client</ul>
-	 *     <ul>Lastly add the {@link DefaultClientDisconnectedHandler}</ul>
-	 * </li>
+	 * <ul>
+	 *     <li>Create an client, based upon the aggregated {@link CommunicationRegistration}</li>
+	 *     <li>Create a {@link ClientConnector}, based upon the provided address, port and the created Client</li>
+	 *     <li>Calling {@link #setSocketFactory(SocketFactory)} with the {@link DefaultClientSocketFactory}</li>
+	 *     <li>Create an {@link InternalSender} based upon the created Client</li>
+	 *     <li>Lastly add the {@link DefaultClientDisconnectedHandler}</li>
+	 * </ul>
 	 *
 	 * This is quit a lot, but needed. This should not be that workload intensive.
 	 *
-	 * @param address
-	 * @param port
+	 * @param address the address
+	 * @param port the port
 	 * @throws NullPointerException if the provided address or port is null
 	 */
 	public ClientStartImpl(final String address, final int port) {

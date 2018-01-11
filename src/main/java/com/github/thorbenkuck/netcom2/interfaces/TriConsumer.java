@@ -8,9 +8,9 @@ import java.util.Objects;
  * Its primary use is to enable the {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}, which
  * is inherited by this Class
  *
- * @param <T>
- * @param <U>
- * @param <V>
+ * @param <T> T
+ * @param <U> U
+ * @param <V> V
  */
 @FunctionalInterface
 public interface TriConsumer<T, U, V> {

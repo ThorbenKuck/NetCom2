@@ -13,7 +13,7 @@ package com.github.thorbenkuck.netcom2.interfaces;
  *
  * <code>
  *     int param = ...
- *     Adapter<Integer, String> adapter = integer -> Integer.toString(integer);
+ *     Adapter(Integer, String) adapter = integer - Integer.toString(integer);
  *     String result = adapter.get(param);
  * </code>
  *

@@ -166,7 +166,7 @@ public interface Session extends Mutex {
 	void removeHeartBeat(final HeartBeat<Session> heartBeat);
 
 	/**
-	 * This method is only used by the {@link com.github.thorbenkuck.netcom2.network.shared.clients.ClientImpl}.
+	 * This method is only used by the {@link Client}.
 	 * The Primation is an internal Mechanism, to check the State, whether or not the current Session is ready to be used.
 	 * As any new Client is created, it gets an new Instance of a Session, which by default is not primed. Than, after the
 	 * Handshake between the ClientStart and the ServerStart, the Client is going to be Primed by calling

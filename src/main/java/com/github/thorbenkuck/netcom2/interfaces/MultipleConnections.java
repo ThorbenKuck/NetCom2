@@ -14,22 +14,21 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * <code>
  * class NewConnectionRequest {
  * private Class key;
- * <p>
+ *
  * public NewConnectionRequest(Class key) {
  * this.key = key;
  * }
- * <p>
+ *
  * public Class getKey() {
  * return this.key;
  * }
  * }
- * <p>
- * <p>
+ *
  * ServerStart serverStart = ...
- * <p>
+ *
  * serverStart.getCommunicationRegistration()
  * .register(NewConnectionRequest.class)
- * .addFirst((session, newConnectionRequest) -> serverStart.createNewConnection(session, newConnectionRequest.getKey()));
+ * .addFirst((session, newConnectionRequest) - serverStart.createNewConnection(session, newConnectionRequest.getKey()));
  * </code>
  * <p>
  * So, if the ServerStart receives a NewConnectionRequest, it establishes the new Connection over the ServerStart.

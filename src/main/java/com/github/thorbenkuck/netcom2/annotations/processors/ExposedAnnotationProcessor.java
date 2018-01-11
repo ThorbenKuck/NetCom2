@@ -26,9 +26,6 @@ public class ExposedAnnotationProcessor extends AbstractProcessor {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @param annotations
-	 * @param roundEnv
 	 */
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

@@ -18,8 +18,8 @@ public interface RemoteObjectRegistration {
 	 *
 	 * This call does not check, whether or not the class of the Object is contained within the Array of Classes!
 	 *
-	 * @param o
-	 * @param identifier
+	 * @param o The Object
+	 * @param identifier the identifiers
 	 */
 	void register(Object o, Class<?>... identifier);
 
@@ -39,7 +39,7 @@ public interface RemoteObjectRegistration {
 	 * This WILL override any previously set registrations!
 	 *
 	 * @throws IllegalArgumentException if the Object is null
-	 * @param object
+	 * @param object the Object
 	 */
 	void hook(Object object);
 

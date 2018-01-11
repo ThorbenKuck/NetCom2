@@ -17,8 +17,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
  * <li>{@link OnReceive}</li>
  * <li>{@link OnReceiveTriple}</li>
  * </ul>
- * <p>
- * </p>
  */
 public interface CanBeRegistered {
 

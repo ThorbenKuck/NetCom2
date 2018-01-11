@@ -17,13 +17,13 @@ import java.util.concurrent.ExecutorService;
  * An Client is an Object-Representation of an physically Computer, connected via one or multiple {@link java.net.Socket}.
  * <p>
  * The Client encapsulates multiple informations, needed for the Client-Server-Communication, such as:
- * <li>
- * <ul>Connections this Computer uses</ul>
- * <ul>Serialization and FallbackSerialization</ul>
- * <ul>A Session, shared across all active Connections</ul>
- * <ul>A Disconnected Handler</ul>
- * <ul>The CommunicationRegistration</ul>
- * </li>
+ * <ul>
+ * <li>Connections this Computer uses</li>
+ * <li>Serialization and FallbackSerialization</li>
+ * <li>A Session, shared across all active Connections</li>
+ * <li>A Disconnected Handler</li>
+ * <li>The CommunicationRegistration</li>
+ * </ul>
  * <p>
  * The client has multiple methods, that are required for the internal Mechanisms, so that the default behaviour is working.
  * Especially Connections, Serialization, Encryption, Primed and FalseIDs are core elements for the internal Mechanisms.
@@ -110,6 +110,7 @@ public interface Client extends Mutex {
 	void triggerPrimation();
 
 	/**
+	 * @return Awaiting
 	 * @see Session#primed()
 	 */
 	Awaiting primed();
@@ -151,7 +152,7 @@ public interface Client extends Mutex {
 	 * Most remarkably you will produce a {@link NullPointerException} whenever you registered a {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive} or {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}
 	 * which uses the injected Session and is received from the Client responsible for this Session.
 	 * <p>
-	 * This method is called by the {@link com.github.thorbenkuck.netcom2.network.client.DefaultClientDisconnectedHandler}
+	 * This method is called by the DefaultClientDisconnectedHandler
 	 * to reset the internal Client from within the {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart}
 	 * so that you might reconnect and reuse this client. At the ServerSide this will lead to problems.
 	 * <p>
@@ -288,7 +289,7 @@ public interface Client extends Mutex {
 	 * Also you might rout any other Connection by setting an already existing Connection to a new Key.
 	 * For Example:
 	 * <code>
-	 * client.getConnection(FirstKey.class).ifPresent(connection -> client.setConnection(SecondKey.class, connection));
+	 * client.getConnection(FirstKey.class).ifPresent(connection - client.setConnection(SecondKey.class, connection));
 	 * </code>
 	 * <p>
 	 * This will allow the connection to be used / retrieved by both:
@@ -527,7 +528,7 @@ public interface Client extends Mutex {
 	 * You can access the {@link Awaiting} by calling {@link #prepareConnection(Class)} with the same class. It will
 	 * return the corresponding Awaiting.
 	 *
-	 * @param clazz
+	 * @param clazz the Class
 	 * @see #prepareConnection(Class)
 	 * <p>
 	 * This Method may release the internal {@link Awaiting}, but the implementation of the Awaiting is defined by the implementation
