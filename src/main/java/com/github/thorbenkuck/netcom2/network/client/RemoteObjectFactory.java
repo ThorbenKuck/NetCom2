@@ -18,7 +18,7 @@ class RemoteObjectFactory {
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
 	private final Semaphore invocationHandlerProducerMutex = new Semaphore(1);
 	private final Logging logging = Logging.unified();
-	private final Map<Class<?>, InvocationHandler> singletons = new HashMap<>();
+	@APILevel final Map<Class<?>, RemoteObjectHandler> singletons = new HashMap<>();
 	private InvocationHandlerProducer invocationHandlerProducer;
 
 	@APILevel
@@ -41,7 +41,7 @@ class RemoteObjectFactory {
 		return singletons.get(clazz);
 	}
 
-	private InvocationHandler produceNew(Class<?> clazz) {
+	private RemoteObjectHandler produceNew(Class<?> clazz) {
 		logging.trace("Producing new InvocationHandler for " + clazz);
 		UUID uuid = createUUID();
 		try {

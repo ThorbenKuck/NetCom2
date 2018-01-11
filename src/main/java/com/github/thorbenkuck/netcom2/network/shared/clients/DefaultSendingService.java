@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 @APILevel
 class DefaultSendingService implements SendingService {
@@ -28,6 +29,7 @@ class DefaultSendingService implements SendingService {
 	private final SerializationAdapter<Object, String> mainSerializationAdapter;
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization;
 	private final EncryptionAdapter encryptionAdapter;
+	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -50,10 +52,10 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void run() {
 		if (!setup) {
-			throw new Error("[SendingService] Setup required before run!");
+			throw new Error("[SendingService{" + connectionID.get() + "}] Setup required before run!");
 		}
 		running = true;
-		logging.debug("[SendingService] Started Sending Service");
+		logging.debug("[SendingService{" + connectionID.get() + "}] Started Sending Service");
 		synchronize.goOn();
 		while (running()) {
 			try {
@@ -62,53 +64,58 @@ class DefaultSendingService implements SendingService {
 				threadPool.submit(() -> send(o));
 			} catch (InterruptedException e) {
 				if (running) {
-					logging.warn("[SendingService] Interrupted while waiting for a new Object to beforeSend");
+					logging.warn("[SendingService{" + connectionID.get() + "}] Interrupted while waiting for a new Object to beforeSend");
 					logging.catching(e);
 				}
 			}
 		}
-		logging.info("[SendingService] SendingService stopped!");
+		logging.info("[SendingService{" + connectionID.get() + "}] SendingService stopped!");
+	}
+
+	@Override
+	public void setConnectionIDSupplier(Supplier<String> supplier) {
+		this.connectionID = supplier;
 	}
 
 	private void send(final Object o) {
 		try {
-			logging.debug("[SendingService] Sending " + o + " ..");
-			logging.trace("[SendingService] Serializing " + o + " ..");
+			logging.debug("[SendingService{" + connectionID.get() + "}] Sending " + o + " ..");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Serializing " + o + " ..");
 			String toSend = serialize(o);
-			logging.trace("[SendingService] Encrypting " + toSend + " ..");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Encrypting " + toSend + " ..");
 			toSend = encrypt(toSend);
-			logging.trace("[SendingService] Writing: " + toSend + " ..");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Writing: " + toSend + " ..");
 			printWriter.println(encryptionAdapter.get(toSend));
 			printWriter.flush();
-			logging.trace("[SendingService] Successfully wrote " + toSend + "!");
-			logging.trace("[SendingService] Accepting CallBacks ..");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Successfully wrote " + toSend + "!");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Accepting CallBacks ..");
 			triggerCallbacks(o);
 		} catch (SerializationFailedException e) {
-			logging.error("[SendingService] Failed to Serialize!", e);
+			logging.error("[SendingService{" + connectionID.get() + "}] Failed to Serialize!", e);
 		} catch (Throwable throwable) {
-			logging.error("[SendingService] Encountered unexpected Throwable", throwable);
+			logging.error("[SendingService{" + connectionID.get() + "}] Encountered unexpected Throwable", throwable);
 		}
 	}
 
 	private String serialize(final Object o) throws SerializationFailedException {
 		final SerializationFailedException serializationFailedException;
 		try {
-			logging.trace("[SendingService] Trying to use mainSerializationAdapter for " + o + " .. ");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Trying to use mainSerializationAdapter for " + o + " .. ");
 			return mainSerializationAdapter.get(o);
 		} catch (SerializationFailedException ex) {
-			logging.trace("[SendingService] Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
+			logging.trace("[SendingService{" + connectionID.get() + "}] Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
 			serializationFailedException = new SerializationFailedException(ex);
 			for (final SerializationAdapter<Object, String> adapter : fallBackSerialization) {
 				try {
-					logging.trace("[SendingService] Trying to use: " + adapter + " ..");
+					logging.trace("[SendingService{" + connectionID.get() + "}] Trying to use: " + adapter + " ..");
 					return adapter.get(o);
 				} catch (SerializationFailedException e) {
-					logging.trace("[SendingService] Fallback serialization " + adapter + " failed .. Trying next one");
+					logging.trace("[SendingService{" + connectionID.get() + "}] Fallback serialization " + adapter + " failed .. Trying next one");
 					serializationFailedException.addSuppressed(e);
 				}
 			}
 		}
-		logging.warn("[SendingService] No fallback serialization found! Failed to serialize " + o + "!");
+		logging.warn("[SendingService{" + connectionID.get() + "}] No fallback serialization found! Failed to serialize " + o + "!");
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
@@ -129,7 +136,7 @@ class DefaultSendingService implements SendingService {
 	}
 
 	private void deleteCallBack(final Callback<Object> callback) {
-		logging.debug("[SendingService] Removing " + callback + " from SendingService ..");
+		logging.debug("[SendingService{" + connectionID.get() + "}] Removing " + callback + " from SendingService ..");
 		synchronized (callbacks) {
 			callbacks.remove(callback);
 		}
@@ -142,7 +149,7 @@ class DefaultSendingService implements SendingService {
 			callbacks.stream()
 					.filter(Callback::isRemovable)
 					.forEachOrdered(callBack -> {
-						logging.debug("[SendingService] Marking " + callBack + " as to be removed ..");
+						logging.debug("[SendingService{" + connectionID.get() + "}] Marking " + callBack + " as to be removed ..");
 						removable.add(callBack);
 					});
 		}
@@ -160,7 +167,7 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
 		Objects.requireNonNull(linkedBlockingQueue);
-		logging.warn("[SendingService] Overriding the sending-hook should be used with caution!");
+		logging.warn("[SendingService{" + connectionID.get() + "}] Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
 
@@ -170,7 +177,7 @@ class DefaultSendingService implements SendingService {
 		this.printWriter = new PrintWriter(outputStream);
 		this.toSend = toSendFrom;
 		setup = true;
-		logging.debug("[SendingService] DefaultSendingService is now setup!");
+		logging.debug("[SendingService{" + connectionID.get() + "}] DefaultSendingService is now setup!");
 	}
 
 	@Override

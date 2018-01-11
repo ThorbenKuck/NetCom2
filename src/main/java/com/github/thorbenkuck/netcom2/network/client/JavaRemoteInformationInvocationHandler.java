@@ -2,18 +2,21 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
+import com.github.thorbenkuck.netcom2.network.server.mapping.Mapping;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 @APILevel
-class JavaRemoteInformationInvocationHandler implements InvocationHandler {
+class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 
 	private final Sender sender;
 	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
@@ -96,4 +99,5 @@ class JavaRemoteInformationInvocationHandler implements InvocationHandler {
 			throw throwable;
 		}
 	}
+
 }

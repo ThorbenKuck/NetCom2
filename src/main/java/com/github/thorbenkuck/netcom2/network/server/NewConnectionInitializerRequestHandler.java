@@ -27,9 +27,7 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 	public void accept(final Connection connection, final Session session,
 					   final NewConnectionInitializer newConnectionInitializer) {
 		final Class connectionKey = newConnectionInitializer.getConnectionKey();
-		logging.debug(
-				"Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" +
-						newConnectionInitializer.getToDeleteID());
+		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
 		logging.debug(clients.toString());
 		final String identifier = newConnectionInitializer.getID() + "@" + connectionKey;
 		logging.debug("Received ConnectionInitializer for: " + identifier);

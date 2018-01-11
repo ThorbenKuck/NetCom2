@@ -284,19 +284,17 @@ class ClientImpl implements Client {
 		final ListenAndExpect sendExpectable = new Listener(object.getClass());
 		final ListenAndExpect receivedExpectable = new Listener(object.getClass());
 		logging.trace("Adding Expectable to connection ..");
-		threadPool.submit(() -> {
-			try {
-				connectionLock.lock();
-				connection.addObjectSendListener(new CallbackListenerWrapper(sendExpectable));
-				connection.addObjectReceivedListener(new CallbackListenerWrapper(receivedExpectable));
-				logging.trace("Writing Object to connection");
-				connection.write(object);
-			} catch (Exception e) {
-				throw new SendFailedException(e);
-			} finally {
-				connectionLock.unlock();
-			}
-		});
+		try {
+			connectionLock.lock();
+			connection.addObjectSendListener(new CallbackListenerWrapper(sendExpectable));
+			connection.addObjectReceivedListener(new CallbackListenerWrapper(receivedExpectable));
+			logging.trace("Writing Object to connection");
+			connection.write(object);
+		} catch (Exception e) {
+			throw new SendFailedException(e);
+		} finally {
+			connectionLock.unlock();
+		}
 
 		return new DefaultReceiveOrSendSync(sendExpectable, receivedExpectable, object.getClass());
 	}

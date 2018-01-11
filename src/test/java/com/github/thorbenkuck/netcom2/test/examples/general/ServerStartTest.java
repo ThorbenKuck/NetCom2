@@ -114,6 +114,9 @@ public class ServerStartTest {
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
+				.addFirst((connection, session, o) -> System.out.println("TestObject" + connection + " can be executed " + session.isIdentified()));
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
 				.addLast((connection, session, o) -> connection.write(new TestObject(connection.getKey() + ":" + o.getHello())))
 				.withRequirement(Session::isIdentified);
 		serverStart.getCommunicationRegistration()

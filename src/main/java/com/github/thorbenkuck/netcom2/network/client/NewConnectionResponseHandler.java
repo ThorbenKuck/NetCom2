@@ -44,7 +44,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 			logging.debug(
 					prefix + "Got response from Server to establish new Connection! Creating the new Connection...");
 			logging.trace(prefix + "Creating Connection by socketFactory..");
-			clientConnector.establishConnection(key, socketFactory);
+			client.setConnection(key, clientConnector.establishConnection(key, socketFactory));
 			logging.trace(prefix + "Created Connection by socketFactory!");
 			logging.trace(prefix + "Listening for Handshake-Core (Ping)");
 			client.primed().synchronize();

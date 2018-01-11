@@ -126,6 +126,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 				logging.trace("Awaiting Synchronization of ReceivingService");
 				receivingService.started().synchronize();
 				logging.trace("Awaiting Synchronization of SendingService");
+				sendingService.setConnectionIDSupplier(this::toString);
 				sendingService.started().synchronize();
 			} catch (final InterruptedException e) {
 				logging.catching(e);
@@ -184,11 +185,13 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	@Override
 	public void addObjectSendListener(final Callback<Object> callback) {
+		logging.trace("Adding SendCallback " + callback + " to " + this);
 		sendingService.addSendDoneCallback(callback);
 	}
 
 	@Override
 	public void addObjectReceivedListener(final Callback<Object> callback) {
+		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
 		receivingService.addReceivingCallback(callback);
 	}
 
@@ -276,14 +279,16 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	@Override
 	public String toString() {
-		return "Connection at: " + getFormattedAddress();
+		return "Connection{" + key.getSimpleName() + "," + getFormattedAddress() + "}";
 	}
 
 	@Override
-	protected void finalize() {
+	protected void finalize() throws Throwable {
+		Logging.unified().debug("Connection ist collected by the GC ..");
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
+		super.finalize();
 	}
 
 	@Override

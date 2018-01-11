@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public interface InvocationHandlerProducer {
 
-	InvocationHandler produce(final UUID uuid, final Class<?> clazz);
+	RemoteObjectHandler produce(final UUID uuid, final Class<?> clazz);
 }

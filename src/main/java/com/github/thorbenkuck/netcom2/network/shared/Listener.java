@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -14,12 +15,13 @@ public class Listener implements ListenAndExpect {
 	private boolean changed = false;
 
 	public Listener(Class t) {
-		Objects.requireNonNull(t);
+		NetCom2Utils.assertNotNull(t);
 		this.t = t;
 	}
 
 	@Override
 	public final void andWaitFor(final Class clazz) throws InterruptedException {
+		NetCom2Utils.parameterNotNull(clazz);
 		removable = false;
 		changed = true;
 		this.t = clazz;
@@ -27,9 +29,9 @@ public class Listener implements ListenAndExpect {
 	}
 
 	private void await() throws InterruptedException {
-		logging.debug("Awaiting receiving of " + t);
+		logging.trace("Awaiting receiving of " + t);
 		countDownLatch.await();
-		logging.debug("Listener for " + t + " finished! Continuing ..");
+		logging.trace("Listener for " + t + " finished! Continuing ..");
 	}
 
 	@Override
