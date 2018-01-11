@@ -68,7 +68,12 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			threadPool.submit(() -> triggerExisting(clazz, connection, session, o));
+			threadPool.submit(new Runnable() {
+				@Override
+				public void run() {
+					triggerExisting(clazz, connection, session, o);
+				}
+			});
 		}
 	}
 
