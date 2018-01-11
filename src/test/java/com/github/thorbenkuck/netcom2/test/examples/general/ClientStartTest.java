@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.test.examples.general;
 
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
@@ -123,14 +124,12 @@ public class ClientStartTest {
 	}
 
 	private void remoteObjectTest() {
-		System.out.println("\n\n\n\n\n");
 		Test test = clientStart.getRemoteObject(Test.class);
-
 		ReturnTest returnTest = clientStart.getRemoteObject(ReturnTest.class);
-		System.out.println(returnTest.getReturnValue());
+		ParameterReturnTest parameterReturnTest = clientStart.getRemoteObject(ParameterReturnTest.class);
 
-		System.out.println("\n\n\n\n\n");
-
+		System.out.println("\n\n\n\nReturnTest:\n" + returnTest.getReturnValue() + "\n\n\n\n\n");
+		System.out.println("\n\n\n\nParameterReturnTest:\n" + parameterReturnTest.concatAndReturn("a test") + "\n\n\n\n\n");
 		test.fire();
 	}
 

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
-public class RemoteRequestException extends NetComException {
+public class RemoteRequestException extends RuntimeException {
+
     public RemoteRequestException(String message) {
         super(message);
     }

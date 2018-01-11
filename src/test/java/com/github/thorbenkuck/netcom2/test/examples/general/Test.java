@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.test.examples.general;
 
-public interface Test {
+import java.io.Serializable;
+
+public interface Test extends Serializable {
 
 	void fire();
 

@@ -6,12 +6,45 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 
 public interface RemoteObjectRegistration {
 
-	<T> void register(T t);
+	/**
+	 * This call will register the given Object, identified by its class.
+	 *
+	 * @param object The object that should be registered
+	 */
+	void register(Object object);
 
+	/**
+	 * This call will register the given Object, identified by ALL given Classes.
+	 *
+	 * This call does not check, whether or not the class of the Object is contained within the Array of Classes!
+	 *
+	 * @param o
+	 * @param identifier
+	 */
 	void register(Object o, Class<?>... identifier);
 
-	<T> void unregister(T t);
+	/**
+	 * Register the provided Object by all its class and all declared interfaces.
+	 *
+	 * This Method will register the {@code object} by its class as well as by all declared interfaces. So registering the following class:
+	 *
+	 * {@code
+	 * class Foo implements Serializable, Runnable {
+	 *
+	 * }
+	 * }
+	 *
+	 * by stating {@code RemoteObjectRegistration#hook(new Foo())} will register the instance to Foo.class, Serializable.class and Runnable.class and will be called if one of those is requested to run.
+	 *
+	 * This WILL override any previously set registrations!
+	 *
+	 * @throws IllegalArgumentException if the Object is null
+	 * @param object
+	 */
+	void hook(Object object);
 
-	<T> void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) throws RemoteRequestException;
+	void unregister(Object object);
+
+	void run(final RemoteAccessCommunicationModelRequest request, final Connection connection) throws RemoteRequestException;
 
 }
