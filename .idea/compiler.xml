@@ -13,6 +13,7 @@
     <bytecodeTargetLevel>
       <module name="NetCom2" target="1.8" />
       <module name="NetCom2 (1)" target="1.8" />
+      <module name="NetCom2 (2)" target="1.8" />
       <module name="NetCom2_main" target="1.8" />
       <module name="NetCom2_test" target="1.8" />
     </bytecodeTargetLevel>
