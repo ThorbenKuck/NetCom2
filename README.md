@@ -17,7 +17,7 @@ NOTE: The documentation is still in Work!
 This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Tho easy to use, you can acomplish many thing using this.
 
 #### The target source is java 1.8.    
-#### The current version is compatible with java 1.9
+#### The current version is compatible with java 1.9 (ONLY TESTED ROUGHLY!)
 
 The 2 core-interfaces are:
 
@@ -51,7 +51,14 @@ Also there is a NIGHTLY branch, for the inpatient.
 
 ### Current State
 
-0.3_BETA (Release 09.07.2017)
+0.4.0.0_BETA (Release 11.01.2017)
+ * Further Documentation
+ * Greater Thread-Safety and Performance
+ * RemoteObjects
+ * Connection-Routes
+ * Bug-Fixes
+ 
+0.3.0.0_BETA (Release 09.07.2017)
 
 #### Current Development
 
@@ -79,7 +86,7 @@ Include this in your pom.xml (if you are using Maven)
 <dependency>
   <groupId>com.github.thorbenkuck</groupId>
   <artifactId>NetCom2</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 </dependency>
 ```
 
@@ -87,7 +94,7 @@ Or this in you build.gradle (if you are using Gradle)
 
 ```
 dependencies {
-    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.3'
+    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.4'
 }
 ```
 
