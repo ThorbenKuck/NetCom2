@@ -1,10 +1,12 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
+import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -29,20 +31,24 @@ import java.util.concurrent.locks.ReentrantLock;
 @Synchronized
 class ServerStartImpl implements ServerStart {
 
+	@APILevel
 	private final List<ClientConnectedHandler> clientConnectedHandlers = new ArrayList<>();
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	private final ClientList clientList = ClientList.create();
+	@APILevel
 	private final DistributorRegistration registration = new DistributorRegistration();
 	private final InternalDistributor distributor = InternalDistributor.create(clientList, registration);
 	private final Cache cache = Cache.create();
+	@APILevel
 	private final Lock threadPoolLock = new ReentrantLock();
+	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
 	private Logging logging = Logging.unified();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
 	private boolean running = false;
 
-	ServerStartImpl(final ServerConnector serverConnector) {
+	ServerStartImpl(@APILevel final ServerConnector serverConnector) {
 		logging.debug("Instantiating ServerStart ..");
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
@@ -50,6 +56,38 @@ class ServerStartImpl implements ServerStart {
 				new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
 		logging.trace("Setting DefaultServerSocketFactory ..");
 		setServerSocketFactory(new DefaultServerSocketFactory());
+	}
+
+	/**
+	 * @param socket
+	 */
+	@Asynchronous
+	private void handle(final Socket socket) {
+		logging.debug("Handling new Socket: " + socket);
+		Client client = null;
+		logging.trace("Requesting handling at clientConnectedHandlers ..");
+		final List<ClientConnectedHandler> clientConnectedHandlerList;
+		synchronized (clientConnectedHandlers) {
+			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
+		}
+		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
+			if (client == null) {
+				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
+				client = clientConnectedHandler.create(socket);
+				if (client != null) {
+					logging.trace("ClientConnectedHandler " + clientConnectedHandler +
+							" successfully created Client! Blocking access to client-creation.");
+				}
+			}
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
+			clientConnectedHandler.handle(client);
+		}
+	}
+
+	private void hardStop() {
+		logging.info("Shutting threadPool down forcefully! Expect interrupted Exceptions!");
+		threadPool.shutdownNow();
+		running = false;
 	}
 
 	@Override
@@ -61,7 +99,7 @@ class ServerStartImpl implements ServerStart {
 		logging.info("Starting server at port: " + serverConnector.getPort());
 		try {
 			logging.trace("Initializing connection to port: " + serverConnector.getPort());
-			new Initializer(distributor, communicationRegistration, cache, clientList).init();
+			new Initializer(distributor, communicationRegistration, cache, clientList, remoteObjectRegistration).init();
 			logging.trace("Establishing Connection ..");
 			serverConnector.establishConnection(serverSocketFactory);
 			logging.info("Established connection at port: " + serverConnector.getPort());
@@ -108,7 +146,7 @@ class ServerStartImpl implements ServerStart {
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		if (!running) {
+		if (! running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
@@ -191,36 +229,9 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
-	/**
-	 * @param socket
-	 */
-	@Asynchronous
-	private void handle(final Socket socket) {
-		logging.debug("Handling new Socket: " + socket);
-		Client client = null;
-		logging.trace("Requesting handling at clientConnectedHandlers ..");
-		final List<ClientConnectedHandler> clientConnectedHandlerList;
-		synchronized (clientConnectedHandlers) {
-			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
-		}
-		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
-			if (client == null) {
-				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
-				client = clientConnectedHandler.create(socket);
-				if (client != null) {
-					logging.trace("ClientConnectedHandler " + clientConnectedHandler +
-							" successfully created Client! Blocking access to client-creation.");
-				}
-			}
-			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
-			clientConnectedHandler.handle(client);
-		}
-	}
-
-	private void hardStop() {
-		logging.info("Shutting threadPool down forcefully! Expect interrupted Exceptions!");
-		threadPool.shutdownNow();
-		running = false;
+	@Override
+	public RemoteObjectRegistration remoteObjects() {
+		return remoteObjectRegistration;
 	}
 
 	@Asynchronous
@@ -274,7 +285,7 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Trying to create Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
 		final Optional<Client> clientOptional = clientList.getClient(session);
-		if (!clientOptional.isPresent()) {
+		if (! clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session: " + session);
 			return Synchronize.empty();
 		}

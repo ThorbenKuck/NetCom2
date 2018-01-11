@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Connector;
@@ -7,20 +8,21 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.Socket;
 
+@APILevel
 class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	private final Logging logging = Logging.unified();
-	private final ConnectionFactory connectionFactory = new ConnectionFactory();
+	@APILevel private final ConnectionFactory connectionFactory = new ConnectionFactory();
 	private final Client client;
-	private final String address;
-	private final int port;
+	@APILevel private final String address;
+	@APILevel private final int port;
 
-	ClientConnector(final String address, final int port, final Client client) {
+	ClientConnector(@APILevel final String address, @APILevel final int port, final Client client) {
 		this.address = address;
 		this.port = port;
 		this.client = client;
@@ -35,7 +37,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final SocketFactory factory) throws IOException {
-		Requirements.parameterNotNull(factory);
+		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
 		final Socket socket = factory.create(port, address);
@@ -63,8 +65,8 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
-		Requirements.parameterNotNull(factory);
-		Requirements.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(factory);
+		NetCom2Utils.assertNotNull(key);
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");

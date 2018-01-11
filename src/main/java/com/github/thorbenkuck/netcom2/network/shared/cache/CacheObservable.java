@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Synchronized
-public class CacheObservable {
+public abstract class CacheObservable {
 
 	private final List<CacheObserver<?>> obs = new ArrayList<>();
 	private AtomicBoolean changed = new AtomicBoolean(false);

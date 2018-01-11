@@ -1,8 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+@APILevel
 class HeartBeatConfig<T> {
 
 	private Predicate<T> runningPredicate;

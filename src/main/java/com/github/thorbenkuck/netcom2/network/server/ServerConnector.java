@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Connector;
@@ -8,20 +9,24 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+@APILevel
 class ServerConnector implements Connector<Factory<Integer, ServerSocket>, ServerSocket> {
 
 	private final int port;
 	private final Logging logging = Logging.unified();
 	private ServerSocket serverSocket;
 
+	@APILevel
 	ServerConnector(final int port) {
 		this.port = port;
 	}
 
+	@APILevel
 	int getPort() {
 		return port;
 	}
 
+	@APILevel
 	ServerSocket getServerSocket() {
 		return serverSocket;
 	}

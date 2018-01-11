@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This logging implementation uses reflection to determine the caller of any method.
@@ -17,7 +17,7 @@ public class CallerReflectionLogging implements Logging {
 	}
 
 	public CallerReflectionLogging(final Logging base) {
-		Requirements.assertNotNull(base);
+		NetCom2Utils.assertNotNull(base);
 		this.style = base;
 		warn("This Logging-Mechanism is very workload-intensive!");
 	}

@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
 import java.util.function.Consumer;
 
 public class ThreadedHeartBeat<T> implements HeartBeat<T> {
@@ -13,6 +15,7 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		this(new HeartBeatConfig<>());
 	}
 
+	@APILevel
 	ThreadedHeartBeat(HeartBeatConfig<T> heartBeatConfig) {
 		this.heartBeatConfig = heartBeatConfig;
 	}

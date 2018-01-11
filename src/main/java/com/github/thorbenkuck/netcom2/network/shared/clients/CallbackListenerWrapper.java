@@ -1,13 +1,17 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
 
-public class CallbackListener implements Callback<Object> {
+@APILevel
+class CallbackListenerWrapper implements Callback<Object> {
 
+	@APILevel
 	private final ListenAndExpect listener;
 
-	public CallbackListener(final ListenAndExpect listener) {
+	@APILevel
+	CallbackListenerWrapper(@APILevel final ListenAndExpect listener) {
 		this.listener = listener;
 	}
 
@@ -18,11 +22,16 @@ public class CallbackListener implements Callback<Object> {
 
 	@Override
 	public boolean isAcceptable(final Object object) {
-		return listener.isAcceptable(object.getClass());
+		return listener.isAcceptable(object);
 	}
 
 	@Override
 	public boolean isRemovable() {
 		return listener.isRemovable();
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "{ " + listener.toString() + "}";
 	}
 }

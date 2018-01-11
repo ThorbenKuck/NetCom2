@@ -1,15 +1,18 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.SessionUpdate;
 
 import java.util.Properties;
 
+@APILevel
 class SessionUpdaterImpl implements SessionUpdater {
 
 	private final Session session;
 	private final Logging logging = Logging.unified();
 
+	@APILevel
 	SessionUpdaterImpl(final Session session) {
 		this.session = session;
 	}

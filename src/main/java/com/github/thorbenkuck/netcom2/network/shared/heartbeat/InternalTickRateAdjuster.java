@@ -1,9 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
+@APILevel
 class InternalTickRateAdjuster<T> implements TickRateAdjuster<T> {
 
 	private final ThreadedHeartBeat<T> heartBeat;
 
+	@APILevel
 	InternalTickRateAdjuster(ThreadedHeartBeat<T> heartBeat) {
 		this.heartBeat = heartBeat;
 	}

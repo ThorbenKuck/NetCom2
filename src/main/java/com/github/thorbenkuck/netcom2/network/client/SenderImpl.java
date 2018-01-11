@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.UnRegistrationException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
@@ -14,13 +15,15 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterReques
 import java.util.HashMap;
 import java.util.Map;
 
-public class SenderImpl implements InternalSender, Loggable {
+@APILevel
+class SenderImpl implements InternalSender, Loggable {
 
 	private final Client client;
 	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
 	private Logging logging = new NetComLogging();
 
-	public SenderImpl(final Client client) {
+	@APILevel
+	SenderImpl(final Client client) {
 		this.client = client;
 	}
 

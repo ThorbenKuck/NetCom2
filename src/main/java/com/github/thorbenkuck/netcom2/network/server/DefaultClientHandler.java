@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
@@ -15,6 +16,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import java.io.IOException;
 import java.net.Socket;
 
+@APILevel
 class DefaultClientHandler implements ClientConnectedHandler {
 
 	private final ClientList clientList;
@@ -25,6 +27,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private Connection connection;
 	private Logging logging = Logging.unified();
 
+	@APILevel
 	DefaultClientHandler(final ClientList clientList, final InternalDistributor distributor,
 						 final CommunicationRegistration communicationRegistration,
 						 final DistributorRegistration distributorRegistration) {

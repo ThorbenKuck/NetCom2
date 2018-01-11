@@ -1,10 +1,11 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.function.BiPredicate;
 
@@ -15,12 +16,14 @@ import java.util.function.BiPredicate;
  *
  * @param <T> the Object, which will be received over the network and handled at either the ClientStartup or ServerStartup.
  */
+@APILevel
 class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, T> {
 
 	private final BiPredicate<Session, T> biPredicate;
 
+	@APILevel
 	OnReceivePredicateWrapper(final BiPredicate<Session, T> biPredicate) {
-		Requirements.assertNotNull(biPredicate);
+		NetCom2Utils.assertNotNull(biPredicate);
 		this.biPredicate = biPredicate;
 	}
 

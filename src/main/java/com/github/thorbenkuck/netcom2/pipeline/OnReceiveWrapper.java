@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
@@ -7,10 +8,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 
 import java.util.Objects;
 
+@APILevel
 class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	private final OnReceive<O> onReceive;
 
+	@APILevel
 	OnReceiveWrapper(final OnReceive<O> onReceive) {
 		Objects.requireNonNull(onReceive);
 		this.onReceive = onReceive;

@@ -1,8 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
+import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
@@ -11,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
+@APILevel
 @Synchronized
 class Initializer {
 
@@ -18,16 +21,20 @@ class Initializer {
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
 	private final ClientList clients;
+	private final RemoteObjectRegistration remoteObjectRegistration;
 	private Logging logging = Logging.unified();
 
+	@APILevel
 	Initializer(final InternalDistributor distributor, final CommunicationRegistration communicationRegistration,
-				final Cache cache, final ClientList clients) {
+				final Cache cache, final ClientList clients, final RemoteObjectRegistration remoteObjectRegistration) {
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
 		this.clients = clients;
+		this.remoteObjectRegistration = remoteObjectRegistration;
 	}
 
+	@APILevel
 	void init() {
 		logging.trace("Creating internal dependencies");
 		logging.trace("Registering internal commands ..");
@@ -46,8 +53,7 @@ class Initializer {
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for UnRegisterRequest.class ..");
 			communicationRegistration.register(UnRegisterRequest.class)
-					.addFirstIfNotContained(
-							new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
+					.addFirstIfNotContained(new UnRegisterRequestReceiveHandler(distributor.getDistributorRegistration()))
 					.withRequirement((session, registerRequest) -> distributor.getDistributorRegistration()
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for Ping.class ..");
@@ -59,6 +65,9 @@ class Initializer {
 			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
+
+			communicationRegistration.register(RemoteAccessCommunicationModelRequest.class)
+					.addFirst(new RemoteObjectRequestHandler(remoteObjectRegistration));
 
 			// TO NOT CHANGE THIS!
 			final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
@@ -96,6 +105,7 @@ class Initializer {
 
 		private Distributor distributor;
 
+		@APILevel
 		ObserverSender(final Distributor distributor) {
 			this.distributor = distributor;
 		}

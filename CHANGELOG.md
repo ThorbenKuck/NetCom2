@@ -45,7 +45,7 @@
 
 #### Methods
 
-* All lock calls have been removed, because the print is already synchronized at the println method.
+* All lock calls have been removed, because the print is already synchronized at the println methodName.
 
 ### PipelineReceiverImpl
 
@@ -94,7 +94,7 @@
 #### Other
 
 * Added Java-Doc
-* Added the @FunctionalInterface annotation, to signal, that the interface should contain exactly 1 non-default method
+* Added the @FunctionalInterface annotation, to signal, that the interface should contain exactly 1 non-default methodName
 
 ### Factory
 
@@ -181,15 +181,15 @@
 
 #### Other
 
-* This annotation is now used at Methods, to notify that a method is currently Experimental
+* This annotation is now used at Methods, to notify that a methodName is currently Experimental
 
 ### Tested-Annotation
 
 #### Methods
 
-* added the responsibleTest method, to show of, what test is testing this annotated Class
+* added the responsibleTest methodName, to show of, what test is testing this annotated Class
   * This Method takes a String, since the Test-Sources are not available at the source set
-* added the uniteTest method, which describes whether or not the responsible Test is a Unit Test
+* added the uniteTest methodName, which describes whether or not the responsible Test is a Unit Test
 
 #### Other
 

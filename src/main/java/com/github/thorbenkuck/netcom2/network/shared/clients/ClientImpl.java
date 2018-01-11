@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
@@ -9,7 +10,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,6 +66,7 @@ class ClientImpl implements Client {
 	 *
 	 * @param communicationRegistration the CommunicationRegistration which is used for the internal Connections
 	 */
+	@APILevel
 	ClientImpl(final CommunicationRegistration communicationRegistration) {
 		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;
@@ -274,7 +276,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(final Connection connection, final Object object) {
-		Requirements.assertNotNull(object);
+		NetCom2Utils.assertNotNull(object);
 		requireConnected(connection);
 
 		logging.debug("Trying to beforeSend " + object + " over Connection " + connection.getKey());
@@ -285,8 +287,8 @@ class ClientImpl implements Client {
 		threadPool.submit(() -> {
 			try {
 				connectionLock.lock();
-				connection.addObjectSendListener(new CallbackListener(sendExpectable));
-				connection.addObjectReceivedListener(new CallbackListener(receivedExpectable));
+				connection.addObjectSendListener(new CallbackListenerWrapper(sendExpectable));
+				connection.addObjectReceivedListener(new CallbackListenerWrapper(receivedExpectable));
 				logging.trace("Writing Object to connection");
 				connection.write(object);
 			} catch (Exception e) {
@@ -322,7 +324,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final Connection getAnyConnection() {
-		return connections.get(ThreadLocalRandom.current().nextInt(connections.size()));
+		return connections.values().toArray(new Connection[connections.size()])[ThreadLocalRandom.current().nextInt(connections.size())];
 	}
 
 	/**
@@ -351,7 +353,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setID(final ClientID id) {
-		Requirements.parameterNotNull(id);
+		NetCom2Utils.parameterNotNull(id);
 		try {
 			idLock.lock();
 			if (!ClientID.isEmpty(this.id)) {
@@ -368,7 +370,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setConnection(final Class key, final Connection connection) {
-		Requirements.parameterNotNull(key, connection);
+		NetCom2Utils.parameterNotNull(key, connection);
 		logging.debug("Setting new Connection for " + key);
 		try {
 			connectionLock.lock();
@@ -386,7 +388,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void routeConnection(final Class originalKey, final Class newKey) {
-		Requirements.parameterNotNull(originalKey);
+		NetCom2Utils.parameterNotNull(originalKey);
 
 		final Connection connection;
 		try {
@@ -398,7 +400,7 @@ class ClientImpl implements Client {
 			connectionLock.unlock();
 		}
 
-		Requirements.parameterNotNull(connection, "No Connection found for given key: " + originalKey);
+		NetCom2Utils.parameterNotNull(connection, "No Connection found for given key: " + originalKey);
 
 		routeConnection(connection, newKey);
 	}
@@ -431,7 +433,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void routeConnection(final Connection originalConnection, final Class newKey) {
-		Requirements.parameterNotNull(originalConnection);
+		NetCom2Utils.parameterNotNull(originalConnection);
 
 		try {
 			connectionLock.lock();

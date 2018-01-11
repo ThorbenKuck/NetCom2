@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.interfaces;
 
+import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectAccess;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.client.ClientStartImpl;
 import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
@@ -12,7 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdap
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
-public interface ClientStart extends Launch, Loggable {
+public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 
 	static ClientStart at(final String address, final int port) {
 		return new ClientStartImpl(address, port);

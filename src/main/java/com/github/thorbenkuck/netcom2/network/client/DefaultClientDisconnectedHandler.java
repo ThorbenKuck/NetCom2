@@ -1,13 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+@APILevel
 @Synchronized
 class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 
@@ -25,7 +27,7 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 	@Asynchronous
 	@Override
 	public void handle(final Client client) {
-		Requirements.parameterNotNull(client);
+		NetCom2Utils.parameterNotNull(client);
 		logging.warn("Disconnected from Server! Cleaning up ..");
 		logging.debug("Disconnection requested!");
 		logging.trace("Clearing internal Cache ..");

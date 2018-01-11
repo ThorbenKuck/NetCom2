@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -15,7 +16,8 @@ import java.util.concurrent.Semaphore;
  * Note that only the Methods: {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()} are marked final,
  * so that the default behaviour of the internal Mechanisms is ensured.
  */
-public class SessionImpl implements Session {
+@APILevel
+class SessionImpl implements Session {
 
 	private final SendBridge sendBridge;
 	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
@@ -28,6 +30,7 @@ public class SessionImpl implements Session {
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
 
+	@APILevel
 	SessionImpl(final SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
 		this.uuid = UUID.randomUUID();
@@ -118,7 +121,10 @@ public class SessionImpl implements Session {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
-		pipelines.computeIfAbsent(clazz, k -> new QueuedPipeline<>());
+		pipelines.computeIfAbsent(clazz, k -> {
+			logging.trace("Adding new SessionEventPipeline for " + clazz);
+			return new QueuedPipeline<>();
+		});
 		return (Pipeline<T>) pipelines.get(clazz);
 	}
 

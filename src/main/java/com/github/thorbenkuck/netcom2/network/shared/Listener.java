@@ -11,6 +11,7 @@ public class Listener implements ListenAndExpect {
 	private Class t;
 	private CountDownLatch countDownLatch = new CountDownLatch(1);
 	private boolean removable = true;
+	private boolean changed = false;
 
 	public Listener(Class t) {
 		Objects.requireNonNull(t);
@@ -20,20 +21,21 @@ public class Listener implements ListenAndExpect {
 	@Override
 	public final void andWaitFor(final Class clazz) throws InterruptedException {
 		removable = false;
+		changed = true;
 		this.t = clazz;
 		await();
 	}
 
 	private void await() throws InterruptedException {
-		logging.trace("Awaiting receiving of " + t);
+		logging.debug("Awaiting receiving of " + t);
 		countDownLatch.await();
-		logging.trace("Received " + t + "! Continuing ..");
+		logging.debug("Listener for " + t + " finished! Continuing ..");
 	}
 
 	@Override
 	public final void tryAccept(final Class clazz) {
 		logging.trace("Trying to match " + clazz + " to " + t);
-		if (t.equals(clazz)) {
+		if (isAcceptable(clazz)) {
 			trigger();
 		}
 	}
@@ -56,6 +58,6 @@ public class Listener implements ListenAndExpect {
 	}
 
 	public String toString() {
-		return "Listening for Class: " + t;
+		return (changed ? "!!!!!!!!!" : "") + "Listening for Class: " + t;
 	}
 }

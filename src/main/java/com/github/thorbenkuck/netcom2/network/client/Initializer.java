@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
@@ -15,8 +16,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+@APILevel
 @Synchronized
 class Initializer {
 
@@ -24,14 +26,17 @@ class Initializer {
 	private final CommunicationRegistration communicationRegistration;
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
-	private final InternalSender sender;
-	private final ClientConnector clientConnector;
 	private final SocketFactory socketFactory;
+	@APILevel private final InternalSender sender;
+	@APILevel private final ClientConnector clientConnector;
+	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
+	@APILevel
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
 				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
-				final SocketFactory socketFactory) {
-		Requirements.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
+				final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
+		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
+		NetCom2Utils.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
@@ -40,6 +45,7 @@ class Initializer {
 		this.socketFactory = socketFactory;
 	}
 
+	@APILevel
 	void init() throws StartFailedException {
 		logging.trace("Registering internal Components ..");
 		register();
@@ -53,6 +59,7 @@ class Initializer {
 		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(NewConnectionRequest.class,
 				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
+		registerCriticalSingle(RemoteAccessCommunicationModelResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
@@ -94,9 +101,8 @@ class Initializer {
 		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
 	}
 
-	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz,
-																   final OnReceiveTriple<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
+	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {
+		NetCom2Utils.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		final ReceivePipelineCondition<T> toReturn = communicationRegistration.register(clazz)
@@ -106,13 +112,13 @@ class Initializer {
 	}
 
 	private void close(final Class<?> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Closing, but not sealing the CachePushReceivePipeline");
 		communicationRegistration.register(clazz).close();
 	}
 
 	private <T> void requireClear(final Class<T> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Checking for the Receive Pipeline of Class " + clazz);
 		final ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
 
@@ -137,7 +143,7 @@ class Initializer {
 	}
 
 	private <T> void reset(final Class<T> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Unregister of Class " + clazz + " will be performed");
 		communicationRegistration.unRegister(clazz);
 	}

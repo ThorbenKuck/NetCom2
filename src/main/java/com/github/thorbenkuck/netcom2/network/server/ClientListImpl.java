@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -14,6 +15,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
+@APILevel
 @Synchronized
 class ClientListImpl extends Observable implements ClientList, Mutex {
 
@@ -22,6 +24,7 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 	private final Logging logging = new NetComLogging();
 	private final Semaphore semaphore = new Semaphore(1);
 
+	@APILevel
 	ClientListImpl() {
 	}
 
@@ -108,7 +111,7 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 
 	@Override
 	public Iterator<Client> iterator() {
-		return new ClientIterator(this);
+		return new AsynchronousClientIterator(this);
 	}
 
 	@Override
@@ -130,12 +133,14 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 		semaphore.release();
 	}
 
-	private class ClientIterator implements Iterator<Client> {
+	@APILevel
+	private class AsynchronousClientIterator implements Iterator<Client> {
 
 		private Queue<Client> clients;
 		private Client current;
 
-		public ClientIterator(final ClientListImpl clientList) {
+		@APILevel
+		AsynchronousClientIterator(final ClientListImpl clientList) {
 			try {
 				clientLock.lock();
 				clients = new LinkedList<>(clientList.accessInternals());

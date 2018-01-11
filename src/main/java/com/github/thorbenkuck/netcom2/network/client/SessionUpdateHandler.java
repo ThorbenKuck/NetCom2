@@ -1,8 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
+@APILevel
 class SessionUpdateHandler implements OnReceive<Session> {
 	@Override
 	public void accept(final Session session, final Session newSession) {

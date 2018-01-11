@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+@APILevel
 @Synchronized
 class DistributorImpl implements InternalDistributor {
 
@@ -18,6 +20,7 @@ class DistributorImpl implements InternalDistributor {
 	private final ClientList clientList;
 	private final DistributorRegistration distributorRegistration;
 
+	@APILevel
 	DistributorImpl(final ClientList clientList, final DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.distributorRegistration = distributorRegistration;
