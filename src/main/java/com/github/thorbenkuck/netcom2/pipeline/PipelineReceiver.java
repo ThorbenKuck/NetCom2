@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -50,13 +50,13 @@ class PipelineReceiver<T> {
 
 	@APILevel
 	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
-		Requirements.parameterNotNull(triPredicate);
+		NetCom2Utils.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
 	@APILevel
 	final boolean test(Connection connection, Session session, T t) {
-		Requirements.parameterNotNull(connection, session, t);
+		NetCom2Utils.parameterNotNull(connection, session, t);
 		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
 			if (! predicateTemp.remove().test(connection, session, t)) {

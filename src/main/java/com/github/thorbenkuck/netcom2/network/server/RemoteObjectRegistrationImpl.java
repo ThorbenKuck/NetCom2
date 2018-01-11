@@ -4,10 +4,9 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -28,7 +27,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void register(final Object object) {
-		Requirements.parameterNotNull(object);
+		NetCom2Utils.parameterNotNull(object);
 		register(object, object.getClass());
 	}
 
@@ -37,7 +36,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void register(final Object o, final Class<?>... identifier) {
-		Requirements.parameterNotNull(o, identifier);
+		NetCom2Utils.parameterNotNull(o, identifier);
 		if(identifier.length <= 0) {
 			throw new IllegalArgumentException("At least on identifier class is required to register an Object!");
 		}
@@ -60,7 +59,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void hook(Object object) {
-		Requirements.parameterNotNull(object);
+		NetCom2Utils.parameterNotNull(object);
 		List<Class> classList = new ArrayList<>();
 		classList.addAll(Arrays.asList(object.getClass().getInterfaces()));
 		classList.add(object.getClass());

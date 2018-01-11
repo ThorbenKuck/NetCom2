@@ -10,7 +10,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -166,7 +166,7 @@ class DefaultSendingService implements SendingService {
 
 	@Override
 	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
-		Requirements.assertNotNull(outputStream, toSendFrom);
+		NetCom2Utils.assertNotNull(outputStream, toSendFrom);
 		this.printWriter = new PrintWriter(outputStream);
 		this.toSend = toSendFrom;
 		setup = true;

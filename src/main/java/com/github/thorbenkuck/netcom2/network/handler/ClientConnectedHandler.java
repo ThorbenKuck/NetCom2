@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.handler;
 
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.net.Socket;
 
@@ -14,13 +14,13 @@ public interface ClientConnectedHandler {
 	void handle(final Client client);
 
 	/**
-	 * This Method encapsulates the {@link Requirements} class and will throw an {@link NullPointerException} if the
+	 * This Method encapsulates the {@link NetCom2Utils} class and will throw an {@link NullPointerException} if the
 	 * provided Object is null.
 	 *
 	 * @param o the Object, that should be tested
 	 * @throws NullPointerException if o is null
 	 */
 	default void assertNotNull(final Object o) {
-		Requirements.assertNotNull(o);
+		NetCom2Utils.assertNotNull(o);
 	}
 }

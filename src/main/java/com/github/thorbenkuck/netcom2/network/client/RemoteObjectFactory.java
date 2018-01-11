@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -67,7 +67,7 @@ class RemoteObjectFactory {
 	@APILevel
 	@SuppressWarnings("unchecked")
 	<T> T createRemoteObject(Class<T> clazz) {
-		Requirements.parameterNotNull(clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		InvocationHandler invocationHandler = produceInvocationHandler(clazz);
 
 		if(invocationHandler == null) {
@@ -85,7 +85,7 @@ class RemoteObjectFactory {
 
 	@APILevel
 	void setInvocationHandlerProducer(InvocationHandlerProducer producer) throws InterruptedException {
-		Requirements.assertNotNull(producer);
+		NetCom2Utils.assertNotNull(producer);
 		try {
 			invocationHandlerProducerMutex.acquire();
 			invocationHandlerProducer = producer;

@@ -15,7 +15,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
 @Synchronized
@@ -35,7 +35,7 @@ class Initializer {
 				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
 				final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
-		Requirements.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
+		NetCom2Utils.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
 		this.client = client;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
@@ -93,7 +93,7 @@ class Initializer {
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
+		NetCom2Utils.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		communicationRegistration.register(clazz)
@@ -103,7 +103,7 @@ class Initializer {
 
 	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz,
 																   final OnReceiveTriple<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
+		NetCom2Utils.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		final ReceivePipelineCondition<T> toReturn = communicationRegistration.register(clazz)
@@ -113,7 +113,7 @@ class Initializer {
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
-		Requirements.assertNotNull(clazz, onReceive);
+		NetCom2Utils.assertNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		communicationRegistration.register(clazz)
@@ -122,13 +122,13 @@ class Initializer {
 	}
 
 	private void close(final Class<?> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Closing, but not sealing the CachePushReceivePipeline");
 		communicationRegistration.register(clazz).close();
 	}
 
 	private <T> void requireClear(final Class<T> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Checking for the Receive Pipeline of Class " + clazz);
 		final ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
 
@@ -155,7 +155,7 @@ class Initializer {
 	}
 
 	private <T> void reset(final Class<T> clazz) {
-		Requirements.assertNotNull(clazz);
+		NetCom2Utils.assertNotNull(clazz);
 		logging.trace("Unregister of Class " + clazz + " will be performed");
 		communicationRegistration.unRegister(clazz);
 	}

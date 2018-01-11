@@ -8,7 +8,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -37,7 +37,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final SocketFactory factory) throws IOException {
-		Requirements.parameterNotNull(factory);
+		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
 		final Socket socket = factory.create(port, address);
@@ -65,8 +65,8 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
-		Requirements.parameterNotNull(factory);
-		Requirements.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(factory);
+		NetCom2Utils.assertNotNull(key);
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");

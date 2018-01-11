@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.function.BiPredicate;
 
@@ -23,7 +23,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 
 	@APILevel
 	OnReceivePredicateWrapper(final BiPredicate<Session, T> biPredicate) {
-		Requirements.assertNotNull(biPredicate);
+		NetCom2Utils.assertNotNull(biPredicate);
 		this.biPredicate = biPredicate;
 	}
 

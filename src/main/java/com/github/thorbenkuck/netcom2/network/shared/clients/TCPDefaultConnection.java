@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Acknowledge;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 
 	@Override
 	protected synchronized void beforeSend(final Object object) {
-		Requirements.assertNotNull(object);
+		NetCom2Utils.assertNotNull(object);
 		if (object.getClass().equals(Acknowledge.class)) {
 			logging.trace("[TCP] No need to setup an synchronization mechanism an Acknowledge!");
 			return;

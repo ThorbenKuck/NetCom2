@@ -8,7 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
 class NewConnectionInitializerHandler implements OnReceiveTriple<NewConnectionInitializer> {
@@ -25,7 +25,7 @@ class NewConnectionInitializerHandler implements OnReceiveTriple<NewConnectionIn
 	@Override
 	public void accept(final Connection connection, final Session session,
 					   final NewConnectionInitializer newConnectionInitializer) {
-		Requirements.assertNotNull(connection, newConnectionInitializer);
+		NetCom2Utils.assertNotNull(connection, newConnectionInitializer);
 		logging.info("Setting new Connection to Key " + newConnectionInitializer.getConnectionKey());
 		client.setConnection(newConnectionInitializer.getConnectionKey(), connection);
 	}

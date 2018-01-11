@@ -14,7 +14,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdap
 import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +51,7 @@ public class ClientStartImpl implements ClientStart {
 	 * @throws NullPointerException if the provided address or port is null
 	 */
 	public ClientStartImpl(final String address, final int port) {
-		Requirements.assertNotNull(address, port);
+		NetCom2Utils.assertNotNull(address, port);
 		logging.debug("Instantiation ClientStart ..");
 		logging.trace("Creating Client ..");
 		client = Client.create(communicationRegistration);
@@ -105,7 +105,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public Awaiting createNewConnection(final Class key) {
-		Requirements.assertNotNull(key);
+		NetCom2Utils.assertNotNull(key);
 		logging.trace("Trying to establish new Connection ..");
 		return clientConnectionEstablish.newFor(key, client);
 	}
@@ -116,7 +116,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setSocketFactory(final SocketFactory factory) {
-		Requirements.assertNotNull(factory);
+		NetCom2Utils.assertNotNull(factory);
 		logging.debug("Set SocketFactory to: " + factory);
 		socketFactory = factory;
 	}
@@ -135,7 +135,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
-		Requirements.assertNotNull(serializationAdapter);
+		NetCom2Utils.assertNotNull(serializationAdapter);
 		logging.debug("Added fallback Serialization " + serializationAdapter);
 		client.addFallBackSerialization(serializationAdapter);
 	}
@@ -146,7 +146,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
-		Requirements.assertNotNull(deSerializationAdapter);
+		NetCom2Utils.assertNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
 		client.addFallBackDeSerialization(deSerializationAdapter);
 	}
@@ -157,7 +157,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
-		Requirements.assertNotNull(mainSerializationAdapter);
+		NetCom2Utils.assertNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
 		client.setMainSerializationAdapter(mainSerializationAdapter);
 	}
@@ -168,7 +168,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
-		Requirements.assertNotNull(mainDeSerializationAdapter);
+		NetCom2Utils.assertNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
 	}
@@ -179,7 +179,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
-		Requirements.assertNotNull(disconnectedHandler);
+		NetCom2Utils.assertNotNull(disconnectedHandler);
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
 		client.addDisconnectedHandler(disconnectedHandler);
 	}
@@ -190,7 +190,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
-		Requirements.assertNotNull(decryptionAdapter);
+		NetCom2Utils.assertNotNull(decryptionAdapter);
 		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
 		client.setDecryptionAdapter(decryptionAdapter);
 	}
@@ -201,7 +201,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
-		Requirements.assertNotNull(encryptionAdapter);
+		NetCom2Utils.assertNotNull(encryptionAdapter);
 		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
 		client.setEncryptionAdapter(encryptionAdapter);
 	}
@@ -229,7 +229,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public synchronized void setLogging(final Logging logging) {
-		Requirements.assertNotNull(logging);
+		NetCom2Utils.assertNotNull(logging);
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
@@ -312,7 +312,7 @@ public class ClientStartImpl implements ClientStart {
 	 */
 	@APILevel
 	void runSynchronized(final Runnable runnable) {
-		Requirements.parameterNotNull(runnable);
+		NetCom2Utils.parameterNotNull(runnable);
 		synchronized (clientConnector) {
 			runnable.run();
 		}

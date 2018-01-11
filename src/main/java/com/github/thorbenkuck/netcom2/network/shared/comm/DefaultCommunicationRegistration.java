@@ -10,7 +10,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -144,7 +144,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void requireNotNull(final Object... objects) {
-		Requirements.assertNotNull(objects);
+		NetCom2Utils.assertNotNull(objects);
 	}
 
 	private void sanityCheck(final Class<?> clazz, final Object o) {

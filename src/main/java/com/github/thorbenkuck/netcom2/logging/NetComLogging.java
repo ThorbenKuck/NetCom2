@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.utility.Requirements;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class NetComLogging implements Logging {
 
@@ -12,7 +12,7 @@ public class NetComLogging implements Logging {
 	}
 
 	public static void setLogging(final Logging logging) {
-		Requirements.parameterNotNull(logging);
+		NetCom2Utils.parameterNotNull(logging);
 		if (NetComLogging.logging == logging) {
 			throw new IllegalArgumentException("Cyclic dependency!");
 		}
