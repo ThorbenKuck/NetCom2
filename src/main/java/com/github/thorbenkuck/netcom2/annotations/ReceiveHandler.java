@@ -33,6 +33,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ReceiveHandler {
 
+	/**
+	 * Overriding this Method allows you to disable an ReceiveHandler without removing the Annotation.
+	 *
+	 * If this method returns false, the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
+	 * will not use the annotated Class
+	 *
+	 * @return boolean, whether or not the annotated class should be used to Handle Objects.
+	 */
 	boolean active() default true;
 
 }
