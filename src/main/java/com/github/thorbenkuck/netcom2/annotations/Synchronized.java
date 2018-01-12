@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  *
  * So it is not possible to have an class be annotated with @Synchronized and any method with {@link Asynchronous}.
  *
- * Future: Create an Annotation-Processor, that ensures that
+ * Future: Create an Annotation-Processor, that ensures that no Method is annotated with {@link Asynchronous}
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
