@@ -13,6 +13,10 @@ import java.lang.annotation.Target;
  *
  * If a Class is annotated, the whole Class should be wrapped or delegated to, but never exposed to an using developer!
  * The same is true for true for fields, parameters and Constructors!
+ *
+ * If you use any Method annotated with this Annotation outside of this Frameworks internal modules, note that those
+ * Methods might be subject to Change (either by there behaviour or there design) even in an non-breaking update! Use at
+ * your own Risk!
  */
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
