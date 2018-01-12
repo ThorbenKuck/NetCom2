@@ -4,6 +4,8 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -80,7 +82,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object run(final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException {
+	public Object run(final Connection connection, final Session session, final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException {
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());
@@ -95,14 +97,39 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 		for(Method method : handlingObject.getClass().getMethods()) {
 			if(method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
+				Object[] args = orderParameters(request.getParameters(), method);
 				try {
-					result = handleMethod(method, handlingObject, request.getParameters());
+					result = handleMethod(method, handlingObject, args);
 				} catch (final Throwable throwable) {
 					throwableThrown = throwable;
 				}
 			}
 		}
 		return generateResult(request.getUuid(), throwableThrown, result);
+	}
+
+	private Object[] orderParameters(Object[] args, Method method) {
+		if(args == null) {
+			return null;
+		}
+		List<Object> arguments = new ArrayList<>(Arrays.asList(args));
+		List<Object> parameters = new ArrayList<>();
+
+		for (Class parameterClass : method.getParameterTypes()) {
+			Object o = get(arguments, parameterClass);
+			parameters.add(o);
+		}
+
+		return parameters.toArray();
+	}
+
+	private Object get(List<Object> array, Class clazz) {
+		for(Object object : array) {
+			if(object.getClass().equals(clazz)) {
+				return object;
+			}
+		}
+		throw new IllegalArgumentException("Could not correctly determine the Objects! Possible internal error! Requested: " + clazz + " provided " + array);
 	}
 
 	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
@@ -118,7 +145,6 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private Object generateResult(UUID uuid, Throwable throwable, Object result) {
 		return new RemoteAccessCommunicationModelResponse(uuid, throwable, result);
-
 	}
 
 	private boolean parameterTypesEqual(Method method, Object[] args) {
@@ -130,7 +156,9 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 			return false;
 		}
 		for(int i = 0 ; i < args.length ; i++) {
-			if(!declaredParameterTypes[i].equals(args[i].getClass())) {
+			if(!declaredParameterTypes[i].equals(args[i].getClass())
+					|| declaredParameterTypes[i].equals(Session.class)
+					|| declaredParameterTypes[i].equals(Connection.class)) {
 				return false;
 			}
 		}
