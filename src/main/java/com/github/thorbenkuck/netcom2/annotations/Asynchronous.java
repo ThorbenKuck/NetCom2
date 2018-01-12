@@ -12,6 +12,9 @@ import java.lang.annotation.Target;
  *
  * It is further recommended to return any kind of synchronization-mechanism (like {@link com.github.thorbenkuck.netcom2.network.shared.Awaiting})
  * but it is certainly not required.
+ *
+ * Outside of NetCom2s internal Modules, this Annotation is a signal, that you will be seduced to asynchronous behaviour
+ * if you call this Method. Therefor you may not be able to work synchronous or in an procedural style.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
