@@ -78,7 +78,7 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 		semaphore.release();
 
 		if(response.getThrownThrowable() != null) {
-			testForThrow(clazz, new RemoteRequestException(response.getThrownThrowable()));
+			testForThrow(clazz, response.getThrownThrowable());
 		}
 
 		return response.getResult();
@@ -93,11 +93,19 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 		if(annotation != null) {
 			Class<? extends Throwable>[] toThrowAnyways = annotation.exceptTypes();
 			if(Arrays.asList(toThrowAnyways).contains(throwable.getClass())) {
-				throw throwable;
+				throwEncapsulated(throwable);
 			}
 		} else {
-			throw throwable;
+			throwEncapsulated(throwable);
 		}
+	}
+
+	private void throwEncapsulated(Throwable throwable) throws Throwable {
+		if(!(throwable instanceof RemoteRequestException)) {
+			throwable = new RemoteRequestException(throwable);
+		}
+
+		throw throwable;
 	}
 
 }
