@@ -60,8 +60,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	@Override
 	public void hook(Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		List<Class> classList = new ArrayList<>();
-		classList.addAll(Arrays.asList(object.getClass().getInterfaces()));
+		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
 		classList.add(object.getClass());
 		register(object, classList.toArray(new Class[classList.size()]));
 	}
@@ -71,9 +70,42 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void unregister(final Object object) {
-		synchronized (mapping) {
-			mapping.remove(object.getClass());
+		NetCom2Utils.parameterNotNull(object);
+		unregister(object, object.getClass());
+	}
+
+	@Override
+	public void unregister(Object object, Class... identifiers) {
+		NetCom2Utils.parameterNotNull(object, identifiers);
+		logging.debug("Trying to unregister " + object.getClass() + ", identified by " + Arrays.asList(identifiers));
+		for(Class<?> clazz : identifiers) {
+			logging.debug("Assignable " + clazz.isAssignableFrom(object.getClass()));
+			Object selected;
+			synchronized (mapping) {
+				selected = mapping.get(clazz);
+			}
+
+			if(selected == null) {
+				logging.warn("No instance registered for " + clazz + ".. Tried to unregister " + object);
+				continue;
+			}
+			if (!object.equals(selected)) {
+				logging.error("The Object " + object.getClass() + " is not assignable from " + clazz);
+				continue;
+			}
+			logging.trace("Unregister " + object + " identified by " + clazz);
+			synchronized (mapping) {
+				mapping.remove(clazz, object);
+			}
 		}
+	}
+
+	@Override
+	public void unhook(Object object) {
+		NetCom2Utils.parameterNotNull(object);
+		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		classList.add(object.getClass());
+		unregister(object, classList.toArray(new Class[classList.size()]));
 	}
 
 	/**
@@ -87,31 +119,40 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		}
 		if(handlingObject == null) {
 			logging.error("No registered Objects found for " + request.getClazz());
+			logging.trace("Returning exception for no registered Object..");
 			return generateResult(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null);
 		}
 
 		Throwable throwableThrown = null;
 		Object result = null;
 
+		logging.trace("Checking declared methods of object " + handlingObject);
 		for(Method method : handlingObject.getClass().getMethods()) {
 			if(method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
+				logging.debug("Found suitable Method " + method.getName() + " of " + handlingObject);
 				try {
 					result = handleMethod(method, handlingObject, request.getParameters());
+					logging.debug("Computed result detected: " + result);
 				} catch (final Throwable throwable) {
+					logging.catching(throwable);
 					throwableThrown = throwable;
 				}
 			}
 		}
+		logging.trace("Finalizing run of " + request.getClazz());
 		return generateResult(request.getUuid(), throwableThrown, result);
 	}
 
 	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
 		final boolean accessible = method.isAccessible();
+		logging.trace("updating accessibility of Method " + method.getName());
 		method.setAccessible(true);
 
 		try {
+			logging.trace("invoking Method " + method.getName() + " of " + callOn + " with parameters " + Arrays.toString(args));
 			return method.invoke(callOn, args);
 		} finally {
+			logging.trace("Setting accessibility back to original state(" + accessible + ")..");
 			method.setAccessible(accessible);
 		}
 	}
