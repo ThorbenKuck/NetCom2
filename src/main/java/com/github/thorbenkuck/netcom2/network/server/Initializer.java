@@ -66,7 +66,7 @@ class Initializer {
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
 
-			communicationRegistration.register(RemoteAccessCommunicationModelRequest.class)
+			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
 					.addFirst(new RemoteObjectRequestHandler(remoteObjectRegistration));
 
 			// TO NOT CHANGE THIS!

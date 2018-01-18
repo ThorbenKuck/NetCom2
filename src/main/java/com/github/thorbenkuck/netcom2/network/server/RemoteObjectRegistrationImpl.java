@@ -4,8 +4,8 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.Method;
@@ -112,7 +112,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object run(final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException {
+	public Object run(final RemoteAccessCommunicationRequest request) throws RemoteRequestException {
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());
@@ -158,7 +158,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	}
 
 	private Object generateResult(UUID uuid, Throwable throwable, Object result) {
-		return new RemoteAccessCommunicationModelResponse(uuid, throwable, result);
+		return new RemoteAccessCommunicationResponse(uuid, throwable, result);
 
 	}
 

@@ -2,33 +2,41 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+/**
+ * This Class contains information about requests to the Server.
+ *
+ * Important is, that any request send, has an unique {@link UUID}. So any invocation handler will lead to the same result
+ *
+ * If you have an {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject}, the UUID will be
+ * the same, so that the any call will wait, no matter what.
+ */
 @APILevel
 class RemoteAccessBlockRegistration {
 
 	private final Map<UUID, Semaphore> semaphoreMap = new HashMap<>();
-	private final Map<UUID, RemoteAccessCommunicationModelResponse> responseMap = new HashMap<>();
+	private final Map<UUID, RemoteAccessCommunicationResponse> responseMap = new HashMap<>();
 	private final Logging logging = Logging.unified();
 
+	/**
+	 * This Method will fetch an existing Semaphore out of the internal Mapping, identified by the UUID
+	 *
+	 * If the Semaphore does not exist, it will create on.
+	 *
+	 * @param uuid the Identifier of the Semaphore
+	 * @return the identified Semaphore
+	 */
 	private Semaphore getAndCreateSemaphore(UUID uuid) {
 		Semaphore semaphore;
 		synchronized (semaphoreMap) {
-			semaphore = semaphoreMap.get(uuid);
-		}
-
-		if(semaphore == null) {
-			semaphore = new Semaphore(1);
-		}
-
-		synchronized (semaphoreMap) {
-			semaphoreMap.put(uuid, semaphore);
+			semaphoreMap.computeIfAbsent(uuid, key -> new Semaphore(1));
 		}
 
 		semaphore = getSemaphore(uuid);
@@ -42,6 +50,15 @@ class RemoteAccessBlockRegistration {
 		return semaphore;
 	}
 
+	/**
+	 * Returns the saved instance, identified by UUID.
+	 *
+	 * To add a new Semaphore, if non exists, use  {@link #getAndCreateSemaphore(UUID)}
+	 *
+	 * @see #getAndCreateSemaphore(UUID)
+	 * @param uuid the identifier
+	 * @return the saved Semaphore
+	 */
 	private Semaphore getSemaphore(UUID uuid) {
 		Semaphore semaphore;
 
@@ -67,7 +84,7 @@ class RemoteAccessBlockRegistration {
 	}
 
 	@APILevel
-	Semaphore await(RemoteAccessCommunicationModelRequest request) {
+	Semaphore await(RemoteAccessCommunicationRequest request) {
 		Semaphore semaphore = getAndCreateSemaphore(request.getUuid());
 		responseMap.remove(request.getUuid());
 
@@ -75,7 +92,7 @@ class RemoteAccessBlockRegistration {
 	}
 
 	@APILevel
-	void release(RemoteAccessCommunicationModelResponse response) {
+	void release(RemoteAccessCommunicationResponse response) {
 		synchronized (responseMap) {
 			responseMap.put(response.getUuid(), response);
 		}
@@ -89,7 +106,7 @@ class RemoteAccessBlockRegistration {
 	}
 
 	@APILevel
-	RemoteAccessCommunicationModelResponse getResponse(UUID uuid) {
+	RemoteAccessCommunicationResponse getResponse(UUID uuid) {
 		synchronized (responseMap) {
 			return responseMap.get(uuid);
 		}

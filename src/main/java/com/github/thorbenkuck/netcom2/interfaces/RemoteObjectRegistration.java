@@ -1,8 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 
 public interface RemoteObjectRegistration {
 
@@ -61,6 +60,6 @@ public interface RemoteObjectRegistration {
 
 	void unhook(Object object);
 
-	Object run(final RemoteAccessCommunicationModelRequest request) throws RemoteRequestException;
+	Object run(final RemoteAccessCommunicationRequest request) throws RemoteRequestException;
 
 }

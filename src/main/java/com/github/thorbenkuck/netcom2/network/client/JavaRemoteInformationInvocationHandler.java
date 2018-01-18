@@ -2,16 +2,12 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
-import com.github.thorbenkuck.netcom2.network.server.mapping.Mapping;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelResponse;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -66,13 +62,13 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 	 */
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-		RemoteAccessCommunicationModelRequest request = new RemoteAccessCommunicationModelRequest(method.getName(), clazz, uuid, args);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(method.getName(), clazz, uuid, args);
 		Semaphore semaphore = remoteAccessBlockRegistration.await(request);
 
 		sender.objectToServer(request);
 
 		semaphore.acquire();
-		RemoteAccessCommunicationModelResponse response = remoteAccessBlockRegistration.getResponse(uuid);
+		RemoteAccessCommunicationResponse response = remoteAccessBlockRegistration.getResponse(uuid);
 		remoteAccessBlockRegistration.clearResult(uuid);
 		remoteAccessBlockRegistration.clearSemaphore(uuid);
 		semaphore.release();

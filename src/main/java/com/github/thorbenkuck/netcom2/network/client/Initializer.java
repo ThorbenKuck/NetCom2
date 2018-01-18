@@ -59,7 +59,7 @@ class Initializer {
 		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(NewConnectionRequest.class,
 				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
-		registerCriticalSingle(RemoteAccessCommunicationModelResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
+		registerCriticalSingle(RemoteAccessCommunicationResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
