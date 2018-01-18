@@ -5,7 +5,7 @@ package com.github.thorbenkuck.netcom2.interfaces;
  *
  * By calling <code>acquire</code>, the object will block any other <code>acquire</code> calls until release is called.
  *
- * It emulates a {@link java.util.concurrent.Semaphore}. Therefor, it can be realized interally with a Semaphore.
+ * It emulates a {@link java.util.concurrent.Semaphore}. Therefor, it can be realized internally with a Semaphore.
  * It encapsulates an Semaphore. Therefor the Synchronization Mechanism can be changed easily.
  */
 public interface Mutex {

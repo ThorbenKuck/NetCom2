@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.remoteObjects.OverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -47,11 +48,30 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				logging.error("The Object " + o.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
+			if(!canBeOverridden(clazz)) {
+				logging.debug("Overriding of " + clazz + " not possible due to its annotation");
+				continue;
+			}
+
 			logging.trace("Registering " + clazz + " as RemoteUsable by Object " + o.getClass());
 			synchronized (mapping) {
 				mapping.put(clazz, o);
 			}
 		}
+	}
+
+	private boolean canBeOverridden(Class clazz) {
+		if(clazz.getAnnotation(OverrideProhibited.class) != null) {
+			logging.trace("Found OverrideProhibited Annotation, checking if instance is saved");
+			Object check;
+			synchronized (mapping) {
+				check = mapping.get(clazz);
+			}
+			if(check != null) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -61,6 +81,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	public void hook(Object object) {
 		NetCom2Utils.parameterNotNull(object);
 		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		classList.add(object.getClass().getSuperclass());
 		classList.add(object.getClass());
 		register(object, classList.toArray(new Class[classList.size()]));
 	}
@@ -74,6 +95,9 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		unregister(object, object.getClass());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void unregister(Object object, Class... identifiers) {
 		NetCom2Utils.parameterNotNull(object, identifiers);
@@ -93,17 +117,42 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				logging.error("The Object " + object.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
-			logging.trace("Unregister " + object + " identified by " + clazz);
+			unregister(clazz);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void unregister(Class... identifier) {
+		for(Class clazz : identifier) {
+			logging.trace("Unregister " + clazz);
 			synchronized (mapping) {
-				mapping.remove(clazz, object);
+				mapping.remove(clazz);
 			}
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void clear() {
+		logging.debug("Clearing the RemoteObjectRegistration " + toString());
+		synchronized (mapping) {
+			mapping.clear();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void unhook(Object object) {
 		NetCom2Utils.parameterNotNull(object);
 		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		classList.add(object.getClass().getSuperclass());
 		classList.add(object.getClass());
 		unregister(object, classList.toArray(new Class[classList.size()]));
 	}

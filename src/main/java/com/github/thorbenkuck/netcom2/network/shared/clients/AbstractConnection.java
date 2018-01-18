@@ -86,9 +86,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 				logging.catching(e);
 				close();
 			} catch (IOException e1) {
-				e1.addSuppressed(e);
+				e.addSuppressed(e1);
 				logging.fatal("Encountered Exception while cleaning up over a previously encountered Exception!", e1);
-				throw new ClientCreationFailedException(e1);
 			}
 			throw new ClientCreationFailedException(e);
 		}
@@ -271,10 +270,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (o == null || !o.getClass().equals(AbstractConnection.class)) {
-			return false;
-		}
-		return ((AbstractConnection) o).socket.equals(socket);
+		return o != null && o.getClass().equals(AbstractConnection.class) &&
+				((AbstractConnection) o).socket.equals(socket);
 	}
 
 	protected abstract void afterSend(final Object o);

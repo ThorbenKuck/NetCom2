@@ -19,7 +19,7 @@ import java.util.Set;
  */
 @SupportedAnnotationTypes("com.github.thorbenkuck.netcom2.annotations.APILevel")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class ExposedAnnotationProcessor extends AbstractProcessor {
+public class APILevelAnnotationProcessor extends AbstractProcessor {
 
 	private final static String ERROR_MESSAGE =
 			"Methods annotated with @APILevel should not be public, private, protected or abstract!";
