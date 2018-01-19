@@ -1,7 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.OverrideProhibited;
+import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -9,7 +10,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.util.*;
 
 @APILevel
@@ -61,8 +64,8 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	}
 
 	private boolean canBeOverridden(Class clazz) {
-		if(clazz.getAnnotation(OverrideProhibited.class) != null) {
-			logging.trace("Found OverrideProhibited Annotation, checking if instance is saved");
+		if(clazz.getAnnotation(RegistrationOverrideProhibited.class) != null) {
+			logging.trace("Found RegistrationOverrideProhibited Annotation, checking if instance is saved");
 			Object check;
 			synchronized (mapping) {
 				check = mapping.get(clazz);
@@ -161,7 +164,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object run(final RemoteAccessCommunicationRequest request) throws RemoteRequestException {
+	public RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());
@@ -169,29 +172,51 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		if(handlingObject == null) {
 			logging.error("No registered Objects found for " + request.getClazz());
 			logging.trace("Returning exception for no registered Object..");
-			return generateResult(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null);
+			return generateResult(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null, request.getClazz(), null);
 		}
 
-		Throwable throwableThrown = null;
-		Object result = null;
+		Exception exception = null;
+		Object methodCallResult = null;
+		Method calledMethod = null;
 
 		logging.trace("Checking declared methods of object " + handlingObject);
 		for(Method method : handlingObject.getClass().getMethods()) {
 			if(method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
 				logging.debug("Found suitable Method " + method.getName() + " of " + handlingObject);
 				try {
-					result = handleMethod(method, handlingObject, request.getParameters());
-					logging.debug("Computed result detected: " + result);
-				} catch (final Throwable throwable) {
-					logging.catching(throwable);
-					throwableThrown = throwable;
+					methodCallResult = handleMethod(method, handlingObject, request.getParameters());
+					logging.debug("Computed result detected: " + methodCallResult);
+					break;
+				} catch (final Exception e) {
+					logging.catching(e);
+					exception = e;
+					break;
+				} catch(final Throwable throwable) {
+					logging.fatal("Encountered throwable, non Exception: " + throwable + " while executing " + method + " on " + handlingObject.getClass(), throwable);
+					exception = new RemoteException("RemoteObjectRegistration encountered " + throwable.getClass());
+				} finally {
+					calledMethod = method;
 				}
 			}
 		}
 		logging.trace("Finalizing run of " + request.getClazz());
-		return generateResult(request.getUuid(), throwableThrown, result);
+		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), calledMethod);
 	}
 
+	/**
+	 * Calls the Method, that was given in an safe environment.
+	 *
+	 * It returns the computed Object, of the method-call. May throw an Throwable, if the Object <code>callOn</code> throws
+	 * an throwable while executing the Method.
+	 *
+	 * It does not check, whether or not the parameters are in the right order or of the right type.
+	 *
+	 * @param method the Method that should be called
+	 * @param callOn the object that method should be called upon
+	 * @param args the arguments, that are passed to the method-call
+	 * @return the computed Result of the Object
+	 * @throws Throwable any throwable the Object throws
+	 */
 	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
 		final boolean accessible = method.isAccessible();
 		logging.trace("updating accessibility of Method " + method.getName());
@@ -206,9 +231,36 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		}
 	}
 
-	private Object generateResult(UUID uuid, Throwable throwable, Object result) {
-		return new RemoteAccessCommunicationResponse(uuid, throwable, result);
+	/**
+	 * Generates the {@link RemoteAccessCommunicationResponse}, by the provided <code>result</code> and <code>exception</code>
+	 * @param uuid
+	 * @param exception
+	 * @param result
+	 * @param clazz
+	 * @param method
+	 * @return
+	 */
+	private RemoteAccessCommunicationResponse generateResult(UUID uuid, Exception exception, Object result, Class clazz, Method method) {
+		if(ignoreThrowable(exception, clazz, method)) {
+			return new RemoteAccessCommunicationResponse(uuid, null, result);
+		}
+		return new RemoteAccessCommunicationResponse(uuid, exception, result);
 
+	}
+
+	private boolean ignoreThrowable(Exception exception, AnnotatedElement... annotatedElements) {
+		if(exception != null) {
+			for(AnnotatedElement element : annotatedElements) {
+				if(element == null) {
+					continue;
+				}
+				IgnoreRemoteExceptions annotation = element.getAnnotation(IgnoreRemoteExceptions.class);
+				if(annotation != null) {
+					return !Arrays.asList(annotation.exceptTypes()).contains(exception.getClass());
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean parameterTypesEqual(Method method, Object[] args) {

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * annotated Type, it will not be overridden. So the following will lead to the first object staying within the registration
  *
  * <code>
- *     \\@OverrideProhibited
+ *     \\@RegistrationOverrideProhibited
  *     interface Test {
  *         void test();
  *     }
@@ -48,5 +48,5 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface OverrideProhibited {
+public @interface RegistrationOverrideProhibited {
 }

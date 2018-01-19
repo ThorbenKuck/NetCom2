@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  * the interface has to declare this annotation at its Method
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface IgnoreRemoteExceptions {
 
 	/**
