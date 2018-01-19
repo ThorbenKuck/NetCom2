@@ -9,7 +9,6 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
-import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
@@ -26,8 +25,6 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	private final Logging logging = new NetComLogging();
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
-	@APILevel
-	private final Wrapper wrapper = new Wrapper();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
 	@SuppressWarnings("unchecked")
@@ -68,6 +65,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
+			// this should not be an lambda
+			// On the use of an lambda, this line does not work any more.
+			// The cause for this is unknown
 			threadPool.submit(new Runnable() {
 				@Override
 				public void run() {
@@ -79,12 +79,12 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveSingle<Object> defaultCommunicationHandler) {
-		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+		addDefaultCommunicationHandler(NetCom2Utils.wrap(defaultCommunicationHandler));
 	}
 
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceive<Object> defaultCommunicationHandler) {
-		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+		addDefaultCommunicationHandler(NetCom2Utils.wrap(defaultCommunicationHandler));
 	}
 
 	@Override

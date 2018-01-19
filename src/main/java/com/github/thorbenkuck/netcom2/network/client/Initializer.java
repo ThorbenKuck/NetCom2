@@ -15,7 +15,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
-import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
@@ -27,9 +26,12 @@ class Initializer {
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
 	private final SocketFactory socketFactory;
-	@APILevel private final InternalSender sender;
-	@APILevel private final ClientConnector clientConnector;
-	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
+	@APILevel
+	private final InternalSender sender;
+	@APILevel
+	private final ClientConnector clientConnector;
+	@APILevel
+	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
 	@APILevel
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
@@ -94,11 +96,11 @@ class Initializer {
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
-		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
+		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
-		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
+		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
 	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {
