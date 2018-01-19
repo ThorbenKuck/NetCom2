@@ -17,6 +17,9 @@ import java.lang.annotation.Target;
  * If you use any Method annotated with this Annotation outside of this Frameworks internal modules, note that those
  * Methods might be subject to Change (either by there behaviour or there design) even in an non-breaking update! Use at
  * your own Risk!
+ *
+ * Any method, class, parameter or field might be changed or deleted without any warning or without the use of the {@link Deprecated}
+ * annotation.
  */
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
