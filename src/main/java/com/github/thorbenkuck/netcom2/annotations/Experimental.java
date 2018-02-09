@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Shows that this annotated class is not yet tested thoroughly.
@@ -18,6 +15,7 @@ import java.lang.annotation.Target;
  * Future: There might be a warning, when an class, annotated with Experimental is compiled, so that using developers know
  * what there up against. This should be possible with an annotationProcessor.
  */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Experimental {

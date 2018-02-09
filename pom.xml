@@ -139,8 +139,29 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>LATEST</version>
             <scope>test</scope>
-        </dependency>
+       </dependency>
+        <!--  <dependency>
+             <groupId>com.google.auto.service</groupId>
+             <artifactId>auto-service</artifactId>
+             <version>1.0-rc4</version>
+             <optional>true</optional>
+         </dependency>
+     <dependency>
+         <groupId>org.checkerframework</groupId>
+         <artifactId>checker-qual</artifactId>
+         <version>2.3.1</version>
+     </dependency>
+     <dependency>
+         <groupId>org.checkerframework</groupId>
+         <artifactId>checker</artifactId>
+         <version>2.3.1</version>
+     </dependency>
+     <dependency>
+     <groupId>org.checkerframework</groupId>
+     <artifactId>jdk8</artifactId>
+     <version>2.3.1</version>
+     </dependency> -->
     </dependencies>
 </project>

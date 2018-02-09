@@ -1,7 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
 import java.io.Serializable;
 
+@APILevel
 public class UnRegisterResponse implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;

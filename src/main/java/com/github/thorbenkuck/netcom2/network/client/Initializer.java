@@ -16,7 +16,11 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import jdk.Exported;
 
+/**
+ * This Class initializes the client and all of its dependencies.
+ */
 @APILevel
 @Synchronized
 class Initializer {
@@ -47,6 +51,19 @@ class Initializer {
 		this.socketFactory = socketFactory;
 	}
 
+	/**
+	 * This is the main Method that should be called upon an creation request.
+	 *
+	 * By calling this Method the internal registrations of Objects are started and
+	 * the Client waits for a Handshake from the Server. This means this Method
+	 * will only return if the Server send the corresponding {@link ClientID} that
+	 * the Client is associated with and therefor signals the Client that it is primed.
+	 *
+	 * @throws StartFailedException if the Synchronization, awaiting the Client
+	 * 							 primed failed, an StartFailedException is thrown
+	 * 							 to signal that	it could not verify the Handshake
+	 * 							 between Server and Client
+	 */
 	@APILevel
 	void init() throws StartFailedException {
 		logging.trace("Registering internal Components ..");
@@ -55,6 +72,9 @@ class Initializer {
 		awaitHandshake();
 	}
 
+	/**
+	 * This Method registers all internal Objects, that are used for Communication between Client and Server.
+	 */
 	private synchronized void register() {
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));

@@ -1,9 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 import java.io.Serializable;
 
+@APILevel
 public class SessionUpdate implements Serializable {
 
 	private final Session session;

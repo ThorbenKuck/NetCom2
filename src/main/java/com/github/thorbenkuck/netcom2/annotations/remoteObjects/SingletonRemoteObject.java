@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This will signal the RemoteObjectFactory, that the InvocationHandler
@@ -13,7 +10,10 @@ import java.lang.annotation.Target;
  *
  * Any Class annotated with this Annotation will therefor be instantiated only once, but kept stored!
  * This means, that even if you clear an local instance, the created Class will be present in the RemoteObjectFactory!
+ *
+ * By Design, every instantiation is lazy. You do not need to declare it and you cannot change this behaviour.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SingletonRemoteObject {

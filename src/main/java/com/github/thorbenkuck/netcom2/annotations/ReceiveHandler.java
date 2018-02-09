@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation is to be implemented properly! It should look something like this:
@@ -29,6 +26,7 @@ import java.lang.annotation.Target;
  * <p>
  * TODO AnnotationProcessor
  */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ReceiveHandler {
@@ -37,7 +35,10 @@ public @interface ReceiveHandler {
 	 * Overriding this Method allows you to disable an ReceiveHandler without removing the Annotation.
 	 *
 	 * If this method returns false, the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
-	 * will not use the annotated Class
+	 * will not use the annotated Method, therefore ignoring the annotation and the annotated Method.
+	 *
+	 * Further, if this Method returns false, it will not be saved and therefor not take up any resources to be saved,
+	 * maintained and checked.
 	 *
 	 * @return boolean, whether or not the annotated class should be used to Handle Objects.
 	 */

@@ -9,6 +9,9 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This is an internal class, defining what should happen
+ */
 @APILevel
 @Synchronized
 class DefaultClientDisconnectedHandler implements DisconnectedHandler {

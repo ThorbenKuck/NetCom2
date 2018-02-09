@@ -1,8 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.sun.tracing.dtrace.ArgsAttributes;
+
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.UUID;
 
+@APILevel
 public class RemoteAccessCommunicationRequest implements Serializable {
 
 	private final String methodName;
@@ -32,5 +37,15 @@ public class RemoteAccessCommunicationRequest implements Serializable {
 
 	public Object[] getParameters() {
 		return parameters;
+	}
+
+	@Override
+	public String toString() {
+		return "RemoteAccessCommunicationRequest{" +
+				"methodName='" + methodName + '\'' +
+				", clazz=" + clazz +
+				", uuid=" + uuid +
+				", parameters=" + Arrays.toString(parameters) +
+				'}';
 	}
 }

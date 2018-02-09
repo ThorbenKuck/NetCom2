@@ -1,8 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@APILevel
 public class RemoteAccessCommunicationResponse implements Serializable {
 
 	private final UUID uuid;
@@ -26,5 +29,14 @@ public class RemoteAccessCommunicationResponse implements Serializable {
 
 	public Object getResult() {
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "RemoteAccessCommunicationResponse{" +
+				"uuid=" + uuid +
+				", throwable=" + throwable +
+				", result=" + result +
+				'}';
 	}
 }

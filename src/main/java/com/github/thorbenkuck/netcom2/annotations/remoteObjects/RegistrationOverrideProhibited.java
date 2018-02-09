@@ -2,10 +2,7 @@ package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
 
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation signals to the {@link RemoteObjectRegistration}, that it
@@ -46,6 +43,8 @@ import java.lang.annotation.Target;
  *
  * Note: If you call {@link RemoteObjectRegistration#clear()}, this instance will still be cleared from the Registration
  */
+@Documented
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface RegistrationOverrideProhibited {

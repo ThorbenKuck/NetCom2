@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Shows that a Class is thoroughly tested.
@@ -14,7 +11,13 @@ import java.lang.annotation.Target;
  * This is a String, because the Test-Class is not accessible at compile of the production-code.
  *
  * Also, you might provide a boolean, whether or not the annotated Class is an unit-Test or not.
+ *
+ * It is important to note that this classes RetentionPolicy is only Source. This means, it is not queried or
+ * maintained at Runtime and therefore uninteresting for performance. It is only meant to show that the annotated Class
+ * is tested. Further this annotation should not be relied upon by using developers.
  */
+@APILevel
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Tested {

@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Tells the {@link com.github.thorbenkuck.netcom2.network.client.JavaInvocationHandlerProducer} to ignore all Exceptions
@@ -17,6 +14,7 @@ import java.lang.annotation.Target;
  * This Annotation has to be present at the requested class. So if the Client requests an RemoteObject via an interface,
  * the interface has to declare this annotation at its Method
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface IgnoreRemoteExceptions {

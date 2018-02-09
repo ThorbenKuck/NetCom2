@@ -12,6 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.test.examples.*;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import javax.management.Notification;
 import java.awt.*;
