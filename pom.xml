@@ -1,11 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
     <artifactId>NetCom2</artifactId>
     <version>0.4.1.0</version>
     <packaging>jar</packaging>
     <name>NetCom2</name>
-    <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an EventBus</description>
+    <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
+        EventBus
+    </description>
     <url>https://github.com/ThorbenKuck/NetCom2</url>
     <properties>
         <project.build.sourceEncoding>
@@ -17,8 +20,8 @@
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
         <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
         <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-      <tag>NetCom2-0.4.1.0</tag>
-  </scm>
+        <tag>NetCom2-0.4.1.0</tag>
+    </scm>
 
     <developers>
         <developer>
@@ -76,18 +79,18 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                <!--<version>1.5</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>sign-artifacts</id>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>sign</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-gpg-plugin</artifactId>-->
+            <!--<version>1.5</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>sign-artifacts</id>-->
+            <!--<phase>verify</phase>-->
+            <!--<goals>-->
+            <!--<goal>sign</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -141,7 +144,7 @@
             <artifactId>junit</artifactId>
             <version>LATEST</version>
             <scope>test</scope>
-       </dependency>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -173,3 +176,9 @@
         </profile>
     </profiles>
 </project>
+
+
+        <!-- mvn release:clean -->
+        <!-- mvn release:prepare-->
+        <!-- mvn release:performm-->
+        <!-- mvn -DperformRelease=true-->
