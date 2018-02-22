@@ -17,21 +17,6 @@ public class InputSender {
 		this.sender = sender;
 	}
 
-	public void magic() {
-		running = true;
-		System.out.print("\n\n\n\n\n\n\n\n\n\nEnter your message to send it to the Server\n\n");
-		while (running) {
-			try {
-				String input = userInput.getNextLine();
-				parse(input);
-			} catch (IOException e) {
-				e.printStackTrace(System.out);
-				running = false;
-			}
-		}
-		System.out.println("Shutting application down");
-	}
-
 	private void parse(String input) {
 		// This is ugly, but only an example!
 		if (input.equals("logout")) {
@@ -47,5 +32,20 @@ public class InputSender {
 
 	private void printHelp() {
 		System.out.println("----\nHELP\nType logout to close this application\nType help for help");
+	}
+
+	public void magic() {
+		running = true;
+		System.out.print("\n\n\n\n\n\n\n\n\n\nEnter your message to send it to the Server\n\n");
+		while (running) {
+			try {
+				String input = userInput.getNextLine();
+				parse(input);
+			} catch (IOException e) {
+				e.printStackTrace(System.out);
+				running = false;
+			}
+		}
+		System.out.println("Shutting application down");
 	}
 }

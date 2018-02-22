@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.test.examples.general;
 
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
-import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
@@ -12,11 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.test.examples.*;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import javax.management.Notification;
-import java.awt.*;
-import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,20 +25,6 @@ public class ClientStartTest {
 
 	public static void main(String[] args) {
 		new ClientStartTest().run();
-	}
-
-	public void run() {
-		NetComLogging.setLogging(Logging.trace());
-		create();
-		setup();
-
-		try {
-			start();
-			remoteObjectTest();
-			send();
-		} catch (StartFailedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	private void create() {
@@ -85,7 +66,7 @@ public class ClientStartTest {
 			System.out.println("#1 Awaiting receive of Class TestObjectThree after Login request...");
 			clientStart.send()
 					.objectToServer(new Login())
-					;
+			;
 			System.out.println("#2 Received TestObjectThree.class!");
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 1");
@@ -135,6 +116,20 @@ public class ClientStartTest {
 		System.out.println("\n\n\n\nReturnTest:\n" + returnTest.getReturnValue() + "\n\n\n\n\n");
 		System.out.println("\n\n\n\nParameterReturnTest:\n" + parameterReturnTest.concatAndReturn("a test") + "\n\n\n\n\n");
 		test.fire();
+	}
+
+	public void run() {
+		NetComLogging.setLogging(Logging.trace());
+		create();
+		setup();
+
+		try {
+			start();
+			remoteObjectTest();
+			send();
+		} catch (StartFailedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@ReceiveHandler

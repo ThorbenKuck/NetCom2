@@ -26,7 +26,7 @@ class PipelineElement<T> {
 
 	public boolean test(final T t) {
 		for (final Predicate<T> predicate : predicates) {
-			if (!predicate.test(t)) {
+			if (! predicate.test(t)) {
 				return false;
 			}
 		}

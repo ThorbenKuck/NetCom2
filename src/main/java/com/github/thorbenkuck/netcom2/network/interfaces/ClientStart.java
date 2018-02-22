@@ -15,42 +15,42 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 
 /**
  * This Class is the used to connect to an launched {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}.
- *
+ * <p>
  * It is the main entry-point for any Client-related actions. It further never exposes its implementation. You may initialize
  * a Client the following way:
- *
+ * <p>
  * <code>
- *     final String address = "localhost" // the address of the Server
- *     final int port = 4444;
- *     final ClientStart clientStart = ClientStart.at(address, port);
+ * final String address = "localhost" // the address of the Server
+ * final int port = 4444;
+ * final ClientStart clientStart = ClientStart.at(address, port);
  * </code>
- *
+ * <p>
  * Note however, that the Server has to:
  * <ol type="a">
- *     <li>Be already running, if you call <code>clientStart.launch()</code></li>
- *     <li>Be assigned to the same port and address as given to the ClientStart</li>
+ * <li>Be already running, if you call <code>clientStart.launch()</code></li>
+ * <li>Be assigned to the same port and address as given to the ClientStart</li>
  * </ol>
- *
+ * <p>
  * The following code starts a Server and a Client, which both successfully connect:
- *
+ * <p>
  * <code>
- *     ServerStart serverStart = ServerStart.at(4444);
- *     ClientStart clientStart = ClientStart.at("localhost", 4444);
- *
- *     try {
- *         serverStart.launch();
- *     } catch(Exception ignored) {}
- *     new Thread(() -> {
- *     	   try {
- *             serverStart.acceptAllNextClients();
- *         } catch(ClientConnectionFailedException ignored) {}
- *     });
- *
- *     try {
- *         clientStart.launch();
- *     } catch(Exception ignored) {}
+ * ServerStart serverStart = ServerStart.at(4444);
+ * ClientStart clientStart = ClientStart.at("localhost", 4444);
+ * <p>
+ * try {
+ * serverStart.launch();
+ * } catch(Exception ignored) {}
+ * new Thread(() -> {
+ * try {
+ * serverStart.acceptAllNextClients();
+ * } catch(ClientConnectionFailedException ignored) {}
+ * });
+ * <p>
+ * try {
+ * clientStart.launch();
+ * } catch(Exception ignored) {}
  * </code>
- *
+ * <p>
  * Once the launch method of the ServerStart is finished, the ClientStart might be launched.
  * If however, the ServerStart is not yet launched, the ClientStart.launch method will fail and throw
  * an StartFailedException.
@@ -61,12 +61,12 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 
 	/**
 	 * Creates a new ClientStart.
-	 *
+	 * <p>
 	 * The use of this method is recommended to be used! At all times, this method is ensured to never change.
 	 * Therefor, relying on any implementation details, is not recommended, because they might become subject to change.
 	 *
 	 * @param address the address of the already running ServerStart as a String
-	 * @param port the port, that the ServerStart is bound to.
+	 * @param port    the port, that the ServerStart is bound to.
 	 * @return a new Instance of this interface.
 	 */
 	static ClientStart at(final String address, final int port) {
@@ -75,7 +75,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 
 	/**
 	 * Provides the internal cache of the ClientStart.
-	 *
+	 * <p>
 	 * The Cache is used, to hold registered Objects and may be updated manually.
 	 * Also, you may add manual observers.
 	 *
@@ -86,7 +86,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 
 	/**
 	 * This Method-Call will create a new Connection, identified by the provided <code>key</code>.
-	 *
+	 * <p>
 	 * Calling this Method, will lead to a request-response-chain between the Server and the Client.
 	 * After this, the Connection will be created an is usable. This whole procedure is asynchronous. To allow synchronization,
 	 * you may use the returned {@link Awaiting} instance
@@ -102,7 +102,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	 * Sets the Factory, to create the Socket, used by the ClientStart
 	 *
 	 * @param factory the factory, that creates the Socket
-	 *                @see SocketFactory
+	 * @see SocketFactory
 	 */
 	void setSocketFactory(final SocketFactory factory);
 

@@ -34,6 +34,10 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 		clearChanged();
 	}
 
+	private List<Client> accessInternals() {
+		return new ArrayList<>(clients.values());
+	}
+
 	@Override
 	public void add(final Client client) {
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
@@ -117,10 +121,6 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 	@Override
 	public String toString() {
 		return "ClientList{" + clients.toString() + "}";
-	}
-
-	private List<Client> accessInternals() {
-		return new ArrayList<>(clients.values());
 	}
 
 	@Override

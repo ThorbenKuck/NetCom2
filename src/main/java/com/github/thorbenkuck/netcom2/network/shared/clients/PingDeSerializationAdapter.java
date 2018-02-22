@@ -5,6 +5,10 @@ import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 public class PingDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
+	private Object deSerializePing(final String s) {
+		return new Ping(ClientID.fromString(s.split("\\|")[1]));
+	}
+
 	@Asynchronous
 	@Override
 	public Object get(final String s) throws DeSerializationFailedException {
@@ -13,9 +17,5 @@ public class PingDeSerializationAdapter implements DeSerializationAdapter<String
 		}
 		throw new DeSerializationFailedException(
 				"[" + getClass().getSimpleName() + "]: " + "Only DeSerialization of Ping supported!");
-	}
-
-	private Object deSerializePing(final String s) {
-		return new Ping(ClientID.fromString(s.split("\\|")[1]));
 	}
 }

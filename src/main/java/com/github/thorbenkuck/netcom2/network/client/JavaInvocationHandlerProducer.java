@@ -2,8 +2,6 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 
-import java.lang.reflect.InvocationHandler;
-import java.util.Map;
 import java.util.UUID;
 
 public class JavaInvocationHandlerProducer implements InvocationHandlerProducer {

@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * This Class sends an Cash-Update to the Client.
- *
+ * <p>
  * Its behaviour is defined by the Client-local Cache.
  *
  * @see com.github.thorbenkuck.netcom2.network.client.Sender#registrationToServer(Class, CacheObserver)

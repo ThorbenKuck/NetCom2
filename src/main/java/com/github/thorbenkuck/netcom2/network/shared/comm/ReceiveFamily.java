@@ -11,7 +11,7 @@ public interface ReceiveFamily {
 	/**
 	 * If either {@link #beforeExecution()}, {@link OnReceive#accept(Object, Object)} or {@link #successfullyExecuted()}
 	 * throws an exception, the execution is stopped and this method is called.
-	 *
+	 * <p>
 	 * This means, if <code>beforeExecution</code> throws an Exception, <code>accept</code> is never called!
 	 *
 	 * @param e the encountered Exception

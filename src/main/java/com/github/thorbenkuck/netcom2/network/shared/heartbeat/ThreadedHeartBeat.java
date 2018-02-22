@@ -20,17 +20,6 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		this.heartBeatConfig = heartBeatConfig;
 	}
 
-	@Override
-	public HeartBeatConfiguration<T> configure() {
-		return new InternalHeartBeatConfiguration<>(this);
-	}
-
-	@Override
-	public HeartBeatParallel<T> parallel() {
-		setup();
-		return new InternalHeartBeatParallel<>(heartBeatCore, consumer);
-	}
-
 	private void setup() {
 		if (changed) {
 			synchronized (heartBeatConfig) {
@@ -51,8 +40,15 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		return changed || heartBeatConfig.changed();
 	}
 
-	HeartBeatConfig<T> getHeartBeatConfig() {
-		return heartBeatConfig;
+	@Override
+	public HeartBeatConfiguration<T> configure() {
+		return new InternalHeartBeatConfiguration<>(this);
+	}
+
+	@Override
+	public HeartBeatParallel<T> parallel() {
+		setup();
+		return new InternalHeartBeatParallel<>(heartBeatCore, consumer);
 	}
 
 	@Override
@@ -61,7 +57,6 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		heartBeatCore.setup(t, consumer);
 		heartBeatCore.run();
 	}
-
 
 	@Override
 	public void run(T t, Consumer<T> consumer) {
@@ -74,6 +69,9 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		heartBeatCore.shutdown();
 	}
 
+	HeartBeatConfig<T> getHeartBeatConfig() {
+		return heartBeatConfig;
+	}
 
 	void setConsumer(Consumer<T> consumer) {
 		changed = true;

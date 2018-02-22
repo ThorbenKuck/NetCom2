@@ -25,24 +25,25 @@ public class TCPDefaultConnection extends AbstractConnection {
 		super(socket, sendingService, receivingService, session, key);
 	}
 
-	/**
-	 * TODO Correct hashing of send object
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void receivedObject(final Object o) {
-		logging.debug("[TCP] Testing " + o);
-		if (o.getClass().equals(Acknowledge.class)) {
-			logging.debug("[TCP] Received Acknowledge " + o);
-			ack((Acknowledge) o);
-		} else {
-			sendAck(o);
+	private void ack(final Acknowledge acknowledge) {
+		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
+		final Semaphore synchronize;
+		synchronized (mapping) {
+			synchronize = mapping.get(acknowledge.getOf());
 		}
+		if (synchronize == null) {
+			logging.error("[TCP] ![DEAD ACKNOWLEDGE]! Found NO Waiting Communication for received Acknowledge " +
+					acknowledge.getOf() + "!");
+			return;
+		}
+
+		logging.trace("[TCP] Releasing waiting Threads after " + acknowledge.getOf());
+		synchronize.release();
 	}
 
-	@Override
-	protected void onClose() {
-
+	private void sendAck(final Object o) {
+		logging.debug("[TCP] Acknowledging " + o.getClass());
+		write(new Acknowledge(o.getClass()));
 	}
 
 	@Override
@@ -62,6 +63,26 @@ public class TCPDefaultConnection extends AbstractConnection {
 		}
 		logging.trace("[TCP] Setting up Callback ..");
 		receivingService.addReceivingCallback(new TCPAckCallback(object.getClass()));
+	}
+
+	/**
+	 * TODO Correct hashing of send object
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void receivedObject(final Object o) {
+		logging.debug("[TCP] Testing " + o);
+		if (o.getClass().equals(Acknowledge.class)) {
+			logging.debug("[TCP] Received Acknowledge " + o);
+			ack((Acknowledge) o);
+		} else {
+			sendAck(o);
+		}
+	}
+
+	@Override
+	protected void onClose() {
+
 	}
 
 	@Override
@@ -86,27 +107,6 @@ public class TCPDefaultConnection extends AbstractConnection {
 			communicationLock.unlock();
 		}
 		logging.trace("[TCP] Continuing Communication after " + object.getClass());
-	}
-
-	private void ack(final Acknowledge acknowledge) {
-		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
-		final Semaphore synchronize;
-		synchronized (mapping) {
-			synchronize = mapping.get(acknowledge.getOf());
-		}
-		if (synchronize == null) {
-			logging.error("[TCP] ![DEAD ACKNOWLEDGE]! Found NO Waiting Communication for received Acknowledge " +
-					acknowledge.getOf() + "!");
-			return;
-		}
-
-		logging.trace("[TCP] Releasing waiting Threads after " + acknowledge.getOf());
-		synchronize.release();
-	}
-
-	private void sendAck(final Object o) {
-		logging.debug("[TCP] Acknowledging " + o.getClass());
-		write(new Acknowledge(o.getClass()));
 	}
 
 	private class TCPAckCallback implements Callback<Object> {

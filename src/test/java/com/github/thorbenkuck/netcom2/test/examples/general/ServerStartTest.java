@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.test.examples.general;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
@@ -21,10 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 public class ServerStartTest {
 
+	private static final LoggingHandler loggingHandler = new LoggingHandler();
 	private static int port = 44444;
 	private static Logging logging = Logging.unified();
 	private static ServerStart serverStart;
-	private static final LoggingHandler loggingHandler = new LoggingHandler();
 	private static Thread starter = new Thread(() -> {
 		try {
 			start();

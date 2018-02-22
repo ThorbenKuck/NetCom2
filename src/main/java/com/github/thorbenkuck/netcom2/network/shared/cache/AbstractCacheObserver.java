@@ -10,10 +10,6 @@ public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 		this.clazz = clazz;
 	}
 
-	protected final void assertNotNull(final Object... o) {
-		NetCom2Utils.parameterNotNull(o);
-	}
-
 	@Override
 	public final boolean accept(final Object o) {
 		return o != null && (o.getClass().equals(clazz) || o.equals(clazz));
@@ -22,5 +18,9 @@ public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 	@Override
 	public String toString() {
 		return CacheObserver.class.getSimpleName() + " implementation: " + getClass();
+	}
+
+	protected final void assertNotNull(final Object... o) {
+		NetCom2Utils.parameterNotNull(o);
 	}
 }

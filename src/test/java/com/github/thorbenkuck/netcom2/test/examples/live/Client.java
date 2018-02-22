@@ -16,14 +16,6 @@ public class Client {
 		new Client().start();
 	}
 
-	public void start() throws StartFailedException {
-		register(clientStart);
-
-		clientStart.launch();
-
-		afterLaunch(clientStart);
-	}
-
 	private void register(ClientStart clientStart) {
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
@@ -53,6 +45,14 @@ public class Client {
 
 		clientStart.send()
 				.objectToServer(new TestObject("this comes from the TestObject connection"), TestObject.class);
+	}
+
+	public void start() throws StartFailedException {
+		register(clientStart);
+
+		clientStart.launch();
+
+		afterLaunch(clientStart);
 	}
 
 }

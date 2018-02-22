@@ -12,11 +12,6 @@ import java.util.Optional;
 @APILevel
 class ReflectionBasedObjectAnalyzer {
 
-	@APILevel
-	<T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
-		return getCorrespondingMethod(o, clazz);
-	}
-
 	private <T> Optional<Method> getCorrespondingMethod(final Object o, final Class<T> clazz) {
 		for (Method method : o.getClass().getDeclaredMethods()) {
 //			if(!Modifier.isPrivate(method.getModifiers())) {
@@ -40,7 +35,7 @@ class ReflectionBasedObjectAnalyzer {
 	private <T> boolean containsOnlyAskedParameter(final Method method, final Class<T> clazz) {
 		boolean contains = false;
 		for (final Class clazzToCheck : method.getParameterTypes()) {
-			if (!clazzToCheck.equals(Connection.class) && !clazzToCheck.equals(Session.class)) {
+			if (! clazzToCheck.equals(Connection.class) && ! clazzToCheck.equals(Session.class)) {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
 				} else {
@@ -57,6 +52,11 @@ class ReflectionBasedObjectAnalyzer {
 			return Optional.empty();
 		}
 		return Optional.empty();
+	}
+
+	@APILevel
+	<T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
+		return getCorrespondingMethod(o, clazz);
 	}
 
 }

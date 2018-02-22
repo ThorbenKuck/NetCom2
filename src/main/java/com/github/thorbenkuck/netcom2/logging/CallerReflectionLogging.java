@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This logging implementation uses reflection to determine the caller of any method.
- *
+ * <p>
  * For that, this implementation uses the {@link CallerTraceSystemDefaultStyleLogging}.
  */
 public class CallerReflectionLogging implements Logging {

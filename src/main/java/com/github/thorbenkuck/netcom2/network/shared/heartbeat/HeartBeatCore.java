@@ -24,10 +24,26 @@ class HeartBeatCore<T> implements Runnable {
 		this.delay = (long) (timeUnit.toMillis(delay) / (float) times);
 	}
 
-	@APILevel
-	void setup(T t, Consumer<T> consumer) {
-		this.t = t;
-		this.consumer = consumer;
+	private void assertSetUp() {
+		if (t == null || consumer == null) {
+			throw new IllegalArgumentException("Cannot start HeartBeat without Consumer or element to consume");
+		}
+	}
+
+	private void start() {
+		running = true;
+	}
+
+	private boolean running(T t) {
+		return (runningPredicate == null || ! runningPredicate.test(t)) && running;
+	}
+
+	private boolean active(T t) {
+		return (activePredicate == null || activePredicate.test(t)) && running;
+	}
+
+	private void call() {
+		consumer.accept(t);
 	}
 
 	@Override
@@ -48,26 +64,10 @@ class HeartBeatCore<T> implements Runnable {
 		shutdown();
 	}
 
-	private void assertSetUp() {
-		if (t == null || consumer == null) {
-			throw new IllegalArgumentException("Cannot start HeartBeat without Consumer or element to consume");
-		}
-	}
-
-	private void start() {
-		running = true;
-	}
-
-	private boolean running(T t) {
-		return (runningPredicate == null || !runningPredicate.test(t)) && running;
-	}
-
-	private boolean active(T t) {
-		return (activePredicate == null || activePredicate.test(t)) && running;
-	}
-
-	private void call() {
-		consumer.accept(t);
+	@APILevel
+	void setup(T t, Consumer<T> consumer) {
+		this.t = t;
+		this.consumer = consumer;
 	}
 
 	@APILevel

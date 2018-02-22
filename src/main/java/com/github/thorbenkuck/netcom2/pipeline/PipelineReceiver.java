@@ -48,6 +48,27 @@ class PipelineReceiver<T> {
 		return pipelineReceiver;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return onReceive.hashCode();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) return true;
+		if (! (o instanceof PipelineReceiver)) return false;
+
+		final PipelineReceiver<?> that = (PipelineReceiver<?>) o;
+
+		return onReceive.equals(that.onReceive);
+	}
+
 	@APILevel
 	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
 		NetCom2Utils.parameterNotNull(triPredicate);
@@ -69,28 +90,5 @@ class PipelineReceiver<T> {
 	@APILevel
 	final OnReceiveTriple<T> getOnReceive() {
 		return onReceive;
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		return onReceive.hashCode();
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(final Object o) {
-		if (this == o) return true;
-		if (!(o instanceof PipelineReceiver)) return false;
-
-		final PipelineReceiver<?> that = (PipelineReceiver<?>) o;
-
-		return onReceive.equals(that.onReceive);
 	}
 }

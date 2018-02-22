@@ -9,13 +9,20 @@ import java.net.Socket;
 public interface ClientConnectedHandler {
 
 	/**
-	 * May be overridden, to create a Client.
+	 * Defines, what to do, when the Client connects to the Server.
 	 *
+	 * @param client the Client, that was created internally
+	 */
+	void handle(final Client client);
+
+	/**
+	 * May be overridden, to create a Client.
+	 * <p>
 	 * If you do, make sure, that you instance is conform to the interface standards.
 	 * Also, make sure, to override {@link #willCreateClient()} to return true. Else this Handler will be ignored.
-	 *
+	 * <p>
 	 * By overriding this, you WILL override the default Client creation!
-	 *
+	 * <p>
 	 * By default, this returns null. If null is returned, this ClientConnectedHandler will have no effect.
 	 *
 	 * @param socket the <code>java.io.Socket</code>, that has connected
@@ -33,13 +40,6 @@ public interface ClientConnectedHandler {
 	default boolean willCreateClient() {
 		return false;
 	}
-
-	/**
-	 * Defines, what to do, when the Client connects to the Server.
-	 *
-	 * @param client the Client, that was created internally
-	 */
-	void handle(final Client client);
 
 	/**
 	 * This Method encapsulates the {@link NetCom2Utils} class and will throw an {@link NullPointerException} if the

@@ -6,7 +6,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 /**
  * This interface is package private by design, not by error.
- *
+ * <p>
  * It should not be made public nor should it be used outside of NetCom2!
  * This allows internal dependencies to add Observer, which are to be used within the Cache and wait for corresponding
  * Communication chain, that tells the Sender, that he successfully registered to the Object

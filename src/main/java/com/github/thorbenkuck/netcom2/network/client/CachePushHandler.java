@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
 /**
  * This Handler will handle an received CachePush at the Client-Side.
- *
+ * <p>
  * It takes the received Object and puts it into the locally held cache. Further the mutex of the cache is used to ensure
  * Thread-Safety
  */

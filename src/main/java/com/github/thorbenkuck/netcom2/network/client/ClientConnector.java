@@ -17,10 +17,13 @@ import java.net.Socket;
 class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	private final Logging logging = Logging.unified();
-	@APILevel private final ConnectionFactory connectionFactory = new ConnectionFactory();
+	@APILevel
+	private final ConnectionFactory connectionFactory = new ConnectionFactory();
 	private final Client client;
-	@APILevel private final String address;
-	@APILevel private final int port;
+	@APILevel
+	private final String address;
+	@APILevel
+	private final int port;
 
 	ClientConnector(@APILevel final String address, @APILevel final int port, final Client client) {
 		this.address = address;

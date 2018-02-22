@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 
 public class NetComThreadFactory implements ThreadFactory {
 
+	static final String NET_COM_THREAD_NAME = "NetComThread";
 	private final Logging logging = Logging.unified();
 	private final NetComThreadContainer threadContainer = new NetComThreadContainer();
 	private final NetComThreadGroup threadGroup = new NetComThreadGroup(Thread.currentThread().getThreadGroup(), "NetCom2ThreadGroup");
-	static final String NET_COM_THREAD_NAME = "NetComThread";
 
 	public NetComThreadFactory() {
 	}

@@ -154,13 +154,13 @@ public interface Sender {
 
 	/**
 	 * Resets the Sender to its original state.
-	 *
+	 * <p>
 	 * Calling this Method is not recommended. It is utilized, to reset a Client, once it disconnects from the Server,
 	 * to allow it to reconnect. It cleans out all internal saved instances
-	 *
+	 * <p>
 	 * Calling this Method results in a clean of all requested registration and there corresponding callback Objects.
 	 * So if you send an register Request and shortly after call this method, the callback Object will no longer be available.
-	 *
+	 * <p>
 	 * This method is called if the last Connection is disconnected.
 	 */
 	void reset();

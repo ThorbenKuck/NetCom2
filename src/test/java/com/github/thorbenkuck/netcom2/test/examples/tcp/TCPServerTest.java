@@ -26,14 +26,14 @@ public class TCPServerTest {
 		}
 	}
 
-	private void register(CommunicationRegistration communicationRegistration) {
-		communicationRegistration.addDefaultCommunicationHandler(((connection, session, o) -> session.send(o)));
-	}
-
 	public static void main(String[] args) {
 		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
 		NetComLogging.setLogging(Logging.trace());
 		new TCPServerTest();
+	}
+
+	private void register(CommunicationRegistration communicationRegistration) {
+		communicationRegistration.addDefaultCommunicationHandler(((connection, session, o) -> session.send(o)));
 	}
 
 }

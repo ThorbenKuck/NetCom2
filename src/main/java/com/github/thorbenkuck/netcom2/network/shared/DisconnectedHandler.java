@@ -8,9 +8,9 @@ public interface DisconnectedHandler {
 
 	/**
 	 * This method tells the priority over the over Disconnected Handler
-	 *
+	 * <p>
 	 * Default value is 10. Smaller is better.
-	 *
+	 * <p>
 	 * It can be overridden
 	 *
 	 * @return the priority of this DisconnectedHandler
@@ -21,7 +21,7 @@ public interface DisconnectedHandler {
 
 	/**
 	 * This method shows if the DisconnectedHandler should be used.
-	 *
+	 * <p>
 	 * It can be overridden
 	 *
 	 * @return boolean, whether or not this DisconnectedHandler should be used or not.

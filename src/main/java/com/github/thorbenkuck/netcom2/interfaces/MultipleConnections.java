@@ -14,18 +14,18 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * <code>
  * class NewConnectionRequest {
  * private Class key;
- *
+ * <p>
  * public NewConnectionRequest(Class key) {
  * this.key = key;
  * }
- *
+ * <p>
  * public Class getKey() {
  * return this.key;
  * }
  * }
- *
+ * <p>
  * ServerStart serverStart = ...
- *
+ * <p>
  * serverStart.getCommunicationRegistration()
  * .register(NewConnectionRequest.class)
  * .addFirst((session, newConnectionRequest) - serverStart.createNewConnection(session, newConnectionRequest.getKey()));
@@ -47,7 +47,7 @@ public interface MultipleConnections {
 	 * After the Connection is established <b>AND</b> usable, this Awaiting should be continued.
 	 *
 	 * @param session the Session, for which the new Connection should be used
-	 * @param key the key, which identifies the Connection
+	 * @param key     the key, which identifies the Connection
 	 * @return an instance of the {@link Awaiting} interface for synchronization
 	 */
 	Awaiting createNewConnection(final Session session, final Class key);

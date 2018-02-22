@@ -5,7 +5,6 @@ import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import jdk.nashorn.internal.parser.JSONParser;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
@@ -31,6 +30,7 @@ class SessionImpl implements Session {
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
+	private SessionUpdater sessionUpdater;
 
 	@APILevel
 	SessionImpl(final SendBridge sendBridge) {
@@ -120,7 +120,7 @@ class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
 		pipelines.computeIfAbsent(clazz, k -> {
@@ -134,7 +134,7 @@ class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> void triggerEvent(final Class<T> clazz, T t) {
 		final Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
@@ -198,8 +198,6 @@ class SessionImpl implements Session {
 		}
 	}
 
-	private SessionUpdater sessionUpdater;
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -217,6 +215,7 @@ class SessionImpl implements Session {
 		}
 		return sessionUpdater;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -224,6 +223,7 @@ class SessionImpl implements Session {
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */

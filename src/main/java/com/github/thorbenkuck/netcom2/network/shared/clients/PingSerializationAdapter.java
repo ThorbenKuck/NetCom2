@@ -5,6 +5,10 @@ import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 
 public class PingSerializationAdapter implements SerializationAdapter<Object, String> {
+	private String serializePing(final Ping o) {
+		return "Ping|" + o.getId();
+	}
+
 	@Asynchronous
 	@Override
 	public String get(final Object o) throws SerializationFailedException {
@@ -13,9 +17,5 @@ public class PingSerializationAdapter implements SerializationAdapter<Object, St
 		}
 		throw new SerializationFailedException(
 				"[" + getClass().getSimpleName() + "]: " + "Only Ping-Serialization supported!");
-	}
-
-	private String serializePing(final Ping o) {
-		return "Ping|" + o.getId();
 	}
 }

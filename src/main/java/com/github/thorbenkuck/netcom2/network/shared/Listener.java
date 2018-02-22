@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.network.shared;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class Listener implements ListenAndExpect {
@@ -19,6 +18,12 @@ public class Listener implements ListenAndExpect {
 		this.t = t;
 	}
 
+	private void await() throws InterruptedException {
+		logging.trace("Awaiting receiving of " + t);
+		countDownLatch.await();
+		logging.trace("Listener for " + t + " finished! Continuing ..");
+	}
+
 	@Override
 	public final void andWaitFor(final Class clazz) throws InterruptedException {
 		NetCom2Utils.parameterNotNull(clazz);
@@ -26,12 +31,6 @@ public class Listener implements ListenAndExpect {
 		changed = true;
 		this.t = clazz;
 		await();
-	}
-
-	private void await() throws InterruptedException {
-		logging.trace("Awaiting receiving of " + t);
-		countDownLatch.await();
-		logging.trace("Listener for " + t + " finished! Continuing ..");
 	}
 
 	@Override
@@ -52,14 +51,14 @@ public class Listener implements ListenAndExpect {
 		return o != null && o.getClass().equals(t);
 	}
 
+	public String toString() {
+		return (changed ? "(changed)" : "") + "Listening for Class: " + t;
+	}
+
 	protected final void trigger() {
 		logging.trace("Match found! Releasing waiting Threads ..");
 		countDownLatch.countDown();
 		logging.trace("Marked " + this + " as isRemovable");
 		removable = true;
-	}
-
-	public String toString() {
-		return (changed ? "(changed)" : "") + "Listening for Class: " + t;
 	}
 }

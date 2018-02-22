@@ -17,6 +17,23 @@ public class ExperimentalAnnotationProcessor extends AbstractProcessor {
 
 	private Messager messager;
 
+	private void warn(Element element) {
+		messager.printMessage(
+				Diagnostic.Kind.WARNING,
+				"The use of Experimental methods may cause unexpected behaviour!",
+				element);
+	}
+
+	@Override
+	public Set<String> getSupportedAnnotationTypes() {
+		return Collections.singleton(Experimental.class.getCanonicalName());
+	}
+
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.RELEASE_8;
+	}
+
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -36,27 +53,10 @@ public class ExperimentalAnnotationProcessor extends AbstractProcessor {
 
 		for (Element e : roundEnvironment.getElementsAnnotatedWith(Experimental.class)) {
 			warn(e);
-			++count;
+			++ count;
 		}
 		System.out.println("Found " + count + " methods in experimental state.");
 
 		return false;
-	}
-
-	private void warn(Element element) {
-		messager.printMessage(
-				Diagnostic.Kind.WARNING,
-				"The use of Experimental methods may cause unexpected behaviour!",
-				element);
-	}
-
-	@Override
-	public Set<String> getSupportedAnnotationTypes() {
-		return Collections.singleton(Experimental.class.getCanonicalName());
-	}
-
-	@Override
-	public SourceVersion getSupportedSourceVersion() {
-		return SourceVersion.RELEASE_8;
 	}
 }

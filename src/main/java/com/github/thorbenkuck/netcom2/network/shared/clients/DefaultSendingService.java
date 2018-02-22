@@ -16,7 +16,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -29,11 +28,11 @@ class DefaultSendingService implements SendingService {
 	private final SerializationAdapter<Object, String> mainSerializationAdapter;
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization;
 	private final EncryptionAdapter encryptionAdapter;
-	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
+	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
 	@APILevel
 	private BlockingQueue<Object> toSend;
@@ -47,42 +46,6 @@ class DefaultSendingService implements SendingService {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
 		this.encryptionAdapter = encryptionAdapter;
-	}
-
-	@Override
-	public void run() {
-		if (!setup) {
-			throw new Error("[SendingService{" + connectionID.get() + "}] Setup required before run!");
-		}
-		running = true;
-		logging.debug("[SendingService{" + connectionID.get() + "}] Started Sending Service");
-		synchronize.goOn();
-		while (running()) {
-			try {
-				// This needs to be done with a timeout
-				// if not, a shutdown may not be viable
-				// and the thread this runnable runs in may never terminate
-				final Object o = toSend.poll(2, TimeUnit.SECONDS);
-				// Take it first, then send it in another thread!
-				// this is done, to check, whether or not the object is null
-				// if it is null, no object was present.
-				// This means, the SendingService was shutDown.
-				if(o != null) {
-					threadPool.submit(() -> send(o));
-				}
-			} catch (InterruptedException e) {
-				if (running) {
-					logging.warn("[SendingService{" + connectionID.get() + "}] Interrupted while waiting for a new Object to beforeSend");
-					logging.catching(e);
-				}
-			}
-		}
-		logging.info("[SendingService{" + connectionID.get() + "}] SendingService stopped!");
-	}
-
-	@Override
-	public void setConnectionIDSupplier(Supplier<String> supplier) {
-		this.connectionID = supplier;
 	}
 
 	private void send(final Object o) {
@@ -166,6 +129,37 @@ class DefaultSendingService implements SendingService {
 	}
 
 	@Override
+	public void run() {
+		if (! setup) {
+			throw new Error("[SendingService{" + connectionID.get() + "}] Setup required before run!");
+		}
+		running = true;
+		logging.debug("[SendingService{" + connectionID.get() + "}] Started Sending Service");
+		synchronize.goOn();
+		while (running()) {
+			try {
+				// This needs to be done with a timeout
+				// if not, a shutdown may not be viable
+				// and the thread this runnable runs in may never terminate
+				final Object o = toSend.poll(2, TimeUnit.SECONDS);
+				// Take it first, then send it in another thread!
+				// this is done, to check, whether or not the object is null
+				// if it is null, no object was present.
+				// This means, the SendingService was shutDown.
+				if (o != null) {
+					threadPool.submit(() -> send(o));
+				}
+			} catch (InterruptedException e) {
+				if (running) {
+					logging.warn("[SendingService{" + connectionID.get() + "}] Interrupted while waiting for a new Object to beforeSend");
+					logging.catching(e);
+				}
+			}
+		}
+		logging.info("[SendingService{" + connectionID.get() + "}] SendingService stopped!");
+	}
+
+	@Override
 	public void addSendDoneCallback(final Callback<Object> callback) {
 		synchronized (callbacks) {
 			callbacks.add(callback);
@@ -191,6 +185,11 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public Awaiting started() {
 		return synchronize;
+	}
+
+	@Override
+	public void setConnectionIDSupplier(Supplier<String> supplier) {
+		this.connectionID = supplier;
 	}
 
 	@Override

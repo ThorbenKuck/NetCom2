@@ -5,7 +5,7 @@ public interface Expectable {
 
 	/**
 	 * Allows to wait for something.
-	 *
+	 * <p>
 	 * The something is defined by its class.
 	 *
 	 * @param clazz the class, that defines the type of the object to wait for

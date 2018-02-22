@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.interfaces.Adapter;
 
 /**
  * This interface is used to encrypt any String.
- *
+ * <p>
  * It inherits from the Adapter interface and converts a String into another String.
  * It is utilized within the {@link com.github.thorbenkuck.netcom2.network.shared.clients.DefaultReceivingService}, to
  * decrypt messages received over the Network.

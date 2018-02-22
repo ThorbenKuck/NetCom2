@@ -14,13 +14,49 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionFactory {
 
 	private final static Lock connectionFactoryHookLock = new ReentrantLock();
-	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
 	private final Logging logging = Logging.unified();
+	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
 
 	public static void setConnectionFactoryHook(final ConnectionFactoryHook connectionFactoryHook) {
 		try {
 			connectionFactoryHookLock.lock();
 			ConnectionFactory.connectionFactoryHook = connectionFactoryHook;
+		} finally {
+			connectionFactoryHookLock.unlock();
+		}
+	}
+
+	/**
+	 * TODO Decouple to factory
+	 *
+	 * @param client the Client that holds the main parts
+	 * @return a ReceivingService, usable by a Connection
+	 */
+	private ReceivingService getReceivingService(final Client client) {
+		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
+				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(),
+				client.getDecryptionAdapter());
+		receivingService.onDisconnect(client::disconnect);
+		return receivingService;
+
+	}
+
+	/**
+	 * TODO Decouple to factory
+	 *
+	 * @param client the Client that holds the main parts
+	 * @return a SendingService, usable by a Connection
+	 */
+	private SendingService getSendingService(final Client client) {
+		return new DefaultSendingService(client.getMainSerializationAdapter(), client.getFallBackSerialization(),
+				client.getEncryptionAdapter());
+	}
+
+	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
+									 final ReceivingService receivingService, final Class<?> key) {
+		try {
+			connectionFactoryHookLock.lock();
+			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);
 		} finally {
 			connectionFactoryHookLock.unlock();
 		}
@@ -73,41 +109,5 @@ public class ConnectionFactory {
 		logging.info("Connected to server at " + connection);
 
 		return connection;
-	}
-
-	/**
-	 * TODO Decouple to factory
-	 *
-	 * @param client the Client that holds the main parts
-	 * @return a ReceivingService, usable by a Connection
-	 */
-	private ReceivingService getReceivingService(final Client client) {
-		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
-				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(),
-				client.getDecryptionAdapter());
-		receivingService.onDisconnect(client::disconnect);
-		return receivingService;
-
-	}
-
-	/**
-	 * TODO Decouple to factory
-	 *
-	 * @param client the Client that holds the main parts
-	 * @return a SendingService, usable by a Connection
-	 */
-	private SendingService getSendingService(final Client client) {
-		return new DefaultSendingService(client.getMainSerializationAdapter(), client.getFallBackSerialization(),
-				client.getEncryptionAdapter());
-	}
-
-	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
-									 final ReceivingService receivingService, final Class<?> key) {
-		try {
-			connectionFactoryHookLock.lock();
-			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);
-		} finally {
-			connectionFactoryHookLock.unlock();
-		}
 	}
 }

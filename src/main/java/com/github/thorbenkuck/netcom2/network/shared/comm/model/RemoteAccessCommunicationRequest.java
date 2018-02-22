@@ -9,11 +9,11 @@ import java.util.UUID;
 @APILevel
 public class RemoteAccessCommunicationRequest implements Serializable {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private final String methodName;
 	private final Class<?> clazz;
 	private final UUID uuid;
 	private final Object[] parameters;
-	private static final long serialVersionUID = 4414647424220391756L;
 
 	public RemoteAccessCommunicationRequest(final String methodName, final Class<?> clazz, final UUID uuid, final Object[] parameters) {
 		this.methodName = methodName;

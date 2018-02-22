@@ -77,25 +77,12 @@ public interface Logging {
 
 	/**
 	 * Prints something, that failed but is recoverable.
-	 *
+	 * <p>
 	 * May be caused by a Throwable
 	 *
 	 * @param s the String that should be logged.
 	 */
 	void error(final String s, final Throwable throwable);
-
-	/**
-	 * Prints something, that failed but is recoverable.
-	 *
-	 * May be caused by a Throwable.
-	 *
-	 * Inverse to {@link #error(String, Throwable)}
-	 *
-	 * @param s the String that should be logged.
-	 */
-	default void error(final Throwable throwable, final String s) {
-		error(s, throwable);
-	}
 
 	/**
 	 * Prints something, that failed and is not recoverable.
@@ -106,7 +93,7 @@ public interface Logging {
 
 	/**
 	 * Prints something, that failed and is not recoverable.
-	 *
+	 * <p>
 	 * May be caused by a Throwable.
 	 *
 	 * @param s the String that should be logged.
@@ -114,10 +101,30 @@ public interface Logging {
 	void fatal(final String s, final Throwable throwable);
 
 	/**
-	 * Prints something, that failed and is not recoverable.
+	 * Prints a Throwable, that was encountered some how.
 	 *
+	 * @param throwable the Throwable, that should be logged.
+	 */
+	void catching(final Throwable throwable);
+
+	/**
+	 * Prints something, that failed but is recoverable.
+	 * <p>
 	 * May be caused by a Throwable.
+	 * <p>
+	 * Inverse to {@link #error(String, Throwable)}
 	 *
+	 * @param s the String that should be logged.
+	 */
+	default void error(final Throwable throwable, final String s) {
+		error(s, throwable);
+	}
+
+	/**
+	 * Prints something, that failed and is not recoverable.
+	 * <p>
+	 * May be caused by a Throwable.
+	 * <p>
 	 * Inverse to {@link #fatal(String, Throwable)}
 	 *
 	 * @param s the String that should be logged.
@@ -125,11 +132,4 @@ public interface Logging {
 	default void fatal(final Throwable throwable, String s) {
 		fatal(s, throwable);
 	}
-
-	/**
-	 * Prints a Throwable, that was encountered some how.
-	 *
-	 * @param throwable the Throwable, that should be logged.
-	 */
-	void catching(final Throwable throwable);
 }

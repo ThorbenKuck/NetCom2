@@ -26,6 +26,16 @@ class DistributorImpl implements InternalDistributor {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	@SafeVarargs
+	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
+		for (final Predicate<Session> predicate : predicates) {
+			if (! predicate.test(session)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public final DistributorRegistration getDistributorRegistration() {
 		return distributorRegistration;
@@ -53,20 +63,6 @@ class DistributorImpl implements InternalDistributor {
 
 	@Asynchronous
 	@Override
-	public final void toAllIdentified(final Object o) {
-		toSpecific(o, Session::isIdentified);
-	}
-
-	@Asynchronous
-	@SafeVarargs
-	@Override
-	public final void toAllIdentified(final Object o, final Predicate<Session>... predicates) {
-		predicates[predicates.length - 1] = Session::isIdentified;
-		toSpecific(o, predicates);
-	}
-
-	@Asynchronous
-	@Override
 	public final void toAll(final Object o) {
 		toSpecific(o, Objects::nonNull);
 	}
@@ -78,10 +74,24 @@ class DistributorImpl implements InternalDistributor {
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
-					.filter(user -> !testAgainst(user, predicates))
+					.filter(user -> ! testAgainst(user, predicates))
 					.forEach(toSendTo::add);
 		}
 		toSendTo.forEach(session -> session.send(o));
+	}
+
+	@Asynchronous
+	@Override
+	public final void toAllIdentified(final Object o) {
+		toSpecific(o, Session::isIdentified);
+	}
+
+	@Asynchronous
+	@SafeVarargs
+	@Override
+	public final void toAllIdentified(final Object o, final Predicate<Session>... predicates) {
+		predicates[predicates.length - 1] = Session::isIdentified;
+		toSpecific(o, predicates);
 	}
 
 	@Asynchronous
@@ -105,16 +115,6 @@ class DistributorImpl implements InternalDistributor {
 					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
 					user.send(new CachePush(o));
 				});
-	}
-
-	@SafeVarargs
-	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
-		for (final Predicate<Session> predicate : predicates) {
-			if (!predicate.test(session)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 

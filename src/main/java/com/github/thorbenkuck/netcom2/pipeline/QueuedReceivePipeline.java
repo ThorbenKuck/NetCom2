@@ -32,6 +32,35 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		this.clazz = clazz;
 	}
 
+	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
+		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
+		if (onReceiveTriple == null) {
+			logging.warn("Found null OnReceive in PipelineReceiver " + receiver);
+			return;
+		}
+		try {
+			onReceiveTriple.beforeExecution();
+			onReceiveTriple.accept(connection, session, s);
+			onReceiveTriple.successfullyExecuted();
+		} catch (Exception encountered) {
+			// The onReceive is notified if an Exception is encountered.
+			// To notify the main Procedure, as well as the other developers, this
+			// Exception is re thrown. Outer procedures may catch those.
+			onReceiveTriple.exceptionEncountered(encountered);
+			throw encountered;
+		}
+	}
+
+	private void falseAdd(final CanBeRegistered canBeRegistered) {
+		canBeRegistered.onAddFailed();
+	}
+
+	private void ifOpen(final Runnable runnable) {
+		if (! closed) {
+			runnable.run();
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -125,7 +154,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveTriple<T> pipelineService) {
-		if (!contains(pipelineService)) {
+		if (! contains(pipelineService)) {
 			return addFirst(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -152,7 +181,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService) {
-		if (!contains(pipelineService)) {
+		if (! contains(pipelineService)) {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -173,18 +202,6 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			return toReturn;
 		} finally {
 			policyLock.unlock();
-		}
-	}
-
-	protected void requiresOpen() {
-		if (closed) {
-			throw new PipelineAccessException("ReceivePipeline Closed!");
-		}
-	}
-
-	protected void requiredNotSealed() {
-		if (sealed) {
-			throw new PipelineAccessException("ReceivePipeline is sealed!");
 		}
 	}
 
@@ -294,7 +311,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	@Override
 	public void run(final Connection connection, final Session session, final T t) {
 		try {
@@ -305,25 +322,6 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			}
 		} catch (final Exception e) {
 			logging.error("Encountered exception!", e);
-		}
-	}
-
-	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
-		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
-		if(onReceiveTriple == null) {
-			logging.warn("Found null OnReceive in PipelineReceiver " + receiver);
-			return;
-		}
-		try {
-			onReceiveTriple.beforeExecution();
-			onReceiveTriple.accept(connection, session, s);
-			onReceiveTriple.successfullyExecuted();
-		} catch (Exception encountered) {
-			// The onReceive is notified if an Exception is encountered.
-			// To notify the main Procedure, as well as the other developers, this
-			// Exception is re thrown. Outer procedures may catch those.
-			onReceiveTriple.exceptionEncountered(encountered);
-			throw encountered;
 		}
 	}
 
@@ -356,16 +354,6 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		closed = false;
 	}
 
-	private void falseAdd(final CanBeRegistered canBeRegistered) {
-		canBeRegistered.onAddFailed();
-	}
-
-	private void ifOpen(final Runnable runnable) {
-		if (!closed) {
-			runnable.run();
-		}
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -388,7 +376,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (!(o instanceof QueuedReceivePipeline)) return false;
+		if (! (o instanceof QueuedReceivePipeline)) return false;
 
 		final QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
 		try {
@@ -396,11 +384,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 			if (closed != that.closed) return false;
 			if (sealed != that.sealed) return false;
-			if (!core.equals(that.core)) return false;
-			if (!logging.equals(that.logging)) return false;
-			if (!policyLock.equals(that.policyLock)) return false;
-			if (!clazz.equals(that.clazz)) return false;
-			if (!receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
+			if (! core.equals(that.core)) return false;
+			if (! logging.equals(that.logging)) return false;
+			if (! policyLock.equals(that.policyLock)) return false;
+			if (! clazz.equals(that.clazz)) return false;
+			if (! receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
 				return false;
 			return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
 		} catch (final InterruptedException e) {
@@ -418,7 +406,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public String toString() {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
-				", open=" + !closed +
+				", open=" + ! closed +
 				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
 				", core=" + core +
 				'}';
@@ -438,5 +426,17 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public void release() {
 		semaphore.release();
+	}
+
+	protected void requiresOpen() {
+		if (closed) {
+			throw new PipelineAccessException("ReceivePipeline Closed!");
+		}
+	}
+
+	protected void requiredNotSealed() {
+		if (sealed) {
+			throw new PipelineAccessException("ReceivePipeline is sealed!");
+		}
 	}
 }

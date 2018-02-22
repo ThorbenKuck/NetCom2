@@ -8,10 +8,10 @@ import java.util.UUID;
 @APILevel
 public class RemoteAccessCommunicationResponse implements Serializable {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private final UUID uuid;
 	private final Throwable throwable;
 	private final Object result;
-	private static final long serialVersionUID = 4414647424220391756L;
 
 	public RemoteAccessCommunicationResponse(final UUID uuid, final Throwable throwable, final Object result) {
 		this.uuid = uuid;

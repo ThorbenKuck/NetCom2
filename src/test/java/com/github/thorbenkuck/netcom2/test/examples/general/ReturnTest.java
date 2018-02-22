@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public interface ReturnTest extends Serializable {
 
-    String getReturnValue();
+	String getReturnValue();
 
 }

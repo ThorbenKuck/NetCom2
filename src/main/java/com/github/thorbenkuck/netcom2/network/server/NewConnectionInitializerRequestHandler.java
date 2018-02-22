@@ -58,10 +58,10 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 				logging.catching(e);
 			}
 		} else {
-			if (!clientOptional.isPresent()) {
+			if (! clientOptional.isPresent()) {
 				logging.warn("[" + identifier + "]: Could not find client for: " + newConnectionInitializer.getID());
 			}
-			if (!toDeleteClientOptional.isPresent()) {
+			if (! toDeleteClientOptional.isPresent()) {
 				logging.warn("[" + identifier + "]: Could not find faulty Client: " +
 						newConnectionInitializer.getToDeleteID());
 			}

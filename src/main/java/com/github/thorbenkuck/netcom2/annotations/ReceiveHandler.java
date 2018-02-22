@@ -27,16 +27,16 @@ import java.lang.annotation.*;
  * TODO AnnotationProcessor
  */
 @Documented
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
+@Target (ElementType.METHOD)
+@Retention (RetentionPolicy.RUNTIME)
 public @interface ReceiveHandler {
 
 	/**
 	 * Overriding this Method allows you to disable an ReceiveHandler without removing the Annotation.
-	 *
+	 * <p>
 	 * If this method returns false, the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
 	 * will not use the annotated Method, therefore ignoring the annotation and the annotated Method.
-	 *
+	 * <p>
 	 * Further, if this Method returns false, it will not be saved and therefor not take up any resources to be saved,
 	 * maintained and checked.
 	 *

@@ -25,29 +25,31 @@ public class ClientStartImpl implements ClientStart {
 	private final Cache cache = Cache.create();
 	private final ClientConnector clientConnector;
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
-	@APILevel private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
-	@APILevel AtomicBoolean launched = new AtomicBoolean(false);
+	@APILevel
+	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
 	private Client client;
 	private InternalSender sender;
 	private RemoteObjectFactory remoteObjectFactory;
+	@APILevel
+	AtomicBoolean launched = new AtomicBoolean(false);
 
 	/**
 	 * The creation of the ClientStartImpl will:
-	 *
+	 * <p>
 	 * <ul>
-	 *     <li>Create an client, based upon the aggregated {@link CommunicationRegistration}</li>
-	 *     <li>Create a {@link ClientConnector}, based upon the provided address, port and the created Client</li>
-	 *     <li>Calling {@link #setSocketFactory(SocketFactory)} with the {@link DefaultClientSocketFactory}</li>
-	 *     <li>Create an {@link InternalSender} based upon the created Client</li>
-	 *     <li>Lastly add the {@link DefaultClientDisconnectedHandler}</li>
+	 * <li>Create an client, based upon the aggregated {@link CommunicationRegistration}</li>
+	 * <li>Create a {@link ClientConnector}, based upon the provided address, port and the created Client</li>
+	 * <li>Calling {@link #setSocketFactory(SocketFactory)} with the {@link DefaultClientSocketFactory}</li>
+	 * <li>Create an {@link InternalSender} based upon the created Client</li>
+	 * <li>Lastly add the {@link DefaultClientDisconnectedHandler}</li>
 	 * </ul>
-	 *
+	 * <p>
 	 * This is quit a lot, but needed. This should not be that workload intensive.
 	 *
 	 * @param address the address
-	 * @param port the port
+	 * @param port    the port
 	 * @throws NullPointerException if the provided address or port is null
 	 */
 	public ClientStartImpl(final String address, final int port) {
@@ -101,6 +103,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if provided key is null
 	 */
 	@Override
@@ -112,6 +115,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the SocketFactory is null
 	 */
 	@Override
@@ -131,6 +135,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the SerializationAdapter is null
 	 */
 	@Override
@@ -142,6 +147,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the DeSerializationAdapter is null
 	 */
 	@Override
@@ -153,6 +159,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the SerializationAdapter is null
 	 */
 	@Override
@@ -164,6 +171,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the DeSerializationAdapter is null
 	 */
 	@Override
@@ -175,6 +183,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the DisconnectedHandler is null
 	 */
 	@Override
@@ -186,6 +195,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the DecryptionAdapter is null
 	 */
 	@Override
@@ -197,6 +207,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the EncryptionAdapter is null
 	 */
 	@Override
@@ -225,6 +236,7 @@ public class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws NullPointerException if the logging is null
 	 */
 	@Override
@@ -258,18 +270,18 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (!(o instanceof ClientStartImpl)) return false;
+		if (! (o instanceof ClientStartImpl)) return false;
 
 		final ClientStartImpl that = (ClientStartImpl) o;
 
 		if (launched != that.launched) return false;
-		if (!cache.equals(that.cache)) return false;
-		if (!clientConnector.equals(that.clientConnector)) return false;
-		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (!clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
-		if (!logging.equals(that.logging)) return false;
-		if (!socketFactory.equals(that.socketFactory)) return false;
-		if (!client.equals(that.client)) return false;
+		if (! cache.equals(that.cache)) return false;
+		if (! clientConnector.equals(that.clientConnector)) return false;
+		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (! clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
+		if (! logging.equals(that.logging)) return false;
+		if (! socketFactory.equals(that.socketFactory)) return false;
+		if (! client.equals(that.client)) return false;
 		return sender.equals(that.sender);
 	}
 

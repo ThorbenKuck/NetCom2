@@ -126,7 +126,7 @@ public interface CommunicationRegistration extends Mutex {
 	 *                                            and no DefaultCommunicationHandler has been set.
 	 */
 	@Asynchronous
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	<T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException;
 
@@ -156,7 +156,7 @@ public interface CommunicationRegistration extends Mutex {
 
 	/**
 	 * Clears all Registration
-	 *
+	 * <p>
 	 * This Call will ignore all {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy}.
 	 * All internally set {@link ReceivePipeline} will be cleared.
 	 * Currently running Handlers will NOT be stopped.
@@ -165,7 +165,7 @@ public interface CommunicationRegistration extends Mutex {
 
 	/**
 	 * This call wil unregister all {@link ReceivePipeline} if the {@link ReceivePipeline#isEmpty()} call returns true
-	 *
+	 * <p>
 	 * The one Exception for this rule is, if an ReceivePipeline is sealed.
 	 * Any sealed ReceivePipeline will not be tested and therefor not removed, even if they are empty.
 	 * This ensures that critical empty Pipelines are not collected
@@ -174,10 +174,10 @@ public interface CommunicationRegistration extends Mutex {
 
 	/**
 	 * This call will override any internally set Registrations and set all Registration to the provided CommunicationRegistration.
-	 *
+	 * <p>
 	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} and delete all
 	 * Registrations currently set.
-	 *
+	 * <p>
 	 * This CommunicationRegistration will take all <b>instances</b> from the provided CommunicationRegistration!
 	 * This means, both are now nearly identical! A change at one {@link ReceivePipeline} in any of those CommunicationRegistrations
 	 * will lead to the same change in the other CommunicationRegistration!

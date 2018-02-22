@@ -19,6 +19,11 @@ public class UDPDefaultConnection extends AbstractConnection {
 	}
 
 	@Override
+	protected void beforeSend(final Object o) {
+		logging.debug("[UDP] Preparing to send " + o + " over the Connection " + super.toString() + "!");
+	}
+
+	@Override
 	void receivedObject(final Object o) {
 		logging.debug("[UDP] Received " + o + " from Connection " + super.toString());
 	}
@@ -26,11 +31,6 @@ public class UDPDefaultConnection extends AbstractConnection {
 	@Override
 	protected void onClose() {
 		logging.debug("[UDP] Closing " + super.toString());
-	}
-
-	@Override
-	protected void beforeSend(final Object o) {
-		logging.debug("[UDP] Preparing to send " + o + " over the Connection " + super.toString() + "!");
 	}
 
 	@Override

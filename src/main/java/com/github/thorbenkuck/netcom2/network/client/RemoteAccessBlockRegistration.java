@@ -12,9 +12,9 @@ import java.util.concurrent.Semaphore;
 
 /**
  * This Class contains information about requests to the Server.
- *
+ * <p>
  * Important is, that any request send, has an unique {@link UUID}. So any invocation handler will lead to the same result
- *
+ * <p>
  * If you have an {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject}, the UUID will be
  * the same, so that the any call will wait, no matter what.
  */
@@ -27,7 +27,7 @@ class RemoteAccessBlockRegistration {
 
 	/**
 	 * This Method will fetch an existing Semaphore out of the internal Mapping, identified by the UUID
-	 *
+	 * <p>
 	 * If the Semaphore does not exist, it will create on.
 	 *
 	 * @param uuid the Identifier of the Semaphore
@@ -52,12 +52,12 @@ class RemoteAccessBlockRegistration {
 
 	/**
 	 * Returns the saved instance, identified by UUID.
-	 *
+	 * <p>
 	 * To add a new Semaphore, if non exists, use  {@link #getAndCreateSemaphore(UUID)}
 	 *
-	 * @see #getAndCreateSemaphore(UUID)
 	 * @param uuid the identifier
 	 * @return the saved Semaphore
+	 * @see #getAndCreateSemaphore(UUID)
 	 */
 	private Semaphore getSemaphore(UUID uuid) {
 		Semaphore semaphore;
@@ -98,7 +98,7 @@ class RemoteAccessBlockRegistration {
 		}
 		Semaphore semaphore = getSemaphore(response.getUuid());
 
-		if(semaphore == null) {
+		if (semaphore == null) {
 			return;
 		}
 

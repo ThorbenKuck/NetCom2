@@ -23,7 +23,7 @@ class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunic
 	/**
 	 * Performs this operation on the given arguments.
 	 *
-	 * @param session                               the first input argument
+	 * @param session                          the first input argument
 	 * @param remoteAccessCommunicationRequest the second input argument
 	 */
 	@Override

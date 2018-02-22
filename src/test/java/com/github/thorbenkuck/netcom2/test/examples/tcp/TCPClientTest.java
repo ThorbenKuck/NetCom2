@@ -13,6 +13,7 @@ public class TCPClientTest {
 
 	private ClientStart clientStart;
 	private int count = 0;
+
 	public TCPClientTest() {
 		clientStart = ClientStart.at("localhost", 4545);
 		register(clientStart.getCommunicationRegistration());
@@ -37,14 +38,14 @@ public class TCPClientTest {
 		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
 	}
 
-	private void register(CommunicationRegistration communicationRegistration) {
-		communicationRegistration.register(TestObject.class)
-				.addFirst(System.out::println);
-	}
-
 	public static void main(String[] args) {
 		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
 		NetComLogging.setLogging(Logging.trace());
 		new TCPClientTest();
+	}
+
+	private void register(CommunicationRegistration communicationRegistration) {
+		communicationRegistration.register(TestObject.class)
+				.addFirst(System.out::println);
 	}
 }

@@ -13,11 +13,6 @@ public class Instantiate {
 		this.clientStart = clientStart;
 	}
 
-	public final void resolve() {
-		clientHandlers();
-		communication();
-	}
-
 	private void clientHandlers() {
 		clientStart.addDisconnectedHandler(client -> System.out.println("disconnected from Server"));
 	}
@@ -30,6 +25,11 @@ public class Instantiate {
 
 		communicationRegistration.register(User.class)
 				.addFirst((session, user) -> ChatRoomClient.setUser(user));
+	}
+
+	public final void resolve() {
+		clientHandlers();
+		communication();
 	}
 
 }

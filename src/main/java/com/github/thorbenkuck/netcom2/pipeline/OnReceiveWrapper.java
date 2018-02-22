@@ -7,8 +7,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.util.Objects;
-
 @APILevel
 class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
@@ -45,7 +43,7 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 		return onReceive.hashCode();
 	}
 
-	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
 		return o != null && onReceive.equals(o);

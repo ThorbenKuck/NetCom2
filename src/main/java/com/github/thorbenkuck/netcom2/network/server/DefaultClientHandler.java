@@ -37,6 +37,14 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	private void clearClient(final Client client) {
+		logging.info("disconnected " + client + " ");
+		logging.trace("Removing Client(" + client + ") from ClientList");
+		clientList.remove(client);
+		logging.trace("Cleaning dead registrations");
+		distributorRegistration.removeRegistration(client.getSession());
+	}
+
 	@Asynchronous
 	@Override
 	public Client create(final Socket socket) {
@@ -97,13 +105,5 @@ class DefaultClientHandler implements ClientConnectedHandler {
 				"communicationRegistration=" + communicationRegistration +
 				", connection=" + connection +
 				'}';
-	}
-
-	private void clearClient(final Client client) {
-		logging.info("disconnected " + client + " ");
-		logging.trace("Removing Client(" + client + ") from ClientList");
-		clientList.remove(client);
-		logging.trace("Cleaning dead registrations");
-		distributorRegistration.removeRegistration(client.getSession());
 	}
 }

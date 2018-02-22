@@ -2,11 +2,7 @@ package com.github.thorbenkuck.netcom2.test.examples;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
 public class Server {
 

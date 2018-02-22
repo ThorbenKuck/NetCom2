@@ -6,9 +6,10 @@ import java.io.Serializable;
 
 /**
  * This Class is used for TCP Connection Handshake.
- *
+ * <p>
  * It has no other use at the current Time, than signaling that the send Object was correct and
  * releasing the other waiting end of the Connection
+ *
  * @since 0.1
  */
 @APILevel

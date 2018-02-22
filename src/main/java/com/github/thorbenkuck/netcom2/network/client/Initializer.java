@@ -16,7 +16,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
-import jdk.Exported;
 
 /**
  * This Class initializes the client and all of its dependencies.
@@ -52,27 +51,6 @@ class Initializer {
 	}
 
 	/**
-	 * This is the main Method that should be called upon an creation request.
-	 *
-	 * By calling this Method the internal registrations of Objects are started and
-	 * the Client waits for a Handshake from the Server. This means this Method
-	 * will only return if the Server send the corresponding {@link ClientID} that
-	 * the Client is associated with and therefor signals the Client that it is primed.
-	 *
-	 * @throws StartFailedException if the Synchronization, awaiting the Client
-	 * 							 primed failed, an StartFailedException is thrown
-	 * 							 to signal that	it could not verify the Handshake
-	 * 							 between Server and Client
-	 */
-	@APILevel
-	void init() throws StartFailedException {
-		logging.trace("Registering internal Components ..");
-		register();
-		logging.trace("Awaiting handshake with Server ..");
-		awaitHandshake();
-	}
-
-	/**
 	 * This Method registers all internal Objects, that are used for Communication between Client and Server.
 	 */
 	private synchronized void register() {
@@ -85,7 +63,7 @@ class Initializer {
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
-								!ClientID.isEmpty(newConnectionInitializer.getID()));
+								! ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
 		registerCriticalSingle(SessionUpdate.class, new SessionUpdateHandler());
 
@@ -153,7 +131,7 @@ class Initializer {
 		if (receivePipeline.isSealed()) {
 			logging.warn("Found sealed ReceivePipeline " + receivePipeline +
 					"! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
-			if (!receivePipeline.isClosed()) {
+			if (! receivePipeline.isClosed()) {
 				logging.error("You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
 				reset(clazz);
 				logging.info("Do not seal open ReceivePipelines, that handle NetCom2 internal mechanisms!");
@@ -161,7 +139,7 @@ class Initializer {
 			}
 		}
 
-		if (!receivePipeline.isClosed() && !receivePipeline.isEmpty()) {
+		if (! receivePipeline.isClosed() && ! receivePipeline.isEmpty()) {
 			logging.warn("Found non-empty, open ReceivePipeline " + receivePipeline +
 					". This should not happen. Clearing ReceivePipeline");
 			logging.trace("Clearing ReceivePipeline ..");
@@ -191,16 +169,16 @@ class Initializer {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Initializer)) return false;
+		if (! (o instanceof Initializer)) return false;
 
 		final Initializer that = (Initializer) o;
 
-		if (!client.equals(that.client)) return false;
-		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (!logging.equals(that.logging)) return false;
-		if (!cache.equals(that.cache)) return false;
-		if (!sender.equals(that.sender)) return false;
-		if (!clientConnector.equals(that.clientConnector)) return false;
+		if (! client.equals(that.client)) return false;
+		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (! logging.equals(that.logging)) return false;
+		if (! cache.equals(that.cache)) return false;
+		if (! sender.equals(that.sender)) return false;
+		if (! clientConnector.equals(that.clientConnector)) return false;
 		return socketFactory.equals(that.socketFactory);
 	}
 
@@ -212,5 +190,26 @@ class Initializer {
 				", cache=" + cache +
 				", sender=" + sender +
 				'}';
+	}
+
+	/**
+	 * This is the main Method that should be called upon an creation request.
+	 * <p>
+	 * By calling this Method the internal registrations of Objects are started and
+	 * the Client waits for a Handshake from the Server. This means this Method
+	 * will only return if the Server send the corresponding {@link ClientID} that
+	 * the Client is associated with and therefor signals the Client that it is primed.
+	 *
+	 * @throws StartFailedException if the Synchronization, awaiting the Client
+	 *                              primed failed, an StartFailedException is thrown
+	 *                              to signal that	it could not verify the Handshake
+	 *                              between Server and Client
+	 */
+	@APILevel
+	void init() throws StartFailedException {
+		logging.trace("Registering internal Components ..");
+		register();
+		logging.trace("Awaiting handshake with Server ..");
+		awaitHandshake();
 	}
 }

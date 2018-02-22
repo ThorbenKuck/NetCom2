@@ -49,7 +49,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	public void addNew(final Object object) {
 		logging.trace("Trying to add a new Object(" + object + ") to Cache ..");
-		if (!isSet(object.getClass())) {
+		if (! isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
 				logging.debug("Added new entry for " + object.getClass());
@@ -62,7 +62,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void addAndOverride(final Object object) {
-		if (!isSet(object.getClass())) {
+		if (! isSet(object.getClass())) {
 			addNew(object);
 		} else {
 			update(object);
@@ -83,7 +83,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	public <T> Optional<T> get(final Class<T> clazz) {
 		final Object retrieved;
 		synchronized (internals) {

@@ -21,16 +21,6 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 		this.port = port;
 	}
 
-	@APILevel
-	int getPort() {
-		return port;
-	}
-
-	@APILevel
-	ServerSocket getServerSocket() {
-		return serverSocket;
-	}
-
 	@Override
 	public synchronized ServerSocket establishConnection(final Factory<Integer, ServerSocket> factory)
 			throws IOException, StartFailedException {
@@ -57,7 +47,17 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 
 	@Override
 	public void shutDown() throws IOException {
-		if (serverSocket != null && !serverSocket.isClosed()) serverSocket.close();
+		if (serverSocket != null && ! serverSocket.isClosed()) serverSocket.close();
+	}
+
+	@APILevel
+	int getPort() {
+		return port;
+	}
+
+	@APILevel
+	ServerSocket getServerSocket() {
+		return serverSocket;
 	}
 
 

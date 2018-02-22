@@ -2,9 +2,9 @@ package com.github.thorbenkuck.netcom2.interfaces;
 
 /**
  * This interface provides an mechanism to acquire any Object at runtime to ensure Thread-Safety.
- *
+ * <p>
  * By calling <code>acquire</code>, the object will block any other <code>acquire</code> calls until release is called.
- *
+ * <p>
  * It emulates a {@link java.util.concurrent.Semaphore}. Therefor, it can be realized internally with a Semaphore.
  * It encapsulates an Semaphore. Therefor the Synchronization Mechanism can be changed easily.
  */

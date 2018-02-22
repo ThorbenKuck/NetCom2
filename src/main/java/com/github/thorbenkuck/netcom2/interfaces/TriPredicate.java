@@ -2,8 +2,6 @@ package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.util.Objects;
-
 /**
  * This interface is created equally to the {@link java.util.function.Predicate}, but excepting 3 types as arguments
  * <p>

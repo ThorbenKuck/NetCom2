@@ -37,7 +37,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 		return biPredicate.hashCode();
 	}
 
-	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
 		return o != null && biPredicate.equals(o);

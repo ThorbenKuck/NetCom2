@@ -23,6 +23,14 @@ public class Server {
 		new Server().start();
 	}
 
+	private void register(ServerStart serverStart) {
+
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addFirst((connection, session, testObject) -> System.out.println("Received " + testObject.getString() + " from Connection " + connection.getKey()));
+
+	}
+
 	public void start() throws StartFailedException {
 		serverStart.launch();
 
@@ -33,14 +41,6 @@ public class Server {
 		} catch (ClientConnectionFailedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void register(ServerStart serverStart) {
-
-		serverStart.getCommunicationRegistration()
-				.register(TestObject.class)
-				.addFirst((connection, session, testObject) -> System.out.println("Received " + testObject.getString() + " from Connection " + connection.getKey()));
-
 	}
 
 }

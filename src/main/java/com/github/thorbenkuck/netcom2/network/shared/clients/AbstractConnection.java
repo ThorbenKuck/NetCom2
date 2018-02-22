@@ -16,7 +16,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 public abstract class AbstractConnection implements Connection, Mutex {
@@ -25,14 +28,14 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = new QueuedPipeline<>();
 	private final Semaphore semaphore = new Semaphore(1);
-	protected Logging logging = Logging.unified();
-	protected SendingService sendingService;
-	protected ReceivingService receivingService;
 	private boolean setup;
 	private boolean started;
 	private Session session;
 	private Class<?> key;
 	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
+	protected Logging logging = Logging.unified();
+	protected SendingService sendingService;
+	protected ReceivingService receivingService;
 
 	protected AbstractConnection(final Socket socket, final SendingService sendingService,
 								 final ReceivingService receivingService,
@@ -60,11 +63,30 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	protected abstract void onClose();
 
+	protected abstract void afterSend(final Object o);
+
 	@Override
 	public void setLogging(final Logging logging) {
 		this.logging.debug("Overriding set Logging ..");
 		this.logging = logging;
 		logging.debug("Overrode Logging!");
+	}
+
+	@Override
+	public void close() throws IOException {
+		logging.debug("Closing Connection " + this);
+		logging.trace("Requesting soft-stop of set ReceivingService ..");
+		receivingService.softStop();
+		logging.trace("Requesting soft-stop of set SendingService ..");
+		sendingService.softStop();
+		logging.trace("Requesting soft-stop of ThreadPool ..");
+		logging.info("Sending Service will be shut down forcefully! Expect an InterruptedException!");
+		// how?
+		sendingService.notifyAll();
+		logging.trace("Shutting down socket ..");
+		socket.close();
+		logging.debug("Successfully shut down Connection " + this);
+		onClose();
 	}
 
 	@Override
@@ -96,25 +118,69 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void close() throws IOException {
-		logging.debug("Closing Connection " + this);
-		logging.trace("Requesting soft-stop of set ReceivingService ..");
-		receivingService.softStop();
-		logging.trace("Requesting soft-stop of set SendingService ..");
+	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
+		disconnectedPipeline.remove(consumer);
+	}
+
+	@Asynchronous
+	@Override
+	public void write(final Object object) {
+		if (! setup) {
+			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
+		}
+		logging.trace("Running write in new Thread to write " + object + " ..");
+		threadPool.submit(() -> {
+			logging.trace("notifying of new Object to send ..");
+			beforeSend(object);
+			logging.trace("Offering object " + object + " to write..");
+			toSend.offer(object);
+			logging.trace("notifying of new Object extracted of thread ..");
+			afterSend(object);
+		});
+	}
+
+	@Override
+	public void addObjectSendListener(final Callback<Object> callback) {
+		logging.trace("Adding SendCallback " + callback + " to " + this);
+		sendingService.addSendDoneCallback(callback);
+	}
+
+	@Override
+	public void addObjectReceivedListener(final Callback<Object> callback) {
+		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
+		receivingService.addReceivingCallback(callback);
+	}
+
+	/**
+	 * TODO Complete the formed out Algorithm
+	 *
+	 * @param executorService the executorSerive
+	 */
+	@Experimental
+	@Override
+	public void setThreadPool(final ExecutorService executorService) {
+		logging.error("This operation is not yet supported!");
+		/*
+		// Soft-Stop currentThreadPool
+		// set new ThreadPool
+		// Restart Sending and ReceivingService
+		// Catch up with pending messages
 		sendingService.softStop();
-		logging.trace("Requesting soft-stop of ThreadPool ..");
-		logging.info("Sending Service will be shut down forcefully! Expect an InterruptedException!");
-		// how?
-		sendingService.notifyAll();
-		logging.trace("Shutting down socket ..");
-		socket.close();
-		logging.debug("Successfully shut down Connection " + this);
-		onClose();
+		receivingService.softStop();
+		threadPool.shutdownNow();
+		this.threadPool = executorService;
+		try {
+			startListening().synchronize();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		*/
 	}
 
 	@Override
 	public Synchronize startListening() {
-		if (!setup) {
+		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
 		if (started) {
@@ -153,29 +219,6 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
-		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
-		disconnectedPipeline.remove(consumer);
-	}
-
-	@Asynchronous
-	@Override
-	public void write(final Object object) {
-		if (!setup) {
-			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
-		}
-		logging.trace("Running write in new Thread to write " + object + " ..");
-		threadPool.submit(() -> {
-			logging.trace("notifying of new Object to send ..");
-			beforeSend(object);
-			logging.trace("Offering object " + object + " to write..");
-			toSend.offer(object);
-			logging.trace("notifying of new Object extracted of thread ..");
-			afterSend(object);
-		});
-	}
-
-	@Override
 	public final InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
 	}
@@ -186,15 +229,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
-	public void addObjectSendListener(final Callback<Object> callback) {
-		logging.trace("Adding SendCallback " + callback + " to " + this);
-		sendingService.addSendDoneCallback(callback);
-	}
-
-	@Override
-	public void addObjectReceivedListener(final Callback<Object> callback) {
-		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
-		receivingService.addReceivingCallback(callback);
+	public BlockingQueue<Object> getSendInterface() {
+		return toSend;
 	}
 
 	@Override
@@ -239,44 +275,11 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		this.key = connectionKey;
 	}
 
-	/**
-	 * TODO Complete the formed out Algorithm
-	 *
-	 * @param executorService the executorSerive
-	 */
-	@Experimental
-	@Override
-	public void setThreadPool(final ExecutorService executorService) {
-		logging.error("This operation is not yet supported!");
-		/*
-		// Soft-Stop currentThreadPool
-		// set new ThreadPool
-		// Restart Sending and ReceivingService
-		// Catch up with pending messages
-		sendingService.softStop();
-		receivingService.softStop();
-		threadPool.shutdownNow();
-		this.threadPool = executorService;
-		try {
-			startListening().synchronize();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		*/
-	}
-
-	@Override
-	public BlockingQueue<Object> getSendInterface() {
-		return toSend;
-	}
-
 	@Override
 	public boolean equals(final Object o) {
 		return o != null && o.getClass().equals(AbstractConnection.class) &&
 				((AbstractConnection) o).socket.equals(socket);
 	}
-
-	protected abstract void afterSend(final Object o);
 
 	@Override
 	public String toString() {
@@ -284,17 +287,15 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	@Override
+	public void acquire() throws InterruptedException {
+		semaphore.acquire();
+	}	@Override
 	protected void finalize() throws Throwable {
 		Logging.unified().debug("Connection ist collected by the GC ..");
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
 		super.finalize();
-	}
-
-	@Override
-	public void acquire() throws InterruptedException {
-		semaphore.acquire();
 	}
 
 	@Override
@@ -305,7 +306,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private class DefaultReceiveCallback implements Callback<Object> {
 		@Override
 		public boolean isRemovable() {
-			return !started;
+			return ! started;
 		}
 
 		@Override
@@ -315,7 +316,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 		@Override
 		public String toString() {
-			return "DefaultReceiveCallback{removable=" + !started + "}";
+			return "DefaultReceiveCallback{removable=" + ! started + "}";
 		}
 	}
+
+
 }

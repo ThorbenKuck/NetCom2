@@ -21,11 +21,6 @@ public class Instantiate {
 		this.userList = userList;
 	}
 
-	public final void resolve() {
-		clientHandlers();
-		communication();
-	}
-
 	private void clientHandlers() {
 		serverStart.addClientConnectedHandler(client -> {
 			Session session = client.getSession();
@@ -68,5 +63,10 @@ public class Instantiate {
 					System.out.println("Session is unidentified: " + ! session.isIdentified());
 					session.send(new Message("! You have to be logged in, to send a message !", new User()));
 				}).withRequirement(session -> ! session.isIdentified());
+	}
+
+	public final void resolve() {
+		clientHandlers();
+		communication();
 	}
 }

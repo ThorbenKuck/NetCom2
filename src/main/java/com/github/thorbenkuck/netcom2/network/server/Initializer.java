@@ -34,22 +34,13 @@ class Initializer {
 		this.remoteObjectRegistration = remoteObjectRegistration;
 	}
 
-	@APILevel
-	void init() {
-		logging.trace("Creating internal dependencies");
-		logging.trace("Registering internal commands ..");
-		register();
-		logging.trace("Setting internal Observers ..");
-		setObserver();
-	}
-
 	private void register() {
 		synchronized (communicationRegistration) {
 			logging.trace("Registering Handler for RegisterRequest.class ..");
 			communicationRegistration.register(RegisterRequest.class)
 					.addFirstIfNotContained(
 							new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
-					.withRequirement((session, registerRequest) -> !distributor.getDistributorRegistration()
+					.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration()
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for UnRegisterRequest.class ..");
 			communicationRegistration.register(UnRegisterRequest.class)
@@ -99,6 +90,15 @@ class Initializer {
 
 	@ReceiveHandler
 	private void handleAck(Acknowledge acknowledge) {
+	}
+
+	@APILevel
+	void init() {
+		logging.trace("Creating internal dependencies");
+		logging.trace("Registering internal commands ..");
+		register();
+		logging.trace("Setting internal Observers ..");
+		setObserver();
 	}
 
 	private class ObserverSender implements GeneralCacheObserver {

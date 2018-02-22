@@ -51,25 +51,6 @@ class DefaultReceivingService implements ReceivingService {
 		this.decryptionAdapter = decryptionAdapter;
 	}
 
-	@Override
-	public synchronized void run() {
-		running = true;
-		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
-		synchronize.goOn();
-		while (running()) {
-			try {
-				final String string = in.nextLine();
-				// First get, then execute!
-				threadPool.submit(() -> handle(string));
-			} catch (NoSuchElementException e) {
-				logging.info("[ReceivingService] Disconnection detected!");
-				softStop();
-			}
-		}
-		onDisconnect();
-		logging.trace("[ReceivingService] Receiving Service stopped!");
-	}
-
 	@Asynchronous
 	private void handle(final String string) {
 		logging.trace("[ReceivingService] Handling " + string + " ..");
@@ -92,11 +73,6 @@ class DefaultReceivingService implements ReceivingService {
 			logging.error("[ReceivingService] Encountered unexpected Throwable while handling " + (object != null ? object : string) + "!",
 					throwable);
 		}
-	}
-
-	@Override
-	public void softStop() {
-		running = false;
 	}
 
 	private void onDisconnect() {
@@ -164,17 +140,54 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	@Asynchronous
+	private void removeCallback(final Callback<Object> toRemove) {
+		logging.trace("[ReceivingService] Preparing to remove Callback: " + toRemove);
+		toRemove.onRemove();
+		logging.debug("[ReceivingService] Removing Callback " + toRemove);
+		callbacks.remove(toRemove);
+	}
+
+	@Override
+	public synchronized void run() {
+		running = true;
+		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
+		synchronize.goOn();
+		while (running()) {
+			try {
+				final String string = in.nextLine();
+				// First get, then execute!
+				threadPool.submit(() -> handle(string));
+			} catch (NoSuchElementException e) {
+				logging.info("[ReceivingService] Disconnection detected!");
+				softStop();
+			}
+		}
+		onDisconnect();
+		logging.trace("[ReceivingService] Receiving Service stopped!");
+	}
+
+	@Override
+	public void softStop() {
+		running = false;
+	}
+
+	@Override
+	public boolean running() {
+		return running;
+	}
+
 	@Override
 	public void cleanUpCallBacks() {
 		logging.debug("[ReceivingService] Callback cleanup requested!");
 		final List<Callback<Object>> toRemove = new ArrayList<>();
 		runSynchronizedOverCallbacks(() -> {
 			callbacks.stream()
-				.filter(Callback::isRemovable)
-				.forEach(callBack -> {
-					logging.trace("[ReceivingService] Marking Callback " + callBack + " as to be removed ..");
-					toRemove.add(callBack);
-				});
+					.filter(Callback::isRemovable)
+					.forEach(callBack -> {
+						logging.trace("[ReceivingService] Marking Callback " + callBack + " as to be removed ..");
+						toRemove.add(callBack);
+					});
 			toRemove.forEach(this::removeCallback);
 		});
 
@@ -214,19 +227,6 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public Awaiting started() {
 		return synchronize;
-	}
-
-	@Override
-	public boolean running() {
-		return running;
-	}
-
-	@Asynchronous
-	private void removeCallback(final Callback<Object> toRemove) {
-		logging.trace("[ReceivingService] Preparing to remove Callback: " + toRemove);
-		toRemove.onRemove();
-		logging.debug("[ReceivingService] Removing Callback " + toRemove);
-		callbacks.remove(toRemove);
 	}
 
 }

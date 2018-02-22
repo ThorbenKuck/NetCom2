@@ -41,7 +41,7 @@ public class ClientID implements Serializable {
 	}
 
 	public void ifNotEmpty(final Runnable runnable) {
-		if (!isEmpty()) {
+		if (! isEmpty()) {
 			runnable.run();
 		}
 	}

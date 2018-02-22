@@ -21,7 +21,7 @@ public enum ReceivePipelineHandlerPolicy {
 		@Override
 		void prepare(final ReceivePipeline receivePipeline) {
 			requireNotSealed(receivePipeline);
-			if (!receivePipeline.isEmpty()) {
+			if (! receivePipeline.isEmpty()) {
 				warn("Clearing Pipeline to suit ReceivePipelineHandlerPolicy");
 				receivePipeline.clear();
 			}

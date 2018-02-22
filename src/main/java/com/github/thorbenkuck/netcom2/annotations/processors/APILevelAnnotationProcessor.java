@@ -24,6 +24,16 @@ public class APILevelAnnotationProcessor extends AbstractProcessor {
 	private Messager messager;
 
 	@Override
+	public Set<String> getSupportedAnnotationTypes() {
+		return Collections.singleton(APILevel.class.getCanonicalName());
+	}
+
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.latestSupported();
+	}
+
+	@Override
 	public void init(ProcessingEnvironment processingEnv) {
 		messager = processingEnv.getMessager();
 	}
@@ -45,15 +55,5 @@ public class APILevelAnnotationProcessor extends AbstractProcessor {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public Set<String> getSupportedAnnotationTypes() {
-		return Collections.singleton(APILevel.class.getCanonicalName());
-	}
-
-	@Override
-	public SourceVersion getSupportedSourceVersion() {
-		return SourceVersion.latestSupported();
 	}
 }

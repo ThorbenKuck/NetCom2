@@ -12,7 +12,6 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchr
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -155,7 +154,7 @@ class SenderImpl implements InternalSender, Loggable {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		return (CacheObserver<T>) pendingObservers.remove(clazz);
@@ -164,7 +163,7 @@ class SenderImpl implements InternalSender, Loggable {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		return (CacheObserver<T>) pendingObservers.get(clazz);

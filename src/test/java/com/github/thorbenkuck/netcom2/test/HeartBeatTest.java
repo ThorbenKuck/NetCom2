@@ -11,6 +11,11 @@ public class HeartBeatTest {
 	private int i = 1;
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
+	private void proceed(Object o) {
+		System.out.println(i + ": " + o);
+		i++;
+	}
+
 	@Test
 	public void testHeartBeatChain() throws Exception {
 		HeartBeat<String> heartBeat = heartBeatFactory.produce();
@@ -57,11 +62,6 @@ public class HeartBeatTest {
 				.in(1, TimeUnit.SECONDS)
 				.then()
 				.run("Das ist ein Test", this::proceed);
-	}
-
-	private void proceed(Object o) {
-		System.out.println(i + ": " + o);
-		i++;
 	}
 
 }

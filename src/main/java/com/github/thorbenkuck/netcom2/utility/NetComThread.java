@@ -37,6 +37,14 @@ public class NetComThread extends Thread {
 		finished();
 	}
 
+	public String toString() {
+		if (! getName().equals(getThreadGroup().getName())) {
+			return getName() + "[" + getThreadGroup().getName() + "#" + getId() + "]";
+		} else {
+			return getName();
+		}
+	}
+
 	public void finished() {
 		synchronized (this) {
 			if (netComThreadContainer != null) {
@@ -54,14 +62,6 @@ public class NetComThread extends Thread {
 	public void setNetComThreadContainer(NetComThreadContainer netComThreadContainer) {
 		synchronized (this) {
 			this.netComThreadContainer = netComThreadContainer;
-		}
-	}
-
-	public String toString() {
-		if(!getName().equals(getThreadGroup().getName())) {
-			return getName() + "[" + getThreadGroup().getName() + "#" + getId() + "]";
-		} else {
-			return getName();
 		}
 	}
 }

@@ -12,9 +12,9 @@ import java.util.function.Consumer;
 @Synchronized
 public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T>>> implements Pipeline<T> {
 
-	protected final Lock lock = new ReentrantLock(true);
 	private final Lock accessLock = new ReentrantLock();
 	private final C collection;
+	protected final Lock lock = new ReentrantLock(true);
 	private boolean closed = false;
 	private boolean sealed = false;
 
@@ -79,7 +79,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	public final void close() {
 		try {
 			accessLock.lock();
-			if (!sealed) {
+			if (! sealed) {
 				closed = true;
 			}
 		} finally {
@@ -91,7 +91,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 	public final void open() {
 		try {
 			accessLock.lock();
-			if (!sealed) {
+			if (! sealed) {
 				closed = false;
 			}
 		} finally {
@@ -116,7 +116,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 
 	@Override
 	public final boolean isOpen() {
-		return !closed;
+		return ! closed;
 	}
 
 	@Override
