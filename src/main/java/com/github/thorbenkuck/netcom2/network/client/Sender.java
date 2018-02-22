@@ -12,11 +12,11 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchr
  * {@link ClientStart#send()}.
  * <p>
  * It can be used to:
- * <li>
- * <ul>send Objects to the Server, so that the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration} of the Server handles it</ul>
- * <ul>register to a certain type of message</ul>
- * <ul>unregister from a certain type of message</ul>
- * </li>
+ * <ul>
+ * <li>send Objects to the Server, so that the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration} of the Server handles it</li>
+ * <li>register to a certain type of message</li>
+ * <li>unregister from a certain type of message</li>
+ * </ul>
  * <p>
  * The reset Method should not be used within production. Reset clears out all saved instances of requested registrations
  * and therefor is after calling it not able to resolve register responses.

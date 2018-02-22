@@ -20,8 +20,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * a Client the following way:
  * <p>
  * <code>
- * final String address = "localhost" // the address of the Server
- * final int port = 4444;
+ * final String address = "localhost"; // the address of the Server
+ * final int port = 4444; // the port of the Server
  * final ClientStart clientStart = ClientStart.at(address, port);
  * </code>
  * <p>
@@ -36,16 +36,16 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * <code>
  * ServerStart serverStart = ServerStart.at(4444);
  * ClientStart clientStart = ClientStart.at("localhost", 4444);
- * <p>
+ *
  * try {
  * serverStart.launch();
  * } catch(Exception ignored) {}
- * new Thread(() -> {
+ * new Thread(() - {
  * try {
  * serverStart.acceptAllNextClients();
  * } catch(ClientConnectionFailedException ignored) {}
  * });
- * <p>
+ *
  * try {
  * clientStart.launch();
  * } catch(Exception ignored) {}

@@ -46,7 +46,7 @@ public interface RemoteObjectRegistration {
 	 * <p>
 	 * <code>
 	 * class Foo implements Serializable, Runnable {
-	 * <p>
+	 *
 	 * }
 	 * </code>
 	 * <p>

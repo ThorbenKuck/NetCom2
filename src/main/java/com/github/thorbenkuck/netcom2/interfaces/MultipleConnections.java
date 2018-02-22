@@ -14,18 +14,18 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * <code>
  * class NewConnectionRequest {
  * private Class key;
- * <p>
+ *
  * public NewConnectionRequest(Class key) {
  * this.key = key;
  * }
- * <p>
+ *
  * public Class getKey() {
  * return this.key;
  * }
  * }
- * <p>
+ *
  * ServerStart serverStart = ...
- * <p>
+ *
  * serverStart.getCommunicationRegistration()
  * .register(NewConnectionRequest.class)
  * .addFirst((session, newConnectionRequest) - serverStart.createNewConnection(session, newConnectionRequest.getKey()));

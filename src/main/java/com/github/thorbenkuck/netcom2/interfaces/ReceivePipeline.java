@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * registration.register(TestObject.class)
  * .addFirst(this::handle);
  * }
- * <p>
+ *
  * private void handle(TestObject testObject) {
  * // do something with the test Object
  * ...
@@ -235,14 +235,14 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * // Do something
 	 * }
 	 * }
-	 * <p>
+	 *
 	 * class Register {
-	 * <p>
+	 *
 	 * private CommunicationRegistration registration;
 	 * private TestObjectHandler handler = new TestObjectHandler();
-	 * <p>
+	 *
 	 * ...
-	 * <p>
+	 *
 	 * public void registerObjects() {
 	 * communicationRegistration.register(TestObject.class)
 	 * .to(handler);

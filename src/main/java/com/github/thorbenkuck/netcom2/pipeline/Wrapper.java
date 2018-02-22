@@ -12,7 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
  * <p>
  * For most developers, this will not be necessary.
  *
- * @apiNote Use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#wrap(OnReceive)} instead of this class. It encapsulates an Wrapper to free up resources
+ * apiNote: Use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#wrap(OnReceive)} instead of this class. It encapsulates an Wrapper to free up resources
  */
 public class Wrapper {
 

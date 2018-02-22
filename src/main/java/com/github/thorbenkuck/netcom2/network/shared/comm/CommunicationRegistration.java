@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>
  * <code>
  * CommunicationRegistration registration = ...
- * ReceivePipeline\\<MyObject\\> pipeline = registration.register(MyObject.class);
+ * ReceivePipeline pipeline = registration.register(MyObject.class);
  * </code>
  * <p>
  * Those Pipelines handle received Objects. You may fluidly register any of the following Interfaces:
@@ -67,7 +67,7 @@ public interface CommunicationRegistration extends Mutex {
 	 * Removes the internally set instance of the {@link ReceivePipeline}, handling an Object of the same
 	 * Type as the provided <code>clazz</code>.
 	 * <p>
-	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy] set to
+	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} set to
 	 * the maintained {@link ReceivePipeline}. It will simply remove the set instance.
 	 *
 	 * @param clazz the Class, that defines the type of the ReceivePipeline
