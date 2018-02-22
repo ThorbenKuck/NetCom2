@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.sun.tracing.dtrace.ArgsAttributes;
 
 import java.io.Serializable;
 import java.util.Arrays;
