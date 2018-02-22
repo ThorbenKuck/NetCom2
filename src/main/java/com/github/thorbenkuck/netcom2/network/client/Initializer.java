@@ -76,9 +76,9 @@ class Initializer {
 	 * This Method registers all internal Objects, that are used for Communication between Client and Server.
 	 */
 	private synchronized void register() {
+		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
-		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(NewConnectionRequest.class,
 				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
 		registerCriticalSingle(RemoteAccessCommunicationResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));

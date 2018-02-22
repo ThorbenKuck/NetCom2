@@ -20,6 +20,7 @@ public class NetComThreadFactory implements ThreadFactory {
 		NetComThread thread = new NetComThread(threadGroup, r);
 		thread.setNetComThreadContainer(threadContainer);
 		thread.setPriority(7);
+		thread.setDaemon(false);
 		thread.setName(NET_COM_THREAD_NAME);
 		thread.setUncaughtExceptionHandler((encounteredThread, throwable) -> logging.error("Unhandled Exception on NetComThread!", throwable));
 		return thread;

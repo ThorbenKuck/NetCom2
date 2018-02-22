@@ -4,56 +4,40 @@ import com.github.thorbenkuck.netcom2.logging.*;
 
 public interface Logging {
 
-	/*
-	 * Those classes are used, so that only one instance of those Logging instance
-	 * are to be kept.
-	 *
-	 * Those may be accessed to directly via Logging.unified.
-	 * Directly accessing those is not recommended! This behaviour might change in the future
-	 */
-	Logging unified = new NetComLogging();
-	Logging disabled = new DisabledLogging();
-	Logging callerTrace = new CallerReflectionLogging();
-	Logging trace = new TraceLogging();
-	Logging debug = new DebugLogging();
-	Logging info = new InfoLogging();
-	Logging warn = new WarnLogging();
-	Logging error = new ErrorLogging();
-
 	static Logging getDefault() {
 		return error();
 	}
 
 	static Logging disabled() {
-		return disabled;
+		return new DisabledLogging();
 	}
 
 	static Logging unified() {
-		return unified;
+		return new NetComLogging();
 	}
 
 	static Logging callerTrace() {
-		return callerTrace;
+		return new CallerReflectionLogging();
 	}
 
 	static Logging trace() {
-		return trace;
+		return new TraceLogging();
 	}
 
 	static Logging debug() {
-		return debug;
+		return new DebugLogging();
 	}
 
 	static Logging info() {
-		return info;
+		return new InfoLogging();
 	}
 
 	static Logging warn() {
-		return warn;
+		return new WarnLogging();
 	}
 
 	static Logging error() {
-		return error;
+		return new ErrorLogging();
 	}
 
 	/**

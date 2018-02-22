@@ -72,7 +72,7 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public synchronized void launch() throws StartFailedException {
 		if (launched.get()) {
-			logging.warn("Requested launch cannot be performed, already launched!");
+			logging.error("Requested launch cannot be performed, already launched!");
 			return;
 		}
 		logging.debug("Connecting to server ..");

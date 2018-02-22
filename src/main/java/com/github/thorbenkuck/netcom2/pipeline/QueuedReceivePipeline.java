@@ -301,10 +301,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			synchronized (core) {
 				core.stream()
 						.filter(pipelineReceiver -> pipelineReceiver.test(connection, session, t))
-						.forEachOrdered(
-								pipelineReceiver -> {
-
-								});
+						.forEachOrdered(pipelineReceiver -> run(pipelineReceiver, connection, session, t));
 			}
 		} catch (final Exception e) {
 			logging.error("Encountered exception!", e);

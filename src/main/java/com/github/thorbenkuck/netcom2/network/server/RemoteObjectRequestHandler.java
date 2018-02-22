@@ -29,7 +29,6 @@ class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunic
 	@Override
 	public void accept(final Connection connection, final Session session, final RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {
 		try {
-			connection.write(remoteObjectRegistration.run(connection, session, remoteAccessCommunicationModelRequest));
 			connection.write(remoteObjectRegistration.run(remoteAccessCommunicationRequest));
 		} catch (RemoteRequestException e) {
 			logging.error("Could not run RemoteObjectRequest", e);

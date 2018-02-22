@@ -58,7 +58,9 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static void assertNotNull(final Object o) {
-		NetCom2Utils.assertNotNull(o);
+		if(o == null) {
+			throw new NullPointerException();
+		}
 	}
 
 	/**
