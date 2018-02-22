@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
     <artifactId>NetCom2</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>NetCom2</name>
     <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
@@ -177,7 +177,7 @@
 </project>
 
 
-        <!-- mvn release:clean -->
+        <!-- mvn -DperformRelease=true release:clean release:prepare release:perform -->
         <!-- mvn release:prepare-->
-        <!-- mvn release:performm-->
+        <!-- mvn release:perform-->
         <!-- mvn -DperformRelease=true-->
