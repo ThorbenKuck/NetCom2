@@ -5,13 +5,15 @@ import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
+import jdk.nashorn.internal.parser.JSONParser;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
 /**
  * {@inheritDoc}
- * This Class is public, so it might be extended to create an custom Session.
+ * This Class is not public by Design. It is package-private, so that it might change its behaviour, while still conforming
+ * to its interface-standards. This means, it might change its signature in the future.
  * <p>
  * Note that only the Methods: {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()} are marked final,
  * so that the default behaviour of the internal Mechanisms is ensured.
@@ -196,16 +198,35 @@ class SessionImpl implements Session {
 		}
 	}
 
+	private SessionUpdater sessionUpdater;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SessionUpdater update() {
-		return new SessionUpdaterImpl(this);
+		try {
+			acquire();
+			if (sessionUpdater == null) {
+				sessionUpdater = new SessionUpdaterImpl(this);
+			}
+		} catch (InterruptedException e) {
+			logging.catching(e);
+		} finally {
+			release();
+		}
+		return sessionUpdater;
 	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

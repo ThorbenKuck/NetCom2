@@ -29,36 +29,23 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 	}
 
 	/**
-	 * Processes a method invocation on a proxy instance and returns
-	 * the result.  This method will be invoked on an invocation handler
-	 * when a method is invoked on a proxy instance that it is
-	 * associated with.
+	 * This invoke method, requests computation from the ServerStart.
 	 *
-	 * @param proxy  the proxy instance that the method was invoked on
-	 * @param method the {@code Method} instance corresponding to
-	 *               the interface method invoked on the proxy instance.  The declaring
-	 *               class of the {@code Method} object will be the interface that
-	 *               the method was declared in, which may be a superinterface of the
-	 *               proxy interface that the proxy class inherits the method through.
-	 * @param args   an array of objects containing the values of the
-	 *               arguments passed in the method invocation on the proxy instance,
-	 *               or {@code null} if interface method takes no arguments.
-	 *               Arguments of primitive types are wrapped in instances of the
-	 *               appropriate primitive wrapper class, such as
-	 *               {@code java.lang.Integer} or {@code java.lang.Boolean}.
-	 * @return the value to return from the method invocation on the
-	 * proxy instance.  If the declared return type of the interface
-	 * method is a primitive type, then the value returned by
-	 * this method must be an instance of the corresponding primitive
-	 * wrapper class; otherwise, it must be a type assignable to the
-	 * declared return type.  If the value returned by this method is
-	 * {@code null} and the interface method's return type is
-	 * primitive, then a {@code NullPointerException} will be
-	 * thrown by the method invocation on the proxy instance.  If the
-	 * value returned by this method is otherwise not compatible with
-	 * the interface method's declared return type as described above,
-	 * a {@code ClassCastException} will be thrown by the method
-	 * invocation on the proxy instance.
+	 * It passes the Method, that is requested to be called, and wraps it, so that the parameters are contained, as well
+	 * as the Class, which holds the Method.
+	 *
+	 * It than blocks, until an response is received from the Server, which contains the computed Result or an Exception.
+	 * The Result may be null.
+	 * If any Exception is send from the Server, this Exception will be rethrown.
+	 *
+	 * Whether or not an Exception will be thrown, is controlled by the {@link IgnoreRemoteExceptions} annotation.
+	 *
+	 * Since the computations are done by the Server, any CastException or wrong data type is filtered and replaced by an
+	 * corresponding Exception. This might be ignored, in which case <code>null</code> is returned.
+	 *
+	 * {@inheritDoc}
+	 * @see JavaRemoteInformationInvocationHandler
+	 * @see IgnoreRemoteExceptions
 	 */
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {

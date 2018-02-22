@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @APILevel
@@ -32,7 +32,7 @@ class DefaultSendingService implements SendingService {
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private PrintWriter printWriter;
 	@APILevel
@@ -59,9 +59,17 @@ class DefaultSendingService implements SendingService {
 		synchronize.goOn();
 		while (running()) {
 			try {
-				final Object o = toSend.take();
-				// Take it first, then beforeSend it in another thread!
-				threadPool.submit(() -> send(o));
+				// This needs to be done with a timeout
+				// if not, a shutdown may not be viable
+				// and the thread this runnable runs in may never terminate
+				final Object o = toSend.poll(2, TimeUnit.SECONDS);
+				// Take it first, then send it in another thread!
+				// this is done, to check, whether or not the object is null
+				// if it is null, no object was present.
+				// This means, the SendingService was shutDown.
+				if(o != null) {
+					threadPool.submit(() -> send(o));
+				}
 			} catch (InterruptedException e) {
 				if (running) {
 					logging.warn("[SendingService{" + connectionID.get() + "}] Interrupted while waiting for a new Object to beforeSend");
@@ -166,7 +174,7 @@ class DefaultSendingService implements SendingService {
 
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
-		Objects.requireNonNull(linkedBlockingQueue);
+		NetCom2Utils.assertNotNull(linkedBlockingQueue);
 		logging.warn("[SendingService{" + connectionID.get() + "}] Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
@@ -188,6 +196,9 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void softStop() {
 		running = false;
+		// This is done, to possibly awake the waiting SendingQueue earlier
+		// It may have no effect. This is to be evaluated
+		toSend.notifyAll();
 	}
 
 	@Override

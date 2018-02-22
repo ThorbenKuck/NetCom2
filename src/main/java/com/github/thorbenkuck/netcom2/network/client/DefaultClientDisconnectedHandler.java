@@ -10,7 +10,11 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This is an internal class, defining what should happen
+ * This is an internal class, defining what should happen, once the ClientStart disconnects from the Server.
+ *
+ * If anything cuts the Connection between ServerStart and ClientStart, this handler will be called.
+ * It cleans up any Resources, which are connected to the Session and therefor need to be reset, before a new Connection
+ * to the ServerStart can be established.
  */
 @APILevel
 @Synchronized
@@ -34,7 +38,7 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 		logging.warn("Disconnected from Server! Cleaning up ..");
 		logging.debug("Disconnection requested!");
 		logging.trace("Clearing internal Cache ..");
-		clientStart.runSynchronized(() -> {
+		NetCom2Utils.runSynchronized(() -> {
 			final Cache cache = clientStart.cache();
 			try {
 				cache.acquire();

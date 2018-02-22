@@ -1,12 +1,14 @@
 package com.github.thorbenkuck.netcom2.utility;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 
 import java.util.Objects;
+import java.util.concurrent.*;
 
 /**
  * This Utility Class defines some methods, that are commonly used within NetCom2
@@ -20,7 +22,32 @@ import java.util.Objects;
 @APILevel
 public class NetCom2Utils {
 
+	/*
+	 * The following is used internally
+	 */
+	private static final Logging logging = Logging.unified();
 	private static final Wrapper wrapper = new Wrapper();
+	/*
+	 * The following is needed, for the asynchronous API
+	 * it defines multiple Thread-necessities, as well as
+	 * an custom ThreadFactory.
+	 */
+	private static final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
+	private static final ThreadFactory threadFactory = createNewThreadFactory();
+	private static final ExecutorService queueExecutorService = Executors.newSingleThreadExecutor(threadFactory);
+	private static final ExecutorService netComThread = createNewCachedExecutorService();
+
+	static {
+		queueExecutorService.execute(() -> {
+			try {
+				Runnable runnable = runnableQueue.take();
+				assertNotNull(runnable);
+				runnable.run();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+	}
 
 	/**
 	 * This checks for null. If the provided Object <code>o</code> is found to be null, a {@link NullPointerException}
@@ -31,7 +58,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static void assertNotNull(final Object o) {
-		Objects.requireNonNull(o);
+		NetCom2Utils.assertNotNull(o);
 	}
 
 	/**
@@ -115,5 +142,62 @@ public class NetCom2Utils {
 	@APILevel
 	public static <T> OnReceiveTriple<T> wrap(OnReceive<T> onReceive) {
 		return wrapper.wrap(onReceive);
+	}
+
+	@APILevel
+	public static void runSynchronized(final Runnable runnable) {
+		parameterNotNull(runnable);
+		synchronized (runnableQueue) {
+			runnable.run();
+		}
+	}
+
+	@APILevel
+	public static void runLaterSynchronized(final Runnable runnable) {
+		parameterNotNull(runnable);
+		runLater(() -> {
+			try {
+				runnableQueue.put(runnable);
+			} catch (InterruptedException e) {
+				throw new IllegalStateException(e);
+			}
+		});
+	}
+
+	@APILevel
+	public static void runLater(final Runnable runnable) {
+		parameterNotNull(runnable);
+		netComThread.execute(runnable);
+	}
+
+	public static void runOnNetComThread(final Runnable runnable) {
+		parameterNotNull(runnable);
+		if(onNetComThread()) {
+			runnable.run();
+		} else {
+			runLater(runnable);
+		}
+	}
+
+	public static ThreadFactory createNewThreadFactory() {
+		return new NetComThreadFactory();
+	}
+
+	public static ThreadFactory getThreadFactory() {
+		return threadFactory;
+	}
+
+	public static ExecutorService createNewCachedExecutorService() {
+		return Executors.newCachedThreadPool(getThreadFactory());
+	}
+
+	public static ExecutorService getNetComExecutorService() {
+		return netComThread;
+	}
+
+	public static boolean onNetComThread() {
+		Thread current = Thread.currentThread();
+
+		return current.getName().equals(NetComThreadFactory.NET_COM_THREAD_NAME);
 	}
 }

@@ -32,16 +32,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		this.clazz = clazz;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceive<T> onReceive) {
 		return addLast(new OnReceiveWrapper<>(onReceive));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceiveSingle<T> onReceiveSingle) {
 		return addLast(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceiveTriple<T> pipelineService) {
 		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
@@ -56,16 +65,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceive<T> onReceive) {
 		return addFirst(new OnReceiveWrapper<>(onReceive));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceiveSingle<T> pipelineService) {
 		return addFirst(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceiveTriple<T> pipelineService) {
 		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
@@ -86,16 +104,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceive<T> pipelineService) {
 		return addFirstIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveSingle<T> pipelineService) {
 		return addFirstIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveTriple<T> pipelineService) {
 		if (!contains(pipelineService)) {
@@ -104,16 +131,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return ReceivePipelineCondition.empty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceive<T> pipelineService) {
 		return addLastIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveSingle<T> pipelineService) {
 		return addLastIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService) {
 		if (!contains(pipelineService)) {
@@ -122,6 +158,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return ReceivePipelineCondition.empty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivePipelineCondition<T> to(final Object object) {
 		requiresOpen();
@@ -149,41 +188,65 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
 		return core.contains(new PipelineReceiver<>(onReceiveTriple));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean contains(final OnReceive<T> onReceive) {
 		return contains(new OnReceiveWrapper<>(onReceive));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean contains(final OnReceiveSingle<T> onReceiveSingle) {
 		return contains(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isSealed() {
 		return sealed;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isClosed() {
 		return closed;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isEmpty() {
 		return core.isEmpty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void ifClosed(final Consumer<ReceivePipeline<T>> consumer) {
 		ifClosed(() -> consumer.accept(this));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void ifClosed(final Runnable runnable) {
 		if (closed) {
@@ -191,6 +254,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy) {
 		try {
@@ -201,6 +267,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void remove(final OnReceive<T> pipelineService) {
 		synchronized (core) {
@@ -209,6 +278,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clear() {
 		if (isClosed()) {
@@ -219,6 +291,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run(final Connection connection, final Session session, final T t) {
@@ -227,13 +302,37 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 				core.stream()
 						.filter(pipelineReceiver -> pipelineReceiver.test(connection, session, t))
 						.forEachOrdered(
-								pipelineReceiver -> pipelineReceiver.getOnReceive().accept(connection, session, t));
+								pipelineReceiver -> {
+
+								});
 			}
 		} catch (final Exception e) {
 			logging.error("Encountered exception!", e);
 		}
 	}
 
+	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
+		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
+		if(onReceiveTriple == null) {
+			logging.warn("Found null OnReceive in PipelineReceiver " + receiver);
+			return;
+		}
+		try {
+			onReceiveTriple.beforeExecution();
+			onReceiveTriple.accept(connection, session, s);
+			onReceiveTriple.successfullyExecuted();
+		} catch (Exception encountered) {
+			// The onReceive is notified if an Exception is encountered.
+			// To notify the main Procedure, as well as the other developers, this
+			// Exception is re thrown. Outer procedures may catch those.
+			onReceiveTriple.exceptionEncountered(encountered);
+			throw encountered;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void close() {
 		requiredNotSealed();
@@ -241,12 +340,18 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		closed = true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void seal() {
 		logging.debug("Sealing ReceivePipeline for " + clazz);
 		sealed = true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void open() {
 		requiredNotSealed();
@@ -264,6 +369,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = core.hashCode();
@@ -277,6 +385,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
@@ -303,6 +414,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
@@ -313,11 +427,17 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

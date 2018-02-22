@@ -28,6 +28,12 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 	ClientListImpl() {
 	}
 
+	private synchronized void notifyAboutClientList() {
+		setChanged();
+		notifyObservers(clients);
+		clearChanged();
+	}
+
 	@Override
 	public void add(final Client client) {
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
@@ -38,12 +44,6 @@ class ClientListImpl extends Observable implements ClientList, Mutex {
 		} finally {
 			clientLock.unlock();
 		}
-	}
-
-	private synchronized void notifyAboutClientList() {
-		setChanged();
-		notifyObservers(clients);
-		clearChanged();
 	}
 
 	@Override

@@ -15,7 +15,6 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
@@ -46,7 +45,7 @@ class ClientImpl implements Client {
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final Lock idLock = new ReentrantLock();
 	private final Semaphore semaphore = new Semaphore(1);
-	private ExecutorService threadPool = Executors.newCachedThreadPool();
+	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private EncryptionAdapter encryptionAdapter;
 	private DecryptionAdapter decryptionAdapter;
 	private SerializationAdapter<Object, String> mainSerializationAdapter;
@@ -322,7 +321,11 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final Connection getAnyConnection() {
-		return connections.values().toArray(new Connection[connections.size()])[ThreadLocalRandom.current().nextInt(connections.size())];
+		if(connections.isEmpty()) {
+			return null;
+		}
+		int random = ThreadLocalRandom.current().nextInt(connections.size());
+		return connections.values().toArray(new Connection[connections.size()])[random];
 	}
 
 	/**
@@ -330,7 +333,8 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public String getFormattedAddress() {
-		return getAnyConnection().getFormattedAddress();
+		Connection anyConnection = getAnyConnection();
+		return anyConnection != null ? anyConnection.getFormattedAddress() : "NOT CONNECTED";
 	}
 
 	/**

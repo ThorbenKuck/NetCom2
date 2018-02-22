@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
+import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
@@ -19,6 +20,7 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param object The object that should be registered
 	 */
+	@Experimental
 	void register(Object object);
 
 	/**
@@ -34,6 +36,7 @@ public interface RemoteObjectRegistration {
 	 * @param o The Object
 	 * @param identifier the identifiers
 	 */
+	@Experimental
 	void register(Object o, Class<?>... identifier);
 
 	/**
@@ -56,6 +59,7 @@ public interface RemoteObjectRegistration {
 	 * @throws IllegalArgumentException if the Object is null
 	 * @param object the Object
 	 */
+	@Experimental
 	void hook(Object object);
 
 	/**
@@ -63,6 +67,7 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param object the object that should be unregistered
 	 */
+	@Experimental
 	void unregister(Object object);
 
 	/**
@@ -79,6 +84,7 @@ public interface RemoteObjectRegistration {
 	 * @param object the Object, that should be registered internally
 	 * @param identifiers the identifiers to check for.
 	 */
+	@Experimental
 	void unregister(Object object, Class... identifiers);
 
 	/**
@@ -90,6 +96,7 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param identifier all identifiers, that should be unregistered.
 	 */
+	@Experimental
 	void unregister(Class... identifier);
 
 	/**
@@ -98,6 +105,7 @@ public interface RemoteObjectRegistration {
 	 * @see #hook(Object)
 	 * @param object
 	 */
+	@Experimental
 	void unhook(Object object);
 
 	/**
@@ -106,6 +114,7 @@ public interface RemoteObjectRegistration {
 	 * This means, also Classes annotated with {@link RegistrationOverrideProhibited}
 	 * will be cleared!
 	 */
+	@Experimental
 	void clear();
 
 	/**
@@ -129,6 +138,7 @@ public interface RemoteObjectRegistration {
 	 * @param request the result, that was received over the Network
 	 * @return the computed RemoteAccessCommunicationResponse, that should be send over the Network
 	 */
+	@Experimental
 	RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request);
 
 }

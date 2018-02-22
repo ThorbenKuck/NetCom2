@@ -11,8 +11,8 @@ import java.lang.annotation.*;
  * This Annotation exists mostly to ensure security, so that the Client does not receive an Exception, thrown by the server
  * and therefor is able to see the Stacktrace of the Server.
  *
- * This Annotation has to be present at the requested class. So if the Client requests an RemoteObject via an interface,
- * the interface has to declare this annotation at its Method
+ * This Annotation has to be present at the requested class/interface, which should be proxied. So if the Client requests
+ * an RemoteObject via an interface, the interface has to declare this annotation at its Method.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

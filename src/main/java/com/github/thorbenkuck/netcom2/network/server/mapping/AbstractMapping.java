@@ -10,6 +10,9 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 	protected final Map<T, S> mapping = new HashMap<>();
 	protected final Semaphore semaphore = new Semaphore(1);
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void map(final T t, final S s) {
 		synchronized (mapping) {
@@ -17,6 +20,9 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Optional<S> get(final T t) {
 		S s;
@@ -26,6 +32,9 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 		return Optional.ofNullable(s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Optional<S> unmap(final T t) {
 		S s;
@@ -35,6 +44,9 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 		return Optional.ofNullable(s);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clear() {
 		synchronized (mapping) {
@@ -42,11 +54,17 @@ public abstract class AbstractMapping<T, S> implements Mapping<T, S> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

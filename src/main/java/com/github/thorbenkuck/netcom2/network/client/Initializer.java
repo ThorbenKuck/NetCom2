@@ -87,6 +87,7 @@ class Initializer {
 						client.getID().equals(newConnectionInitializer.getID()) &&
 								!ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
+		registerCriticalSingle(SessionUpdate.class, new SessionUpdateHandler());
 
 		final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
 		try {
@@ -102,6 +103,11 @@ class Initializer {
 		}
 	}
 
+	/**
+	 * This Method blocks, until the {@link ClientID} is received via the {@link Ping} from the Server.
+	 *
+	 * @throws StartFailedException if the Client is interrupted before he is primed
+	 */
 	private void awaitHandshake() throws StartFailedException {
 		logging.debug("Awaiting ping from Server ..");
 		try {

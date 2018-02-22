@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+
 import java.util.Objects;
 
 /**
@@ -37,7 +39,7 @@ public interface TriConsumer<T, U, V> {
 	 * @throws NullPointerException if {@code after} is null
 	 */
 	default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
-		Objects.requireNonNull(after);
+		NetCom2Utils.assertNotNull(after);
 		return (T t, U u, V v) -> {
 			accept(t, u, v);
 			after.accept(t, u, v);
