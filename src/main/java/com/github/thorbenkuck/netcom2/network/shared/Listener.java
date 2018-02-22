@@ -60,6 +60,6 @@ public class Listener implements ListenAndExpect {
 	}
 
 	public String toString() {
-		return (changed ? "!!!!!!!!!" : "") + "Listening for Class: " + t;
+		return (changed ? "(changed)" : "") + "Listening for Class: " + t;
 	}
 }

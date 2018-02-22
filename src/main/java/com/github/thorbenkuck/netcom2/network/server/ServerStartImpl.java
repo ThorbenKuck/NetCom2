@@ -15,6 +15,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 @Synchronized
 class ServerStartImpl implements ServerStart {
@@ -42,7 +43,7 @@ class ServerStartImpl implements ServerStart {
 	@APILevel
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
-	private ExecutorService threadPool = Executors.newCachedThreadPool();
+	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private Logging logging = Logging.unified();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
@@ -61,27 +62,38 @@ class ServerStartImpl implements ServerStart {
 	/**
 	 * @param socket
 	 */
-	@Asynchronous
 	private void handle(final Socket socket) {
 		logging.debug("Handling new Socket: " + socket);
-		Client client = null;
 		logging.trace("Requesting handling at clientConnectedHandlers ..");
 		final List<ClientConnectedHandler> clientConnectedHandlerList;
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
 		}
+		final Client client = createClient(clientConnectedHandlerList, socket);
+
 		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
-			if (client == null) {
-				logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
-				client = clientConnectedHandler.create(socket);
-				if (client != null) {
-					logging.trace("ClientConnectedHandler " + clientConnectedHandler +
-							" successfully created Client! Blocking access to client-creation.");
-				}
-			}
 			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to handle Client ..");
 			clientConnectedHandler.handle(client);
 		}
+	}
+
+	private Client createClient(List<ClientConnectedHandler> list, Socket socket) {
+		final List<ClientConnectedHandler> clientConnectedHandlers = list.stream()
+				.filter(ClientConnectedHandler::willCreateClient)
+				.collect(Collectors.toCollection(ArrayList::new));
+
+		Client client = null;
+		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
+			Client newClient = clientConnectedHandler.create(socket);
+			if (newClient != null) {
+				logging.trace("ClientConnectedHandler " + clientConnectedHandler +
+						" successfully created Client! Overriding: " + client);
+				client = newClient;
+			}
+		}
+
+		return client;
 	}
 
 	private void hardStop() {

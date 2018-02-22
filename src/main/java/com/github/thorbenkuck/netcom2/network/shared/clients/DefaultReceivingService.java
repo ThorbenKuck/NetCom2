@@ -14,11 +14,11 @@ import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @APILevel
 @Synchronized
@@ -28,7 +28,7 @@ class DefaultReceivingService implements ReceivingService {
 	@APILevel
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private Runnable onDisconnect = () -> {
 	};
 	private Connection connection;
@@ -81,7 +81,7 @@ class DefaultReceivingService implements ReceivingService {
 			object = deserialize(toHandle);
 			logging.debug("[ReceivingService] Received: " + object + " at Connection " + connection.getKey() + "@" +
 					connection.getFormattedAddress());
-			Objects.requireNonNull(object);
+			NetCom2Utils.assertNotNull(object);
 			logging.trace("[ReceivingService] Triggering Communication ..");
 			trigger(object);
 			logging.trace("[ReceivingService] Notifying Callbacks ..");

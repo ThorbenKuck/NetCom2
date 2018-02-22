@@ -305,16 +305,4 @@ public class ClientStartImpl implements ClientStart {
 			logging.catching(e);
 		}
 	}
-
-	/**
-	 * This method lets runnable classes run synchronized.
-	 * @param runnable the Runnable, that should only be accessible by one Thread
-	 */
-	@APILevel
-	void runSynchronized(final Runnable runnable) {
-		NetCom2Utils.parameterNotNull(runnable);
-		synchronized (clientConnector) {
-			runnable.run();
-		}
-	}
 }

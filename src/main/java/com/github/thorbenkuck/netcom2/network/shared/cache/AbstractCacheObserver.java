@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+
 public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
 	private final Class<T> clazz;
@@ -9,11 +11,7 @@ public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 	}
 
 	protected final void assertNotNull(final Object... o) {
-		for (final Object o2 : o) {
-			if (o2 == null) {
-				throw new IllegalArgumentException("Given Object for AbstractCacheObserver can't be null!");
-			}
-		}
+		NetCom2Utils.parameterNotNull(o);
 	}
 
 	@Override

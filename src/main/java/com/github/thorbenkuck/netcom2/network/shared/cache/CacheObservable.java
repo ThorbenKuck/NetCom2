@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public abstract class CacheObservable {
 	private AtomicBoolean changed = new AtomicBoolean(false);
 
 	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
-		Objects.requireNonNull(cacheObserver);
+		NetCom2Utils.assertNotNull(cacheObserver);
 		synchronized (obs) {
 			if (!this.obs.contains(cacheObserver)) {
 				this.obs.add(cacheObserver);
@@ -29,25 +30,25 @@ public abstract class CacheObservable {
 	}
 
 	protected <T> void newEntry(final T o) {
-		final Object[] observers = observersToArray();
+		final CacheObserver<T>[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; --i) {
-			if (((CacheObserver) observers[i]).accept(o)) {
-				((CacheObserver) observers[i]).newEntry(o, this);
+			if (observers[i].accept(o)) {
+				observers[i].newEntry(o, this);
 			}
 		}
 	}
 
-	private Object[] observersToArray() {
-		final Object[] var2;
+	private <T> CacheObserver<T>[] observersToArray() {
+		final CacheObserver<T>[] var2;
 		synchronized (this) {
-			if (!this.changed.get()) {
-				return new ArrayList().toArray();
+			if (!hasChanged()) {
+				return new ArrayList<>().toArray(new CacheObserver[0]);
 			}
 
-			var2 = this.obs.toArray();
-			this.clearChanged();
+			var2 = this.obs.toArray(new CacheObserver[obs.size()]);
 		}
+		this.clearChanged();
 		return var2;
 	}
 
@@ -55,19 +56,23 @@ public abstract class CacheObservable {
 		this.changed.set(false);
 	}
 
-	protected void updatedEntry(final Object o) {
-		final Object[] observers = observersToArray();
+	protected <T> void updatedEntry(final T o) {
+		final CacheObserver<T>[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; --i) {
-			((CacheObserver) observers[i]).updatedEntry(o, this);
+			if(observers[i].accept(o)) {
+				observers[i].updatedEntry(o, this);
+			}
 		}
 	}
 
-	protected void deletedEntry(final Object o) {
-		Object[] observers = observersToArray();
+	protected <T> void deletedEntry(final T o) {
+		CacheObserver<T>[] observers = observersToArray();
 
 		for (int i = observers.length - 1; i >= 0; --i) {
-			((CacheObserver) observers[i]).deletedEntry(o, this);
+			if(observers[i].accept(o)) {
+				observers[i].deletedEntry(o, this);
+			}
 		}
 	}
 

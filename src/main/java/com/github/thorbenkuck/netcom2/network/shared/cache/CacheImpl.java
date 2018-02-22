@@ -26,6 +26,12 @@ public class CacheImpl extends CacheObservable implements Cache {
 		newEntry(newEntry);
 	}
 
+	private void notifyAboutRemovedEntry(final Object object) {
+		logging.trace("Removed Cache-entry at " + object.getClass());
+		setChanged();
+		deletedEntry(object);
+	}
+
 	@Override
 	public void update(final Object object) {
 		logging.trace("Trying to update an existing Object(" + object + ") to Cache ..");
@@ -74,12 +80,6 @@ public class CacheImpl extends CacheObservable implements Cache {
 			logging.debug("Removed entry for " + clazz + " (instance: " + removedEntry + ")");
 			notifyAboutRemovedEntry(removedEntry);
 		}
-	}
-
-	private void notifyAboutRemovedEntry(final Object object) {
-		logging.trace("Removed Cache-entry at " + object.getClass());
-		setChanged();
-		deletedEntry(object);
 	}
 
 	@Override

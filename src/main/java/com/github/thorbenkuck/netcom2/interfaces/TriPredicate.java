@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+
 import java.util.Objects;
 
 /**
@@ -42,7 +44,7 @@ public interface TriPredicate<T, U, V> {
 	 * @throws NullPointerException if other is null
 	 */
 	default TriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
-		Objects.requireNonNull(other);
+		NetCom2Utils.assertNotNull(other);
 		return (t, u, v) -> test(t, u, v) && other.test(t, u, v);
 	}
 
@@ -74,7 +76,7 @@ public interface TriPredicate<T, U, V> {
 	 * @throws NullPointerException if other is null
 	 */
 	default TriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
-		Objects.requireNonNull(other);
+		NetCom2Utils.assertNotNull(other);
 		return (t, u, v) -> test(t, u, v) || other.test(t, u, v);
 	}
 }

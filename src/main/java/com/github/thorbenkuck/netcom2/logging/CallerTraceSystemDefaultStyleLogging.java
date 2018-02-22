@@ -13,7 +13,7 @@ class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 	 *
 	 * @return the class name of the class, calling any method to log something or null if no valid name is found
 	 */
-	public String getCaller() {
+	String getCaller() {
 		final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 		for (StackTraceElement stackTraceElement : stackTraceElements) {
 			if (!stackTraceElement.getClassName().equals(CallerReflectionLogging.class.getName())

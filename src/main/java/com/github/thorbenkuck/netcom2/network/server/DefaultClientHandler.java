@@ -68,6 +68,11 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		return client;
 	}
 
+	@Override
+	public boolean willCreateClient() {
+		return true;
+	}
+
 	@Asynchronous
 	@Override
 	public void handle(final Client client) {
@@ -82,7 +87,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 			awaiting.synchronize();
 			logging.trace("Received Ping from Client@" + connection.getFormattedAddress());
 		} catch (InterruptedException e) {
-			logging.catching(e);
+			logging.error("Interrupted while waiting for Ping!", e);
 		}
 	}
 

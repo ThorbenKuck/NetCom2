@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	@APILevel
 	OnReceiveWrapper(final OnReceive<O> onReceive) {
-		Objects.requireNonNull(onReceive);
+		NetCom2Utils.assertNotNull(onReceive);
 		this.onReceive = onReceive;
 	}
 

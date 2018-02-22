@@ -15,9 +15,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
-import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import jdk.Exported;
 
+/**
+ * This Class initializes the client and all of its dependencies.
+ */
 @APILevel
 @Synchronized
 class Initializer {
@@ -27,9 +30,12 @@ class Initializer {
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
 	private final SocketFactory socketFactory;
-	@APILevel private final InternalSender sender;
-	@APILevel private final ClientConnector clientConnector;
-	@APILevel private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
+	@APILevel
+	private final InternalSender sender;
+	@APILevel
+	private final ClientConnector clientConnector;
+	@APILevel
+	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 
 	@APILevel
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
@@ -45,6 +51,19 @@ class Initializer {
 		this.socketFactory = socketFactory;
 	}
 
+	/**
+	 * This is the main Method that should be called upon an creation request.
+	 *
+	 * By calling this Method the internal registrations of Objects are started and
+	 * the Client waits for a Handshake from the Server. This means this Method
+	 * will only return if the Server send the corresponding {@link ClientID} that
+	 * the Client is associated with and therefor signals the Client that it is primed.
+	 *
+	 * @throws StartFailedException if the Synchronization, awaiting the Client
+	 * 							 primed failed, an StartFailedException is thrown
+	 * 							 to signal that	it could not verify the Handshake
+	 * 							 between Server and Client
+	 */
 	@APILevel
 	void init() throws StartFailedException {
 		logging.trace("Registering internal Components ..");
@@ -53,18 +72,22 @@ class Initializer {
 		awaitHandshake();
 	}
 
+	/**
+	 * This Method registers all internal Objects, that are used for Communication between Client and Server.
+	 */
 	private synchronized void register() {
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
 		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(NewConnectionRequest.class,
 				new NewConnectionResponseHandler(client, clientConnector, socketFactory, sender));
-		registerCriticalSingle(RemoteAccessCommunicationModelResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
+		registerCriticalSingle(RemoteAccessCommunicationResponse.class, new RemoteAccessResponseHandler(remoteAccessBlockRegistration));
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
 								!ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
+		registerCriticalSingle(SessionUpdate.class, new SessionUpdateHandler());
 
 		final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
 		try {
@@ -80,6 +103,11 @@ class Initializer {
 		}
 	}
 
+	/**
+	 * This Method blocks, until the {@link ClientID} is received via the {@link Ping} from the Server.
+	 *
+	 * @throws StartFailedException if the Client is interrupted before he is primed
+	 */
 	private void awaitHandshake() throws StartFailedException {
 		logging.debug("Awaiting ping from Server ..");
 		try {
@@ -94,11 +122,11 @@ class Initializer {
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
-		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
+		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
-		registerCriticalSingle(clazz, new Wrapper().wrap(onReceive));
+		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
 	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {

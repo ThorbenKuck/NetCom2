@@ -14,12 +14,14 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterReques
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @APILevel
 class SenderImpl implements InternalSender, Loggable {
 
 	private final Client client;
-	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
+	// TODO ersetzten durch synchronized
+	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new ConcurrentHashMap<>();
 	private Logging logging = new NetComLogging();
 
 	@APILevel
@@ -27,21 +29,33 @@ class SenderImpl implements InternalSender, Loggable {
 		this.client = client;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o) {
 		return client.send(o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o, final Connection connection) {
 		return client.send(connection, o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o, final Class connectionKey) {
 		return client.send(connectionKey, o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz,
 																 final CacheObserver<T> observer) {
@@ -50,6 +64,9 @@ class SenderImpl implements InternalSender, Loggable {
 		return client.send(new RegisterRequest(clazz));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
 																 final Connection connection) {
@@ -58,6 +75,9 @@ class SenderImpl implements InternalSender, Loggable {
 		return client.send(connection, new RegisterRequest(clazz));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
 																 final Class connectionKey) {
@@ -66,6 +86,9 @@ class SenderImpl implements InternalSender, Loggable {
 		return client.send(connectionKey, new RegisterRequest(clazz));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
@@ -76,6 +99,9 @@ class SenderImpl implements InternalSender, Loggable {
 		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
@@ -86,6 +112,9 @@ class SenderImpl implements InternalSender, Loggable {
 		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
@@ -96,6 +125,9 @@ class SenderImpl implements InternalSender, Loggable {
 		throw new UnRegistrationException("Cannot unregister! Registration was never requested! (" + clazz + ")");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void reset() {
 		logging.debug("Resetting Sender!");
@@ -105,6 +137,9 @@ class SenderImpl implements InternalSender, Loggable {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> void addPendingObserver(final Class<T> clazz, final CacheObserver<T> observer) {
 		if (observer.accept(clazz)) {
@@ -117,18 +152,27 @@ class SenderImpl implements InternalSender, Loggable {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		return (CacheObserver<T>) pendingObservers.remove(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "Sender{" +
@@ -137,6 +181,9 @@ class SenderImpl implements InternalSender, Loggable {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setLogging(Logging logging) {
 		this.logging = logging;

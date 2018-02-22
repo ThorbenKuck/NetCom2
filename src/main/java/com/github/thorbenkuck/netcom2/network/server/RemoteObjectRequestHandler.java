@@ -7,10 +7,10 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationModelRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 
 @APILevel
-class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunicationModelRequest> {
+class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunicationRequest> {
 
 	private final RemoteObjectRegistration remoteObjectRegistration;
 	private final Logging logging = Logging.unified();
@@ -24,12 +24,13 @@ class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunic
 	 * Performs this operation on the given arguments.
 	 *
 	 * @param session                               the first input argument
-	 * @param remoteAccessCommunicationModelRequest the second input argument
+	 * @param remoteAccessCommunicationRequest the second input argument
 	 */
 	@Override
-	public void accept(final Connection connection, final Session session, final RemoteAccessCommunicationModelRequest remoteAccessCommunicationModelRequest) {
+	public void accept(final Connection connection, final Session session, final RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {
 		try {
 			connection.write(remoteObjectRegistration.run(connection, session, remoteAccessCommunicationModelRequest));
+			connection.write(remoteObjectRegistration.run(remoteAccessCommunicationRequest));
 		} catch (RemoteRequestException e) {
 			logging.error("Could not run RemoteObjectRequest", e);
 		}

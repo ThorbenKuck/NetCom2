@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
@@ -9,12 +10,10 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
-import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @APILevel
@@ -24,12 +23,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@APILevel
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
-	private final ExecutorService threadPool = Executors.newCachedThreadPool();
+	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
-	@APILevel
-	private final Wrapper wrapper = new Wrapper();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
@@ -41,6 +41,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		return (ReceivePipeline<T>) mapping.get(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void unRegister(final Class clazz) {
 		if (!isRegistered(clazz)) {
@@ -52,11 +55,26 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		logging.debug("Unregistered ReceivePipeline for " + clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isRegistered(final Class clazz) {
 		return mapping.get(clazz) != null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+		trigger(object.getClass(), connection, session, object);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Asynchronous
 	@Override
 	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
@@ -68,7 +86,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			threadPool.submit(new Runnable() {
+			// this should not be an lambda
+			// On the use of an lambda, this line does not work any more.
+			// The cause for this is unknown
+			// TODO test for lambda expression
+			threadPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					triggerExisting(clazz, connection, session, o);
@@ -77,16 +99,25 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveSingle<Object> defaultCommunicationHandler) {
-		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+		addDefaultCommunicationHandler(NetCom2Utils.wrap(defaultCommunicationHandler));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceive<Object> defaultCommunicationHandler) {
-		addDefaultCommunicationHandler(wrapper.wrap(defaultCommunicationHandler));
+		addDefaultCommunicationHandler(NetCom2Utils.wrap(defaultCommunicationHandler));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
@@ -94,6 +125,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clear() {
 		logging.debug("Clearing all defined Communications!");
@@ -103,6 +137,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		defaultCommunicationHandlers.clear();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clearAllEmptyPipelines() {
 		logging.trace("Trying to find empty ReceivePipelines and deleting them to free memory");
@@ -123,6 +160,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateBy(final CommunicationRegistration communicationRegistration) {
 		try {
@@ -138,11 +178,17 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<Class, ReceivePipeline<?>> map() {
 		return new HashMap<>(mapping);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<OnReceiveTriple<Object>> listDefaultsCommunicationRegistration() {
 		return new ArrayList<>(defaultCommunicationHandlers);
@@ -220,6 +266,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "CommunicationRegistration{" +
@@ -227,11 +276,17 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		mutexChangeableSemaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		mutexChangeableSemaphore.release();

@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.*;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private boolean started;
 	private Session session;
 	private Class<?> key;
-	private ExecutorService threadPool = Executors.newCachedThreadPool();
+	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 
 	protected AbstractConnection(final Socket socket, final SendingService sendingService,
 								 final ReceivingService receivingService,
@@ -86,9 +87,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 				logging.catching(e);
 				close();
 			} catch (IOException e1) {
-				e1.addSuppressed(e);
+				e.addSuppressed(e1);
 				logging.fatal("Encountered Exception while cleaning up over a previously encountered Exception!", e1);
-				throw new ClientCreationFailedException(e1);
 			}
 			throw new ClientCreationFailedException(e);
 		}
@@ -104,7 +104,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		sendingService.softStop();
 		logging.trace("Requesting soft-stop of ThreadPool ..");
 		logging.info("Sending Service will be shut down forcefully! Expect an InterruptedException!");
-		threadPool.shutdownNow();
+		// how?
+		sendingService.notifyAll();
 		logging.trace("Shutting down socket ..");
 		socket.close();
 		logging.debug("Successfully shut down Connection " + this);
@@ -271,10 +272,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (o == null || !o.getClass().equals(AbstractConnection.class)) {
-			return false;
-		}
-		return ((AbstractConnection) o).socket.equals(socket);
+		return o != null && o.getClass().equals(AbstractConnection.class) &&
+				((AbstractConnection) o).socket.equals(socket);
 	}
 
 	protected abstract void afterSend(final Object o);
