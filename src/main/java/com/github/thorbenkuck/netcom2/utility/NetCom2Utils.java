@@ -168,7 +168,15 @@ public class NetCom2Utils {
 	@APILevel
 	public static void runLater(final Runnable runnable) {
 		parameterNotNull(runnable);
-		netComThread.execute(runnable);
+		Thread currentThread = Thread.currentThread();
+		netComThread.execute(() -> {
+			try {
+				currentThread.join();
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			}
+			runnable.run();
+		});
 	}
 
 	public static void runOnNetComThread(final Runnable runnable) {

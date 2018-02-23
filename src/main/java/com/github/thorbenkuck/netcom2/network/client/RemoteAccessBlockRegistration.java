@@ -18,8 +18,7 @@ import java.util.concurrent.Semaphore;
  * If you have an {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject}, the UUID will be
  * the same, so that the any call will wait, no matter what.
  */
-@APILevel
-class RemoteAccessBlockRegistration {
+public class RemoteAccessBlockRegistration {
 
 	private final Map<UUID, Semaphore> semaphoreMap = new HashMap<>();
 	private final Map<UUID, RemoteAccessCommunicationResponse> responseMap = new HashMap<>();

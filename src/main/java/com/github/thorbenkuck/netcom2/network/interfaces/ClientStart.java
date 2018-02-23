@@ -2,10 +2,7 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectAccess;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
-import com.github.thorbenkuck.netcom2.network.client.ClientStartImpl;
-import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.network.client.*;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -131,4 +128,6 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	CommunicationRegistration getCommunicationRegistration();
 
 	void clearCache();
+
+	RemoteObjectFactory getRemoteObjectFactory();
 }

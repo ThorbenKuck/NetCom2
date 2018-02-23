@@ -28,6 +28,9 @@ public @interface IgnoreRemoteExceptions {
 	 * Note: The thrown Exception will be encapsulated in an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException}
 	 * if it is'nt already.
 	 *
+	 * You may filter any Exception with that, but you cannot filter out the {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}.
+	 * If you want to prohibit this, you should use {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory#addFallback(Class, Runnable)}
+	 *
 	 * @return an array of Exception Types, that should be thrown regardless of the provided Annotation
 	 */
 	Class<? extends Exception>[] exceptTypes() default {};

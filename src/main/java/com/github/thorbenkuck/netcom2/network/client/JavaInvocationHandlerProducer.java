@@ -17,7 +17,7 @@ public class JavaInvocationHandlerProducer implements InvocationHandlerProducer 
 	}
 
 	@Override
-	public RemoteObjectHandler produce(final UUID uuid, final Class<?> clazz) {
-		return new JavaRemoteInformationInvocationHandler(sender, remoteAccessBlockRegistration, clazz, uuid);
+	public <T> JavaRemoteInformationInvocationHandler<T> produce(final UUID uuid, final Class<T> clazz) {
+		return new JavaRemoteInformationInvocationHandler<>(sender, remoteAccessBlockRegistration, clazz, uuid);
 	}
 }

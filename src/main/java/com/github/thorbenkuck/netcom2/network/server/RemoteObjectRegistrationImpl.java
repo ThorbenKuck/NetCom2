@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -277,7 +278,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		if (handlingObject == null) {
 			logging.error("No registered Objects found for " + request.getClazz());
 			logging.trace("Returning exception for no registered Object..");
-			return generateResult(request.getUuid(), new RemoteRequestException(request.getClazz() + " is not registered!"), null, request.getClazz(), null);
+			return generateResult(request.getUuid(), new RemoteObjectNotRegisteredException(request.getClazz() + " is not registered!"), null, request.getClazz(), null);
 		}
 
 		Exception exception = null;

@@ -31,7 +31,7 @@ public class ClientStartImpl implements ClientStart {
 	private SocketFactory socketFactory;
 	private Client client;
 	private InternalSender sender;
-	private RemoteObjectFactory remoteObjectFactory;
+	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
 	@APILevel
 	AtomicBoolean launched = new AtomicBoolean(false);
 
@@ -64,7 +64,7 @@ public class ClientStartImpl implements ClientStart {
 		logging.trace("Creating Sender ..");
 		sender = InternalSender.create(client);
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
-		remoteObjectFactory = new RemoteObjectFactory(sender);
+		remoteObjectFactoryImpl = new RemoteObjectFactoryImpl(sender);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class ClientStartImpl implements ClientStart {
 			}
 			logging.trace("Initializing new Connection ..");
 			new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory,
-					remoteObjectFactory.getRemoteAccessBlockRegistration()).init();
+					remoteObjectFactoryImpl.getRemoteAccessBlockRegistration()).init();
 			launched.set(true);
 		}
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
@@ -299,12 +299,26 @@ public class ClientStartImpl implements ClientStart {
 	}
 
 	/**
+	 * Potentially deprecated in the future.
+	 *
+	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
+	 *
 	 * {@inheritDoc}
+	 * @see RemoteObjectFactory
 	 */
 	@Override
 	public <T> T getRemoteObject(final Class<T> clazz) {
-		return remoteObjectFactory.createRemoteObject(clazz);
+		return remoteObjectFactoryImpl.createRemoteObject(clazz);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RemoteObjectFactory getRemoteObjectFactory() {
+		return remoteObjectFactoryImpl;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -312,7 +326,7 @@ public class ClientStartImpl implements ClientStart {
 	@Override
 	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
 		try {
-			remoteObjectFactory.setInvocationHandlerProducer(invocationHandlerProducer);
+			remoteObjectFactoryImpl.setInvocationHandlerProducer(invocationHandlerProducer);
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}

@@ -2,39 +2,49 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-@APILevel
-class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
+public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHandler {
 
 	private final Sender sender;
-	@APILevel
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 	private final Class<?> clazz;
 	private final UUID uuid;
+	private Runnable fallbackRunnable;
+	private T fallbackInstance;
 
 	@APILevel
 	JavaRemoteInformationInvocationHandler(final Sender sender, final RemoteAccessBlockRegistration remoteAccessBlockRegistration,
-										   final Class<?> clazz, final UUID uuid) {
+										   final Class<T> clazz, final UUID uuid) {
 		this.sender = sender;
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		this.clazz = clazz;
 		this.uuid = uuid;
 	}
 
-	private void testForThrow(Class<?> clazz, Throwable throwable) throws Throwable {
+	private Object testForThrow(Class<?> clazz, Method method, Throwable throwable, Object[] args) throws Throwable {
 		if (throwable == null) {
-			return;
+			return null;
 		}
 
-		IgnoreRemoteExceptions annotation = clazz.getAnnotation(IgnoreRemoteExceptions.class);
+		if(throwable instanceof RemoteObjectNotRegisteredException) {
+			return executeFallback(throwable, method, args);
+		}
+
+		IgnoreRemoteExceptions annotation = method.getAnnotation(IgnoreRemoteExceptions.class);
+		if(annotation == null) {
+			annotation = clazz.getAnnotation(IgnoreRemoteExceptions.class);
+		}
 		if (annotation != null) {
 			Class<? extends Throwable>[] toThrowAnyways = annotation.exceptTypes();
 			if (Arrays.asList(toThrowAnyways).contains(throwable.getClass())) {
@@ -43,11 +53,16 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 		} else {
 			throwEncapsulated(throwable);
 		}
+
+		// This is unessential, but needed,
+		// so that the compiler is okay with that.
+		// we will ALWAYS have thrown something here.
+		return null;
 	}
 
 	private void throwEncapsulated(Throwable throwable) throws Throwable {
 		if (! (throwable instanceof RemoteRequestException)) {
-			throwable = new RemoteRequestException(throwable);
+			throwable = new RemoteRequestException(throwable.getMessage());
 		}
 
 		throw throwable;
@@ -87,10 +102,36 @@ class JavaRemoteInformationInvocationHandler implements RemoteObjectHandler {
 		semaphore.release();
 
 		if (response.getThrownThrowable() != null) {
-			testForThrow(clazz, response.getThrownThrowable());
+			return testForThrow(clazz, method, response.getThrownThrowable(), args);
 		}
 
 		return response.getResult();
 	}
 
+	public void setFallbackRunnable(Runnable fallbackRunnable) {
+		synchronized (this) {
+			this.fallbackRunnable = fallbackRunnable;
+			this.fallbackInstance = null;
+		}
+	}
+
+	public <S extends T> void setFallbackInstance(S fallbackInstance) {
+		synchronized (this) {
+			this.fallbackInstance = fallbackInstance;
+			this.fallbackRunnable = null;
+		}
+	}
+
+	protected Object executeFallback(Throwable received, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+		synchronized (this) {
+			if(fallbackInstance != null) {
+				return method.invoke(fallbackInstance, args);
+			} else if(fallbackRunnable != null) {
+				fallbackRunnable.run();
+				return null;
+			} else {
+				throw new RemoteObjectNotRegisteredException(received.getMessage());
+			}
+		}
+	}
 }

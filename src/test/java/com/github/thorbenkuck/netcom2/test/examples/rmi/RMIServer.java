@@ -14,7 +14,7 @@ public class RMIServer implements Runnable {
 
 	@Override
 	public void run() {
-		serverStart.remoteObjects().hook(new RemoteTest());
+		//serverStart.remoteObjects().hook(new RemoteTest());
 		try {
 			serverStart.launch();
 			serverStart.acceptAllNextClients();
@@ -27,7 +27,7 @@ public class RMIServer implements Runnable {
 
 		@Override
 		public String getHelloWorld() {
-			return "hello World";
+			throw new IllegalArgumentException("Bla");
 		}
 	}
 }
