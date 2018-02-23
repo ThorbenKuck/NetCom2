@@ -10,7 +10,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -61,8 +63,18 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	}
 
 	private void throwEncapsulated(Throwable throwable) throws Throwable {
+		List<Throwable> causes = new ArrayList<>();
+		Throwable currentCause = throwable.getCause();
+		while(currentCause != null) {
+			causes.add(currentCause);
+			currentCause = currentCause.getCause();
+		}
 		if (! (throwable instanceof RemoteRequestException)) {
-			throwable = new RemoteRequestException(throwable.getMessage());
+			throwable = new RemoteRequestException("Throwable(" + throwable.getClass().getName() + ") received from Server: " + throwable.getMessage());
+		}
+
+		for(Throwable cause : causes) {
+			throwable.addSuppressed(cause);
 		}
 
 		throw throwable;

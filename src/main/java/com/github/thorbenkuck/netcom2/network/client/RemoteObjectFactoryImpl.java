@@ -22,7 +22,9 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	@APILevel
 	final Map<Class<?>, JavaRemoteInformationInvocationHandler<?>> singletons = new HashMap<>();
 	private InvocationHandlerProducer invocationHandlerProducer;
+	@APILevel
 	final Map<Class<?>, Runnable> fallbackRunnableMap = new HashMap<>();
+	@APILevel
 	final Map<Class<?>, Object> fallbackInstances = new HashMap<>();
 
 	@APILevel
@@ -145,30 +147,45 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void addFallback(Class<?> clazz, Runnable runnable) {
+	public void setFallback(Class<?> clazz, Runnable runnable) {
 		synchronized (fallbackRunnableMap) {
 			fallbackRunnableMap.put(clazz, runnable);
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void addFallback(Runnable runnable) {
+	public void setDefaultFallback(Runnable runnable) {
 		this.defaultFallback = runnable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public <T, S extends T> void addFallback(Class<T> clazz, S instance) {
+	public <T, S extends T> void setFallbackInstance(Class<T> clazz, S instance) {
 		synchronized (fallbackInstances) {
 			fallbackInstances.put(clazz, instance);
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> T create(Class<T> type) {
 		return createRemoteObject(type);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> T create(Class<T> type, Runnable customFallback) {
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
@@ -177,10 +194,24 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		return createRemoteObject(invocationHandler, type);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public <T> T create(Class<T> type, T fallbackMethod) {
+	public <T> T create(Class<T> type, T fallbackInstance) {
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
-		invocationHandler.setFallbackInstance(fallbackMethod);
+		invocationHandler.setFallbackInstance(fallbackInstance);
+
+		return createRemoteObject(invocationHandler, type);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T createWithoutFallback(Class<T> type) {
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
+		invocationHandler.setFallbackRunnable(null);
 
 		return createRemoteObject(invocationHandler, type);
 	}

@@ -29,7 +29,7 @@ public @interface IgnoreRemoteExceptions {
 	 * if it is'nt already.
 	 *
 	 * You may filter any Exception with that, but you cannot filter out the {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}.
-	 * If you want to prohibit this, you should use {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory#addFallback(Class, Runnable)}
+	 * If you want to prohibit this, you should use {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory#setFallback(Class, Runnable)}
 	 *
 	 * @return an array of Exception Types, that should be thrown regardless of the provided Annotation
 	 */
