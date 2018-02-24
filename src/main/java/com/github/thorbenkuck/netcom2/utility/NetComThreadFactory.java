@@ -12,17 +12,13 @@ public class NetComThreadFactory implements ThreadFactory {
 	private final NetComThreadContainer threadContainer = new NetComThreadContainer();
 	private final NetComThreadGroup threadGroup = new NetComThreadGroup(Thread.currentThread().getThreadGroup(), "NetCom2ThreadGroup");
 
-	public NetComThreadFactory() {
+	NetComThreadFactory() {
 	}
 
 	@Override
 	public Thread newThread(Runnable r) {
 		NetComThread thread = new NetComThread(threadGroup, r);
 		thread.setNetComThreadContainer(threadContainer);
-		thread.setPriority(7);
-		thread.setDaemon(false);
-		thread.setName(NET_COM_THREAD_NAME);
-		thread.setUncaughtExceptionHandler((encounteredThread, throwable) -> logging.error("Unhandled Exception on NetComThread!", throwable));
 		return thread;
 	}
 

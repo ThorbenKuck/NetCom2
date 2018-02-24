@@ -28,7 +28,6 @@ class DefaultReceivingService implements ReceivingService {
 	@APILevel
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private Runnable onDisconnect = () -> {
 	};
 	private Connection connection;
@@ -78,6 +77,7 @@ class DefaultReceivingService implements ReceivingService {
 	private void onDisconnect() {
 		logging.info("[ReceivingService] Shutting down ReceivingService!");
 		onDisconnect.run();
+		running = false;
 	}
 
 	private String decrypt(final String s) {
@@ -148,6 +148,9 @@ class DefaultReceivingService implements ReceivingService {
 		callbacks.remove(toRemove);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized void run() {
 		running = true;
@@ -157,7 +160,9 @@ class DefaultReceivingService implements ReceivingService {
 			try {
 				final String string = in.nextLine();
 				// First get, then execute!
-				threadPool.submit(() -> handle(string));
+				// Not in one line, so that the
+				// get part is executed in this thread
+				NetCom2Utils.runOnNetComThread(() -> handle(string));
 			} catch (NoSuchElementException e) {
 				logging.info("[ReceivingService] Disconnection detected!");
 				softStop();
@@ -167,16 +172,25 @@ class DefaultReceivingService implements ReceivingService {
 		logging.trace("[ReceivingService] Receiving Service stopped!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void softStop() {
 		running = false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean running() {
 		return running;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void cleanUpCallBacks() {
 		logging.debug("[ReceivingService] Callback cleanup requested!");
@@ -194,6 +208,9 @@ class DefaultReceivingService implements ReceivingService {
 		logging.debug("[ReceivingService] Callback cleanup done!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addReceivingCallback(final Callback<Object> callback) {
 		logging.debug("[ReceivingService] Trying to add Callback " + callback);
@@ -201,6 +218,9 @@ class DefaultReceivingService implements ReceivingService {
 		logging.trace("[ReceivingService] Added Callback: " + callback);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setup(final Connection connection, final Session session) {
 		this.connection = connection;
@@ -214,16 +234,25 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setSession(final Session session) {
 		this.session = session;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onDisconnect(final Runnable runnable) {
 		this.onDisconnect = runnable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Awaiting started() {
 		return synchronize;

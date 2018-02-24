@@ -23,7 +23,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@APILevel
 	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
-	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
+	private final ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 

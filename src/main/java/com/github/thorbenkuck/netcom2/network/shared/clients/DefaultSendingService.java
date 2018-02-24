@@ -30,7 +30,6 @@ class DefaultSendingService implements SendingService {
 	private final EncryptionAdapter encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
@@ -38,6 +37,8 @@ class DefaultSendingService implements SendingService {
 	private BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
+	private final int MAXIMUM_WAITING_TIME = 10;
+	private int waitingTimeInSeconds = 2;
 
 	@APILevel
 	DefaultSendingService(final SerializationAdapter<Object, String> mainSerializationAdapter,
@@ -103,7 +104,7 @@ class DefaultSendingService implements SendingService {
 				.filter(callBack -> callBack.isAcceptable(o))
 				.forEachOrdered(callBack -> callBack.accept(o));
 
-		threadPool.submit(this::tryClearCallBacks);
+		NetCom2Utils.runOnNetComThread(this::tryClearCallBacks);
 	}
 
 	private void deleteCallBack(final Callback<Object> callback) {
@@ -141,13 +142,17 @@ class DefaultSendingService implements SendingService {
 				// This needs to be done with a timeout
 				// if not, a shutdown may not be viable
 				// and the thread this runnable runs in may never terminate
-				final Object o = toSend.poll(2, TimeUnit.SECONDS);
+				final Object o = toSend.poll(waitingTimeInSeconds, TimeUnit.SECONDS);
 				// Take it first, then send it in another thread!
 				// this is done, to check, whether or not the object is null
 				// if it is null, no object was present.
 				// This means, the SendingService was shutDown.
 				if (o != null) {
-					threadPool.submit(() -> send(o));
+					waitingTimeInSeconds = 2;
+					NetCom2Utils.runOnNetComThread(() -> send(o));
+				} else if(waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
+					++waitingTimeInSeconds;
+					logging.trace("Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {
 				if (running) {
@@ -156,6 +161,7 @@ class DefaultSendingService implements SendingService {
 				}
 			}
 		}
+		running = false;
 		logging.info("[SendingService{" + connectionID.get() + "}] SendingService stopped!");
 	}
 
@@ -195,9 +201,6 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void softStop() {
 		running = false;
-		// This is done, to possibly awake the waiting SendingQueue earlier
-		// It may have no effect. This is to be evaluated
-		toSend.notifyAll();
 	}
 
 	@Override

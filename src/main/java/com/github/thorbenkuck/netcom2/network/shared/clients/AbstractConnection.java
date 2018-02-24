@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +33,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private boolean started;
 	private Session session;
 	private Class<?> key;
-	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
+	private ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
 	protected Logging logging = Logging.unified();
 	protected SendingService sendingService;
 	protected ReceivingService receivingService;
@@ -61,10 +62,23 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	abstract void receivedObject(final Object o);
 
+	/**
+	 * This method is only called, if the Connection is closed.
+	 *
+	 * To be exact, it will be called AFTER the closing routing
+	 */
 	protected abstract void onClose();
 
+	/**
+	 * This method is called, after an Object has been send
+	 *
+	 * @param o the Object that just was send.
+	 */
 	protected abstract void afterSend(final Object o);
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setLogging(final Logging logging) {
 		this.logging.debug("Overriding set Logging ..");
@@ -72,23 +86,32 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		logging.debug("Overrode Logging!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void close() throws IOException {
-		logging.debug("Closing Connection " + this);
-		logging.trace("Requesting soft-stop of set ReceivingService ..");
-		receivingService.softStop();
-		logging.trace("Requesting soft-stop of set SendingService ..");
-		sendingService.softStop();
-		logging.trace("Requesting soft-stop of ThreadPool ..");
-		logging.info("Sending Service will be shut down forcefully! Expect an InterruptedException!");
-		// how?
-		sendingService.notifyAll();
-		logging.trace("Shutting down socket ..");
-		socket.close();
-		logging.debug("Successfully shut down Connection " + this);
-		onClose();
+		try {
+			logging.debug("Closing Connection " + this);
+			logging.trace("Requesting soft-stop of set ReceivingService ..");
+			receivingService.softStop();
+			logging.trace("Requesting soft-stop of set SendingService ..");
+			sendingService.softStop();
+			logging.trace("Shutting down input stream");
+			socket.shutdownInput();
+			logging.trace("Shutting down output stream");
+			socket.shutdownOutput();
+			logging.trace("Shutting down socket ..");
+			socket.close();
+			logging.debug("Successfully shut down Connection " + this);
+		} finally {
+			onClose();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setup() {
 		logging.debug("Connection setup for " + socket);
@@ -117,17 +140,26 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		setup = true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
 		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
 		disconnectedPipeline.remove(consumer);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void write(final Object object) {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
+		}
+		if(!isActive()) {
+			throw new IllegalStateException("Connection is closed");
 		}
 		logging.trace("Running write in new Thread to write " + object + " ..");
 		threadPool.submit(() -> {
@@ -140,12 +172,18 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addObjectSendListener(final Callback<Object> callback) {
 		logging.trace("Adding SendCallback " + callback + " to " + this);
 		sendingService.addSendDoneCallback(callback);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addObjectReceivedListener(final Callback<Object> callback) {
 		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
@@ -154,8 +192,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	/**
 	 * TODO Complete the formed out Algorithm
-	 *
-	 * @param executorService the executorSerive
+	 * {@inheritDoc}
 	 */
 	@Experimental
 	@Override
@@ -178,6 +215,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		*/
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Synchronize startListening() {
 		if (! setup) {
@@ -212,17 +252,26 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		return synchronize;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer) {
 		logging.debug("Added DisconnectedConsumer(" + consumer + ") for Connection " + this);
 		return disconnectedPipeline.addLast(consumer);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final OutputStream getOutputStream() throws IOException {
 		return socket.getOutputStream();
@@ -233,76 +282,125 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		return toSend;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final Session getSession() {
 		return session;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void setSession(final Session session) {
+	public final void setSession(final Session session) {
 		logging.debug("Overriding Session for " + this);
 		receivingService.setSession(session);
 		this.session = session;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getFormattedAddress() {
 		return getInetAddress() + ":" + getPort();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public int getPort() {
+	public final int getPort() {
 		return socket.getPort();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public InetAddress getInetAddress() {
 		return socket.getInetAddress();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isActive() {
-		return socket.isConnected();
+		return socket.isConnected() && sendingService.running() && receivingService.running();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Class<?> getKey() {
 		return key;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setKey(final Class<?> connectionKey) {
 		this.key = connectionKey;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		return o != null && o.getClass().equals(AbstractConnection.class) &&
 				((AbstractConnection) o).socket.equals(socket);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "Connection{" + key.getSimpleName() + "," + getFormattedAddress() + "}";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
-	}	@Override
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void finalize() throws Throwable {
 		Logging.unified().debug("Connection ist collected by the GC ..");
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
+		if(!socket.isClosed()) {
+			socket.shutdownInput();
+			socket.shutdownOutput();
+			socket.close();
+		}
 		super.finalize();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	private class DefaultReceiveCallback implements Callback<Object> {
 		@Override
 		public boolean isRemovable() {

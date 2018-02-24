@@ -7,6 +7,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.*;
 
 /**
@@ -22,10 +24,14 @@ import java.util.concurrent.*;
 public class NetCom2Utils {
 
 	/*
-	 * The following is used internally
+	 * The following is used internally in this class only
 	 */
+	@APILevel
 	private static final Logging logging = Logging.unified();
+	@APILevel
 	private static final Wrapper wrapper = new Wrapper();
+	@APILevel
+	private static final Semaphore synchronization = new Semaphore(1);
 	/*
 	 * The following is needed, for the asynchronous API
 	 * it defines multiple Thread-necessities, as well as
@@ -145,15 +151,98 @@ public class NetCom2Utils {
 		return wrapper.wrap(onReceive);
 	}
 
+	/**
+	 * Executes an runnable, but synchronized synchronizes over an Semaphore.
+	 * <p>
+	 * Stays on current Thread
+	 *
+	 * @param runnable the runnable, that should be executed synchronized
+	 */
 	@APILevel
 	public static void runSynchronized(final Runnable runnable) {
 		parameterNotNull(runnable);
-		synchronized (runnableQueue) {
+		try {
+			synchronization.acquire();
 			runnable.run();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			synchronization.release();
 		}
 	}
 
+	/**
+	 * Creates a new {@link NetComThreadFactory}, which is normally not instantiable.
+	 * <p>
+	 * The NetComThreadFactory is used for {@link ExecutorService}, that should produce {@link NetComThread}.
+	 *
+	 * @return a new Instance of the {@link NetComThreadFactory}
+	 */
 	@APILevel
+	public static NetComThreadFactory createNewThreadFactory() {
+		return new NetComThreadFactory();
+	}
+
+	/**
+	 * Returns an instance of {@link NetComThreadFactory}, which is created statically
+	 * <p>
+	 * The NetComThreadFactory is used for {@link ExecutorService}, that should produce {@link NetComThread}.
+	 * <p>
+	 * This instance is created once and never updated nor deleted. This is used for saving resources.
+	 *
+	 * @return a new Instance of the {@link NetComThreadFactory}
+	 */
+	@APILevel
+	public static ThreadFactory getThreadFactory() {
+		return threadFactory;
+	}
+
+	/**
+	 * Creates a new cached ExecutorService, based on the {@link NetComThreadFactory}.
+	 *
+	 * @return a new Instance of the ExecutorService.
+	 */
+	@APILevel
+	public static ExecutorService createNewCachedExecutorService() {
+		return Executors.newCachedThreadPool(getThreadFactory());
+	}
+
+	/**
+	 * Returns a unified instances of an CachedExecutorService, based on the {@link NetComThreadFactory}.
+	 * <p>
+	 * This instance is created once and never updated nor deleted. This is used for saving resources.
+	 *
+	 * @return a new Instance of the ExecutorService.
+	 */
+	@APILevel
+	public static ExecutorService getNetComExecutorService() {
+		return netComThread;
+	}
+
+	/**
+	 * Returns whether or not the CurrentThread is an {@link NetComThread}.
+	 * <p>
+	 * Since there can be more than one NetComThread, this method does a class type check
+	 *
+	 * @return true, if the current Thread is a NetComThread.
+	 */
+	@APILevel
+	public static boolean onNetComThread() {
+		return Thread.currentThread().getClass().equals(NetComThread.class);
+	}
+
+	/**
+	 * Executes an runnable, but synchronized synchronizes over an Semaphore.
+	 * <p>
+	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * <p>
+	 * The time this is finished cannot be determined. It depends on how full the runnable queue is and whether
+	 * or not the {@link #netComThread} is blocked or not.
+	 * <p>
+	 * Does not wait until the current Thread finishes.
+	 *
+	 * @param runnable the runnable, that should be executed synchronized
+	 */
 	public static void runLaterSynchronized(final Runnable runnable) {
 		parameterNotNull(runnable);
 		runLater(() -> {
@@ -165,7 +254,17 @@ public class NetCom2Utils {
 		});
 	}
 
-	@APILevel
+	/**
+	 * Executes an runnable, with an indefinite time until execution.
+	 * <p>
+	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * <p>
+	 * The time this is finished cannot be determined. It depends on whether or not the {@link #netComThread} is blocked or not.
+	 * <p>
+	 * Does wait until the current Thread finishes. So if you depend on the finish of this Runnable, DO NOT USE THIS METHOD!
+	 *
+	 * @param runnable the runnable, that should be executed synchronized
+	 */
 	public static void runLater(final Runnable runnable) {
 		parameterNotNull(runnable);
 		Thread currentThread = Thread.currentThread();
@@ -173,40 +272,55 @@ public class NetCom2Utils {
 			try {
 				currentThread.join();
 			} catch (InterruptedException e) {
-				logging.catching(e);
+				e.printStackTrace();
 			}
 			runnable.run();
 		});
 	}
 
+	/**
+	 * Executes an runnable, on the NetComThread.
+	 * <p>
+	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * <p>
+	 * The time this is finished cannot be determined. It depends on whether or not the {@link #netComThread} is blocked or not.
+	 * <p>
+	 * If this Method is executed on the NetComThread, the runnable will be executed immediately.
+	 *
+	 * @param runnable the runnable, that should be executed synchronized
+	 */
 	public static void runOnNetComThread(final Runnable runnable) {
 		parameterNotNull(runnable);
 		if (onNetComThread()) {
 			runnable.run();
 		} else {
-			runLater(runnable);
+			netComThread.execute(runnable);
 		}
 	}
 
-	public static ThreadFactory createNewThreadFactory() {
-		return new NetComThreadFactory();
+	/**
+	 * Creates an ThreadSafe Iterator over the provided Collection
+	 *
+	 * @param of  the Collection, that the Iterator should be iterated over
+	 * @param <T> the type of the Collection
+	 * @return an ThreadSafe iterator
+	 */
+	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of) {
+		return new AsynchronousIterator<>(of);
 	}
 
-	public static ThreadFactory getThreadFactory() {
-		return threadFactory;
-	}
-
-	public static ExecutorService createNewCachedExecutorService() {
-		return Executors.newCachedThreadPool(getThreadFactory());
-	}
-
-	public static ExecutorService getNetComExecutorService() {
-		return netComThread;
-	}
-
-	public static boolean onNetComThread() {
-		Thread current = Thread.currentThread();
-
-		return current.getName().equals(NetComThreadFactory.NET_COM_THREAD_NAME);
+	/**
+	 * Creates an ThreadSafe Iterator over the provided Collection
+	 *
+	 * If true is passed in as the <code>removeAllowed</code> the Iterator will use its {@link Iterator#remove()} on the
+	 * provided Collection.
+	 *
+	 * @param of            the Collection, that the Iterator should be iterated over
+	 * @param removeAllowed whether or not the iterator should be allowed to remove elements from the provided Collection
+	 * @param <T>           the type of the Collection
+	 * @return an ThreadSafe iterator
+	 */
+	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of, boolean removeAllowed) {
+		return new AsynchronousIterator<>(of, removeAllowed);
 	}
 }

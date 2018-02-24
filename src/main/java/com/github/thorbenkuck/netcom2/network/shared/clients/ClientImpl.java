@@ -45,7 +45,6 @@ class ClientImpl implements Client {
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final Lock idLock = new ReentrantLock();
 	private final Semaphore semaphore = new Semaphore(1);
-	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private EncryptionAdapter encryptionAdapter;
 	private DecryptionAdapter decryptionAdapter;
 	private SerializationAdapter<Object, String> mainSerializationAdapter;
@@ -127,8 +126,7 @@ class ClientImpl implements Client {
 	public void setThreadPool(final ExecutorService executorService) {
 		try {
 			threadPoolLock.lock();
-			this.threadPool = executorService;
-			updateConnectionThreadPools(threadPool);
+			updateConnectionThreadPools(executorService);
 		} finally {
 			threadPoolLock.unlock();
 		}
@@ -408,29 +406,7 @@ class ClientImpl implements Client {
 	}
 
 	/**
-	 * This Method routs an given {@link Connection} to an new Key.
-	 * <p>
-	 * The Original {@link Connection} will not be unbound from its current bound. This means, that after calling this method,
-	 * the given {@link Connection} is accessible via both, its original Key and the newKey.
-	 * <p>
-	 * A {@link Connection} might be routed to any number of keys. So one {@link Connection} can be accessible by any number of calls.
-	 * <p>
-	 * Other than {@link #setConnection(Class, Connection)} an "null-route" is possible, to allow an sort of "fallback-route".
-	 * <p>
-	 * If you use:
-	 * <code>client.routConnection(OriginalKey.class, null);</code>
-	 * a warning will be logged via the {@link com.github.thorbenkuck.netcom2.network.interfaces.Logging} and the Connection is
-	 * used, whenever you state:
-	 * <code>client.send(new MessageObject(), null);</code>
-	 * <p>
-	 * This might be useful, if you calculate the Keys at runtime. However, it is discouraged to trigger a null-route
-	 * by stating null at compile time.
-	 * <p>
-	 * The new route will override previous routes. So if you previously routed any Connection to a given Key NewKey.class
-	 * and now route another class to NewKey.class, the previously route will be overridden!
-	 *
-	 * @param originalConnection the {@link Connection} that should be rerouted
-	 * @param newKey             the new key, under which the given {@link Connection} is accessible
+	 * {@inheritDoc}
 	 * @throws IllegalArgumentException if originalConnection is null
 	 */
 	@Override
@@ -477,9 +453,7 @@ class ClientImpl implements Client {
 	}
 
 	/**
-	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
-	 *
-	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void addFallBackDeSerializationAdapter(
@@ -710,7 +684,6 @@ class ClientImpl implements Client {
 		result = 31 * result + connectionLock.hashCode();
 		result = 31 * result + threadPoolLock.hashCode();
 		result = 31 * result + idLock.hashCode();
-		result = 31 * result + threadPool.hashCode();
 		result = 31 * result + encryptionAdapter.hashCode();
 		result = 31 * result + decryptionAdapter.hashCode();
 		result = 31 * result + mainSerializationAdapter.hashCode();
@@ -741,7 +714,6 @@ class ClientImpl implements Client {
 		if (! connectionLock.equals(client.connectionLock)) return false;
 		if (! threadPoolLock.equals(client.threadPoolLock)) return false;
 		if (! idLock.equals(client.idLock)) return false;
-		if (! threadPool.equals(client.threadPool)) return false;
 		if (! encryptionAdapter.equals(client.encryptionAdapter)) return false;
 		if (! decryptionAdapter.equals(client.decryptionAdapter)) return false;
 		if (! mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;

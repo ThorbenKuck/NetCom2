@@ -36,18 +36,17 @@ class DistributorImpl implements InternalDistributor {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final DistributorRegistration getDistributorRegistration() {
 		return distributorRegistration;
 	}
 
-	@Override
-	public String toString() {
-		return "Distributor{" +
-				"clientList=" + clientList +
-				'}';
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	@SafeVarargs
@@ -61,12 +60,18 @@ class DistributorImpl implements InternalDistributor {
 		clientsToSendTo.forEach(session -> session.send(o));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public final void toAll(final Object o) {
 		toSpecific(o, Objects::nonNull);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@SafeVarargs
 	@Override
@@ -80,12 +85,18 @@ class DistributorImpl implements InternalDistributor {
 		toSendTo.forEach(session -> session.send(o));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public final void toAllIdentified(final Object o) {
 		toSpecific(o, Session::isIdentified);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@SafeVarargs
 	@Override
@@ -94,12 +105,18 @@ class DistributorImpl implements InternalDistributor {
 		toSpecific(o, predicates);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public final void toRegistered(final Object o) {
 		toRegistered(o, Objects::nonNull);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	@SafeVarargs
@@ -115,6 +132,16 @@ class DistributorImpl implements InternalDistributor {
 					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
 					user.send(new CachePush(o));
 				});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "Distributor{" +
+				"clientList=" + clientList +
+				'}';
 	}
 
 

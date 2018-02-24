@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
+import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
@@ -103,10 +104,14 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(method.getName(), clazz, uuid, args);
+
+		try {
+			sender.objectToServer(request);
+		} catch (SendFailedException e) {
+			return executeFallback(e, method, args);
+		}
+
 		Semaphore semaphore = remoteAccessBlockRegistration.await(request);
-
-		sender.objectToServer(request);
-
 		semaphore.acquire();
 		RemoteAccessCommunicationResponse response = remoteAccessBlockRegistration.getResponse(uuid);
 		remoteAccessBlockRegistration.clearResult(uuid);

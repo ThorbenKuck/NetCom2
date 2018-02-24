@@ -60,9 +60,16 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	/**
-	 * @param socket
+	 * Handles a newly connected Socket.
+	 *
+	 * @param socket the Socket, that just connected
+	 * @see #acceptAllNextClients()
+	 * @see #acceptNextClient()
 	 */
 	private void handle(final Socket socket) {
+		if(!running) {
+			return;
+		}
 		logging.debug("Handling new Socket: " + socket);
 		logging.trace("Requesting handling at clientConnectedHandlers ..");
 		final List<ClientConnectedHandler> clientConnectedHandlerList;
@@ -77,7 +84,19 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
-	private Client createClient(List<ClientConnectedHandler> list, Socket socket) {
+	/**
+	 * Creates a Client, based on the provided ClientConnectedHandlers.
+	 *
+	 * Utilizes all previously set ClientConnectedHandlers.
+	 *
+	 * If ANY ClientConnectedHandler creates a Client, it will be used as the new Client. Whenever a new Client is created,
+	 * it overrides the previously created Client.
+	 *
+	 * @param list the ClientConnectedHandlers
+	 * @param socket the Socket, the Client just connected with
+	 * @return a new Instance of the Client Class
+	 */
+	private Client createClient(final List<ClientConnectedHandler> list, final Socket socket) {
 		final List<ClientConnectedHandler> clientConnectedHandlers = list.stream()
 				.filter(ClientConnectedHandler::willCreateClient)
 				.collect(Collectors.toCollection(ArrayList::new));
@@ -88,7 +107,7 @@ class ServerStartImpl implements ServerStart {
 			Client newClient = clientConnectedHandler.create(socket);
 			if (newClient != null) {
 				logging.trace("ClientConnectedHandler " + clientConnectedHandler +
-						" successfully created Client! Overriding: " + client);
+						" successfully created a Client! Overriding: " + client);
 				client = newClient;
 			}
 		}
@@ -96,12 +115,24 @@ class ServerStartImpl implements ServerStart {
 		return client;
 	}
 
+	/**
+	 * Calling this Method will Stop the Server and ALL running threads.
+	 *
+	 * Since calling this Method will result in an shutdown of the {@link NetCom2Utils} NetComThread, this will be unusable
+	 * in the future.
+	 *
+	 * This will result in all Queued Runnable of {@link NetCom2Utils#runLater(Runnable)} or {@link NetCom2Utils#runOnNetComThread(Runnable)}
+	 * to be shut down forcefully.
+	 */
 	private void hardStop() {
+		running = false;
 		logging.info("Shutting threadPool down forcefully! Expect interrupted Exceptions!");
 		threadPool.shutdownNow();
-		running = false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized void launch() throws StartFailedException {
 		if (running) {
@@ -132,6 +163,9 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
 		logging.debug("Starting to accept all next Clients ..");
@@ -151,11 +185,17 @@ class ServerStartImpl implements ServerStart {
 		disconnect();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setPort(final int port) {
 		serverConnector = new ServerConnector(port);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
 		if (! running) {
@@ -180,6 +220,9 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
 		logging.debug("Added ClientConnectedHandler " + clientConnectedHandler);
@@ -188,6 +231,9 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
 		logging.debug("Removing ClientConnectedHandler " + clientConnectedHandler);
@@ -196,22 +242,35 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Distributor distribute() {
 		return distributor;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Cache cache() {
 		return cache;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void disconnect() {
-		logging.trace("Requesting disconnect of existing ServerSocket");
-		hardStop();
+		logging.info("Shutdown requested");
+		logging.trace("Performing softStop...");
+		softStop();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setServerSocketFactory(final Factory<Integer, ServerSocket> factory) {
 		if (serverSocketFactory != null) {
@@ -221,16 +280,25 @@ class ServerStartImpl implements ServerStart {
 		serverSocketFactory = factory;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final ClientList clientList() {
 		return clientList;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setExecutorService(final ExecutorService executorService) {
 		try {
@@ -241,17 +309,31 @@ class ServerStartImpl implements ServerStart {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public RemoteObjectRegistration remoteObjects() {
 		return remoteObjectRegistration;
 	}
 
-	@Asynchronous
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void softStop() {
 		logging.debug("Stopping ..");
 		logging.trace("Notifying about stop ..");
 		running = false;
+		logging.trace("Stopping all Clients");
+		try {
+			clientList.acquire();
+			clientList.close();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			clientList.release();
+		}
 		logging.trace("Shutting down ThreadPool ..");
 		try {
 			threadPoolLock.lock();
@@ -259,6 +341,10 @@ class ServerStartImpl implements ServerStart {
 			try {
 				logging.trace("Awaiting termination of all Threads ..");
 				threadPool.awaitTermination(20, TimeUnit.SECONDS);
+				if(!threadPool.isShutdown()) {
+					logging.trace("Detected some running Threads " + 20 + " seconds after ShutdownRequest! Forcefully shutting down the ThreadPool");
+					hardStop();
+				}
 			} catch (InterruptedException e) {
 				logging.error("Exception while awaiting termination!", e);
 			}
@@ -268,11 +354,17 @@ class ServerStartImpl implements ServerStart {
 		logging.trace("Shutdown request completed!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean running() {
 		return running;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setLogging(final Logging logging) {
 		this.logging.trace("Updating logging ..");
@@ -280,6 +372,9 @@ class ServerStartImpl implements ServerStart {
 		this.logging.debug("Updated logging!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "ServerStart{" +
@@ -291,6 +386,9 @@ class ServerStartImpl implements ServerStart {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public Awaiting createNewConnection(final Session session, final Class key) {

@@ -81,7 +81,11 @@ public class ConnectionFactory {
 		final Session session = client.getSession();
 		final Connection connection;
 
-		// Synchonization, so only 1 Connection at a time can be established (real speaking)
+		// Synchronization, so only 1 Connection at a
+		// time can be established (real speaking)
+		// This slows down the process, but blocks
+		// multiple Connection from being established
+		// at the same time
 		synchronized (this) {
 			logging.trace("Creating connection..");
 			try {

@@ -45,6 +45,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		distributorRegistration.removeRegistration(client.getSession());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public Client create(final Socket socket) {
@@ -65,22 +68,40 @@ class DefaultClientHandler implements ClientConnectedHandler {
 				e1.addSuppressed(e);
 				throw new ClientCreationFailedException(e1);
 			}
-			throw new IllegalStateException("Cannot continue!", e);
+			throw new IllegalStateException("Interrupted while awaiting the listening process of the DefaultConnection! Cannot continue!", e);
 		}
 		logging.trace("Connection is now listening!");
 
 		this.connection = connection;
 		logging.trace("Adding Client(" + connection.getFormattedAddress() + ") to InternalClientList");
-		clientList.add(client);
+		try {
+			clientList.acquire();
+			if(clientList.isOpen()) {
+				clientList.add(client);
+			} else {
+				logging.warn("Potential internal error. Tried to ");
+				client.disconnect();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			clientList.release();
+		}
 
 		return client;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean willCreateClient() {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void handle(final Client client) {
@@ -99,6 +120,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "DefaultClientHandler{" +
