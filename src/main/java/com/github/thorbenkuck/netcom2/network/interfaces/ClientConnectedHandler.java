@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.handler;
+package com.github.thorbenkuck.netcom2.network.interfaces;
 
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;

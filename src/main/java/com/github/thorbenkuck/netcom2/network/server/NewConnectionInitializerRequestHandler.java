@@ -65,6 +65,7 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 				logging.warn("[" + identifier + "]: Could not find faulty Client: " +
 						newConnectionInitializer.getToDeleteID());
 			}
+			logging.warn("Potentially malicious Client at " + connection.getFormattedAddress());
 		}
 	}
 }

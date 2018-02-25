@@ -26,10 +26,17 @@ class DistributorImpl implements InternalDistributor {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	/**
+	 * Tests whether the provided Session is suitable by the provided predicates
+	 *
+	 * @param session    the Session, that should be tested
+	 * @param predicates the predicates, that define whether or not the Session is applicable
+	 * @return true, if all predicates are applicable, else false
+	 */
 	@SafeVarargs
 	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
 		for (final Predicate<Session> predicate : predicates) {
-			if (! predicate.test(session)) {
+			if (!predicate.test(session)) {
 				return false;
 			}
 		}
@@ -79,7 +86,7 @@ class DistributorImpl implements InternalDistributor {
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
-					.filter(user -> ! testAgainst(user, predicates))
+					.filter(user -> !testAgainst(user, predicates))
 					.forEach(toSendTo::add);
 		}
 		toSendTo.forEach(session -> session.send(o));
@@ -143,6 +150,4 @@ class DistributorImpl implements InternalDistributor {
 				"clientList=" + clientList +
 				'}';
 	}
-
-
 }

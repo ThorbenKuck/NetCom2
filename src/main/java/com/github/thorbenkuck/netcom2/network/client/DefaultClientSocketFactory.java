@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * This Class defines the Default behaviour for creating a Socket, utilized within the {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart}
+ * This Class defines the Default behaviour for creating a Socket, utilized within the {@link ClientStart}
  */
 @APILevel
 class DefaultClientSocketFactory implements SocketFactory {

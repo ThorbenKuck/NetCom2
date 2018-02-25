@@ -1,15 +1,10 @@
 package com.github.thorbenkuck.netcom2.test.examples.echo;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.test.examples.TestObject;
-import com.github.thorbenkuck.netcom2.test.examples.TestObjectTwo;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

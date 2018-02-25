@@ -19,6 +19,9 @@ class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final Session session, final UnRegisterRequest o) {
@@ -27,6 +30,9 @@ class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 		session.send(new UnRegisterResponse(o, true));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "UnRegisterRequestReceiveHandler{Handling internal client-registrations}";

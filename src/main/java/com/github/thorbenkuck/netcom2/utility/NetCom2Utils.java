@@ -38,7 +38,8 @@ public class NetCom2Utils {
 	 * an custom ThreadFactory.
 	 */
 	private static final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
-	private static final ThreadFactory threadFactory = createNewThreadFactory();
+	private static final ThreadFactory threadFactory = createNewDaemonThreadFactory();
+	private static final ThreadFactory nonDaemonThreadFactory = createNewNonDaemonThreadFactory();
 	private static final ExecutorService queueExecutorService = Executors.newSingleThreadExecutor(threadFactory);
 	private static final ExecutorService netComThread = createNewCachedExecutorService();
 
@@ -179,7 +180,7 @@ public class NetCom2Utils {
 	 * @return a new Instance of the {@link NetComThreadFactory}
 	 */
 	@APILevel
-	public static NetComThreadFactory createNewThreadFactory() {
+	public static NetComThreadFactory createNewDaemonThreadFactory() {
 		return new NetComThreadFactory();
 	}
 
@@ -322,5 +323,30 @@ public class NetCom2Utils {
 	 */
 	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of, boolean removeAllowed) {
 		return new AsynchronousIterator<>(of, removeAllowed);
+	}
+
+	/**
+	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
+	 *
+	 * By Default, all NetComThreads are daemon.
+	 *
+	 * @return a new ThreadFactory
+	 */
+	public static ThreadFactory createNewNonDaemonThreadFactory() {
+		NetComThreadFactory threadFactory = createNewDaemonThreadFactory();
+		threadFactory.setDaemon(false);
+
+		return threadFactory;
+	}
+
+	/**
+	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
+	 *
+	 * By Default, all NetComThreads are daemon.
+	 *
+	 * @return a new ThreadFactory
+	 */
+	public static ExecutorService createNewNonDaemonExecutorService() {
+		return Executors.newCachedThreadPool(nonDaemonThreadFactory);
 	}
 }

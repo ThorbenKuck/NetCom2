@@ -6,11 +6,13 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 interface InternalDistributor extends Distributor {
 
 	/**
-	 * Creates
+	 * Creates an new internal distributor.
 	 *
-	 * @param clientList
-	 * @param distributorRegistration
-	 * @return
+	 * This is used, to hide the implementation of even the InternalDistributor.
+	 *
+	 * @param clientList the ClientList, this works on
+	 * @param distributorRegistration the Registration, that is used for the cache
+	 * @return a new InternalDistributor instantiation
 	 */
 	static InternalDistributor create(final ClientList clientList,
 									  final DistributorRegistration distributorRegistration) {

@@ -5,8 +5,8 @@ import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
-import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.client.DefaultSynchronize;
+import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -18,7 +18,6 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 
 @APILevel
 @Synchronized

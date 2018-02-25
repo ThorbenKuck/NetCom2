@@ -13,6 +13,16 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * This class creates an DefaultConnection, based on the provided SocketFactory.
+ *
+ * If you use this Class, you provide a Client to be maintained. It provides a function to establish the default
+ * Connection as well as a function to establish a new Connection, with a provided key.
+ *
+ * This means it is internally used, to allow multiple Connections to be established.
+ *
+ * It may be shut-down function, disconnects the internally maintained Client.
+ */
 @APILevel
 class ClientConnector implements Connector<SocketFactory, Connection> {
 

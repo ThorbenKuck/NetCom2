@@ -21,10 +21,7 @@ class RemoteObjectRequestHandler implements OnReceiveTriple<RemoteAccessCommunic
 	}
 
 	/**
-	 * Performs this operation on the given arguments.
-	 *
-	 * @param session                          the first input argument
-	 * @param remoteAccessCommunicationRequest the second input argument
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void accept(final Connection connection, final Session session, final RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {

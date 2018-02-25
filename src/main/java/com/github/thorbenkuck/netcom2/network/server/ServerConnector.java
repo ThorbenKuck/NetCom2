@@ -21,6 +21,9 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 		this.port = port;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized ServerSocket establishConnection(final Factory<Integer, ServerSocket> factory)
 			throws IOException, StartFailedException {
@@ -38,6 +41,9 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 		return this.serverSocket;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ServerSocket establishConnection(final Class key,
 											final Factory<Integer, ServerSocket> integerServerSocketFactory)
@@ -45,6 +51,9 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 		return establishConnection(integerServerSocketFactory);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void shutDown() throws IOException {
 		if (serverSocket != null && ! serverSocket.isClosed()) serverSocket.close();

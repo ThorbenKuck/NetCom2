@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.server.ClientSendBridge;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
@@ -10,7 +11,7 @@ import java.util.Properties;
 /**
  * This interface describes an Session of any Network-Object.
  * <p>
- * On the {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart} side, this object is maintained, as
+ * On the {@link ClientStart} side, this object is maintained, as
  * long, as the ClientStart stays connected to the Server.
  * <p>
  * On the {@link com.github.thorbenkuck.netcom2.network.server.ServerStart} side, this object is maintained within an {@link Client}

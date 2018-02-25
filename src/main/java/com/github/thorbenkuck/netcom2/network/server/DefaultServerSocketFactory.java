@@ -12,13 +12,15 @@ class DefaultServerSocketFactory implements Factory<Integer, ServerSocket> {
 
 	private final Logging logging = Logging.unified();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ServerSocket create(final Integer integer) {
 		try {
 			logging.debug("Creating java.net.ServerSocket(" + integer + ")");
 			return new ServerSocket(integer);
 		} catch (IOException e) {
-			logging.catching(e);
 			return null;
 		}
 	}

@@ -13,6 +13,9 @@ class NewConnectionRequestHandler implements OnReceiveTriple<NewConnectionReques
 
 	private final Logging logging = Logging.unified();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session, final NewConnectionRequest o) {

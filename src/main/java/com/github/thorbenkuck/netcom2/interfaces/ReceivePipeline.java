@@ -56,7 +56,7 @@ import java.util.function.Consumer;
  * <p>
  * The massive amount of Methods is simply for convenience sake.
  *
- * @param <T> T
+ * @param <T> T tye Type that should be handled by this ReceivePipeline
  */
 public interface ReceivePipeline<T> extends Mutex {
 	/**

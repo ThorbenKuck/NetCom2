@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.test.examples;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 
 public class Client {
 

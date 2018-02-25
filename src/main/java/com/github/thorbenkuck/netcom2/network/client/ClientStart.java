@@ -1,14 +1,21 @@
-package com.github.thorbenkuck.netcom2.network.interfaces;
+package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectAccess;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
-import com.github.thorbenkuck.netcom2.network.client.*;
+import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
+import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+
+/*
+&lt; for < and &gt; for > .
+ */
 
 /**
  * This Class is the used to connect to an launched {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}.
@@ -37,11 +44,11 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * try {
  * serverStart.launch();
  * } catch(Exception ignored) {}
- * new Thread(() - {
+ * new Thread(() -&gt; {
  * try {
  * serverStart.acceptAllNextClients();
  * } catch(ClientConnectionFailedException ignored) {}
- * });
+ * }).start();
  *
  * try {
  * clientStart.launch();

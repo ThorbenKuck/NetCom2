@@ -9,9 +9,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * utilizes this predicate to evaluate whether or not an {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}
  * should be executed or not.
  *
- * @param <T> T
- * @param <U> U
- * @param <V> V
+ * @param <T> T the first type to test
+ * @param <U> U the second type to test
+ * @param <V> V the third type tot test
  */
 @FunctionalInterface
 public interface TriPredicate<T, U, V> {
