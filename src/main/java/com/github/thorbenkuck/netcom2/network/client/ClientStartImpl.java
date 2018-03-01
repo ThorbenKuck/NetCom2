@@ -4,7 +4,8 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
+import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
@@ -19,8 +20,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@APILevel
 @Synchronized
-public class ClientStartImpl implements ClientStart {
+class ClientStartImpl implements ClientStart {
 
 	private final Cache cache = Cache.create();
 	private final ClientConnector clientConnector;
@@ -52,7 +54,7 @@ public class ClientStartImpl implements ClientStart {
 	 * @param port    the port
 	 * @throws NullPointerException if the provided address or port is null
 	 */
-	public ClientStartImpl(final String address, final int port) {
+	ClientStartImpl(final String address, final int port) {
 		NetCom2Utils.assertNotNull(address, port);
 		logging.debug("Instantiation ClientStart ..");
 		logging.trace("Creating Client ..");

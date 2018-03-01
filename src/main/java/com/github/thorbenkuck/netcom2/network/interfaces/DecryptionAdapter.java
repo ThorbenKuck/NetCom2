@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.client;
+package com.github.thorbenkuck.netcom2.network.interfaces;
 
 import com.github.thorbenkuck.netcom2.interfaces.Adapter;
 

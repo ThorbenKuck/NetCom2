@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class RMIServer implements Runnable {
 
-	private ServerStart serverStart = ServerStart.at(4444);
+	private ServerStart serverStart = ServerStart.at(666);
 
 	public static void main(String[] args) {
 		new RMIServer().run();
@@ -30,6 +30,8 @@ public class RMIServer implements Runnable {
 		} catch (StartFailedException e) {
 			e.printStackTrace();
 		}
+
+		System.out.println();
 	}
 
 	private class RemoteTest implements RemoteTestInterface {

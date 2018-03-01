@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchronization;
@@ -8,7 +7,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchr
 /**
  * This interface is the bridge between Server and Client.
  * <p>
- * The {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart} aggregates this Object and exposes it via
+ * The {@link ClientStart} aggregates this Object and exposes it via
  * {@link ClientStart#send()}.
  * <p>
  * It can be used to:

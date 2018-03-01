@@ -1,12 +1,13 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.InvocationHandlerProducer;
 
 /**
  * This interface provides an way of getting RemoteObjects.
  * <p>
- * The {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart} for example implements this method. So you
+ * The {@link ClientStart} for example implements this method. So you
  * may get any RemoteObject by stating
  * <p>
  * <code>

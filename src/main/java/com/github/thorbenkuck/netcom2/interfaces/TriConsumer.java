@@ -8,9 +8,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * Its primary use is to enable the {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}, which
  * is inherited by this Class
  *
- * @param <T> T
- * @param <U> U
- * @param <V> V
+ * @param <T> T the first input type
+ * @param <U> U the second input type
+ * @param <V> V the third input type
  */
 @FunctionalInterface
 public interface TriConsumer<T, U, V> {

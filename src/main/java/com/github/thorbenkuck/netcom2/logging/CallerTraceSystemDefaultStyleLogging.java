@@ -2,7 +2,9 @@ package com.github.thorbenkuck.netcom2.logging;
 
 /**
  * This class is inherited from the {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to
- * inject the the via reflection determined caller of any method.
+ * inject the caller of any method the via reflection determined caller of any method.
+ *
+ * Not that this is very workload intensive, because it analyses the current Stacktrace at runtime
  */
 class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 

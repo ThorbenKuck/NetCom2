@@ -6,7 +6,7 @@ import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
-import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
 import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -118,18 +118,66 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	Cache cache();
 
 	/**
+	 * Shuts down the Server and disconnects all connected Clients
 	 *
+	 * @see #softStop()
 	 */
 	void disconnect();
 
+	/**
+	 * Sets the ServerFactory, that is asked to produce the ServerSocket
+	 *
+	 * If you want to use SSL, you may provide an Factory, that creates an SSLServerSocket.
+	 *
+	 * @param factory the Factory, that should be used.
+	 */
 	void setServerSocketFactory(final Factory<Integer, ServerSocket> factory);
 
+	/**
+	 * Returns the internally maintained ClientList.
+	 *
+	 * This may be used, if you need to get a certain Client or apply something to all Clients.
+	 *
+	 * If you however want to access certain Clients, it is recommended, to create a custom UserObject and set the UserObject,
+	 * aggregating the Session of the Client inside of an custom {@link ClientConnectedHandler}. The Client is an real representation
+	 * of the Connected PC. Therefor you can do real, irreversible damage at runtime, resulting in an fatal, unrecoverable
+	 * error.
+	 *
+	 * @return the ClientList
+	 */
 	ClientList clientList();
 
+	/**
+	 * Returns the CommunicationRegistration for this ServerStart.
+	 *
+	 * The internal CommunicationRegistration is unified across al Clients and Connections. If you change this after the
+	 * {@link #launch()} call, it is still updated within all Connections.
+	 *
+	 * This means, if you clear this CommunicationRegistration, it is cleared for all Clients.
+	 *
+	 * Also, if you {@link CommunicationRegistration#acquire()} and never {@link CommunicationRegistration#release()}, no
+	 * Object will be handled by the CommunicationRegistration.
+	 *
+	 * @return a unified instance of the {@link CommunicationRegistration}
+	 */
 	CommunicationRegistration getCommunicationRegistration();
 
+	/**
+	 * Sets the ExecutorService, to be used internally
+	 *
+	 * @param executorService the ExecutorService.
+	 */
+	@Experimental
 	void setExecutorService(final ExecutorService executorService);
 
+	/**
+	 * Returns an internally maintained {@link RemoteObjectRegistration}.
+	 *
+	 * This is used, whenever the Client requests a RemoteObject using the {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory}
+	 *
+	 * @return a unified instance for the RemoteObjectRegistration
+	 * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory
+	 */
 	@Experimental
 	RemoteObjectRegistration remoteObjects();
 }

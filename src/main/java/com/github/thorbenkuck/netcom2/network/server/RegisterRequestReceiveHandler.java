@@ -23,6 +23,9 @@ class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 		this.Cache = Cache;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final Session session, final RegisterRequest o) {
@@ -33,6 +36,9 @@ class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 		Cache.get(clazz).ifPresent(object -> session.send(new CachePush(object)));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "RegisterRequestReceiveHandler{Handling internal client-registrations}";

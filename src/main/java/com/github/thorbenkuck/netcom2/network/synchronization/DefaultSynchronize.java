@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.client;
+package com.github.thorbenkuck.netcom2.network.synchronization;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.AbstractSynchronize;

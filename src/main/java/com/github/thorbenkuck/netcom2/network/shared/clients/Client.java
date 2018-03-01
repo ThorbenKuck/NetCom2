@@ -1,8 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
-import com.github.thorbenkuck.netcom2.network.client.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.client.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
+import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -153,7 +154,7 @@ public interface Client extends Mutex {
 	 * which uses the injected Session and is received from the Client responsible for this Session.
 	 * <p>
 	 * This method is called by the DefaultClientDisconnectedHandler
-	 * to reset the internal Client from within the {@link com.github.thorbenkuck.netcom2.network.interfaces.ClientStart}
+	 * to reset the internal Client from within the {@link ClientStart}
 	 * so that you might reconnect and reuse this client. At the ServerSide this will lead to problems.
 	 * <p>
 	 * To counterweight the call of clear Session you might call {@link #setup()}, to set a new Session instance.

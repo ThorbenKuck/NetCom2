@@ -1,11 +1,8 @@
 package com.github.thorbenkuck.netcom2.test.examples.rmi;
 
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientStart;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
-import com.github.thorbenkuck.netcom2.utility.NetComThread;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -20,18 +17,22 @@ public class RMIClient implements Runnable {
 
 	public static void main(String[] args) {
 		RMIClient client = new RMIClient();
-		NetCom2Utils.runLater(() -> {
+		new Thread(() -> {
 			Scanner reader = new Scanner(System.in);  // Reading from System.in
 			String entered = "";
-			while(!entered.equals("stop")) {
+			while (!entered.equals("stop")) {
 				System.out.println("Awaiting input..");
 				entered = reader.nextLine();
-				if(!entered.equals("stop")) {
-					client.execute();
+				if (!entered.equals("stop")) {
+					try {
+						client.trigger();
+					} catch (RemoteObjectNotRegisteredException e) {
+						e.printStackTrace(System.out);
+					}
 				}
 			}
 			reader.close();
-		});
+		}).start();
 		client.run();
 	}
 
@@ -80,7 +81,7 @@ public class RMIClient implements Runnable {
 		}, 6, TimeUnit.SECONDS);
 	}
 
-	public void execute() {
+	public void trigger() {
 		System.out.println(test.getHelloWorld());
 	}
 

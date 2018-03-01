@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
-import com.github.thorbenkuck.netcom2.network.handler.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -156,6 +156,8 @@ class ServerStartImpl implements ServerStart {
 				logging.error("Encountered Exception, while shutting down Connection!", e1);
 				startFailedException.addSuppressed(e1);
 			}
+			throw startFailedException;
+		} catch(StartFailedException startFailedException) {
 			throw startFailedException;
 		} catch (final Throwable throwable) {
 			logging.fatal("Failed to start Server, because of an unexpected Throwable", throwable);
