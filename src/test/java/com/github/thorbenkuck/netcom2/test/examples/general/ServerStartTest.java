@@ -90,32 +90,32 @@ public class ServerStartTest {
 //
 //			session.addHeartBeat(heartBeat);
 		});
-		serverStart.setServerSocketFactory(integer -> {
-			String keystoreFileName = "keystore.jks";
-			char[] password = "password".toCharArray();
-			String alias = "test";
-
-
-			try {
-				FileInputStream fileInputStream = new FileInputStream(keystoreFileName);
-				KeyStore keyStore = KeyStore.getInstance("JKS");
-				keyStore.load(fileInputStream, password);
-
-				ServerSocketFactory sslServerSocketFactory = SSLServerSocketFactory.getDefault();
-				return sslServerSocketFactory.createServerSocket(integer);
-			} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-				e.printStackTrace();
-			}
-
-			System.out.println("No SSL for you!");
-
-			try {
-				return new ServerSocket(integer);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		});
+//		serverStart.setServerSocketFactory(integer -> {
+//			String keystoreFileName = "keystore.jks";
+//			char[] password = "password".toCharArray();
+//			String alias = "test";
+//
+//
+//			try {
+//				FileInputStream fileInputStream = new FileInputStream(keystoreFileName);
+//				KeyStore keyStore = KeyStore.getInstance("JKS");
+//				keyStore.load(fileInputStream, password);
+//
+//				ServerSocketFactory sslServerSocketFactory = SSLServerSocketFactory.getDefault();
+//				return sslServerSocketFactory.createServerSocket(integer);
+//			} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+//				e.printStackTrace();
+//			}
+//
+//			System.out.println("No SSL for you!");
+//
+//			try {
+//				return new ServerSocket(integer);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				return null;
+//			}
+//		});
 	}
 
 	private static void schedule() {

@@ -96,10 +96,6 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			receivingService.softStop();
 			logging.trace("Requesting soft-stop of set SendingService ..");
 			sendingService.softStop();
-			logging.trace("Shutting down input stream");
-			socket.shutdownInput();
-			logging.trace("Shutting down output stream");
-			socket.shutdownOutput();
 			logging.trace("Shutting down socket ..");
 			socket.close();
 			logging.debug("Successfully shut down Connection " + this);
