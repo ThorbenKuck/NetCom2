@@ -45,23 +45,21 @@ public class RMIClient implements Runnable {
 			return;
 		}
 
-//		// first instance. Is used if nothing else is set
-//		clientStart.getRemoteObjectFactory().setDefaultFallback(() -> {
-//			System.out.println("This is the default fallback");
-//		});
-//
-//		// second instance. Is used, if no fallback instance is set
-//		clientStart.getRemoteObjectFactory().setFallback(RemoteTestInterface.class, () -> {
-//			System.out.println("This is the RemoteTestInterface specific default");
-//		});
-//
-//		// third instance. Is used, if not custom fallback is set on creation
-//		clientStart.getRemoteObjectFactory().setFallbackInstance(RemoteTestInterface.class, new LocalRemoteImpl());
-//
-//		// fourth instance. Overrides the other three fallbacks.
-//		test = clientStart.getRemoteObjectFactory().create(RemoteTestInterface.class, (Runnable) () -> {
-//			System.out.println("This should override everything!");
-//		});
+		// first instance. Is used if nothing else is set
+		clientStart.getRemoteObjectFactory().setDefaultFallback(() -> {
+			System.out.println("This is the default fallback");
+		});
+
+		// second instance. Is used, if no fallback instance is set
+		clientStart.getRemoteObjectFactory().setFallback(RemoteTestInterface.class, () -> {
+			System.out.println("This is the RemoteTestInterface specific default");
+		});
+
+		// third instance. Is used, if not custom fallback is set on creation
+		clientStart.getRemoteObjectFactory().setFallbackInstance(RemoteTestInterface.class, new LocalRemoteImpl());
+
+		// fourth instance. Overrides the other three fallbacks.
+		test = clientStart.getRemoteObjectFactory().create(RemoteTestInterface.class, new LocalRemoteImpl());
 
 
 		test = clientStart.getRemoteObjectFactory().create(RemoteTestInterface.class);

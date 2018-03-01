@@ -171,8 +171,13 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				logging.error("The Object " + o.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
-			if (! canBeOverridden(clazz)) {
-				logging.debug("Overriding of " + clazz + " not possible due to its annotation");
+
+			Object savedInstance;
+			synchronized (mapping) {
+				savedInstance = mapping.get(clazz);
+			}
+			if (savedInstance != null && ! canBeOverridden(savedInstance.getClass())) {
+				logging.debug("Overriding of " + clazz + " not possible due to its annotation at " + savedInstance);
 				continue;
 			}
 
@@ -189,7 +194,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	@Override
 	public void hook(Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		List<Class<?>> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
 		classList.add(object.getClass().getSuperclass());
 		classList.add(object.getClass());
 		register(object, classList.toArray(new Class[classList.size()]));

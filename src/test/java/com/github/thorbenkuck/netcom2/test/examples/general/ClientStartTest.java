@@ -12,6 +12,9 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.test.examples.*;
 
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,19 +35,7 @@ public class ClientStartTest {
 	}
 
 	private void setup() {
-//		clientStart.setSocketFactory((port, address) -> {
-//			try {
-//				return SSLSocketFactory.getDefaultJavaSerialization().createSocket(address, port);
-//			} catch (IOExceptiSealingon e) {
-//				e.printStackTrace();
-//			}
-//			try {
-//				return new Socket(address, port);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			return null;
-//		});
+		clientStart.setSocketFactory((port, address) -> SSLSocketFactory.getDefault().createSocket(address, port));
 		register();
 	}
 

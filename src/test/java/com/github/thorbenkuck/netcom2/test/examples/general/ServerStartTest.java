@@ -10,8 +10,16 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.test.examples.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import java.io.*;
+import java.net.ServerSocket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -82,19 +90,32 @@ public class ServerStartTest {
 //
 //			session.addHeartBeat(heartBeat);
 		});
-//		serverStart.setServerSocketFactory(integer -> {
-//			try {
-//				return SSLServerSocketFactory.getDefaultJavaSerialization().createServerSocket(integer);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			try {
-//				return new ServerSocket(integer);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			return null;
-//		});
+		serverStart.setServerSocketFactory(integer -> {
+			String keystoreFileName = "keystore.jks";
+			char[] password = "password".toCharArray();
+			String alias = "test";
+
+
+			try {
+				FileInputStream fileInputStream = new FileInputStream(keystoreFileName);
+				KeyStore keyStore = KeyStore.getInstance("JKS");
+				keyStore.load(fileInputStream, password);
+
+				ServerSocketFactory sslServerSocketFactory = SSLServerSocketFactory.getDefault();
+				return sslServerSocketFactory.createServerSocket(integer);
+			} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+				e.printStackTrace();
+			}
+
+			System.out.println("No SSL for you!");
+
+			try {
+				return new ServerSocket(integer);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		});
 	}
 
 	private static void schedule() {
