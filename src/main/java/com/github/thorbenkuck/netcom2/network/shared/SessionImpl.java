@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
 @APILevel
 class SessionImpl implements Session {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private final SendBridge sendBridge;
 	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
 	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();

@@ -43,10 +43,17 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 		return onReceive.hashCode();
 	}
 
-	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
-		return o != null && onReceive.equals(o);
+		if(o == null) {
+			return false;
+		}
+
+		if(o instanceof OnReceiveWrapper) {
+			return onReceive.equals(((OnReceiveWrapper) o).onReceive);
+		}
+
+		return onReceive.equals(o);
 	}
 
 	@Override

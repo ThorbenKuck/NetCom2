@@ -186,7 +186,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	/**
-	 * TODO Complete the formed out Algorithm
+	 * TODO Find a functioning way. Should be achievable.. I hope..
 	 * {@inheritDoc}
 	 */
 	@Experimental
@@ -198,9 +198,14 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		// set new ThreadPool
 		// Restart Sending and ReceivingService
 		// Catch up with pending messages
+
+		// Since this is not working, it is
+		// commented out. It should be possible
+		// tho. Check for NetComThread stuff
+		// Maybe this will help to "migrate" runnable.
 		sendingService.softStop();
 		receivingService.softStop();
-		threadPool.shutdownNow();
+		threadPool.shutdown();
 		this.threadPool = executorService;
 		try {
 			startListening().synchronize();
@@ -214,12 +219,12 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Synchronize startListening() {
+	public final Synchronize startListening() {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
 		if (started) {
-			throw new IllegalStateException("Cannot startListening to an already listening Connection");
+			throw new IllegalStateException("Cannot startListening! Connection is already listening ");
 		}
 
 		final Synchronize synchronize = new DefaultSynchronize();
@@ -389,7 +394,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void release() {
+	public final void release() {
 		semaphore.release();
 	}
 

@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 class ClientImpl implements Client {
 
-	private final List<DisconnectedHandler> disconnectedHandlers = new ArrayList<>();
+	private final Pipeline<Client> disconnectedHandlers = new QueuedPipeline<>();
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
 	private final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
 	private final Map<Object, Connection> connections = new HashMap<>();
@@ -148,8 +148,6 @@ class ClientImpl implements Client {
 	@Override
 	public synchronized void disconnect() {
 		logging.debug("Requested disconnect of client " + this);
-		logging.trace("Sorting DisconnectedHandler by priority ..");
-		disconnectedHandlers.sort(Comparator.comparingInt(DisconnectedHandler::getPriority));
 		logging.trace("Closing all Connections ..");
 		try {
 			connectionLock.lock();
@@ -167,9 +165,7 @@ class ClientImpl implements Client {
 		logging.trace("Clearing connections ..");
 		connections.clear();
 		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
-		disconnectedHandlers.stream()
-				.filter(DisconnectedHandler::active)
-				.forEachOrdered(disconnectedHandler -> disconnectedHandler.handle(this));
+		disconnectedHandlers.run(this);
 		logging.trace("Resetting ClientID ..");
 		id = ClientID.empty();
 		logging.trace("Resetting session ..");
@@ -245,7 +241,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
-		disconnectedHandlers.add(disconnectedHandler);
+		disconnectedHandlers.addFirst(disconnectedHandler::handle).withRequirement(client -> disconnectedHandler.active());
 	}
 
 	/**

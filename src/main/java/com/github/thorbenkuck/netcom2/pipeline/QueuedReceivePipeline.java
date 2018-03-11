@@ -355,6 +355,18 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	/**
+	 * Returns the number of handlers contained within the ReceivePipeline.
+	 *
+	 * @return the count of all ReceivePipelineHandler
+	 */
+	@Override
+	public int size() {
+		synchronized (core) {
+			return core.size();
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

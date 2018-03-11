@@ -15,6 +15,7 @@ import java.io.Serializable;
 @APILevel
 public class Acknowledge implements Serializable {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private Class<?> of;
 
 	public Acknowledge(Class<?> of) {

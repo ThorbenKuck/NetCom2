@@ -43,7 +43,15 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 
 	@Override
 	public final boolean equals(final Object o) {
-		return o != null && onReceive.equals(o);
+		if(o == null) {
+			return false;
+		}
+
+		if(o instanceof OnReceiveSingleWrapper) {
+			return onReceive.equals(((OnReceiveSingleWrapper) o).onReceive);
+		}
+
+		return onReceive.equals(o);
 	}
 
 	@Override

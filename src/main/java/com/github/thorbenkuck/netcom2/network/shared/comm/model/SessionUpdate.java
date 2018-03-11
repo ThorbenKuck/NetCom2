@@ -8,6 +8,7 @@ import java.io.Serializable;
 @APILevel
 public class SessionUpdate implements Serializable {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private final Session session;
 
 	public SessionUpdate(Session session) {

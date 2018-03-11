@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.server.ClientSendBridge;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Properties;
  * <p>
  * Otherwise you can feel free to create an custom Session.
  */
-public interface Session extends Mutex {
+public interface Session extends Mutex, Serializable {
 
 	/**
 	 * Returns a new instance of the internal implementation of this interface.

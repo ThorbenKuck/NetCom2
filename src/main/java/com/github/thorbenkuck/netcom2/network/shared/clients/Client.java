@@ -90,7 +90,7 @@ public interface Client extends Mutex {
 	 * This Method cuts all Connections.
 	 * <p>
 	 * In detail: it closes all Connections, created at any point in time, and afterwards clears the list which those where kept in.
-	 * After all Connections are closed, the disconnected handler will be called in an descending order of {@link DisconnectedHandler#getPriority()}.
+	 * After all Connections are closed, the disconnected handler will be called in an descending order of how they where added
 	 * Each of the {@link DisconnectedHandler} will only be called, if {@link DisconnectedHandler#active()} returns true (Which
 	 * is the default value).
 	 * Lastly the ClientID will be set to an {@link ClientID#empty()} and the Session will be recreated

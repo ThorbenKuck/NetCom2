@@ -38,6 +38,7 @@ class DefaultSendingService implements SendingService {
 	private boolean setup = false;
 	private final int MAXIMUM_WAITING_TIME = 10;
 	private int waitingTimeInSeconds = 2;
+	private Thread containingThread;
 
 	@APILevel
 	DefaultSendingService(final SerializationAdapter<Object, String> mainSerializationAdapter,
@@ -128,12 +129,16 @@ class DefaultSendingService implements SendingService {
 		removable.forEach(this::deleteCallBack);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void run() {
 		if (! setup) {
 			throw new Error("[SendingService{" + connectionID.get() + "}] Setup required before run!");
 		}
 		running = true;
+		containingThread = Thread.currentThread();
 		logging.debug("[SendingService{" + connectionID.get() + "}] Started Sending Service");
 		synchronize.goOn();
 		while (running()) {
@@ -141,6 +146,10 @@ class DefaultSendingService implements SendingService {
 				// This needs to be done with a timeout
 				// if not, a shutdown may not be viable
 				// and the thread this runnable runs in may never terminate
+				// To ensure, that not every Sending Service is
+				// holding up the CPU, the waitingTimeInSeconds is
+				// decreased every time the DefaultSendingService
+				// had waited.
 				final Object o = toSend.poll(waitingTimeInSeconds, TimeUnit.SECONDS);
 				// Take it first, then send it in another thread!
 				// this is done, to check, whether or not the object is null
@@ -151,7 +160,7 @@ class DefaultSendingService implements SendingService {
 					NetCom2Utils.runOnNetComThread(() -> send(o));
 				} else if(waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
 					++waitingTimeInSeconds;
-					logging.trace("Increased waiting period to " + waitingTimeInSeconds + " Seconds");
+					logging.trace("[SendingService{\" + connectionID.get() + \"}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {
 				if (running) {
@@ -164,6 +173,9 @@ class DefaultSendingService implements SendingService {
 		logging.info("[SendingService{" + connectionID.get() + "}] SendingService stopped!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addSendDoneCallback(final Callback<Object> callback) {
 		synchronized (callbacks) {
@@ -171,6 +183,9 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
 		NetCom2Utils.assertNotNull(linkedBlockingQueue);
@@ -178,6 +193,9 @@ class DefaultSendingService implements SendingService {
 		this.toSend = linkedBlockingQueue;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
 		NetCom2Utils.assertNotNull(outputStream, toSendFrom);
@@ -187,21 +205,36 @@ class DefaultSendingService implements SendingService {
 		logging.debug("[SendingService{" + connectionID.get() + "}] DefaultSendingService is now setup!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Awaiting started() {
 		return synchronize;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {
 		this.connectionID = supplier;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void softStop() {
 		running = false;
+		if(containingThread != null) {
+			containingThread.interrupt();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean running() {
 		return running;

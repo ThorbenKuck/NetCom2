@@ -37,7 +37,9 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 		if (clientOptional.isPresent() && toDeleteClientOptional.isPresent()) {
 			logging.trace("[" + identifier + "]: Client exists!");
 			final Client client = clientOptional.get();
+			logging.trace("[" + identifier + "]: Original Client: " + client);
 			final Client toDelete = toDeleteClientOptional.get();
+			logging.trace("[" + identifier + "]: Wrong Client: " + client);
 			try {
 				logging.trace("Awaiting primation of sending Client ..");
 				client.primed().synchronize();

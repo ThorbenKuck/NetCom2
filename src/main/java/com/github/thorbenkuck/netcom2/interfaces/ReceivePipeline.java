@@ -399,4 +399,11 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * correctly.
 	 */
 	void open();
+
+	/**
+	 * Returns the number of handlers contained within the ReceivePipeline.
+	 *
+	 * @return the count of all ReceivePipelineHandler
+	 */
+	int size();
 }
