@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @APILevel
-class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
+class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionRequest> {
 
 	private final Logging logging = Logging.unified();
 	private final Client client;
@@ -36,7 +37,7 @@ class NewConnectionResponseHandler implements OnReceive<NewConnectionRequest> {
 
 	@Asynchronous
 	@Override
-	public void accept(final Session session, final NewConnectionRequest o) {
+	public void accept(final NewConnectionRequest o) {
 		final Class key = o.getKey();
 		final String prefix = "[" + key.getSimpleName() + "-Connection]: ";
 		client.newPrimation();

@@ -1,24 +1,27 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
-import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatFactory;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class HeartBeatTest {
 
 	private int i = 1;
+	private final AtomicInteger counts = new AtomicInteger(0);
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
 	private void proceed(Object o) {
-		System.out.println(i + ": " + o);
 		i++;
+		counts.incrementAndGet();
 	}
 
 	@Test
 	public void testHeartBeatChain() throws Exception {
 		HeartBeat<String> heartBeat = heartBeatFactory.produce();
+		counts.set(0);
 
 		heartBeat.configure()
 				.tickRate()
@@ -41,9 +44,13 @@ public class HeartBeatTest {
 				.then()
 				.run("Test");
 
-		i = 1;
-		System.out.println("\n----\n");
+		assertEquals(3, counts.get());
+	}
 
+	@Test
+	public void testHeartBeatChain1() throws Exception {
+		HeartBeat<String> heartBeat = heartBeatFactory.produce();
+		counts.set(0);
 
 		heartBeat.configure()
 				.run()
@@ -62,6 +69,8 @@ public class HeartBeatTest {
 				.in(1, TimeUnit.SECONDS)
 				.then()
 				.run("Das ist ein Test", this::proceed);
+
+		assertEquals(11, counts.get());
 	}
 
 }

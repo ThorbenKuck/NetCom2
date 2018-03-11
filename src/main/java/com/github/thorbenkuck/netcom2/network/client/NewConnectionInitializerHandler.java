@@ -28,5 +28,6 @@ class NewConnectionInitializerHandler implements OnReceiveTriple<NewConnectionIn
 		NetCom2Utils.assertNotNull(connection, newConnectionInitializer);
 		logging.info("Setting new Connection to Key " + newConnectionInitializer.getConnectionKey());
 		client.setConnection(newConnectionInitializer.getConnectionKey(), connection);
+		client.removeFalseID(newConnectionInitializer.getToDeleteID());
 	}
 }

@@ -3,13 +3,12 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 
 @APILevel
-class RegisterResponseHandler implements OnReceive<RegisterResponse> {
+class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 
 	private final Logging logging = Logging.unified();
 	private final Cache cache;
@@ -23,7 +22,7 @@ class RegisterResponseHandler implements OnReceive<RegisterResponse> {
 
 	@Asynchronous
 	@Override
-	public void accept(final Session session, final RegisterResponse o) {
+	public void accept(final RegisterResponse o) {
 		if (o.isOkay()) {
 			try {
 				cache.acquire();
