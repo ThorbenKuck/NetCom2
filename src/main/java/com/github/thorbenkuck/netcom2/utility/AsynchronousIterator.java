@@ -9,7 +9,7 @@ import java.util.Queue;
 
 public class AsynchronousIterator<T> implements Iterator<T> {
 
-	private final Queue<T> clients;
+	private final Queue<T> core;
 	private T currentElement;
 	private final Collection<T> source;
 	private final boolean removeAllowed;
@@ -21,7 +21,7 @@ public class AsynchronousIterator<T> implements Iterator<T> {
 
 	@APILevel
 	AsynchronousIterator(final Collection<T> collection, boolean removeAllowed) {
-		clients = new LinkedList<>(collection);
+		core = new LinkedList<>(collection);
 		this.source = collection;
 		this.removeAllowed = removeAllowed;
 	}
@@ -31,7 +31,7 @@ public class AsynchronousIterator<T> implements Iterator<T> {
 	 */
 	@Override
 	public boolean hasNext() {
-		return clients.peek() != null;
+		return core.peek() != null;
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class AsynchronousIterator<T> implements Iterator<T> {
 	 */
 	@Override
 	public T next() {
-		currentElement = clients.poll();
+		currentElement = core.poll();
 		return currentElement;
 	}
 

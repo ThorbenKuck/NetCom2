@@ -29,7 +29,7 @@ class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 		if (o.isOkay()) {
 			try {
 				cache.acquire();
-				cache.addCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
+				cache.removeCacheObserver(sender.removePendingObserver(o.getRequest().getCorrespondingClass()));
 				logging.debug("Unregistered to Server-Push at " + o.getRequest().getCorrespondingClass());
 			} catch (InterruptedException e) {
 				logging.catching(e);

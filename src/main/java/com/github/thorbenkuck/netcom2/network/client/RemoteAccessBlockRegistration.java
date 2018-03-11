@@ -110,4 +110,18 @@ public class RemoteAccessBlockRegistration {
 			return responseMap.get(uuid);
 		}
 	}
+
+	@APILevel
+	int countSemaphores() {
+		synchronized (semaphoreMap) {
+			return semaphoreMap.size();
+		}
+	}
+
+	@APILevel
+	int countResponses() {
+		synchronized (responseMap) {
+			return responseMap.size();
+		}
+	}
 }
