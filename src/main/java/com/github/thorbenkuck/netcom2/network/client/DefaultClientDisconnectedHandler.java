@@ -56,17 +56,8 @@ class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 			logging.trace("Resetting Sender ..");
 			clientStart.send().reset();
 			logging.info("ClientStart has been cleaned up and can be reused");
-			clientStart.launched.set(false);
+			clientStart.launched().set(false);
 		});
-	}
-
-	/**
-	 * This DisconnectedHandler will always have the same priority
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getPriority() {
-		return 1;
 	}
 
 	/**

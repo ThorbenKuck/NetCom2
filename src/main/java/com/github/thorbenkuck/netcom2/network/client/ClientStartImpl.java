@@ -35,7 +35,11 @@ class ClientStartImpl implements ClientStart {
 	private InternalSender sender;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
 	@APILevel
-	AtomicBoolean launched = new AtomicBoolean(false);
+	private AtomicBoolean launched = new AtomicBoolean(false);
+
+	AtomicBoolean launched() {
+		return launched;
+	}
 
 	/**
 	 * The creation of the ClientStartImpl will:
