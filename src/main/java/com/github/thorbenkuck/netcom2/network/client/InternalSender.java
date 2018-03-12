@@ -26,4 +26,6 @@ interface InternalSender extends Sender {
 
 	@APILevel
 	<T> CacheObserver<T> getPendingObserver(final Class<T> clazz);
+
+	void setClient(Client client);
 }

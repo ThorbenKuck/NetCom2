@@ -54,6 +54,9 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
 		final Socket socket = factory.create(port, address);
+		if(socket == null) {
+			throw new IOException("Socket creation failed");
+		}
 		logging.trace("Creating Connection ..");
 		final Connection connection = connectionFactory.create(socket, client);
 		logging.trace("Starting to listen on new Connection ..");

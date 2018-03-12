@@ -31,8 +31,8 @@ class ClientStartImpl implements ClientStart {
 	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
-	private Client client;
-	private InternalSender sender;
+	@APILevel Client client;
+	@APILevel InternalSender sender;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
 	@APILevel
 	private AtomicBoolean launched = new AtomicBoolean(false);
@@ -71,6 +71,12 @@ class ClientStartImpl implements ClientStart {
 		sender = InternalSender.create(client);
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
 		remoteObjectFactoryImpl = new RemoteObjectFactoryImpl(sender);
+	}
+
+	private void requireRunning() {
+		if(!launched().get()) {
+			throw new IllegalStateException("Launch required!");
+		}
 	}
 
 	/**
@@ -115,6 +121,7 @@ class ClientStartImpl implements ClientStart {
 	@Override
 	public Awaiting createNewConnection(final Class key) {
 		NetCom2Utils.assertNotNull(key);
+		requireRunning();
 		logging.trace("Trying to establish new Connection ..");
 		return clientConnectionEstablish.newFor(key, client);
 	}
