@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.server;
+package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
@@ -13,12 +13,12 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
  */
 @APILevel
 @Synchronized
-public class ClientSendBridge implements SendBridge {
+class ClientSendBridge implements SendBridge {
 
 	private final Client client;
 	private final Logging logging = Logging.unified();
 
-	public ClientSendBridge(final Client client) {
+	ClientSendBridge(final Client client) {
 		this.client = client;
 	}
 

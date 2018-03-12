@@ -124,7 +124,7 @@ public interface Client extends Mutex {
 	/**
 	 * Returns the internal Session for this Client.
 	 * The Session is created upon calling {@link #setup()}.
-	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses an {@link com.github.thorbenkuck.netcom2.network.server.ClientSendBridge}
+	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses an {@link com.github.thorbenkuck.netcom2.interfaces.SendBridge}
 	 * which is individual for each Client. Therefor every Session is unique for every Client, even tho multiple Session may have the same attribute.
 	 *
 	 * @return the internally set {@link Session}

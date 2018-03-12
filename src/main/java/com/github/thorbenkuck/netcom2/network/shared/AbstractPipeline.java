@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -145,7 +146,7 @@ public abstract class AbstractPipeline<T, C extends Collection<PipelineElement<T
 
 	protected final void assertClosed() {
 		if (closed) {
-			throw new RuntimeException("Cannot getDefaultJavaSerialization closed Pipeline!");
+			throw new PipelineAccessException("Cannot getDefaultJavaSerialization closed Pipeline!");
 		}
 	}
 }
