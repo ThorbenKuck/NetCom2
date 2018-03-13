@@ -1,15 +1,23 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
+import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +74,7 @@ public class ClientStartImplTest {
 
 		// Assert
 		// Assert via expected Exception
+		fail();
 	}
 
 	@Test
@@ -130,6 +139,7 @@ public class ClientStartImplTest {
 
 		// Assert
 		// No assert, assert through expected Exception
+		fail();
 	}
 
 	@Test (expected = IllegalStateException.class)
@@ -146,6 +156,7 @@ public class ClientStartImplTest {
 
 		// Assert
 		// No assert, assert through expected Exception
+		fail();
 	}
 
 	@Test
@@ -182,34 +193,172 @@ public class ClientStartImplTest {
 
 	@Test
 	public void addFallBackSerialization() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		SerializationAdapter<Object, String> adapter = new SerializationAdapter<Object, String>() {
+			@Override
+			public String get(final Object o) throws SerializationFailedException {
+				return o.toString();
+			}
+		};
+
+		// Act
+		clientStart.addFallBackSerialization(adapter);
+
+		// Assert
+		verify(clientStart.client).addFallBackSerialization(eq(adapter));
 	}
 
 	@Test
 	public void addFallBackDeSerialization() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		DeSerializationAdapter<String, Object> adapter = new DeSerializationAdapter<String, Object>() {
+			@Override
+			public Object get(final String o) throws DeSerializationFailedException {
+				return o;
+			}
+		};
+
+		// Act
+		clientStart.addFallBackDeSerialization(adapter);
+
+		// Assert
+		verify(clientStart.client).addFallBackDeSerialization(eq(adapter));
 	}
 
 	@Test
 	public void setMainSerializationAdapter() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		SerializationAdapter<Object, String> adapter = new SerializationAdapter<Object, String>() {
+			@Override
+			public String get(final Object o) throws SerializationFailedException {
+				return o.toString();
+			}
+		};
+
+		// Act
+		clientStart.setMainSerializationAdapter(adapter);
+
+		// Assert
+		verify(clientStart.client).setMainSerializationAdapter(eq(adapter));
 	}
 
 	@Test
 	public void setMainDeSerializationAdapter() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		DeSerializationAdapter<String, Object> adapter = new DeSerializationAdapter<String, Object>() {
+			@Override
+			public Object get(final String o) throws DeSerializationFailedException {
+				return o;
+			}
+		};
+
+		// Act
+		clientStart.setMainDeSerializationAdapter(adapter);
+
+		// Assert
+		verify(clientStart.client).setMainDeSerializationAdapter(eq(adapter));
 	}
 
 	@Test
 	public void addDisconnectedHandler() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		DisconnectedHandler disconnectedHandler = new DisconnectedHandler() {
+			@Override
+			public void handle(final Client client) {
+			}
+		};
+
+		// Act
+		clientStart.addDisconnectedHandler(disconnectedHandler);
+
+		// Assert
+		verify(clientStart.client).addDisconnectedHandler(eq(disconnectedHandler));
 	}
 
 	@Test
 	public void setDecryptionAdapter() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		DecryptionAdapter decryptionAdapter = new DecryptionAdapter() {
+			@Override
+			public String get(final String s) {
+				return s;
+			}
+		};
+
+		// Act
+		clientStart.setDecryptionAdapter(decryptionAdapter);
+
+		// Assert
+		verify(clientStart.client).setDecryptionAdapter(eq(decryptionAdapter));
 	}
 
 	@Test
 	public void setEncryptionAdapter() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		EncryptionAdapter encryptionAdapter = new EncryptionAdapter() {
+			@Override
+			public String get(final String s) {
+				return s;
+			}
+		};
+
+		// Act
+		clientStart.setEncryptionAdapter(encryptionAdapter);
+
+		// Assert
+		verify(clientStart.client).setEncryptionAdapter(eq(encryptionAdapter));
 	}
 
 	@Test
 	public void getCommunicationRegistration() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+
+		// Act
+		CommunicationRegistration communicationRegistration = clientStart.getCommunicationRegistration();
+
+		// Assert
+		assertNotNull(communicationRegistration);
+	}
+
+	@Test
+	public void getCommunicationRegistration1() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		when(clientStart.client.primed()).thenReturn(Synchronize.empty());
+
+		// Act
+		CommunicationRegistration communicationRegistration = clientStart.getCommunicationRegistration();
+		clientStart.launch();
+
+		// Assert
+		assertNotNull(communicationRegistration);
+		assertEquals(communicationRegistration, clientStart.getCommunicationRegistration());
 	}
 
 	@Test

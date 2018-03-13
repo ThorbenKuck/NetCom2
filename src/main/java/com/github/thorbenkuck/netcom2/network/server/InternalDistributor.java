@@ -1,6 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 @APILevel
 interface InternalDistributor extends Distributor {
@@ -29,4 +33,10 @@ interface InternalDistributor extends Distributor {
 	 */
 	@APILevel
 	DistributorRegistration getDistributorRegistration();
+
+	void toSpecific(Object o, List<Predicate<Session>> predicates);
+
+	void toAllExcept(Object o, List<Predicate<Session>> predicates);
+
+	void toRegistered(Object o, List<Predicate<Session>> predicates);
 }

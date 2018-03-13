@@ -7,9 +7,8 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Predicate;
 
 @APILevel
@@ -33,8 +32,7 @@ class DistributorImpl implements InternalDistributor {
 	 * @param predicates the predicates, that define whether or not the Session is applicable
 	 * @return true, if all predicates are applicable, else false
 	 */
-	@SafeVarargs
-	private final boolean testAgainst(final Session session, final Predicate<Session>... predicates) {
+	private boolean testAgainst(final Session session, final List<Predicate<Session>> predicates) {
 		for (final Predicate<Session> predicate : predicates) {
 			if (!predicate.test(session)) {
 				return false;
@@ -54,10 +52,8 @@ class DistributorImpl implements InternalDistributor {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Asynchronous
 	@Override
-	@SafeVarargs
-	public synchronized final void toSpecific(final Object o, final Predicate<Session>... predicates) {
+	public void toSpecific(final Object o, final List<Predicate<Session>> predicates) {
 		final List<Session> clientsToSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -72,17 +68,24 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	@Asynchronous
 	@Override
-	public final void toAll(final Object o) {
-		toSpecific(o, Objects::nonNull);
+	public synchronized final void toSpecific(final Object o, final Predicate<Session>... predicates) {
+		toSpecific(o, Arrays.asList(predicates));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Asynchronous
-	@SafeVarargs
 	@Override
-	public synchronized final void toAllExcept(final Object o, final Predicate<Session>... predicates) {
+	public final void toAll(final Object o) {
+		toSpecific(o, new ArrayList<>(Collections.singletonList(Session::isIdentified)));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public synchronized final void toAllExcept(final Object o, final List<Predicate<Session>> predicates) {
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -96,9 +99,19 @@ class DistributorImpl implements InternalDistributor {
 	 * {@inheritDoc}
 	 */
 	@Asynchronous
+	@SafeVarargs
+	@Override
+	public synchronized final void toAllExcept(final Object o, final Predicate<Session>... predicates) {
+		toAllExcept(o, Arrays.asList(predicates));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Asynchronous
 	@Override
 	public final void toAllIdentified(final Object o) {
-		toSpecific(o, Session::isIdentified);
+		toSpecific(o, Collections.singletonList(Session::isIdentified));
 	}
 
 	/**
@@ -108,8 +121,10 @@ class DistributorImpl implements InternalDistributor {
 	@SafeVarargs
 	@Override
 	public final void toAllIdentified(final Object o, final Predicate<Session>... predicates) {
-		predicates[predicates.length - 1] = Session::isIdentified;
-		toSpecific(o, predicates);
+		List<Predicate<Session>> list = new ArrayList<>();
+		list.addAll(Arrays.asList(predicates));
+		list.add(Session::isIdentified);
+		toSpecific(o, list);
 	}
 
 	/**
@@ -118,16 +133,14 @@ class DistributorImpl implements InternalDistributor {
 	@Asynchronous
 	@Override
 	public final void toRegistered(final Object o) {
-		toRegistered(o, Objects::nonNull);
+		toRegistered(o, Collections.singletonList(Objects::nonNull));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Asynchronous
 	@Override
-	@SafeVarargs
-	public final void toRegistered(final Object o, final Predicate<Session>... predicates) {
+	public final void toRegistered(final Object o, final List<Predicate<Session>> predicates) {
 		final List<Session> toSendTo;
 		synchronized (distributorRegistration) {
 			toSendTo = distributorRegistration.getRegistered(o.getClass());
@@ -139,6 +152,16 @@ class DistributorImpl implements InternalDistributor {
 					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
 					user.send(new CachePush(o));
 				});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Asynchronous
+	@SafeVarargs
+	@Override
+	public final void toRegistered(final Object o, final Predicate<Session>... predicates) {
+		toRegistered(o, Arrays.asList(predicates));
 	}
 
 	/**

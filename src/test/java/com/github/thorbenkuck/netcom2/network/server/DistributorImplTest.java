@@ -14,11 +14,19 @@ public class DistributorImplTest {
 	}
 
 	@Test
+	public void toSpecificList() throws Exception {
+	}
+
+	@Test
 	public void toAll() throws Exception {
 	}
 
 	@Test
 	public void toAllExcept() throws Exception {
+	}
+
+	@Test
+	public void toAllExceptList() throws Exception {
 	}
 
 	@Test
@@ -35,6 +43,10 @@ public class DistributorImplTest {
 
 	@Test
 	public void toRegistered1() throws Exception {
+	}
+
+	@Test
+	public void toRegisteredList() throws Exception {
 	}
 
 }
