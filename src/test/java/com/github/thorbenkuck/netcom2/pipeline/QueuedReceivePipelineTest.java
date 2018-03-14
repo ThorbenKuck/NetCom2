@@ -271,6 +271,7 @@ public class QueuedReceivePipelineTest {
 		// Assert
 		assertTrue(pipeline.isSealed());
 		pipeline.close();
+		fail();
 	}
 
 	@Test (expected = PipelineAccessException.class)
@@ -285,6 +286,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.isClosed());
 		pipeline.seal();
 		pipeline.open();
+		fail();
 	}
 
 	@Test
@@ -338,6 +340,7 @@ public class QueuedReceivePipelineTest {
 		pipeline.ifClosed(() -> {
 			throw new PipelineAccessException("");
 		});
+		fail();
 	}
 
 	@Test
@@ -364,6 +367,7 @@ public class QueuedReceivePipelineTest {
 
 		// Assert
 		pipeline.to(new Handler());
+		fail();
 	}
 
 	@Test(expected = PipelineAccessException.class)
@@ -378,6 +382,7 @@ public class QueuedReceivePipelineTest {
 
 		// Assert
 		// Through Exception
+		fail();
 	}
 
 	@Test
@@ -475,6 +480,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.isSealed());
 		assertFalse(pipeline.isClosed());
 		pipeline.close();
+		fail();
 	}
 
 	@Test
