@@ -1,14 +1,18 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.keller.pipe.PipelineCondition;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
+import com.github.thorbenkuck.netcom2.network.shared.Callback;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
-import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -26,7 +30,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	private final Socket socket;
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
-	private final Pipeline<Connection> disconnectedPipeline = new QueuedPipeline<>();
+	private final Pipeline<Connection> disconnectedPipeline = Pipeline.unifiedCreation();
 	private final Semaphore semaphore = new Semaphore(1);
 	private boolean setup;
 	private boolean started;

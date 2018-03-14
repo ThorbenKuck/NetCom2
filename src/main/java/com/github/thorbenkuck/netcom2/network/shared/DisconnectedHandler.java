@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 
 @FunctionalInterface
 public interface DisconnectedHandler {

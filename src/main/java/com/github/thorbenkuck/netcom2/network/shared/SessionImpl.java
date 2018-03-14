@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
@@ -126,7 +127,7 @@ class SessionImpl implements Session {
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
 		pipelines.computeIfAbsent(clazz, k -> {
 			logging.trace("Adding new SessionEventPipeline for " + clazz);
-			return new QueuedPipeline<>();
+			return Pipeline.unifiedCreation();
 		});
 		return (Pipeline<T>) pipelines.get(clazz);
 	}

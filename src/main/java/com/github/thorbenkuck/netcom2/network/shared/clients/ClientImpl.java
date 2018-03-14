@@ -1,13 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -35,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 class ClientImpl implements Client {
 
-	private final Pipeline<Client> disconnectedHandlers = new QueuedPipeline<>();
+	private final Pipeline<Client> disconnectedHandlers = Pipeline.unifiedCreation();
 	private final Set<SerializationAdapter<Object, String>> fallBackSerialization = new HashSet<>();
 	private final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization = new HashSet<>();
 	private final Map<Object, Connection> connections = new HashMap<>();

@@ -12,7 +12,7 @@ import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 import java.util.function.Consumer;
 
 /**
- * A ReceivePipeline differs from the {@link com.github.thorbenkuck.netcom2.network.shared.Pipeline}, by the Class,
+ * A ReceivePipeline differs from the {@link com.github.thorbenkuck.keller.pipe.Pipeline}, by the Class,
  * which they hold.
  * <p>
  * It holds the OnReceive-Family instead of the {@link Consumer}. With method-overloading, you may provide any of the
