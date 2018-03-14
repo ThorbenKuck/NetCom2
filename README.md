@@ -5,6 +5,8 @@ It is designed to function as an over-network EventBus.
 
 NOTE: The documentation is still in Work!
 
+__Currently the Tests are written. Expect bad Codacy Grades untill all tests are filled!__
+
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)    
 [![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser)    
