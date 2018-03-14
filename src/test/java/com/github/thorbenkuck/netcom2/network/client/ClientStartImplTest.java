@@ -1,9 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
-import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
-import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
-import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.*;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
@@ -25,6 +22,7 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.TestCase.*;
@@ -66,7 +64,7 @@ public class ClientStartImplTest {
 	@Test (expected = StartFailedException.class)
 	public void launchNeg() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(((port, address) -> null));
 
 		// Act
@@ -80,7 +78,7 @@ public class ClientStartImplTest {
 	@Test
 	public void cache() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
 		final AtomicBoolean success = new AtomicBoolean(false);
 		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
@@ -130,9 +128,8 @@ public class ClientStartImplTest {
 	@Test (expected = IllegalStateException.class)
 	public void createNewConnectionNeg() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
-		clientStart.client = mock(Client.class);
 
 		// Act
 		clientStart.createNewConnection(TestSendObject.class);
@@ -145,11 +142,10 @@ public class ClientStartImplTest {
 	@Test (expected = IllegalStateException.class)
 	public void setSocketFactory() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
 		SocketFactory socketFactory = mock(SocketFactory.class);
 		when(socketFactory.create(anyInt(), anyString())).thenThrow(new IllegalStateException());
 		clientStart.setSocketFactory(socketFactory);
-		clientStart.client = mock(Client.class);
 
 		// Act
 		clientStart.launch();
@@ -333,9 +329,8 @@ public class ClientStartImplTest {
 	@Test
 	public void getCommunicationRegistration() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
-		clientStart.client = mock(Client.class);
 
 		// Act
 		CommunicationRegistration communicationRegistration = clientStart.getCommunicationRegistration();
@@ -363,25 +358,91 @@ public class ClientStartImplTest {
 
 	@Test
 	public void clearCache() throws Exception {
+		// Arrange
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		final AtomicBoolean success = new AtomicBoolean(false);
+		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
+			@Override
+			public void newEntry(final TestSendObject testSendObject, final CacheObservable observable) {
+				success.set(! success.get());
+			}
+
+			@Override
+			public void updatedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
+				success.set(! success.get());
+			}
+
+			@Override
+			public void deletedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
+				success.set(! success.get());
+			}
+		};
+
+		// Act
+		clientStart.cache().addCacheObserver(observer);
+		Cache cache = clientStart.cache();
+		clientStart.clearCache();
+
+		// Assert
+		assertEquals(cache, clientStart.cache());
+		assertEquals(0, cache.countObservers());
 	}
 
-	@Test
-	public void setLogging() throws Exception {
-	}
-
-	@Test
+	@Test(expected = RemoteObjectNotRegisteredException.class)
 	public void getRemoteObject() throws Exception {
+		// Arrange
+		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+		clientStart.client = mock(Client.class);
+		when(clientStart.client.send(any())).thenThrow(new SendFailedException(""));
+
+		// Act
+		RemoteTest object = clientStart.getRemoteObject(RemoteTest.class);
+		assertNotNull(object);
+		object.doSomething();
+
+		// Assert
+		fail();
 	}
 
 	@Test
 	public void getRemoteObjectFactory() throws Exception {
+		// Arrange
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+
+		// Act
+		RemoteObjectFactory factory = clientStart.getRemoteObjectFactory();
+
+		// Assert
+		assertNotNull(factory);
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void updateRemoteInvocationProducer() throws Exception {
+		// Arrange
+		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
+		clientStart.setSocketFactory(mockedSocketFactory);
+
+		// Act
+		clientStart.updateRemoteInvocationProducer(new InvocationHandlerProducer() {
+			@Override
+			public <T> JavaRemoteInformationInvocationHandler<T> produce(final UUID uuid, final Class<T> clazz) {
+				return null;
+			}
+		});
+
+		// Assert
+		clientStart.getRemoteObject(RemoteTest.class);
+		fail();
 	}
 
 	private class TestSendObject {
+	}
+
+	private interface RemoteTest {
+		void doSomething();
 	}
 
 }

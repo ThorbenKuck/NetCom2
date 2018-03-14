@@ -32,5 +32,7 @@ public interface Cache extends Mutex {
 
 	void clearObservers();
 
+	int countObservers();
+
 	void reset();
 }
