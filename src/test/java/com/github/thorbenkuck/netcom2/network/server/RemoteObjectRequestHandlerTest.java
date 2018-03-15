@@ -7,6 +7,12 @@ import static org.junit.Assert.*;
 public class RemoteObjectRequestHandlerTest {
 	@Test
 	public void accept() throws Exception {
+		// Arrange
+
+		// Act
+
+		// Assert
+		fail();
 	}
 
 }
