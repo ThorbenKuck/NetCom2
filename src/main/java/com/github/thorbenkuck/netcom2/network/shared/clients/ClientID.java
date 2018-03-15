@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -23,14 +24,16 @@ public class ClientID implements Serializable {
 	}
 
 	public static ClientID fromString(String s) {
+		NetCom2Utils.assertNotNull(s);
 		return new ClientID(UUID.fromString(s));
 	}
 
 	public static boolean isEmpty(final ClientID clientID) {
-		return clientID.id == null;
+		return clientID != null && clientID.id == null;
 	}
 
 	public void ifEmpty(final Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		if (isEmpty()) {
 			runnable.run();
 		}
@@ -41,6 +44,7 @@ public class ClientID implements Serializable {
 	}
 
 	public void ifNotEmpty(final Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		if (! isEmpty()) {
 			runnable.run();
 		}

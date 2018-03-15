@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.synchronization;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.AbstractSynchronize;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class DefaultSynchronize extends AbstractSynchronize {
 
@@ -32,6 +33,7 @@ public class DefaultSynchronize extends AbstractSynchronize {
 	 * @param runnable the runnable, that should be executed.
 	 */
 	public void setOnError(Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		synchronized (this) {
 			onError = runnable;
 		}

@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.cache;
 
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	public void update(final Object object) {
 		logging.trace("Trying to update an existing Object(" + object + ") to Cache ..");
+		NetCom2Utils.parameterNotNull(object);
 		if (isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
@@ -49,6 +51,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	public void addNew(final Object object) {
 		logging.trace("Trying to add a new Object(" + object + ") to Cache ..");
+		NetCom2Utils.parameterNotNull(object);
 		if (! isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
@@ -62,6 +65,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public void addAndOverride(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		if (! isSet(object.getClass())) {
 			addNew(object);
 		} else {
@@ -72,6 +76,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	public void remove(final Class clazz) {
 		logging.trace("Trying to isRemovable Object(" + clazz + ") to Cache ..");
+		NetCom2Utils.parameterNotNull(clazz);
 		if (isSet(clazz)) {
 			final Object removedEntry;
 			synchronized (internals) {
@@ -85,6 +90,7 @@ public class CacheImpl extends CacheObservable implements Cache {
 	@Override
 	@SuppressWarnings ("unchecked")
 	public <T> Optional<T> get(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		final Object retrieved;
 		synchronized (internals) {
 			retrieved = internals.get(clazz);
@@ -97,18 +103,21 @@ public class CacheImpl extends CacheObservable implements Cache {
 
 	@Override
 	public boolean isSet(final Class<?> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		return get(clazz).isPresent();
 	}
 
 	@Override
 	public <T> void addCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
+		NetCom2Utils.parameterNotNull(cacheObserver);
 		addObserver(cacheObserver);
 	}
 
 	@Override
 	public <T> void removeCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
+		NetCom2Utils.parameterNotNull(cacheObserver);
 		deleteObserver(cacheObserver);
 	}
 
@@ -116,12 +125,14 @@ public class CacheImpl extends CacheObservable implements Cache {
 	public void addGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Adding Observer(" + observer + ") to " + toString());
 		logging.warn("It is recommended to use " + CacheObserver.class);
+		NetCom2Utils.parameterNotNull(observer);
 		addObserver(observer);
 	}
 
 	@Override
 	public void removeGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Removing Observer(" + observer + ") from " + toString());
+		NetCom2Utils.parameterNotNull(observer);
 		deleteObserver(observer);
 	}
 
