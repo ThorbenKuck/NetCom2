@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -54,6 +55,7 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	@Override
 	public void toSpecific(final Object o, final List<Predicate<Session>> predicates) {
+		NetCom2Utils.parameterNotNull(o, predicates);
 		final List<Session> clientsToSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -66,6 +68,7 @@ class DistributorImpl implements InternalDistributor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SafeVarargs
 	@Asynchronous
 	@Override
 	public synchronized final void toSpecific(final Object o, final Predicate<Session>... predicates) {
@@ -86,6 +89,7 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	@Override
 	public synchronized final void toAllExcept(final Object o, final List<Predicate<Session>> predicates) {
+		NetCom2Utils.parameterNotNull(o, predicates);
 		final List<Session> toSendTo = new ArrayList<>();
 		synchronized (clientList) {
 			clientList.sessionStream()
@@ -141,6 +145,7 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	@Override
 	public final void toRegistered(final Object o, final List<Predicate<Session>> predicates) {
+		NetCom2Utils.parameterNotNull(o, predicates);
 		final List<Session> toSendTo;
 		synchronized (distributorRegistration) {
 			toSendTo = distributorRegistration.getRegistered(o.getClass());
