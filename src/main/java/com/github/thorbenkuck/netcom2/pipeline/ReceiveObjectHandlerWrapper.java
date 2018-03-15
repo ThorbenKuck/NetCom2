@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,6 +36,7 @@ class ReceiveObjectHandlerWrapper {
 	}
 
 	public <T> OnReceiveTriple<T> wrap(final Object o, final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(o, clazz);
 		final Optional<Method> methodOptional = getResponsibleForClass(o, clazz);
 		if (! methodOptional.isPresent()) {
 			throw new NoCorrectHandlerFoundException(

@@ -29,6 +29,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 
 	@Override
 	public final boolean test(final Connection connection, final Session session, final T t) {
+		NetCom2Utils.parameterNotNull(session, t);
 		return biPredicate.test(session, t);
 	}
 
@@ -37,10 +38,17 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 		return biPredicate.hashCode();
 	}
 
-	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
-		return o != null && biPredicate.equals(o);
+		if(o == null) {
+			return false;
+		}
+
+		if(o instanceof OnReceivePredicateWrapper) {
+			return biPredicate.equals(((OnReceivePredicateWrapper) o).biPredicate);
+		}
+
+		return biPredicate.equals(o);
 	}
 
 	@Override
