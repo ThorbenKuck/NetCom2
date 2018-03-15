@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This internally used Class is responsible for establishing a new Connection.
@@ -32,6 +33,7 @@ class ClientConnectionEstablish {
 	@APILevel
 	@Asynchronous
 	Awaiting newFor(final Class key, final Client client) {
+		NetCom2Utils.parameterNotNull(key, client);
 		Awaiting awaiting = client.prepareConnection(key);
 		logging.debug("[" + key + "]: Awaiting response from Server to establish new Connection ..");
 		client.send(new NewConnectionRequest(key));
