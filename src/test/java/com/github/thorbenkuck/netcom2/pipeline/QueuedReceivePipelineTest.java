@@ -355,6 +355,7 @@ public class QueuedReceivePipelineTest {
 		pipeline.ifClosed(() -> {
 			throw new PipelineAccessException("");
 		});
+		assertTrue(!pipeline.isClosed());
 	}
 
 	@Test(expected = PipelineAccessException.class)

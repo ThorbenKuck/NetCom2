@@ -7,6 +7,12 @@ import static org.junit.Assert.*;
 public class PingRequestHandlerTest {
 	@Test
 	public void accept() throws Exception {
+		// Arrange
+
+		// Act
+
+		// Assert
+		fail();
 	}
 
 }

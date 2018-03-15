@@ -77,6 +77,7 @@ public class JavaRemoteInformationInvocationHandlerTest {
 
 		// Assert
 		handler.invoke(null, TestInterface.class.getMethod("testMethod"), new Object[0]);
+		fail();
 	}
 
 	@Test
