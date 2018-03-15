@@ -19,6 +19,7 @@ public class NetComThreadFactory implements ThreadFactory {
 
 	@Override
 	public Thread newThread(Runnable r) {
+		NetCom2Utils.parameterNotNull(r);
 		NetComThread thread = new NetComThread(threadGroup, r);
 		thread.setNetComThreadContainer(threadContainer);
 		thread.setDaemon(daemon.get());
@@ -26,6 +27,7 @@ public class NetComThreadFactory implements ThreadFactory {
 	}
 
 	public void onThreadFinished(Consumer<Thread> threadConsumer) {
+		NetCom2Utils.parameterNotNull(threadConsumer);
 		threadContainer.addThreadFinishedConsumer(threadConsumer);
 	}
 
