@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test
@@ -39,6 +41,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test
@@ -52,6 +55,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test
@@ -84,6 +88,7 @@ public class RemoteObjectFactoryImplTest {
 		// Assert
 		// IllegalStateException will be thrown
 		remoteObjectFactory.create(TestInterface.class);
+		fail();
 	}
 
 	@Test (expected = IllegalArgumentException.class)
@@ -146,6 +151,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test
@@ -160,6 +166,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test
@@ -173,6 +180,7 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
+		fail();
 	}
 
 	@Test (expected = RemoteObjectNotRegisteredException.class)

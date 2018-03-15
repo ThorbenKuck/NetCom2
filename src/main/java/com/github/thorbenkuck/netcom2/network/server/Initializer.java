@@ -88,6 +88,11 @@ class Initializer {
 		}
 	}
 
+	/**
+	 * This method-call is empty, so that nothing is done, if a Acknowledge arrives
+	 *
+	 * @param acknowledge the ignored acknowledge
+	 */
 	@ReceiveHandler
 	private void handleAck(Acknowledge acknowledge) {
 	}
