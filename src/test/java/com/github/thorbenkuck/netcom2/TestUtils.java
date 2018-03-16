@@ -15,6 +15,7 @@ public final class TestUtils {
     /**
      * Constructs a matcher to test for exact equality of the <b>contents</b> of the collection to test,
      * <b>except for order</b>.
+     *
      * @param items The collection of expected elements
      * @param <T> The type of the elements of the collection
      * @return a TypeSafeDiagnosingMatcher to be passed as second parameter of assertThat
