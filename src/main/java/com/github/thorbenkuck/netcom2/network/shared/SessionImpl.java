@@ -1,11 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;

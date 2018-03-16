@@ -10,7 +10,8 @@ import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.Executors;

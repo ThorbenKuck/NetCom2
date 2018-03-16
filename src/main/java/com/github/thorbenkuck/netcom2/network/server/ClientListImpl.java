@@ -2,7 +2,6 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -13,7 +12,6 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
@@ -51,14 +49,14 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void add(final Client client) {
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
 		try {
 			clientLock.lock();
-			if(!isOpen()) {
+			if (! isOpen()) {
 				logging.warn("Tried to add Client to a closed ClientList! Potential internal Problem..");
 				return;
 			}
@@ -70,14 +68,14 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void remove(final Client client) {
 		logging.debug("Removing Client " + client.getID() + " from ClientList");
 		try {
 			clientLock.lock();
-			if(!isOpen()) {
+			if (! isOpen()) {
 				logging.warn("Tried to remove Client from a closed ClientList! Potential internal Problem..");
 				return;
 			}
@@ -89,14 +87,14 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void clear() {
 		logging.debug("Clearing the ClientList");
 		try {
 			clientLock.lock();
-			if(!isOpen()) {
+			if (! isOpen()) {
 				logging.warn("Tried to clear a closed ClientList! Potential internal Problem..");
 				return;
 			}
@@ -108,13 +106,13 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Optional<Client> getClient(final Session session) {
 		try {
 			clientLock.lock();
-			if(!isOpen()) {
+			if (! isOpen()) {
 				return Optional.empty();
 			}
 			return clients.values().stream().filter(client -> client.getSession().equals(session)).findFirst();
@@ -124,13 +122,13 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Optional<Client> getClient(final ClientID id) {
 		try {
 			clientLock.lock();
-			if(!isOpen()) {
+			if (! isOpen()) {
 				return Optional.empty();
 			}
 			return clients.values().stream().filter(client -> client.getID().equals(id)).findFirst();
@@ -140,7 +138,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Stream<Session> sessionStream() {
@@ -157,7 +155,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Stream<Client> stream() {
@@ -165,7 +163,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void close() {
@@ -182,7 +180,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void open() {
@@ -195,7 +193,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean isOpen() {
@@ -203,7 +201,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Iterator<Client> iterator() {
@@ -211,7 +209,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {
@@ -219,7 +217,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void acquire() throws InterruptedException {
@@ -227,7 +225,7 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void release() {

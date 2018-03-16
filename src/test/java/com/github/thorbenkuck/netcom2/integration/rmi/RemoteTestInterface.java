@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExce
 
 public interface RemoteTestInterface {
 
-	@IgnoreRemoteExceptions(exceptTypes = {IllegalArgumentException.class, IllegalStateException.class})
+	@IgnoreRemoteExceptions (exceptTypes = { IllegalArgumentException.class, IllegalStateException.class })
 	String getHelloWorld();
 
 }

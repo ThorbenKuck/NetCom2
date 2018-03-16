@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.comm;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class DefaultCommunicationRegistrationTest {
 	@Test

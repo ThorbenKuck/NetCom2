@@ -38,7 +38,7 @@ public class ClientStartImplTest {
 	private SocketFactory mockedSocketFactory;
 
 	@Before
-	public void setup() throws Exception {
+	public void beforeEachTest() throws Exception {
 		mockedSocketFactory = ((port, address) -> mockedSocket);
 		when(mockedSocket.getInputStream()).thenReturn(mockedInputStream);
 		when(mockedSocket.getOutputStream()).thenReturn(mockedOutputStream);
@@ -389,7 +389,7 @@ public class ClientStartImplTest {
 		assertEquals(0, cache.countObservers());
 	}
 
-	@Test(expected = RemoteObjectNotRegisteredException.class)
+	@Test (expected = RemoteObjectNotRegisteredException.class)
 	public void getRemoteObject() throws Exception {
 		// Arrange
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -419,7 +419,7 @@ public class ClientStartImplTest {
 		assertNotNull(factory);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test (expected = IllegalStateException.class)
 	public void updateRemoteInvocationProducer() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -438,11 +438,11 @@ public class ClientStartImplTest {
 		fail();
 	}
 
-	private class TestSendObject {
-	}
-
 	private interface RemoteTest {
 		void doSomething();
+	}
+
+	private class TestSendObject {
 	}
 
 }

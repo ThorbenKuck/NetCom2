@@ -13,9 +13,9 @@ import com.github.thorbenkuck.netcom2.network.client.InvocationHandlerProducer;
  * <code>
  * class Example {
  * private ClientStart clientStart;
- *
+ * <p>
  * ...
- *
+ * <p>
  * public void run() {
  * TestObject testObject = clientStart.getRemoteObject(TestObject.class);
  * }

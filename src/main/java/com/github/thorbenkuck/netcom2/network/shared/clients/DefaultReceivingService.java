@@ -5,8 +5,8 @@ import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SetupError;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -14,6 +14,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -107,7 +108,7 @@ class DefaultReceivingService implements ReceivingService {
 				communicationRegistration.acquire();
 				communicationRegistration.trigger(object.getClass(), connection, session, object);
 			} catch (final InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			} finally {
 				communicationRegistration.release();
 			}
@@ -229,7 +230,7 @@ class DefaultReceivingService implements ReceivingService {
 				in = new Scanner(connection.getInputStream());
 			}
 		} catch (IOException e) {
-			throw new Error(e);
+			throw new SetupError(e);
 		}
 	}
 

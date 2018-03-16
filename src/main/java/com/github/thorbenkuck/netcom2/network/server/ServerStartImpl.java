@@ -54,7 +54,7 @@ class ServerStartImpl implements ServerStart {
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
 		addClientConnectedHandler(
-				new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
+				new DefaultClientHandler(clientList, communicationRegistration, registration));
 		logging.trace("Setting DefaultServerSocketFactory ..");
 		setServerSocketFactory(new DefaultServerSocketFactory());
 	}
@@ -67,7 +67,7 @@ class ServerStartImpl implements ServerStart {
 	 * @see #acceptNextClient()
 	 */
 	private void handle(final Socket socket) {
-		if(!running) {
+		if (! running) {
 			return;
 		}
 		logging.debug("Handling new Socket: " + socket);
@@ -86,13 +86,13 @@ class ServerStartImpl implements ServerStart {
 
 	/**
 	 * Creates a Client, based on the provided ClientConnectedHandlers.
-	 *
+	 * <p>
 	 * Utilizes all previously set ClientConnectedHandlers.
-	 *
+	 * <p>
 	 * If ANY ClientConnectedHandler creates a Client, it will be used as the new Client. Whenever a new Client is created,
 	 * it overrides the previously created Client.
 	 *
-	 * @param list the ClientConnectedHandlers
+	 * @param list   the ClientConnectedHandlers
 	 * @param socket the Socket, the Client just connected with
 	 * @return a new Instance of the Client Class
 	 */
@@ -117,10 +117,10 @@ class ServerStartImpl implements ServerStart {
 
 	/**
 	 * Calling this Method will Stop the Server and ALL running threads.
-	 *
+	 * <p>
 	 * Since calling this Method will result in an shutdown of the {@link NetCom2Utils} NetComThread, this will be unusable
 	 * in the future.
-	 *
+	 * <p>
 	 * This will result in all Queued Runnable of {@link NetCom2Utils#runLater(Runnable)} or {@link NetCom2Utils#runOnNetComThread(Runnable)}
 	 * to be shut down forcefully.
 	 */
@@ -157,7 +157,7 @@ class ServerStartImpl implements ServerStart {
 				startFailedException.addSuppressed(e1);
 			}
 			throw startFailedException;
-		} catch(StartFailedException startFailedException) {
+		} catch (StartFailedException startFailedException) {
 			throw startFailedException;
 		} catch (final Throwable throwable) {
 			logging.fatal("Failed to start Server, because of an unexpected Throwable", throwable);
@@ -191,14 +191,6 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setPort(final int port) {
-		serverConnector = new ServerConnector(port);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
 		if (! running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
@@ -220,6 +212,14 @@ class ServerStartImpl implements ServerStart {
 			logging.error("Connection establishment failed! Aborting!");
 			throw new ClientConnectionFailedException(e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setPort(final int port) {
+		serverConnector = new ServerConnector(port);
 	}
 
 	/**
@@ -332,7 +332,7 @@ class ServerStartImpl implements ServerStart {
 			clientList.acquire();
 			clientList.close();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			clientList.release();
 		}
@@ -343,7 +343,7 @@ class ServerStartImpl implements ServerStart {
 			try {
 				logging.trace("Awaiting termination of all Threads ..");
 				threadPool.awaitTermination(20, TimeUnit.SECONDS);
-				if(!threadPool.isShutdown()) {
+				if (! threadPool.isShutdown()) {
 					logging.trace("Detected some running Threads " + 20 + " seconds after ShutdownRequest! Forcefully shutting down the ThreadPool");
 					hardStop();
 				}

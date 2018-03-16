@@ -1,12 +1,12 @@
 package com.github.thorbenkuck.netcom2.integration.chat.server;
 
+import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
+import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 import com.github.thorbenkuck.netcom2.integration.chat.common.Message;
 import com.github.thorbenkuck.netcom2.integration.chat.common.User;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 
 import java.time.LocalDateTime;
 
