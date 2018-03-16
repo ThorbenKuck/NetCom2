@@ -1,22 +1,36 @@
-Hey there and thank you for using Issue Tracker!
+### Checklist
 
-Our project, as you've probably heard, is getting really popular and truth is we're getting a bit overwhelmed by the activity surrounding it. There are just too many issues for us to manage properly.
+**Please make sure the problem you are experiencing has not already been reported!**
 
-Do the checklist before filing an issue:
+[x] Do you know what steps are necessary to reproduce the problem?
+[x] Do you have a [minimal, complete and verifiable example](https://stackoverflow.com/help/mcve)?
 
-- [ ] Is this something you can **debug and fix**? Send a pull request! Bug fixes and documentation fixes are welcome.
-- [ ] Have a usage question? Ask your question on [StackOverflow](http://stackoverflow.com). We use StackOverflow for usage question and GitHub for bugs. Make sure to use the __NetCom2__ tag.
-- [O] We currently have no platform for new features.
+If your checklist does **not** look like the above, please try to complete it such that it does.
 
+If you do not know the _exact_ steps necessary to reproduce your problem, please try to provide as
+much information as possible - the more information you provide, the faster we can help!
 
-None of the above, create a bug report
-------------------------------------------------------------------
+The following is a template to help you state the problem clearly.
 
-Make sure to add **all the information needed to understand the bug** so that someone can help. If the info is missing we'll add the 'Needs more information' label and close the issue until there is enough information.
+---
 
-- [ ] Provide a **minimal code snippet** that reproduces the bug.
-- [ ] Provide **screenshots** where appropriate
-- [ ] If you already invested the time, provide a little example how to fix it.
-- [ ] What's the **version** of NetCom2 you're using?
-- [ ] Have you checked your firewall?
-- [ ] Are you using Mac, Linux or Windows?
+## The setup
+
+1. I'm using NetCom2 version XXX
+2. My JDK/JRE version is XXX
+3. Special firewall settings on my machine are XXX, YYY, ZZZ
+4. My operating system is XXX
+
+## Description
+
+_Please describe the problem you're experiencing in detail._
+
+## Steps
+
+1. Do X.
+2. Do Y to Foo.
+3. ...
+
+## MCVE
+
+_Insert your minimal, complete and verifiable example here._
