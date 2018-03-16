@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.thorbenkuck.netcom2.TestUtils.containsInAnyOrder;
+import static com.github.thorbenkuck.netcom2.TestUtils.consistsOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -32,7 +32,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -78,7 +78,6 @@ public class ClientListImplTest {
 		ClientListImpl clients = new ClientListImpl();
 		Client clientToAdd = mock(Client.class);
 		when(clientToAdd.getID()).thenReturn(mock(ClientID.class));
-		List<Client> expectedStreamContents = Collections.emptyList();
 
 		//Act
 		clients.close();
@@ -88,7 +87,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertTrue(clientStreamContents.isEmpty());
 	}
 
 	@Test
@@ -109,7 +108,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -131,7 +130,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -153,7 +152,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -176,7 +175,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -185,7 +184,6 @@ public class ClientListImplTest {
 		Client aClient = mock(Client.class);
 		when(aClient.getID()).thenReturn(mock(ClientID.class));
 		ClientListImpl clients = new ClientListImpl();
-		List<Client> expectedStreamContents = Collections.emptyList();
 
 		//Act
 		clients.add(aClient);
@@ -194,7 +192,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertTrue(clientStreamContents.isEmpty());
 	}
 
 	@Test
@@ -213,7 +211,7 @@ public class ClientListImplTest {
 		List<Client> clientStreamContents = clientStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(clientStreamContents, containsInAnyOrder(expectedStreamContents));
+		assertThat(clientStreamContents, consistsOf(expectedStreamContents));
 	}
 
 	@Test
@@ -389,7 +387,7 @@ public class ClientListImplTest {
 		List<Session> streamContents = sessionStream.collect(Collectors.toList());
 
 		//Assert
-		assertThat(streamContents, containsInAnyOrder(expectedSessions));
+		assertThat(streamContents, consistsOf(expectedSessions));
 	}
 
 	@Test
