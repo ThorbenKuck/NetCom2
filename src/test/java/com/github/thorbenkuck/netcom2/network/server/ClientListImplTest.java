@@ -12,17 +12,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.thorbenkuck.netcom2.TestUtils.consistsOf;
+import static com.github.thorbenkuck.netcom2.TestUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ClientListImplTest {
+
 	@Test
 	public void addOnceOpen() throws Exception {
 		//Arrange
 		ClientListImpl clients = new ClientListImpl();
 		Client clientToAdd = mock(Client.class);
-		ClientID clientID = mock(ClientID.class);
+		ClientID clientID = ClientID.fromString(UUID_SEED_1);
 		when(clientToAdd.getID()).thenReturn(clientID);
 		List<Client> expectedStreamContents = Collections.singletonList(clientToAdd);
 
@@ -40,7 +41,7 @@ public class ClientListImplTest {
 		//Arrange
 		ClientListImpl clients = new ClientListImpl();
 		Client clientToAdd = mock(Client.class);
-		when(clientToAdd.getID()).thenReturn(mock(ClientID.class));
+		when(clientToAdd.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		List<Client> expectedStreamContents = Collections.singletonList(clientToAdd);
 
 		//Act
@@ -58,7 +59,7 @@ public class ClientListImplTest {
 		//Arrange
 		ClientListImpl clients = new ClientListImpl();
 		Client clientToAdd = mock(Client.class);
-		ClientID clientID = mock(ClientID.class);
+		ClientID clientID = ClientID.fromString(UUID_SEED_1);
 		when(clientToAdd.getID()).thenReturn(clientID);
 		List<Client> expectedStreamContents = Collections.emptyList();
 
@@ -77,7 +78,7 @@ public class ClientListImplTest {
 		//Arrange
 		ClientListImpl clients = new ClientListImpl();
 		Client clientToAdd = mock(Client.class);
-		when(clientToAdd.getID()).thenReturn(mock(ClientID.class));
+		when(clientToAdd.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 
 		//Act
 		clients.close();
@@ -94,9 +95,9 @@ public class ClientListImplTest {
 	public void removeOpenFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(mock(ClientID.class));
+		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(mock(ClientID.class));
+		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		ClientListImpl clients = new ClientListImpl();
 		List<Client> expectedStreamContents = Collections.singletonList(client1);
 
@@ -115,9 +116,9 @@ public class ClientListImplTest {
 	public void removeOpenNotFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(mock(ClientID.class));
+		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(mock(ClientID.class));
+		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Client client3 = mock(Client.class);
 		ClientListImpl clients = new ClientListImpl();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
@@ -137,9 +138,9 @@ public class ClientListImplTest {
 	public void removeClosedFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(mock(ClientID.class));
+		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(mock(ClientID.class));
+		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		ClientListImpl clients = new ClientListImpl();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
 
@@ -159,9 +160,9 @@ public class ClientListImplTest {
 	public void removeClosedNotFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(mock(ClientID.class));
+		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(mock(ClientID.class));
+		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Client client3 = mock(Client.class);
 		ClientListImpl clients = new ClientListImpl();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
@@ -182,7 +183,7 @@ public class ClientListImplTest {
 	public void clearOpen() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(mock(ClientID.class));
+		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		ClientListImpl clients = new ClientListImpl();
 
 		//Act
@@ -199,7 +200,7 @@ public class ClientListImplTest {
 	public void clearClosed() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(mock(ClientID.class));
+		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		ClientListImpl clients = new ClientListImpl();
 		List<Client> expectedStreamContents = Collections.singletonList(aClient);
 
@@ -254,10 +255,10 @@ public class ClientListImplTest {
 		Client client = mock(Client.class);
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
-		when(client.getID()).thenReturn(mock(ClientID.class));
+		when(client.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client anotherClient = mock(Client.class);
 		Session searchSession = mock(Session.class);
-		when(anotherClient.getID()).thenReturn(mock(ClientID.class));
+		when(anotherClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		when(anotherClient.getSession()).thenReturn(searchSession);
 		ClientListImpl clients = new ClientListImpl();
 
@@ -293,7 +294,7 @@ public class ClientListImplTest {
 	public void getOneClientByIDOpen() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		ClientID clientID = mock(ClientID.class);
+		ClientID clientID = ClientID.fromString(UUID_SEED_1);
 		when(client.getID()).thenReturn(clientID);
 		ClientListImpl clients = new ClientListImpl();
 
@@ -310,8 +311,8 @@ public class ClientListImplTest {
 	public void getOneClientByIDOpenNotFound() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		ClientID clientID = mock(ClientID.class);
-		ClientID searchID = mock(ClientID.class);
+		ClientID clientID = ClientID.fromString(UUID_SEED_1);
+		ClientID searchID = ClientID.fromString(UUID_SEED_2);
 		when(client.getID()).thenReturn(clientID);
 		ClientListImpl clients = new ClientListImpl();
 
@@ -327,10 +328,10 @@ public class ClientListImplTest {
 	public void getMultipleClientByIDOpen() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		ClientID anID = mock(ClientID.class);
+		ClientID anID = ClientID.fromString(UUID_SEED_1);
 		when(client.getID()).thenReturn(anID);
 		Client anotherClient = mock(Client.class);
-		ClientID anotherID = mock(ClientID.class);
+		ClientID anotherID = ClientID.fromString(UUID_SEED_2);
 		when(anotherClient.getID()).thenReturn(anotherID);
 		ClientListImpl clients = new ClientListImpl();
 
@@ -349,7 +350,7 @@ public class ClientListImplTest {
 	public void getOneClientByIDClosed() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		ClientID clientID = mock(ClientID.class);
+		ClientID clientID = ClientID.fromString(UUID_SEED_1);
 		when(client.getID()).thenReturn(clientID);
 		ClientListImpl clients = new ClientListImpl();
 
@@ -366,15 +367,15 @@ public class ClientListImplTest {
 	public void sessionStream() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		when(client.getID()).thenReturn(mock(ClientID.class));
+		when(client.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(mock(ClientID.class));
+		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Session session2 = mock(Session.class);
 		when(client2.getSession()).thenReturn(session2);
 		Client client3 = mock(Client.class);
-		when(client3.getID()).thenReturn(mock(ClientID.class));
+		when(client3.getID()).thenReturn(ClientID.fromString(UUID_SEED_3));
 		when(client3.getSession()).thenReturn(null);
 		ClientListImpl clients = new ClientListImpl();
 		List<Session> expectedSessions = Arrays.asList(clientSession, session2);
@@ -394,9 +395,9 @@ public class ClientListImplTest {
 	public void close() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(mock(ClientID.class));
+		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client anotherClient = mock(Client.class);
-		when(anotherClient.getID()).thenReturn(mock(ClientID.class));
+		when(anotherClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		ClientListImpl clients = new ClientListImpl();
 
 		//Act
