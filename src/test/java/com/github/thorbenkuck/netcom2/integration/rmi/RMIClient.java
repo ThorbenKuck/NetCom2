@@ -78,7 +78,8 @@ public class RMIClient implements Runnable {
 
 		test = clientStart.getRemoteObjectFactory().create(RemoteTestInterface.class);
 
-		System.out.println(test.getHelloWorld());
+		PrimitiveRemoteTestInterface primitiveRemoteTestInterface = clientStart.getRemoteObject(PrimitiveRemoteTestInterface.class);
+		System.out.println(primitiveRemoteTestInterface.get(11));
 	}
 
 	public void trigger() {

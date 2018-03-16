@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class RMIServer implements Runnable {
 
-	private ServerStart serverStart = ServerStart.at(666);
+	private ServerStart serverStart = ServerStart.at(4444);
 
 	public static void main(String[] args) {
 		new RMIServer().run();
@@ -16,27 +16,28 @@ public class RMIServer implements Runnable {
 	@Override
 	public void run() {
 		serverStart.remoteObjects().register(new RemoteTest(), RemoteTestInterface.class);
+		serverStart.remoteObjects().register(new PrimitiveRemoteTest(), PrimitiveRemoteTestInterface.class);
 		try {
 			serverStart.launch();
-			NetCom2Utils.runLater(() -> {
-				try {
-					serverStart.acceptAllNextClients();
-				} catch (ClientConnectionFailedException e) {
-					e.printStackTrace();
-				}
-			});
-		} catch (StartFailedException e) {
+			serverStart.acceptAllNextClients();
+		} catch (StartFailedException | ClientConnectionFailedException e) {
 			e.printStackTrace();
 		}
-
-		System.out.println();
 	}
 
 	private class RemoteTest implements RemoteTestInterface {
 
 		@Override
 		public String getHelloWorld() {
-			return "Fick dich, frag doch wen anders!";
+			return "Go ask someone else!";
+		}
+	}
+
+	private class PrimitiveRemoteTest implements PrimitiveRemoteTestInterface {
+
+		@Override
+		public String get(final int i) {
+			return "sqr(" + String.valueOf(i * i) + ") = " + i;
 		}
 	}
 }
