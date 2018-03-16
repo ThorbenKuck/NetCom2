@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.network.shared.cache;
 import org.junit.Test;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 

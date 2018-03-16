@@ -1,12 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.SessionUpdate;
 
 @APILevel
 class SessionUpdateHandler implements OnReceive<SessionUpdate> {
+
+	private final Logging logging = Logging.unified();
 
 	/**
 	 * {@inheritDoc}
@@ -21,7 +24,7 @@ class SessionUpdateHandler implements OnReceive<SessionUpdate> {
 					.updateIdentifier(newSession.getIdentifier())
 					.updateProperties(newSession.getProperties());
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			session.release();
 		}

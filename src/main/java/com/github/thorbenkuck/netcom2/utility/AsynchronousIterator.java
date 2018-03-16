@@ -10,9 +10,9 @@ import java.util.Queue;
 public class AsynchronousIterator<T> implements Iterator<T> {
 
 	private final Queue<T> core;
-	private T currentElement;
 	private final Collection<T> source;
 	private final boolean removeAllowed;
+	private T currentElement;
 
 	@APILevel
 	AsynchronousIterator(final Collection<T> collection) {
@@ -48,7 +48,7 @@ public class AsynchronousIterator<T> implements Iterator<T> {
 	 */
 	@Override
 	public void remove() {
-		if(removeAllowed) {
+		if (removeAllowed) {
 			source.remove(currentElement);
 		} else {
 			throw new UnsupportedOperationException("remove");

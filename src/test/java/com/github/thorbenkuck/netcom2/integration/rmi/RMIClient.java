@@ -20,10 +20,10 @@ public class RMIClient implements Runnable {
 		new Thread(() -> {
 			Scanner reader = new Scanner(System.in);  // Reading from System.in
 			String entered = "";
-			while (!entered.equals("stop")) {
+			while (! "stop".equals(entered)) {
 				System.out.println("Awaiting input..");
 				entered = reader.nextLine();
-				if (!entered.equals("stop")) {
+				if (! entered.equals("stop")) {
 					try {
 						client.trigger();
 					} catch (RemoteObjectNotRegisteredException e) {
@@ -34,6 +34,19 @@ public class RMIClient implements Runnable {
 			reader.close();
 		}).start();
 		client.run();
+	}
+
+	private void scheduleReconnect() {
+		System.out.println("Schedule reconnect..");
+		executorService.schedule(() -> {
+			try {
+				clientStart.launch();
+				System.out.println("Reconnected!");
+			} catch (StartFailedException e) {
+				System.out.println("Reconnect failed..");
+				scheduleReconnect();
+			}
+		}, 6, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -67,19 +80,6 @@ public class RMIClient implements Runnable {
 
 		PrimitiveRemoteTestInterface primitiveRemoteTestInterface = clientStart.getRemoteObject(PrimitiveRemoteTestInterface.class);
 		System.out.println(primitiveRemoteTestInterface.get(11));
-	}
-
-	private void scheduleReconnect() {
-		System.out.println("Schedule reconnect..");
-		executorService.schedule(() -> {
-			try {
-				clientStart.launch();
-				System.out.println("Reconnected!");
-			} catch (StartFailedException e) {
-				System.out.println("Reconnect failed..");
-				scheduleReconnect();
-			}
-		}, 6, TimeUnit.SECONDS);
 	}
 
 	public void trigger() {

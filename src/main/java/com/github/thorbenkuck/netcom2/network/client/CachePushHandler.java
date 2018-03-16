@@ -34,7 +34,7 @@ class CachePushHandler implements OnReceiveSingle<CachePush> {
 			cache.acquire();
 			cache.addAndOverride(cachePush.getObject());
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			cache.release();
 		}

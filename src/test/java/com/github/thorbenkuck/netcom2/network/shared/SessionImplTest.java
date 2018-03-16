@@ -2,8 +2,6 @@ package com.github.thorbenkuck.netcom2.network.shared;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class SessionImplTest {
 	@Test
 	public void isIdentified() throws Exception {

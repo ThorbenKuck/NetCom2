@@ -244,7 +244,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 			mapping.putAll(communicationRegistration.map());
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			communicationRegistration.release();
 		}

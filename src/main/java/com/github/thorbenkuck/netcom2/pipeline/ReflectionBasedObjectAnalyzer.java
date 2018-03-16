@@ -47,13 +47,6 @@ class ReflectionBasedObjectAnalyzer {
 		return contains;
 	}
 
-	private <T> Optional<Class<T>> getResponsibleClassFromMethod(final Method method) {
-		if (method.getParameterCount() == 0) {
-			return Optional.empty();
-		}
-		return Optional.empty();
-	}
-
 	@APILevel
 	<T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
 		return getCorrespondingMethod(o, clazz);

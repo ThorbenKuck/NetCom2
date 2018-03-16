@@ -50,7 +50,7 @@ public class NetCom2Utils {
 				assertNotNull(runnable);
 				runnable.run();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		});
 	}
@@ -166,7 +166,7 @@ public class NetCom2Utils {
 			synchronization.acquire();
 			runnable.run();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			synchronization.release();
 		}
@@ -273,7 +273,7 @@ public class NetCom2Utils {
 			try {
 				currentThread.join();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 			runnable.run();
 		});
@@ -312,7 +312,7 @@ public class NetCom2Utils {
 
 	/**
 	 * Creates an ThreadSafe Iterator over the provided Collection
-	 *
+	 * <p>
 	 * If true is passed in as the <code>removeAllowed</code> the Iterator will use its {@link Iterator#remove()} on the
 	 * provided Collection.
 	 *
@@ -327,7 +327,7 @@ public class NetCom2Utils {
 
 	/**
 	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
-	 *
+	 * <p>
 	 * By Default, all NetComThreads are daemon.
 	 *
 	 * @return a new ThreadFactory
@@ -341,7 +341,7 @@ public class NetCom2Utils {
 
 	/**
 	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
-	 *
+	 * <p>
 	 * By Default, all NetComThreads are daemon.
 	 *
 	 * @return a new ThreadFactory

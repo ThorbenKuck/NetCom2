@@ -5,12 +5,12 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.*;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -404,6 +404,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws IllegalArgumentException if originalConnection is null
 	 */
 	@Override

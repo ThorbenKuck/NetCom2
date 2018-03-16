@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class RemoteObjectRequestHandlerTest {
 	@Test

@@ -75,7 +75,7 @@ class Initializer {
 			pipeline.close();
 			pipeline.seal();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			pipeline.release();
 		}

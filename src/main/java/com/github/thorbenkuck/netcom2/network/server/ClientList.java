@@ -12,7 +12,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Creates a new ClientList.
-	 *
+	 * <p>
 	 * The implementation is hidden by design.
 	 *
 	 * @return a new Instance of the ClientList.
@@ -42,7 +42,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Returns an Optional, containing the Client which relates to the provided {@link Session}.
-	 *
+	 * <p>
 	 * If no Client with the Session is found, the Optional is empty.
 	 *
 	 * @param session the Session, that identifies the Client
@@ -52,7 +52,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Returns an Optional, containing the Client which relates to the provided {@link ClientID}.
-	 *
+	 * <p>
 	 * If no Client with the ClientID is found, the Optional is empty.
 	 *
 	 * @param id the ClientID, that identifies the Client
@@ -76,7 +76,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Closes the ClientList.
-	 *
+	 * <p>
 	 * This method will also disconnect ALL Clients contained within it.
 	 */
 	void close();

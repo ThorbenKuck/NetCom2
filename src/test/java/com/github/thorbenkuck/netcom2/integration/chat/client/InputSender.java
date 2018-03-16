@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.integration.chat.client;
 
+import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 import com.github.thorbenkuck.netcom2.integration.chat.common.Message;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 
 import java.io.IOException;
 

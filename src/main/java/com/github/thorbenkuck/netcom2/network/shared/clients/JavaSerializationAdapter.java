@@ -31,13 +31,13 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				try {
 					oos.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logging.catching(e);
 				}
 			}
 			try {
 				baos.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		}
 		final String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());

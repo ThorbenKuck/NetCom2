@@ -1,10 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.keller.pipe.Pipeline;
 
 import java.io.Serializable;
 import java.util.Properties;

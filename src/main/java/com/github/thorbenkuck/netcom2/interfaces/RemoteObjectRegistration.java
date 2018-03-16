@@ -17,7 +17,7 @@ public interface RemoteObjectRegistration {
 
 	/**
 	 * This call will register the given Object, identified by its class.
-	 *
+	 * <p>
 	 * Be careful with this call. If you want some class to be registered by its super-class or by any of its interfaces,
 	 * use {@link #register(Object, Class[])} or {@link #hook(Object)}. In most cases
 	 *
@@ -49,7 +49,6 @@ public interface RemoteObjectRegistration {
 	 * <p>
 	 * <code>
 	 * class Foo implements Serializable, Runnable {
-	 *
 	 * }
 	 * </code>
 	 * <p>
@@ -105,7 +104,7 @@ public interface RemoteObjectRegistration {
 	/**
 	 * Likewise to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
 	 *
-	 * @param object
+	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
 	 */
 	@Experimental

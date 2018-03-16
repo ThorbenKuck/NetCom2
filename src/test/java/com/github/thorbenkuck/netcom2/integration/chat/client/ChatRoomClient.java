@@ -1,11 +1,11 @@
 package com.github.thorbenkuck.netcom2.integration.chat.client;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
 import com.github.thorbenkuck.netcom2.integration.chat.common.User;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
 
 import java.io.IOException;
 
