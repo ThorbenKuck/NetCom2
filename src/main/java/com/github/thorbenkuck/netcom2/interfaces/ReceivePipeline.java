@@ -25,13 +25,11 @@ import java.util.function.Consumer;
  * registration.register(TestObject.class)
  * .addFirst(this::handle);
  * }
- * <p>
  * private void handle(TestObject testObject) {
  * // do something with the test Object
  * ...
  * }
  * </code>
- * <p>
  * You can change it easily by simple changing the handle method like this:
  * <p>
  * <code>
@@ -40,9 +38,7 @@ import java.util.function.Consumer;
  * ...
  * }
  * </code>
- * <p>
  * or, if you need the Connection:
- * <p>
  * <code>
  * private void handle(Connection connection, Session session, TestObject testObject) {
  * // do something with the test Object, the Session AND the Connection
@@ -230,19 +226,15 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * <p>
 	 * <code>
 	 * class TestObjectHandler {
-	 * // THis line is commented to ensure correct JavaDOC parsing @ReceiveHandler
+	 * // This line is commented to ensure correct JavaDOC parsing @ReceiveHandler
 	 * private void handle(TestObject testObject, Session session) {
 	 * // Do something
 	 * }
 	 * }
-	 * <p>
 	 * class Register {
-	 * <p>
 	 * private CommunicationRegistration registration;
 	 * private TestObjectHandler handler = new TestObjectHandler();
-	 * <p>
 	 * ...
-	 * <p>
 	 * public void registerObjects() {
 	 * communicationRegistration.register(TestObject.class)
 	 * .to(handler);

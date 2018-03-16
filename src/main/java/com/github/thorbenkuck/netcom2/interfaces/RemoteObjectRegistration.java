@@ -49,7 +49,6 @@ public interface RemoteObjectRegistration {
 	 * <p>
 	 * <code>
 	 * class Foo implements Serializable, Runnable {
-	 * <p>
 	 * }
 	 * </code>
 	 * <p>
@@ -105,7 +104,7 @@ public interface RemoteObjectRegistration {
 	/**
 	 * Likewise to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
 	 *
-	 * @param object
+	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
 	 */
 	@Experimental

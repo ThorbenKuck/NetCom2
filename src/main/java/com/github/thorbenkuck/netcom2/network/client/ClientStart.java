@@ -40,7 +40,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * <code>
  * ServerStart serverStart = ServerStart.at(4444);
  * ClientStart clientStart = ClientStart.at("localhost", 4444);
- * <p>
  * try {
  * serverStart.launch();
  * } catch(Exception ignored) {}
@@ -49,7 +48,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * serverStart.acceptAllNextClients();
  * } catch(ClientConnectionFailedException ignored) {}
  * }).start();
- * <p>
  * try {
  * clientStart.launch();
  * } catch(Exception ignored) {}

@@ -16,11 +16,8 @@ import java.lang.annotation.*;
  * interface Test {
  * void test();
  * }
- * <p>
  * class Testing {
- * <p>
  * RemoteObjectRegistration registration = ...
- * <p>
  * void run() {
  * // This will register the TestImpl Class to the Registration, identified by the Test.class
  * registration.register(new TestImpl(), Test.class);
@@ -29,7 +26,6 @@ import java.lang.annotation.*;
  * // Same as above. However, TestImpl will still be registered to TestImpl.class
  * registration.hook(new TestImpl());
  * }
- * <p>
  * private class TestImpl implements Test {
  * \\@Override
  * public void test() {
