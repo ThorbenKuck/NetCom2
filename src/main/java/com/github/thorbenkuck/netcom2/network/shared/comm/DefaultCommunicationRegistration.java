@@ -40,8 +40,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
-									 final Object o)
-			throws CommunicationNotSpecifiedException {
+									 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
@@ -105,6 +104,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		mapping.computeIfAbsent(clazz, k -> {
 			logging.trace("Creating ReceivingPipeline for " + clazz);
 			return new QueuedReceivePipeline<>(clazz);
@@ -118,6 +118,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Override
 	public void unRegister(final Class clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		if (! isRegistered(clazz)) {
 			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
 			return;
@@ -132,6 +133,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Override
 	public boolean isRegistered(final Class clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		return mapping.get(clazz) != null;
 	}
 
@@ -150,7 +152,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		requireNotNull(clazz, connection, session, o);
+		NetCom2Utils.assertNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
 		sanityCheck(clazz, o);
@@ -193,7 +195,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
-		requireNotNull(defaultCommunicationHandler);
+		NetCom2Utils.assertNotNull(defaultCommunicationHandler);
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
@@ -237,6 +239,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Override
 	public void updateBy(final CommunicationRegistration communicationRegistration) {
+		NetCom2Utils.parameterNotNull(communicationRegistration);
 		try {
 			communicationRegistration.acquire();
 			mapping.clear();

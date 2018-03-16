@@ -276,6 +276,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
+		NetCom2Utils.parameterNotNull(request);
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());

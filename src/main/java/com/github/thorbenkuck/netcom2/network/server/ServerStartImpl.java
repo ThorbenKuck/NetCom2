@@ -227,6 +227,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
+		NetCom2Utils.parameterNotNull(clientConnectedHandler);
 		logging.debug("Added ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.add(clientConnectedHandler);
@@ -238,6 +239,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
+		NetCom2Utils.parameterNotNull(clientConnectedHandler);
 		logging.debug("Removing ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.remove(clientConnectedHandler);
@@ -275,6 +277,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setServerSocketFactory(final Factory<Integer, ServerSocket> factory) {
+		NetCom2Utils.parameterNotNull(factory);
 		if (serverSocketFactory != null) {
 			logging.debug("Overriding existing Factory " + serverSocketFactory + " with " + factory);
 		}
@@ -303,6 +306,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setExecutorService(final ExecutorService executorService) {
+		NetCom2Utils.parameterNotNull(executorService);
 		try {
 			threadPoolLock.lock();
 			this.threadPool = executorService;
@@ -369,6 +373,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setLogging(final Logging logging) {
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging.trace("Updating logging ..");
 		this.logging = logging;
 		this.logging.debug("Updated logging!");

@@ -10,6 +10,7 @@ public class NetComThreadContainer {
 	private final List<Consumer<Thread>> threadFinishedConsumers = new ArrayList<>();
 
 	private void notifyAbout(Thread thread) {
+		NetCom2Utils.parameterNotNull(thread);
 		final List<Consumer<Thread>> consumerCopy;
 		synchronized (threadFinishedConsumers) {
 			consumerCopy = new ArrayList<>(threadFinishedConsumers);
@@ -19,12 +20,14 @@ public class NetComThreadContainer {
 	}
 
 	public void addThread(Thread thread) {
+		NetCom2Utils.parameterNotNull(thread);
 		synchronized (netComThreads) {
 			netComThreads.add(thread);
 		}
 	}
 
 	public void removeThread(Thread thread) {
+		NetCom2Utils.parameterNotNull(thread);
 		synchronized (netComThreads) {
 			netComThreads.remove(thread);
 		}
@@ -33,6 +36,7 @@ public class NetComThreadContainer {
 	}
 
 	public void addThreadFinishedConsumer(Consumer<Thread> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		synchronized (threadFinishedConsumers) {
 			threadFinishedConsumers.add(consumer);
 		}

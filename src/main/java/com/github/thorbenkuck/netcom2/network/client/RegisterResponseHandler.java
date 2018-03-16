@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
 class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
@@ -23,6 +24,7 @@ class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 	@Asynchronous
 	@Override
 	public void accept(final RegisterResponse o) {
+		NetCom2Utils.parameterNotNull(o);
 		if (o.isOkay()) {
 			try {
 				cache.acquire();

@@ -152,6 +152,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public void setFallback(Class<?> clazz, Runnable runnable) {
+		NetCom2Utils.parameterNotNull(clazz, runnable);
 		synchronized (fallbackRunnableMap) {
 			fallbackRunnableMap.put(clazz, runnable);
 		}
@@ -162,6 +163,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public void setDefaultFallback(Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		this.defaultFallback = runnable;
 	}
 
@@ -170,6 +172,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public <T, S extends T> void setFallbackInstance(Class<T> clazz, S instance) {
+		NetCom2Utils.parameterNotNull(clazz, instance);
 		synchronized (fallbackInstances) {
 			fallbackInstances.put(clazz, instance);
 		}
@@ -188,6 +191,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public <T> T create(Class<T> type, Runnable customFallback) {
+		NetCom2Utils.parameterNotNull(type, customFallback);
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
 		invocationHandler.setFallbackRunnable(customFallback);
 
@@ -199,6 +203,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public <T> T create(Class<T> type, T fallbackInstance) {
+		NetCom2Utils.parameterNotNull(type, fallbackInstance);
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
 		invocationHandler.setFallbackInstance(fallbackInstance);
 
@@ -210,6 +215,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 */
 	@Override
 	public <T> T createWithoutFallback(Class<T> type) {
+		NetCom2Utils.parameterNotNull(type);
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
 		invocationHandler.setFallbackRunnable(null);
 

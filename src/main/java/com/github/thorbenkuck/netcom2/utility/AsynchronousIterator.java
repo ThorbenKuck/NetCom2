@@ -21,6 +21,7 @@ public class AsynchronousIterator<T> implements Iterator<T> {
 
 	@APILevel
 	AsynchronousIterator(final Collection<T> collection, boolean removeAllowed) {
+		NetCom2Utils.parameterNotNull(collection);
 		core = new LinkedList<>(collection);
 		this.source = collection;
 		this.removeAllowed = removeAllowed;
