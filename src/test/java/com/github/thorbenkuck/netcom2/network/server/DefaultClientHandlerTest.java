@@ -7,10 +7,22 @@ import static org.junit.Assert.*;
 public class DefaultClientHandlerTest {
 	@Test
 	public void create() throws Exception {
+		// Arrange
+
+		// Act
+
+		// Assert
+		fail();
 	}
 
 	@Test
 	public void handle() throws Exception {
+		// Arrange
+
+		// Act
+
+		// Assert
+		fail();
 	}
 
 }
