@@ -11,10 +11,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 
 public class TCPServerTest {
 
-	private ServerStart serverStart;
-
 	public TCPServerTest() {
-		serverStart = ServerStart.at(4545);
+		final ServerStart serverStart = ServerStart.at(4545);
 		register(serverStart.getCommunicationRegistration());
 		try {
 			serverStart.launch();

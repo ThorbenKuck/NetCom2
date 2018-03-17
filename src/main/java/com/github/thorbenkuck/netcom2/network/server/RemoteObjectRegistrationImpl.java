@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;

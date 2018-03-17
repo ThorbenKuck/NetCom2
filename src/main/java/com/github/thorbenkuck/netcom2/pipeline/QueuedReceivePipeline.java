@@ -394,15 +394,10 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		try {
 			that.acquire();
 
-			if (closed != that.closed) return false;
-			if (sealed != that.sealed) return false;
-			if (! core.equals(that.core)) return false;
-			if (! logging.equals(that.logging)) return false;
-			if (! policyLock.equals(that.policyLock)) return false;
-			if (! clazz.equals(that.clazz)) return false;
-			if (! receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
-				return false;
-			return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+			return closed == that.closed && sealed == that.sealed && core.equals(that.core)
+					&& logging.equals(that.logging) && policyLock.equals(that.policyLock)
+					&& clazz.equals(that.clazz) && receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper)
+					&& receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
 		} catch (final InterruptedException e) {
 			logging.catching(e);
 			return false;
