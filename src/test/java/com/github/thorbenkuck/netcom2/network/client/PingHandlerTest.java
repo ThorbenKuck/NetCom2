@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -23,7 +24,7 @@ public class PingHandlerTest {
 		PingHandler handler = new PingHandler(client);
 
 		// Act
-		handler.accept(connection, null, new Ping(clientID));
+		handler.accept(connection, mock(Session.class), new Ping(clientID));
 
 		// Assert
 		verify(client).addFalseID(eq(clientID));
@@ -40,7 +41,7 @@ public class PingHandlerTest {
 		PingHandler handler = new PingHandler(client);
 
 		// Act
-		handler.accept(connection, null, new Ping(clientID));
+		handler.accept(connection, mock(Session.class), new Ping(clientID));
 
 		// Assert
 		verify(client).setID(eq(clientID));

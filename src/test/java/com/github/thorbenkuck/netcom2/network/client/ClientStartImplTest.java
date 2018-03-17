@@ -10,10 +10,7 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
-import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.clients.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import org.junit.Before;
@@ -179,12 +176,14 @@ public class ClientStartImplTest {
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
 		TestSendObject testSendObject = new TestSendObject();
+		clientStart.client = mock(Client.class);
+		when(clientStart.client.send(any())).thenThrow(new SendFailedException(""));
 
 		// Act
 		clientStart.send().objectToServer(testSendObject);
 
 		// Assert
-		verify(clientStart.client).send(testSendObject);
+		fail();
 	}
 
 	@Test

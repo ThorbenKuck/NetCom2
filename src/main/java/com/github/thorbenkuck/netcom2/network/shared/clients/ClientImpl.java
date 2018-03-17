@@ -271,7 +271,9 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(final Connection connection, final Object object) {
-		NetCom2Utils.assertNotNull(object, connection);
+		if(connection == null || object == null) {
+			throw new SendFailedException("Null is not allowed either as the Connection, nor as the object");
+		}
 		requireConnected(connection);
 
 		logging.debug("Trying to beforeSend " + object + " over Connection " + connection.getKey());
