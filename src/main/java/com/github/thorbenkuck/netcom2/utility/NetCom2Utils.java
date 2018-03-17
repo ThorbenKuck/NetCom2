@@ -271,7 +271,9 @@ public class NetCom2Utils {
 		Thread currentThread = Thread.currentThread();
 		netComThread.execute(() -> {
 			try {
+				logging.trace("Awaiting for " + currentThread.getName() + " to finish..");
 				currentThread.join();
+				logging.trace(currentThread.getName() + "finished. Continue...");
 			} catch (InterruptedException e) {
 				logging.catching(e);
 			}
@@ -293,8 +295,10 @@ public class NetCom2Utils {
 	public static void runOnNetComThread(final Runnable runnable) {
 		parameterNotNull(runnable);
 		if (onNetComThread()) {
+			logging.trace("On NetComThread. Running now..");
 			runnable.run();
 		} else {
+			logging.trace("Extracting provided runnable (" + runnable + ") into a NetComThread.");
 			netComThread.execute(runnable);
 		}
 	}
@@ -333,6 +337,7 @@ public class NetCom2Utils {
 	 * @return a new ThreadFactory
 	 */
 	public static ThreadFactory createNewNonDaemonThreadFactory() {
+		logging.trace("Creating a new NetComThreadFactory(non-daemon)");
 		NetComThreadFactory threadFactory = createNewDaemonThreadFactory();
 		threadFactory.setDaemon(false);
 

@@ -36,10 +36,6 @@ public class ThreadedHeartBeat<T> implements HeartBeat<T> {
 		}
 	}
 
-	private boolean changed() {
-		return changed || heartBeatConfig.changed();
-	}
-
 	@Override
 	public HeartBeatConfiguration<T> configure() {
 		return new InternalHeartBeatConfiguration<>(this);

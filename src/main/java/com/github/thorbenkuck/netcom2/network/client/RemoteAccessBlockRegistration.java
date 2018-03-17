@@ -15,7 +15,7 @@ import java.util.concurrent.Semaphore;
  * <p>
  * Important is, that any request send, has an unique {@link UUID}. So any invocation handler will lead to the same result
  * <p>
- * If you have an {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject}, the UUID will be
+ * If you have an {@link com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject}, the UUID will be
  * the same, so that the any call will wait, no matter what.
  */
 public class RemoteAccessBlockRegistration {

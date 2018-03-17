@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
+package com.github.thorbenkuck.netcom2.annotations.rmi;
 
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 

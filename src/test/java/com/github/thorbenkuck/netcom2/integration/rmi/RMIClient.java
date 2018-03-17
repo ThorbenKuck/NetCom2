@@ -20,10 +20,10 @@ public class RMIClient implements Runnable {
 		new Thread(() -> {
 			Scanner reader = new Scanner(System.in);  // Reading from System.in
 			String entered = "";
-			while (! "stop".equals(entered)) {
+			while (!"stop".equals(entered)) {
 				System.out.println("Awaiting input..");
 				entered = reader.nextLine();
-				if (! entered.equals("stop")) {
+				if (!"stop".equals(entered)) {
 					try {
 						client.trigger();
 					} catch (RemoteObjectNotRegisteredException e) {

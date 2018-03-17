@@ -36,7 +36,7 @@ public class DefaultSendingServiceTest {
 	}
 
 	@Test
-	public void setup() throws Exception {
+	public void setupMethod() throws Exception {
 		// Arrange
 
 		// Act

@@ -26,8 +26,8 @@ import com.github.thorbenkuck.netcom2.network.client.InvocationHandlerProducer;
  * <p>
  * Further any Throwable encountered while running the real Object will be pinged back to the executing client.
  *
- * @see com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions
- * @see com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject
+ * @see com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions
+ * @see com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject
  * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler
  */
 public interface RemoteObjectAccess {

@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.integration.rmi;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class RMIServer implements Runnable {
 

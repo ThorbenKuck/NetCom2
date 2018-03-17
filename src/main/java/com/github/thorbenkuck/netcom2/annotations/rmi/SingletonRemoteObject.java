@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
+package com.github.thorbenkuck.netcom2.annotations.rmi;
 
 import java.lang.annotation.*;
 

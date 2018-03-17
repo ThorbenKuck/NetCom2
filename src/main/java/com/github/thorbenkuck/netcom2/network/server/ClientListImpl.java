@@ -40,15 +40,6 @@ class ClientListImpl extends Observable implements ClientList {
 	}
 
 	/**
-	 * Copies the internal clients as a List.
-	 *
-	 * @return a new List of all set Clients.
-	 */
-	private List<Client> accessInternals() {
-		return new ArrayList<>(clients.values());
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override

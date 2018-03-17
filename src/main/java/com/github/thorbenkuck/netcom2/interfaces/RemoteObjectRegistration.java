@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
@@ -129,7 +129,7 @@ public interface RemoteObjectRegistration {
 	 * if it can find any matching method, it will execute the first one and generate the Results of that Method.
 	 * <p>
 	 * Any Exception thrown, will be cached and send back to the Client. This means, the StackTrace will be the StackTrace
-	 * which contains information about the Server! Use the {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions}
+	 * which contains information about the Server! Use the {@link com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions}
 	 * annotation to suppress this behaviour.
 	 * <p>
 	 * If this Annotation is present, it will substitute the throwable with null and return null, even if an exception was thrown.
