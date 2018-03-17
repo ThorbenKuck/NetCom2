@@ -133,6 +133,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static <T> OnReceiveTriple<T> wrap(OnReceiveSingle<T> onReceiveSingle) {
+		parameterNotNull(onReceiveSingle);
 		return wrapper.wrap(onReceiveSingle);
 	}
 
@@ -149,6 +150,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static <T> OnReceiveTriple<T> wrap(OnReceive<T> onReceive) {
+		parameterNotNull(onReceive);
 		return wrapper.wrap(onReceive);
 	}
 
@@ -311,6 +313,7 @@ public class NetCom2Utils {
 	 * @return an ThreadSafe iterator
 	 */
 	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of) {
+		parameterNotNull(of);
 		return new AsynchronousIterator<>(of);
 	}
 

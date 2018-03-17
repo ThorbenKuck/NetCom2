@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,7 @@ public class RemoteAccessBlockRegistration {
 
 	@APILevel
 	void clearSemaphore(UUID uuid) {
+		NetCom2Utils.parameterNotNull(uuid);
 		synchronized (semaphoreMap) {
 			semaphoreMap.remove(uuid);
 		}
@@ -77,6 +79,7 @@ public class RemoteAccessBlockRegistration {
 
 	@APILevel
 	void clearResult(UUID uuid) {
+		NetCom2Utils.parameterNotNull(uuid);
 		synchronized (responseMap) {
 			responseMap.remove(uuid);
 		}
@@ -84,6 +87,7 @@ public class RemoteAccessBlockRegistration {
 
 	@APILevel
 	Semaphore await(RemoteAccessCommunicationRequest request) {
+		NetCom2Utils.parameterNotNull(request);
 		Semaphore semaphore = getAndCreateSemaphore(request.getUuid());
 		responseMap.remove(request.getUuid());
 
@@ -92,6 +96,7 @@ public class RemoteAccessBlockRegistration {
 
 	@APILevel
 	void release(RemoteAccessCommunicationResponse response) {
+		NetCom2Utils.parameterNotNull(response);
 		synchronized (responseMap) {
 			responseMap.put(response.getUuid(), response);
 		}
@@ -106,6 +111,7 @@ public class RemoteAccessBlockRegistration {
 
 	@APILevel
 	RemoteAccessCommunicationResponse getResponse(UUID uuid) {
+		NetCom2Utils.parameterNotNull(uuid);
 		synchronized (responseMap) {
 			return responseMap.get(uuid);
 		}

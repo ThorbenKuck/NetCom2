@@ -22,6 +22,7 @@ public class NetComThreadFactory implements ThreadFactory {
 
 	@Override
 	public Thread newThread(Runnable r) {
+		NetCom2Utils.parameterNotNull(r);
 		logging.trace("Creating new NetComThread");
 		NetComThread thread = new NetComThread(threadGroup, r);
 		logging.trace("Updating NetComThreadContainer of freshly created Thread");
@@ -33,6 +34,7 @@ public class NetComThreadFactory implements ThreadFactory {
 	}
 
 	public void onThreadFinished(Consumer<Thread> threadConsumer) {
+		NetCom2Utils.parameterNotNull(threadConsumer);
 		threadContainer.addThreadFinishedConsumer(threadConsumer);
 	}
 

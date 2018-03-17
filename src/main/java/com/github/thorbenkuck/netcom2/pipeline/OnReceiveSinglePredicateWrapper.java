@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.function.Predicate;
 
@@ -14,11 +15,13 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 
 	@APILevel
 	OnReceiveSinglePredicateWrapper(final Predicate<Session> predicate) {
+		NetCom2Utils.assertNotNull(predicate);
 		this.predicate = predicate;
 	}
 
 	@Override
 	public final boolean test(final Connection connection, final Session session, final T t) {
+		NetCom2Utils.parameterNotNull(session);
 		return predicate.test(session);
 	}
 
@@ -27,10 +30,17 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 		return predicate.hashCode();
 	}
 
-	@SuppressWarnings ("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public final boolean equals(final Object o) {
-		return o != null && predicate.equals(o);
+		if(o == null) {
+			return false;
+		}
+
+		if(o instanceof OnReceiveSinglePredicateWrapper) {
+			return predicate.equals(((OnReceiveSinglePredicateWrapper) o).predicate);
+		}
+
+		return predicate.equals(o);
 	}
 
 	@Override

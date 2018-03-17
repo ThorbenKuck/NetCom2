@@ -178,6 +178,7 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void addSendDoneCallback(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		synchronized (callbacks) {
 			callbacks.add(callback);
 		}
@@ -218,6 +219,7 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {
+		NetCom2Utils.parameterNotNull(supplier, supplier.get());
 		this.connectionID = supplier;
 	}
 

@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.pipeline;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This Class is used to encapsulate the {@link OnReceiveWrapper} class, which is not Public
@@ -24,6 +25,7 @@ public class Wrapper {
 	 * @return an {@link OnReceiveTriple}
 	 */
 	public <T> OnReceiveTriple<T> wrap(final OnReceive<T> onReceive) {
+		NetCom2Utils.parameterNotNull(onReceive);
 		return new OnReceiveWrapper<>(onReceive);
 	}
 
@@ -35,6 +37,7 @@ public class Wrapper {
 	 * @return an {@link OnReceiveTriple}
 	 */
 	public <T> OnReceiveTriple<T> wrap(final OnReceiveSingle<T> onReceive) {
+		NetCom2Utils.parameterNotNull(onReceive);
 		return new OnReceiveSingleWrapper<>(onReceive);
 	}
 

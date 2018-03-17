@@ -44,6 +44,7 @@ class ClientListImpl extends Observable implements ClientList {
 	 */
 	@Override
 	public void add(final Client client) {
+		NetCom2Utils.parameterNotNull(client);
 		logging.debug("Added new Client(" + client.getID() + ") to ClientList");
 		try {
 			clientLock.lock();
@@ -63,6 +64,7 @@ class ClientListImpl extends Observable implements ClientList {
 	 */
 	@Override
 	public void remove(final Client client) {
+		NetCom2Utils.parameterNotNull(client);
 		logging.debug("Removing Client " + client.getID() + " from ClientList");
 		try {
 			clientLock.lock();
@@ -101,6 +103,7 @@ class ClientListImpl extends Observable implements ClientList {
 	 */
 	@Override
 	public Optional<Client> getClient(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		try {
 			clientLock.lock();
 			if (! isOpen()) {
@@ -117,6 +120,7 @@ class ClientListImpl extends Observable implements ClientList {
 	 */
 	@Override
 	public Optional<Client> getClient(final ClientID id) {
+		NetCom2Utils.parameterNotNull(id);
 		try {
 			clientLock.lock();
 			if (! isOpen()) {

@@ -144,6 +144,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
 		disconnectedPipeline.remove(consumer);
 	}
@@ -154,6 +155,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	@Asynchronous
 	@Override
 	public void write(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
 		}
@@ -176,6 +178,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void addObjectSendListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.trace("Adding SendCallback " + callback + " to " + this);
 		sendingService.addSendDoneCallback(callback);
 	}
@@ -185,6 +188,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void addObjectReceivedListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
 		receivingService.addReceivingCallback(callback);
 	}
@@ -261,6 +265,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		logging.debug("Added DisconnectedConsumer(" + consumer + ") for Connection " + this);
 		return disconnectedPipeline.addLast(consumer);
 	}
@@ -299,6 +304,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public final void setSession(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		logging.debug("Overriding Session for " + this);
 		receivingService.setSession(session);
 		this.session = session;
@@ -349,6 +355,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void setKey(final Class<?> connectionKey) {
+		NetCom2Utils.parameterNotNull(connectionKey);
 		this.key = connectionKey;
 	}
 

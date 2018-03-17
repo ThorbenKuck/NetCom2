@@ -76,6 +76,7 @@ public class NetComThread extends Thread {
 	}
 
 	void setNetComThreadContainer(NetComThreadContainer netComThreadContainer) {
+		NetCom2Utils.parameterNotNull(netComThreadContainer);
 		synchronized (this) {
 			this.netComThreadContainer = netComThreadContainer;
 		}

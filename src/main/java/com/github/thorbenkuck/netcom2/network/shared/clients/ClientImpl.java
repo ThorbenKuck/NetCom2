@@ -67,6 +67,7 @@ class ClientImpl implements Client {
 	 */
 	@APILevel
 	ClientImpl(final CommunicationRegistration communicationRegistration) {
+		NetCom2Utils.parameterNotNull(communicationRegistration);
 		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;
 		logging.trace("Setting default SerializationAdapter and FallbackSerializationAdapter ..");
@@ -125,6 +126,7 @@ class ClientImpl implements Client {
 	@Override
 	@Experimental
 	public void setThreadPool(final ExecutorService executorService) {
+		NetCom2Utils.parameterNotNull(executorService);
 		try {
 			threadPoolLock.lock();
 			updateConnectionThreadPools(executorService);
@@ -211,14 +213,12 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setSession(final Session session) {
-		if (session == null) {
-			throw new IllegalArgumentException("Session cant be null!");
-		}
 		if (this.session != null) {
 			logging.warn("Overriding existing ClientSession with " + session + "!");
 		} else {
 			logging.debug("Setting ClientSession to " + session + " ..");
 		}
+		NetCom2Utils.parameterNotNull(session);
 		this.session = session;
 		logging.trace("Updating Sessions of all known Connections ..");
 		for (Connection connection : connections.values()) {
@@ -242,6 +242,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
+		NetCom2Utils.assertNotNull(disconnectedHandler);
 		disconnectedHandlers.addFirst(disconnectedHandler::handle).withRequirement(client -> disconnectedHandler.active());
 	}
 
@@ -270,7 +271,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(final Connection connection, final Object object) {
-		NetCom2Utils.assertNotNull(object);
+		NetCom2Utils.assertNotNull(object, connection);
 		requireConnected(connection);
 
 		logging.debug("Trying to beforeSend " + object + " over Connection " + connection.getKey());
@@ -307,6 +308,7 @@ class ClientImpl implements Client {
 	@Override
 	public final Awaiting createNewConnection(final Class connectionKey) {
 		logging.debug("Requesting new Connection for key: " + connectionKey);
+		NetCom2Utils.assertNotNull(connectionKey);
 		send(new NewConnectionRequest(connectionKey));
 		return prepareConnection(connectionKey);
 	}
@@ -435,8 +437,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addFallBackSerializationAdapter(
-			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(fallBackSerializationAdapter);
 		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
@@ -445,8 +447,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackSerializationAdapter(
-			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void setFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
 		addFallBackSerializationAdapter(fallBackSerializationAdapter);
 	}
 
@@ -454,8 +455,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(fallBackDeSerializationAdapter);
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
 	}
 
@@ -464,8 +465,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	@Deprecated
-	public void setFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void setFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
@@ -475,6 +475,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
 		logging.trace("Added FallBackSerialization " + serializationAdapter);
+		NetCom2Utils.parameterNotNull(serializationAdapter);
 		fallBackSerialization.add(serializationAdapter);
 	}
 
@@ -484,6 +485,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		logging.trace("Added FallDeBackSerialization " + deSerializationAdapter);
+		NetCom2Utils.parameterNotNull(deSerializationAdapter);
 		fallBackDeSerialization.add(deSerializationAdapter);
 	}
 
@@ -501,6 +503,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
 		logging.debug("Setting MainSerializationAdapter to " + mainSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainSerializationAdapter);
 		this.mainSerializationAdapter = mainSerializationAdapter;
 	}
 
@@ -516,9 +519,9 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final void setMainDeSerializationAdapter(
-			final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public final void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Setting MainDeSerializationAdapter to " + mainDeSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainDeSerializationAdapter);
 		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
 	}
 
@@ -551,6 +554,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		NetCom2Utils.parameterNotNull(decryptionAdapter);
 		this.decryptionAdapter = decryptionAdapter;
 	}
 
@@ -567,6 +571,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		NetCom2Utils.parameterNotNull(encryptionAdapter);
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
@@ -576,6 +581,7 @@ class ClientImpl implements Client {
 	@Override
 	public Awaiting prepareConnection(final Class clazz) {
 		logging.debug("Preparing Connection for key: " + clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		try {
 			connectionLock.lock();
 			if (synchronizeMap.get(clazz) != null) {
@@ -612,6 +618,7 @@ class ClientImpl implements Client {
 	@Override
 	public void notifyAboutPreparedConnection(final Class clazz) {
 		logging.trace("Connection " + clazz + " is now prepared, trying to release all waiting Threads ..");
+		NetCom2Utils.parameterNotNull(clazz);
 		final Synchronize synchronize = synchronizeMap.get(clazz);
 		logging.debug("Saved Synchronize instance: " + synchronize);
 		if (synchronize == null) {
@@ -629,6 +636,7 @@ class ClientImpl implements Client {
 	@Override
 	public void addFalseID(final ClientID clientID) {
 		logging.debug("Marking ClientID" + clientID + " as false");
+		NetCom2Utils.parameterNotNull(clientID);
 		synchronized (falseIDs) {
 			falseIDs.add(clientID);
 		}
@@ -648,6 +656,7 @@ class ClientImpl implements Client {
 	@Override
 	public void removeFalseID(final ClientID clientID) {
 		logging.debug("Removing faulty ClientID " + clientID);
+		NetCom2Utils.parameterNotNull(clientID);
 		synchronized (falseIDs) {
 			logging.debug("State of false IDs before: " + falseIDs);
 			falseIDs.remove(clientID);
@@ -661,6 +670,7 @@ class ClientImpl implements Client {
 	@Override
 	public void removeFalseIDs(final List<ClientID> clientIDS) {
 		logging.debug("Removing all faulty ClientIDs " + clientIDS);
+		NetCom2Utils.parameterNotNull(clientIDS);
 		synchronized (falseIDs) {
 			logging.debug("State of false IDs before: " + falseIDs);
 			falseIDs.removeAll(clientIDS);

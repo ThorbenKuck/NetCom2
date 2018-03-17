@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This class is used to send objects to the client.
@@ -19,6 +20,7 @@ class ClientSendBridge implements SendBridge {
 	private final Logging logging = Logging.unified();
 
 	ClientSendBridge(final Client client) {
+		NetCom2Utils.assertNotNull(client);
 		this.client = client;
 	}
 

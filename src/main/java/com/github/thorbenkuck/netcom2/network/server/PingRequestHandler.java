@@ -8,6 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ class PingRequestHandler implements OnReceiveTriple<Ping> {
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session, final Ping ping) {
+		NetCom2Utils.parameterNotNull(connection, session, ping);
 		logging.debug("Ping received from Session " + session);
 		logging.trace("Receiving Client for Session " + session);
 		final Optional<Client> clientOptional = clients.getClient(session);

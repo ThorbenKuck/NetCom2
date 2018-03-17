@@ -213,6 +213,7 @@ class DefaultReceivingService implements ReceivingService {
 	 */
 	@Override
 	public void addReceivingCallback(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.debug("[ReceivingService] Trying to add Callback " + callback);
 		runSynchronizedOverCallbacks(() -> callbacks.add(callback));
 		logging.trace("[ReceivingService] Added Callback: " + callback);
@@ -223,6 +224,7 @@ class DefaultReceivingService implements ReceivingService {
 	 */
 	@Override
 	public void setup(final Connection connection, final Session session) {
+		NetCom2Utils.parameterNotNull(connection, session);
 		this.connection = connection;
 		this.session = session;
 		try {
@@ -239,6 +241,7 @@ class DefaultReceivingService implements ReceivingService {
 	 */
 	@Override
 	public void setSession(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		this.session = session;
 	}
 
@@ -247,6 +250,7 @@ class DefaultReceivingService implements ReceivingService {
 	 */
 	@Override
 	public void onDisconnect(final Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		this.onDisconnect = runnable;
 	}
 

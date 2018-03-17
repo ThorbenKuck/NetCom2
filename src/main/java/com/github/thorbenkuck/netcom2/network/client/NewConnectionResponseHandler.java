@@ -10,6 +10,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionReque
 	@Asynchronous
 	@Override
 	public void accept(final NewConnectionRequest o) {
+		NetCom2Utils.parameterNotNull(o);
 		final Class key = o.getKey();
 		final String prefix = "[" + key.getSimpleName() + "-Connection]: ";
 		client.newPrimation();
