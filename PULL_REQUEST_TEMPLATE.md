@@ -1,15 +1,21 @@
-Please do not create a Pull Request without creating an issue first. Any change needs to be discussed before proceeding. Failure to do so may result in the rejection of the pull request.
+## Checklist
+    
+- [x] I am not on the master or dev branch
+- [x] All classes and interfaces I created have clear and concise JavaDoc
+- [x] All classes and interfaces I **changed** have JavaDoc according to my changes
+- [x] All classes are tested with respect to their implemented interfaces
+    
+If your checklist does **not** look like the above, please keep working on your branch until it does.
+    
+**If it does not, your PR will be rejected!**
 
-Please provide enough information so that others can review your pull request:
-
-Explain the details for making this change. What existing problem does the pull request solve?
-
-Test plan (required)
-
-Demonstrate the code is solid. Example: The exact commands you ran and their output, screenshots / videos if the pull request changes UI.
-
-Code formatting
-
-Closing issues
-
-Put closes #XXXX in your comment to auto-close the issue that your PR fixes (if such).
+Please also link the issue this PR seeks to resolve.
+    
+---
+    
+## Description/summary
+What did you do in this PR? Please give a rough overview of your changes and, if necessary, go into a little more detail.
+    
+Don't forget to include if you added or removed frameworks.
+    
+You **must** mention if your change "breaks" public interfaces!
