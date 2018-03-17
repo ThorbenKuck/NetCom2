@@ -11,11 +11,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 
 public class TCPClientTest {
 
-	private ClientStart clientStart;
-	private int count = 0;
-
 	public TCPClientTest() {
-		clientStart = ClientStart.at("localhost", 4545);
+		final ClientStart clientStart = ClientStart.at("localhost", 4545);
 		register(clientStart.getCommunicationRegistration());
 
 		try {
@@ -27,15 +24,16 @@ public class TCPClientTest {
 			System.exit(1);
 		}
 
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(count++)));
+		int count = 0;
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
 	}
 
 	public static void main(String[] args) {

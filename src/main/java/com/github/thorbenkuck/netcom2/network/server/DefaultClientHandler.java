@@ -20,7 +20,6 @@ import java.net.Socket;
 class DefaultClientHandler implements ClientConnectedHandler {
 
 	private final ClientList clientList;
-	private final InternalDistributor distributor;
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
 	private final ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -28,11 +27,9 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private Logging logging = Logging.unified();
 
 	@APILevel
-	DefaultClientHandler(final ClientList clientList, final InternalDistributor distributor,
-						 final CommunicationRegistration communicationRegistration,
+	DefaultClientHandler(final ClientList clientList, final CommunicationRegistration communicationRegistration,
 						 final DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
-		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.distributorRegistration = distributorRegistration;
 	}
@@ -43,6 +40,27 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		clientList.remove(client);
 		logging.trace("Cleaning dead registrations");
 		distributorRegistration.removeRegistration(client.getSession());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Asynchronous
+	@Override
+	public void handle(final Client client) {
+		assertNotNull(client);
+		logging.trace("Pinging Client ..");
+		final Awaiting awaiting = client.primed();
+		client.send(new Ping(client.getID()));
+		logging.trace("Adding disconnect routine");
+		client.addDisconnectedHandler(this::clearClient);
+		logging.trace("Awaiting Ping from Client@" + connection.getFormattedAddress() + " ..");
+		try {
+			awaiting.synchronize();
+			logging.trace("Received Ping from Client@" + connection.getFormattedAddress());
+		} catch (InterruptedException e) {
+			logging.error("Interrupted while waiting for Ping!", e);
+		}
 	}
 
 	/**
@@ -76,14 +94,14 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		logging.trace("Adding Client(" + connection.getFormattedAddress() + ") to InternalClientList");
 		try {
 			clientList.acquire();
-			if(clientList.isOpen()) {
+			if (clientList.isOpen()) {
 				clientList.add(client);
 			} else {
 				logging.warn("Potential internal error. Tried to ");
 				client.disconnect();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			clientList.release();
 		}
@@ -97,27 +115,6 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	@Override
 	public boolean willCreateClient() {
 		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Asynchronous
-	@Override
-	public void handle(final Client client) {
-		assertNotNull(client);
-		logging.trace("Pinging Client ..");
-		final Awaiting awaiting = client.primed();
-		client.send(new Ping(client.getID()));
-		logging.trace("Adding disconnect routine");
-		client.addDisconnectedHandler(this::clearClient);
-		logging.trace("Awaiting Ping from Client@" + connection.getFormattedAddress() + " ..");
-		try {
-			awaiting.synchronize();
-			logging.trace("Received Ping from Client@" + connection.getFormattedAddress());
-		} catch (InterruptedException e) {
-			logging.error("Interrupted while waiting for Ping!", e);
-		}
 	}
 
 	/**

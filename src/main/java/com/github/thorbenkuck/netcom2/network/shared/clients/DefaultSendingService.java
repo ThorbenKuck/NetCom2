@@ -3,13 +3,13 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.OutputStream;
@@ -30,13 +30,13 @@ class DefaultSendingService implements SendingService {
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
+	private final int MAXIMUM_WAITING_TIME = 10;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
 	@APILevel
 	private BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
-	private final int MAXIMUM_WAITING_TIME = 10;
 	private int waitingTimeInSeconds = 2;
 	private Thread containingThread;
 
@@ -158,8 +158,8 @@ class DefaultSendingService implements SendingService {
 				if (o != null) {
 					waitingTimeInSeconds = 2;
 					NetCom2Utils.runOnNetComThread(() -> send(o));
-				} else if(waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
-					++waitingTimeInSeconds;
+				} else if (waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
+					++ waitingTimeInSeconds;
 					logging.trace("[SendingService{\" + connectionID.get() + \"}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {
@@ -227,7 +227,7 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void softStop() {
 		running = false;
-		if(containingThread != null) {
+		if (containingThread != null) {
 			containingThread.interrupt();
 		}
 	}

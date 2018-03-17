@@ -3,13 +3,10 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,7 +92,7 @@ public class RemoteObjectFactoryImplTest {
 	public void setFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act
@@ -112,7 +109,7 @@ public class RemoteObjectFactoryImplTest {
 	public void setDefaultFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act
@@ -129,7 +126,7 @@ public class RemoteObjectFactoryImplTest {
 	public void setFallbackInstance() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act

@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 
 import java.io.Serializable;
 
@@ -10,7 +9,7 @@ import java.io.Serializable;
  * <p>
  * Its behaviour is defined by the Client-local Cache.
  *
- * @see com.github.thorbenkuck.netcom2.network.client.Sender#registrationToServer(Class, CacheObserver)
+ * @see com.github.thorbenkuck.netcom2.network.client.Sender#registrationToServer(Class, com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver)
  */
 @APILevel
 public class CachePush implements Serializable {

@@ -6,13 +6,13 @@ import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
+import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
-import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	/**
 	 * This method is only called, if the Connection is closed.
-	 *
+	 * <p>
 	 * To be exact, it will be called AFTER the closing routing
 	 */
 	protected abstract void onClose();
@@ -157,7 +157,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
 		}
-		if(!isActive()) {
+		if (! isActive()) {
 			throw new IllegalStateException("Connection is closed");
 		}
 		logging.trace("Running write in new Thread to write " + object + " ..");
@@ -214,7 +214,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		try {
 			startListening().synchronize();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		}
 		*/
 	}
@@ -381,25 +381,23 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public final void release() {
+		semaphore.release();
+	}	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void finalize() throws Throwable {
 		Logging.unified().debug("Connection ist collected by the GC ..");
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
-		if(!socket.isClosed()) {
+		if (! socket.isClosed()) {
 			socket.shutdownInput();
 			socket.shutdownOutput();
 			socket.close();
 		}
 		super.finalize();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final void release() {
-		semaphore.release();
 	}
 
 	/**
@@ -421,6 +419,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			return "DefaultReceiveCallback{removable=" + ! started + "}";
 		}
 	}
+
+
 
 
 }

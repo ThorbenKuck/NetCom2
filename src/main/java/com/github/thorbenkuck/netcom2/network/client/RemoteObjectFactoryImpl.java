@@ -17,14 +17,14 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
 	private final Semaphore invocationHandlerProducerMutex = new Semaphore(1);
 	private final Logging logging = Logging.unified();
-	private Runnable defaultFallback;
 	@APILevel
 	final Map<Class<?>, JavaRemoteInformationInvocationHandler<?>> singletons = new HashMap<>();
-	private InvocationHandlerProducer invocationHandlerProducer;
 	@APILevel
 	final Map<Class<?>, Runnable> fallbackRunnableMap = new HashMap<>();
 	@APILevel
 	final Map<Class<?>, Object> fallbackInstances = new HashMap<>();
+	private Runnable defaultFallback;
+	private InvocationHandlerProducer invocationHandlerProducer;
 
 	@APILevel
 	RemoteObjectFactoryImpl(@APILevel final Sender sender) {
@@ -53,18 +53,18 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		// Since null is valid in JavaRemoteInformationInvocationHandler
 		// to delete the currently set instances.
 		Runnable runnable = fallbackRunnableMap.get(clazz);
-		if(runnable != null) {
+		if (runnable != null) {
 			invocationHandler.setFallbackRunnable(runnable);
 		}
 		Object o = fallbackInstances.get(clazz);
-		if(o != null && clazz.isAssignableFrom(o.getClass())) {
+		if (o != null && clazz.isAssignableFrom(o.getClass())) {
 			invocationHandler.setFallbackInstance((T) o);
 		}
 
 		return invocationHandler;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	private <T> JavaRemoteInformationInvocationHandler<T> produceSingleton(Class<T> clazz) {
 		singletons.computeIfAbsent(clazz, this::produceNew);
 		return (JavaRemoteInformationInvocationHandler<T>) singletons.get(clazz);
@@ -93,57 +93,17 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		return UUID.randomUUID();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	private <T> T createRemoteObject(JavaRemoteInformationInvocationHandler<T> invocationHandler, Class<T> clazz) {
 		return (T) Proxy.newProxyInstance(RemoteObjectFactoryImpl.class.getClassLoader(), new Class[] { clazz }, invocationHandler);
 	}
 
-	<T> T createRemoteObject(Class<T> clazz, Runnable fallback) {
-		NetCom2Utils.parameterNotNull(clazz, fallback);
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
-
-		invocationHandler.setFallbackRunnable(fallback);
-
-		return createRemoteObject(invocationHandler, clazz);
-	}
-
-	<T, S extends T> T createRemoteObject(Class<T> clazz, S instance) {
-		NetCom2Utils.parameterNotNull(clazz);
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
-
-		invocationHandler.setFallbackInstance(instance);
-
-		return createRemoteObject(invocationHandler, clazz);
-	}
-
-	@APILevel
-	@SuppressWarnings ("unchecked")
-	<T> T createRemoteObject(Class<T> clazz) {
-		NetCom2Utils.parameterNotNull(clazz);
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
-
-		if (invocationHandler == null) {
-			logging.warn("The provided InvocationHandlerProducer appears to be faulty! Please check the InvocationHandlerProducer" + invocationHandlerProducer + "!");
-			throw new IllegalStateException("InvocationHandler is null! This cannot be recovered!");
-		}
-
-		return createRemoteObject(invocationHandler, clazz);
-	}
-
-	@APILevel
-	RemoteAccessBlockRegistration getRemoteAccessBlockRegistration() {
-		return remoteAccessBlockRegistration;
-	}
-
-	@APILevel
-	void setInvocationHandlerProducer(InvocationHandlerProducer producer) throws InterruptedException {
-		NetCom2Utils.assertNotNull(producer);
-		try {
-			invocationHandlerProducerMutex.acquire();
-			invocationHandlerProducer = producer;
-		} finally {
-			invocationHandlerProducerMutex.release();
-		}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDefaultFallback(Runnable runnable) {
+		this.defaultFallback = runnable;
 	}
 
 	/**
@@ -154,14 +114,6 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		synchronized (fallbackRunnableMap) {
 			fallbackRunnableMap.put(clazz, runnable);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setDefaultFallback(Runnable runnable) {
-		this.defaultFallback = runnable;
 	}
 
 	/**
@@ -213,5 +165,53 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		invocationHandler.setFallbackRunnable(null);
 
 		return createRemoteObject(invocationHandler, type);
+	}
+
+	<T> T createRemoteObject(Class<T> clazz, Runnable fallback) {
+		NetCom2Utils.parameterNotNull(clazz, fallback);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
+
+		invocationHandler.setFallbackRunnable(fallback);
+
+		return createRemoteObject(invocationHandler, clazz);
+	}
+
+	<T, S extends T> T createRemoteObject(Class<T> clazz, S instance) {
+		NetCom2Utils.parameterNotNull(clazz);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
+
+		invocationHandler.setFallbackInstance(instance);
+
+		return createRemoteObject(invocationHandler, clazz);
+	}
+
+	@APILevel
+	@SuppressWarnings ("unchecked")
+	<T> T createRemoteObject(Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
+
+		if (invocationHandler == null) {
+			logging.warn("The provided InvocationHandlerProducer appears to be faulty! Please check the InvocationHandlerProducer" + invocationHandlerProducer + "!");
+			throw new IllegalStateException("InvocationHandler is null! This cannot be recovered!");
+		}
+
+		return createRemoteObject(invocationHandler, clazz);
+	}
+
+	@APILevel
+	RemoteAccessBlockRegistration getRemoteAccessBlockRegistration() {
+		return remoteAccessBlockRegistration;
+	}
+
+	@APILevel
+	void setInvocationHandlerProducer(InvocationHandlerProducer producer) throws InterruptedException {
+		NetCom2Utils.assertNotNull(producer);
+		try {
+			invocationHandlerProducerMutex.acquire();
+			invocationHandlerProducer = producer;
+		} finally {
+			invocationHandlerProducerMutex.release();
+		}
 	}
 }

@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class JavaInvocationHandlerProducerTest {
@@ -32,5 +32,6 @@ public class JavaInvocationHandlerProducerTest {
 		assertNotNull(test);
 	}
 
-	private interface TestInterface {}
+	private interface TestInterface {
+	}
 }

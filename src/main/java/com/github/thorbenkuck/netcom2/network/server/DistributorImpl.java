@@ -7,7 +7,6 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -34,7 +33,7 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	private boolean testAgainst(final Session session, final List<Predicate<Session>> predicates) {
 		for (final Predicate<Session> predicate : predicates) {
-			if (!predicate.test(session)) {
+			if (! predicate.test(session)) {
 				return false;
 			}
 		}
@@ -66,6 +65,38 @@ class DistributorImpl implements InternalDistributor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	public synchronized final void toAllExcept(final Object o, final List<Predicate<Session>> predicates) {
+		final List<Session> toSendTo = new ArrayList<>();
+		synchronized (clientList) {
+			clientList.sessionStream()
+					.filter(user -> ! testAgainst(user, predicates))
+					.forEach(toSendTo::add);
+		}
+		toSendTo.forEach(session -> session.send(o));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final void toRegistered(final Object o, final List<Predicate<Session>> predicates) {
+		final List<Session> toSendTo;
+		synchronized (distributorRegistration) {
+			toSendTo = distributorRegistration.getRegistered(o.getClass());
+		}
+		logging.trace("Trying to send " + o + " to " + toSendTo);
+		toSendTo.stream()
+				.filter(user -> testAgainst(user, predicates))
+				.forEach(user -> {
+					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
+					user.send(new CachePush(o));
+				});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public synchronized final void toSpecific(final Object o, final Predicate<Session>... predicates) {
@@ -79,20 +110,6 @@ class DistributorImpl implements InternalDistributor {
 	@Override
 	public final void toAll(final Object o) {
 		toSpecific(o, new ArrayList<>(Collections.singletonList(Session::isIdentified)));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public synchronized final void toAllExcept(final Object o, final List<Predicate<Session>> predicates) {
-		final List<Session> toSendTo = new ArrayList<>();
-		synchronized (clientList) {
-			clientList.sessionStream()
-					.filter(user -> !testAgainst(user, predicates))
-					.forEach(toSendTo::add);
-		}
-		toSendTo.forEach(session -> session.send(o));
 	}
 
 	/**
@@ -134,24 +151,6 @@ class DistributorImpl implements InternalDistributor {
 	@Override
 	public final void toRegistered(final Object o) {
 		toRegistered(o, Collections.singletonList(Objects::nonNull));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final void toRegistered(final Object o, final List<Predicate<Session>> predicates) {
-		final List<Session> toSendTo;
-		synchronized (distributorRegistration) {
-			toSendTo = distributorRegistration.getRegistered(o.getClass());
-		}
-		logging.trace("Trying to send " + o + " to " + toSendTo);
-		toSendTo.stream()
-				.filter(user -> testAgainst(user, predicates))
-				.forEach(user -> {
-					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
-					user.send(new CachePush(o));
-				});
 	}
 
 	/**

@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 public class HeartBeatTest {
 
-	private int i = 1;
 	private final AtomicInteger counts = new AtomicInteger(0);
+	private int i = 1;
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
 	private void proceed(Object o) {

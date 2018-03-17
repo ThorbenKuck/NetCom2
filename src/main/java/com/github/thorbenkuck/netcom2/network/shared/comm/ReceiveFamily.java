@@ -20,9 +20,19 @@ public interface ReceiveFamily {
 		Logging.unified().error(this + " encountered an Exception!", e);
 	}
 
+	/**
+	 * This method might be overridden, to be notified if this implementation was successfully executed
+	 * <p>
+	 * By default, this does nothing
+	 */
 	default void successfullyExecuted() {
 	}
 
+	/**
+	 * This method might be overridden, to be notified before this Interface is executed
+	 * <p>
+	 * By default, this does nothing
+	 */
 	default void beforeExecution() {
 	}
 }

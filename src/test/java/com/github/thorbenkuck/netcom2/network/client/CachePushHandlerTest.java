@@ -5,11 +5,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CachePushHandlerTest {
 	@Test
@@ -28,5 +25,6 @@ public class CachePushHandlerTest {
 		Mockito.verify(cache, atLeastOnce()).release();
 	}
 
-	private class TestObject {}
+	private class TestObject {
+	}
 }

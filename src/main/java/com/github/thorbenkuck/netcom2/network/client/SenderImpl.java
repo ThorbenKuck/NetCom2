@@ -18,9 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @APILevel
 class SenderImpl implements InternalSender, Loggable {
 
-	private Client client;
 	// TODO ersetzten durch synchronized
 	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new ConcurrentHashMap<>();
+	private Client client;
 	private Logging logging = new NetComLogging();
 
 	@APILevel

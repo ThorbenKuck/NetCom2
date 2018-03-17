@@ -36,6 +36,19 @@ public class RMIClient implements Runnable {
 		client.run();
 	}
 
+	private void scheduleReconnect() {
+		System.out.println("Schedule reconnect..");
+		executorService.schedule(() -> {
+			try {
+				clientStart.launch();
+				System.out.println("Reconnected!");
+			} catch (StartFailedException e) {
+				System.out.println("Reconnect failed..");
+				scheduleReconnect();
+			}
+		}, 6, TimeUnit.SECONDS);
+	}
+
 	@Override
 	public void run() {
 		clientStart.addDisconnectedHandler(client -> scheduleReconnect());
@@ -67,19 +80,6 @@ public class RMIClient implements Runnable {
 
 		PrimitiveRemoteTestInterface primitiveRemoteTestInterface = clientStart.getRemoteObject(PrimitiveRemoteTestInterface.class);
 		System.out.println(primitiveRemoteTestInterface.get(11));
-	}
-
-	private void scheduleReconnect() {
-		System.out.println("Schedule reconnect..");
-		executorService.schedule(() -> {
-			try {
-				clientStart.launch();
-				System.out.println("Reconnected!");
-			} catch (StartFailedException e) {
-				System.out.println("Reconnect failed..");
-				scheduleReconnect();
-			}
-		}, 6, TimeUnit.SECONDS);
 	}
 
 	public void trigger() {
