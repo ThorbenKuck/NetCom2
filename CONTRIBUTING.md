@@ -1,8 +1,4 @@
-# Workflow
-
-To correctly contribute on NetCom2, follow the following guidelines:
-
-### Branches
+# Branches
 
 The main branch is the __master__-branch. This branch is meant only for new releases.
 
@@ -24,6 +20,19 @@ A push-up-update is done through the following pattern:
 * __dev__ into __master__    
   Such a pull-request is considered a release. Before requesting such a pull-request, run all tests. If any fails, this pull-request should not be created.  
   All Tests have to be run again, before accepting such a pull-request. If any fails, this pull-request will be denied.
+
+### Your Branch
+
+If The Issue, you are working on, contains the label "urgent", branch from __dev__.
+
+Else, branch from NIGHTLY.
+
+Once finished, open the pull-request only to the branch you originally branched from.
+
+# Workflow
+
+To correctly contribute on NetCom2, follow the following guidelines:
+
 
 ### Conventions
 
