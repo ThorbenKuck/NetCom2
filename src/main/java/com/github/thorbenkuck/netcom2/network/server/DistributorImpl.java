@@ -8,8 +8,13 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @APILevel
 @Synchronized
@@ -42,6 +47,52 @@ class DistributorImpl implements InternalDistributor {
 	}
 
 	/**
+	 * Filters the client list by the given predicates and returns the resulting filtered list.
+	 * An element is <b>not</b> filtered out, if it matches all predicates.
+	 *
+	 * @param predicates The predicates to filter by
+	 * @return The filtered list
+	 */
+	private List<Session> filter(final List<Predicate<Session>> predicates) {
+		synchronized (clientList) {
+			return clientList.sessionStream().filter(s -> testAgainst(s, predicates)).collect(Collectors.toList());
+		}
+	}
+
+	/**
+	 * Filters the given sessions list by the given predicates. A session is <b>not</b> filtered out,
+	 * if it matches all predicates.
+	 *
+	 * @param sessions The sessions to be filtered
+	 * @param predicates The predicates to filter by
+	 * @return The filtered list
+	 */
+	private List<Session> filter(List<Session> sessions, final List<Predicate<Session>> predicates) {
+		return sessions.stream().filter(s -> testAgainst(s, predicates)).collect(Collectors.toList());
+	}
+
+	/**
+	 * Sends the specified object to all of the given sessions.
+	 *
+	 * @param sessions The sessions to send the specified object to.
+	 * @param o The object to be sent
+	 */
+	private void send(final List<Session> sessions, final Object o) {
+		NetCom2Utils.parameterNotNull(sessions, o);
+		send(sessions, () -> o);
+	}
+
+	/**
+	 * Sends objects received from the specified supplier to all of the given sessions.
+	 *
+	 * @param sessions The sessions to send to
+	 * @param supplier The supplier to get objects from
+	 */
+	private void send(final List<Session> sessions, Supplier<Object> supplier) {
+		sessions.forEach(s -> s.send(supplier.get()));
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -55,13 +106,8 @@ class DistributorImpl implements InternalDistributor {
 	@Override
 	public void toSpecific(final Object o, final List<Predicate<Session>> predicates) {
 		NetCom2Utils.parameterNotNull(o, predicates);
-		final List<Session> clientsToSendTo = new ArrayList<>();
-		synchronized (clientList) {
-			clientList.sessionStream()
-					.filter(user -> testAgainst(user, predicates))
-					.forEach(clientsToSendTo::add);
-		}
-		clientsToSendTo.forEach(session -> session.send(o));
+		final List<Session> clientsToSendTo = filter(predicates);
+		send(clientsToSendTo, o);
 	}
 
 	/**
@@ -80,7 +126,7 @@ class DistributorImpl implements InternalDistributor {
 	@Asynchronous
 	@Override
 	public final void toAll(final Object o) {
-		toSpecific(o, new ArrayList<>(Collections.singletonList(Session::isIdentified)));
+		toSpecific(o, Collections.emptyList());
 	}
 
 	/**
@@ -89,13 +135,13 @@ class DistributorImpl implements InternalDistributor {
 	@Override
 	public synchronized final void toAllExcept(final Object o, final List<Predicate<Session>> predicates) {
 		NetCom2Utils.parameterNotNull(o, predicates);
-		final List<Session> toSendTo = new ArrayList<>();
-		synchronized (clientList) {
-			clientList.sessionStream()
-					.filter(user -> !testAgainst(user, predicates))
-					.forEach(toSendTo::add);
+
+		final List<Session> sessions = new ArrayList<>();
+		synchronized(clientList) {
+			clientList.sessionStream().forEach(sessions::add);
 		}
-		toSendTo.forEach(session -> session.send(o));
+		predicates.forEach(sessions::removeIf);
+		send(sessions, o);
 	}
 
 	/**
@@ -136,7 +182,7 @@ class DistributorImpl implements InternalDistributor {
 	@Asynchronous
 	@Override
 	public final void toRegistered(final Object o) {
-		toRegistered(o, Collections.singletonList(Objects::nonNull));
+		toRegistered(o, Collections.emptyList());
 	}
 
 	/**
@@ -145,17 +191,14 @@ class DistributorImpl implements InternalDistributor {
 	@Override
 	public final void toRegistered(final Object o, final List<Predicate<Session>> predicates) {
 		NetCom2Utils.parameterNotNull(o, predicates);
-		final List<Session> toSendTo;
+		final List<Session> registeredUsers;
 		synchronized (distributorRegistration) {
-			toSendTo = distributorRegistration.getRegistered(o.getClass());
+			registeredUsers = distributorRegistration.getRegistered(o.getClass());
 		}
-		logging.trace("Trying to send " + o + " to " + toSendTo);
-		toSendTo.stream()
-				.filter(user -> testAgainst(user, predicates))
-				.forEach(user -> {
-					logging.trace("Sending cache-update at " + o.getClass() + " to " + user);
-					user.send(new CachePush(o));
-				});
+		logging.trace("Trying to send " + o + " to " + registeredUsers);
+
+		List<Session> filteredToSendTo = filter(registeredUsers, predicates);
+		send(filteredToSendTo, () -> new CachePush(o));
 	}
 
 	/**
