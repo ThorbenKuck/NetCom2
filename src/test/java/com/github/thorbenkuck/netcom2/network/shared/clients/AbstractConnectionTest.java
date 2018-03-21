@@ -4,18 +4,13 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
-import com.sun.corba.se.impl.orbutil.concurrent.Sync;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
-import org.mockito.verification.VerificationMode;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
