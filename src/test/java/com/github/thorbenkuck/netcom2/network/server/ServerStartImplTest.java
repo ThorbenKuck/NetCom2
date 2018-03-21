@@ -5,7 +5,6 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -18,7 +17,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
