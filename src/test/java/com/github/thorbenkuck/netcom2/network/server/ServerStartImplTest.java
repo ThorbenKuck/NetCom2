@@ -228,7 +228,7 @@ public class ServerStartImplTest {
 		Factory<Integer, ServerSocket> factory = new Factory<Integer, ServerSocket>() {
 			@Override
 			public ServerSocket create(final Integer integer) {
-				assertTrue(port == integer);
+				assertEquals(port, integer.intValue());
 				return mock(ServerSocket.class);
 			}
 		};
