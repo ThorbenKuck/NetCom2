@@ -35,7 +35,7 @@ public class JavaSerializationAdapterTest {
 		String serializedObject = adapter.get(object);
 
 		// Assert
-		assertTrue(serializedObject.length() % 4 == 0);
+		assertEquals(serializedObject.length() % 4, 0);
 		assertTrue(testBase64.test(serializedObject));
 	}
 
@@ -61,7 +61,7 @@ public class JavaSerializationAdapterTest {
 		SerializableClass object = null;
 
 		// Act
-		String serializedObject = adapter.get(object);
+		adapter.get(object);
 
 		// Assert
 	}
