@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
@@ -227,7 +228,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final Synchronize startListening() {
+	public final Awaiting startListening() {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
