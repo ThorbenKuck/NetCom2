@@ -78,6 +78,13 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	void setPort(final int port);
 
 	/**
+	 * Returns the current port of the ServerStart.
+	 *
+	 * @return the port this ServerStart uses
+	 */
+	int getPort();
+
+	/**
 	 * Adds an {@link ClientConnectedHandler}, that should handle a newly created Client.
 	 * <p>
 	 * Those ClientConnectedHandlers will be asked 2 times. First to create the Client-Object and second to handle this Object.
