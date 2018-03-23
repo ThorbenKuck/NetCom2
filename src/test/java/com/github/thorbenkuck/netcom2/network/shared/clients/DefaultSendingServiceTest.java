@@ -1,15 +1,26 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
+import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import org.junit.Test;
 
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class DefaultSendingServiceTest {
-	@Test
-	public void run() throws Exception {
+
+	@Test(expected = Error.class)
+	public void runNotSetUp() throws Exception {
 		// Arrange
+		DefaultSendingService sendingService = new DefaultSendingService(new TestSerializationAdapter(), new HashSet<>(), new TestEncryptionAdapter());
 
 		// Act
+		sendingService.run();
 
 		// Assert
 		fail();
@@ -18,8 +29,10 @@ public class DefaultSendingServiceTest {
 	@Test
 	public void addSendDoneCallback() throws Exception {
 		// Arrange
+		DefaultSendingService sendingService = new DefaultSendingService(new TestSerializationAdapter(), new HashSet<>(), new TestEncryptionAdapter());
 
 		// Act
+		sendingService.addSendDoneCallback(object -> {});
 
 		// Assert
 		fail();
@@ -85,4 +98,25 @@ public class DefaultSendingServiceTest {
 		fail();
 	}
 
+	private class TestEncryptionAdapter implements EncryptionAdapter {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String get(final String s) {
+			return s;
+		}
+	}
+
+	private class TestSerializationAdapter implements SerializationAdapter<Object, String> {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String get(final Object o) throws SerializationFailedException {
+			return o.toString();
+		}
+	}
 }
