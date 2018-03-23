@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
@@ -227,7 +228,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final Synchronize startListening() {
+	public final Awaiting startListening() {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
@@ -240,6 +241,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		threadPool.submit(() -> {
 			try {
 				logging.trace("Awaiting Synchronization of ReceivingService");
+				receivingService.onDisconnect(() -> disconnectedPipeline.run(this));
 				receivingService.started().synchronize();
 				logging.trace("Awaiting Synchronization of SendingService");
 				sendingService.setConnectionIDSupplier(this::toString);
@@ -359,13 +361,34 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		this.key = connectionKey;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean equals(final Object o) {
-		return o != null && o.getClass().equals(AbstractConnection.class) &&
-				((AbstractConnection) o).socket.equals(socket);
+		if (this == o) return true;
+		if (! (o instanceof AbstractConnection)) return false;
+
+		final AbstractConnection that = (AbstractConnection) o;
+
+		return setup == that.setup && started == that.started && socket.equals(that.socket)
+				&& toSend.equals(that.toSend) && disconnectedPipeline.equals(that.disconnectedPipeline)
+				&& semaphore.equals(that.semaphore) && session.equals(that.session)
+				&& key.equals(that.key) && threadPool.equals(that.threadPool)
+				&& sendingService.equals(that.sendingService) && receivingService.equals(that.receivingService);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = socket.hashCode();
+		result = 31 * result + toSend.hashCode();
+		result = 31 * result + disconnectedPipeline.hashCode();
+		result = 31 * result + semaphore.hashCode();
+		result = 31 * result + (setup ? 1 : 0);
+		result = 31 * result + (started ? 1 : 0);
+		result = 31 * result + session.hashCode();
+		result = 31 * result + key.hashCode();
+		result = 31 * result + threadPool.hashCode();
+		result = 31 * result + sendingService.hashCode();
+		result = 31 * result + receivingService.hashCode();
+		return result;
 	}
 
 	/**
