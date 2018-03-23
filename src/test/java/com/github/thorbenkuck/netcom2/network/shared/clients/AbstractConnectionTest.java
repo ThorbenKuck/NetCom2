@@ -264,10 +264,12 @@ public class AbstractConnectionTest {
 		connection.startListening().synchronize();
 
 		// Assert
-		verify(mockedSendingService).run();
+//		verify(mockedSendingService).run();
 		verify(mockedSendingService).setConnectionIDSupplier(any());
-		verify(mockedReceivingService).run();
+		verify(mockedSendingService).started();
+//		verify(mockedReceivingService).run();
 		verify(mockedReceivingService).onDisconnect(any(Runnable.class));
+		verify(mockedReceivingService).started();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
