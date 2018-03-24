@@ -14,7 +14,6 @@ public class EncryptionServer {
 	}
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.trace());
 		EncryptionServer server = new EncryptionServer(4444);
 		try {
 			server.run();
@@ -29,8 +28,6 @@ public class EncryptionServer {
 		serverStart.addClientConnectedHandler(client -> {
 			client.setEncryptionAdapter(string -> Cipher.caesarEncryption(string, 12));
 			client.setDecryptionAdapter(string -> Cipher.caesarDecryption(string, 12));
-//			client.setMainSerializationAdapter(new TestObjectSerialization());
-//			client.setMainDeSerializationAdapter(new TestObjectDeSerialization());
 		});
 
 		serverStart.getCommunicationRegistration()

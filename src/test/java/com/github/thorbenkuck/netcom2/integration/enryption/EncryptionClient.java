@@ -9,7 +9,6 @@ public class EncryptionClient {
 	private final ClientStart clientStart;
 
 	public static void main(String[] args)  {
-		Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace(System.out));
 		EncryptionClient client = new EncryptionClient("localhost", 4444);
 		try {
 			client.run();
@@ -25,8 +24,6 @@ public class EncryptionClient {
 	public void run() throws StartFailedException {
 		clientStart.setEncryptionAdapter(string -> Cipher.caesarEncryption(string, 12));
 		clientStart.setDecryptionAdapter(string -> Cipher.caesarDecryption(string, 12));
-//		clientStart.setMainSerializationAdapter(new TestObjectSerialization());
-//		clientStart.setMainDeSerializationAdapter(new TestObjectDeSerialization());
 		clientStart.launch();
 
 		while(true) {
