@@ -21,7 +21,7 @@ import java.util.concurrent.Semaphore;
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@APILevel
-	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
+	protected final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
 	private final ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
@@ -32,7 +32,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void sanityCheck(final Class<?> clazz, final Object o) {
-		if (! (o != null && clazz.equals(o.getClass()))) {
+		if (!(o != null && clazz.equals(o.getClass()))) {
 			throw new IllegalArgumentException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
 					"If you called CommunicationRegistration yourself, please make sure, the Object matches to the provided Class");
@@ -40,7 +40,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
-									 final Object o) throws CommunicationNotSpecifiedException {
+	                                 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
@@ -50,9 +50,9 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
-									 final Object o) {
+	                                 final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 		try {
@@ -87,7 +87,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
-									  final Session session, final T o) {
+	                                  final Session session, final T o) {
 		try {
 			pipeline.acquire();
 			pipeline.run(connection, session, o);
@@ -101,7 +101,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
@@ -119,7 +119,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public void unRegister(final Class clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
-		if (! isRegistered(clazz)) {
+		if (!isRegistered(clazz)) {
 			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
 			return;
 		}
@@ -141,7 +141,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+	public void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+		NetCom2Utils.parameterNotNull(object);
 		trigger(object.getClass(), connection, session, object);
 	}
 
@@ -152,11 +153,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		NetCom2Utils.assertNotNull(clazz, connection, session, o);
+		NetCom2Utils.parameterNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
 		sanityCheck(clazz, o);
-		if (! isRegistered(clazz)) {
+		if (!isRegistered(clazz)) {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
@@ -246,6 +247,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			defaultCommunicationHandlers.clear();
 
 			mapping.putAll(communicationRegistration.map());
+			defaultCommunicationHandlers.addAll(communicationRegistration.listDefaultsCommunicationRegistration());
 		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
