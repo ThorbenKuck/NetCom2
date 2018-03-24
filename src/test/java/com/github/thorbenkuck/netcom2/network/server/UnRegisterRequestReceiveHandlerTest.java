@@ -70,6 +70,7 @@ public class UnRegisterRequestReceiveHandlerTest {
 		fail();
 	}
 
-	private class TestKey {}
+	private class TestKey {
+	}
 
 }

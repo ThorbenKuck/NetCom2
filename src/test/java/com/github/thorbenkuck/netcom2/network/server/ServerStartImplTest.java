@@ -394,5 +394,6 @@ public class ServerStartImplTest {
 		verify(client).createNewConnection(eq(TestConnectionKey.class));
 	}
 
-	private class TestConnectionKey {}
+	private class TestConnectionKey {
+	}
 }

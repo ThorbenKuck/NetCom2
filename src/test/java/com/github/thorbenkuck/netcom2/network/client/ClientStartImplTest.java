@@ -10,7 +10,10 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.clients.*;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import org.junit.Before;
@@ -58,7 +61,7 @@ public class ClientStartImplTest {
 		verify(clientStart.client).getConnection(eq(DefaultConnection.class));
 	}
 
-	@Test (expected = StartFailedException.class)
+	@Test(expected = StartFailedException.class)
 	public void launchNeg() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -81,17 +84,17 @@ public class ClientStartImplTest {
 		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
 			@Override
 			public void newEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void updatedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void deletedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 		};
 
@@ -122,7 +125,7 @@ public class ClientStartImplTest {
 		verify(clientStart.client).send(any(NewConnectionRequest.class));
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void createNewConnectionNeg() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -136,7 +139,7 @@ public class ClientStartImplTest {
 		fail();
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setSocketFactory() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -170,7 +173,7 @@ public class ClientStartImplTest {
 		verify(clientStart.client).send(testSendObject);
 	}
 
-	@Test (expected = SendFailedException.class)
+	@Test(expected = SendFailedException.class)
 	public void sendNeg() throws Exception {
 		// Arrange
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -364,17 +367,17 @@ public class ClientStartImplTest {
 		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
 			@Override
 			public void newEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void updatedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void deletedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 		};
 
@@ -388,7 +391,7 @@ public class ClientStartImplTest {
 		assertEquals(0, cache.countObservers());
 	}
 
-	@Test (expected = RemoteObjectNotRegisteredException.class)
+	@Test(expected = RemoteObjectNotRegisteredException.class)
 	public void getRemoteObject() throws Exception {
 		// Arrange
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -418,7 +421,7 @@ public class ClientStartImplTest {
 		assertNotNull(factory);
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void updateRemoteInvocationProducer() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
