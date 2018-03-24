@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 public class DefaultReceivingServiceTest {
 
 	private DefaultReceivingService createReceivingService() {
-		return new DefaultReceivingService(mock(CommunicationRegistration.class), string -> null, new HashSet<>(), string -> string);
+		return new DefaultReceivingService(mock(CommunicationRegistration.class), () -> string -> null, HashSet::new, () -> string -> string);
 	}
 
 	@Test(expected = SetupListenerException.class)
