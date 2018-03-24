@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -29,12 +30,11 @@ class DefaultSendingService implements SendingService {
 	private final EncryptionAdapter encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final List<Callback<Object>> callbacks = new ArrayList<>();
+	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final int MAXIMUM_WAITING_TIME = 10;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
-	@APILevel
-	private BlockingQueue<Object> toSend;
+	@APILevel protected BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
 	private int waitingTimeInSeconds = 2;
@@ -135,7 +135,7 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public void run() {
 		if (! setup) {
-			throw new Error("[SendingService{" + connectionID.get() + "}] Setup required before run!");
+			throw new SetupListenerException("[SendingService{" + connectionID.get() + "}] Setup required before run!");
 		}
 		running = true;
 		containingThread = Thread.currentThread();
@@ -148,13 +148,13 @@ class DefaultSendingService implements SendingService {
 				// and the thread this runnable runs in may never terminate
 				// To ensure, that not every Sending Service is
 				// holding up the CPU, the waitingTimeInSeconds is
-				// decreased every time the DefaultSendingService
+				// increased every time the DefaultSendingService
 				// had waited.
 				final Object o = toSend.poll(waitingTimeInSeconds, TimeUnit.SECONDS);
 				// Take it first, then send it in another thread!
 				// this is done, to check, whether or not the object is null
 				// if it is null, no object was present.
-				// This means, the SendingService was shutDown.
+				// This means, the SendingService was shutDown or no object was present.
 				if (o != null) {
 					waitingTimeInSeconds = 2;
 					NetCom2Utils.runOnNetComThread(() -> send(o));
@@ -189,7 +189,7 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
-		NetCom2Utils.assertNotNull(linkedBlockingQueue);
+		NetCom2Utils.parameterNotNull(linkedBlockingQueue);
 		logging.warn("[SendingService{" + connectionID.get() + "}] Overriding the sending-hook should be used with caution!");
 		this.toSend = linkedBlockingQueue;
 	}
@@ -199,7 +199,7 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
-		NetCom2Utils.assertNotNull(outputStream, toSendFrom);
+		NetCom2Utils.parameterNotNull(outputStream, toSendFrom);
 		this.printWriter = new PrintWriter(outputStream);
 		this.toSend = toSendFrom;
 		setup = true;
@@ -219,7 +219,8 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {
-		NetCom2Utils.parameterNotNull(supplier, supplier.get());
+		NetCom2Utils.parameterNotNull(supplier);
+		NetCom2Utils.parameterNotNull(supplier.get());
 		this.connectionID = supplier;
 	}
 
@@ -230,6 +231,7 @@ class DefaultSendingService implements SendingService {
 	public void softStop() {
 		running = false;
 		if (containingThread != null) {
+			logging.trace("Interrupting the Thread: " + containingThread);
 			containingThread.interrupt();
 		}
 	}
@@ -240,5 +242,13 @@ class DefaultSendingService implements SendingService {
 	@Override
 	public boolean running() {
 		return running;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isSetup() {
+		return setup;
 	}
 }

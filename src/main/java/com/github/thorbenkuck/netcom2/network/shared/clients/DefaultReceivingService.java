@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
-import com.github.thorbenkuck.netcom2.exceptions.SetupError;
+import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
@@ -237,7 +237,7 @@ class DefaultReceivingService implements ReceivingService {
 				setup = true;
 			}
 		} catch (IOException e) {
-			throw new SetupError(e);
+			throw new SetupListenerException(e);
 		}
 	}
 

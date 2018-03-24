@@ -29,6 +29,8 @@ public interface SendingService extends Runnable, SoftStoppable {
 	/**
 	 * Sets up this SendingService.
 	 *
+	 * This means, internal dependencies will be resolved and this SendingService is ready to run.
+	 *
 	 * @param outputStream the OutputStream, this SendingService should write to.
 	 * @param toSendFrom   the BlockingQueue, that the Objects to send should be taken from
 	 */
@@ -49,4 +51,14 @@ public interface SendingService extends Runnable, SoftStoppable {
 	 * @param supplier the Supplier, that creates the ConnectionID
 	 */
 	void setConnectionIDSupplier(Supplier<String> supplier);
+
+	/**
+	 * This method returns whether or not this SendingService is setup or not.
+	 *
+	 * If it is setup, it can successfully run. To set it up, call {@link #setup(OutputStream, BlockingQueue)}.
+	 *
+	 * @return true, if it was setup, else false
+	 * @see #setup(OutputStream, BlockingQueue)
+	 */
+	boolean isSetup();
 }
