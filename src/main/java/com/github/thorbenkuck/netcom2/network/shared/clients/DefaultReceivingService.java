@@ -25,8 +25,7 @@ import java.util.*;
 class DefaultReceivingService implements ReceivingService {
 
 	private final DecryptionAdapter decryptionAdapter;
-	@APILevel
-	private final List<Callback<Object>> callbacks = new ArrayList<>();
+	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private Runnable onDisconnect = () -> {
 	};
@@ -37,6 +36,7 @@ class DefaultReceivingService implements ReceivingService {
 	private DeSerializationAdapter<String, Object> deSerializationAdapter;
 	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization;
 	private boolean running = false;
+	private boolean setup = false;
 	private Logging logging = Logging.unified();
 
 	@APILevel
@@ -150,9 +150,13 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 * This setupError should be changed to the Exception, introduced with #27
 	 */
 	@Override
 	public synchronized void run() {
+		if(!isSetup()) {
+			throw new SetupError("[ReceivingService] has to be setup before running it!");
+		}
 		running = true;
 		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
 		synchronize.goOn();
@@ -230,6 +234,7 @@ class DefaultReceivingService implements ReceivingService {
 		try {
 			synchronized (this) {
 				in = new Scanner(connection.getInputStream());
+				setup = true;
 			}
 		} catch (IOException e) {
 			throw new SetupError(e);
@@ -262,4 +267,11 @@ class DefaultReceivingService implements ReceivingService {
 		return synchronize;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isSetup() {
+		return setup;
+	}
 }
