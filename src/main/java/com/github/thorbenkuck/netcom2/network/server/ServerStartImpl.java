@@ -77,6 +77,16 @@ class ServerStartImpl implements ServerStart {
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
 		}
+		// This reverse has to be done
+		// because we want to ensure, that
+		// the DefaultClientHandler is
+		// called last. This is needed
+		// because else encryption and
+		// decryption adapters wont have
+		// any effect. This however does
+		// mean, that the Ping-Handshake
+		// will not have been done once
+		// a ClientConnectedHandler is called.
 		Collections.reverse(clientConnectedHandlerList);
 		final Client client = createClient(clientConnectedHandlerList, socket);
 
