@@ -219,7 +219,8 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {
-		NetCom2Utils.parameterNotNull(supplier, supplier.get());
+		NetCom2Utils.parameterNotNull(supplier);
+		NetCom2Utils.parameterNotNull(supplier.get());
 		this.connectionID = supplier;
 	}
 
