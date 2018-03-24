@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
 class PingHandler implements OnReceiveTriple<Ping> {
@@ -24,6 +25,7 @@ class PingHandler implements OnReceiveTriple<Ping> {
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session, final Ping ping) {
+		NetCom2Utils.parameterNotNull(connection, session, ping);
 		if (! ClientID.isEmpty(client.getID())) {
 			logging.debug("Received faulty Ping..");
 			client.addFalseID(ping.getId());

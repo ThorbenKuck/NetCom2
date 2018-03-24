@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
@@ -91,6 +92,7 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public void setIdentifier(final String identifier) {
+		NetCom2Utils.parameterNotNull(identifier);
 		this.identifier = identifier;
 	}
 
@@ -107,6 +109,7 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public void setProperties(final Properties properties) {
+		NetCom2Utils.parameterNotNull(properties);
 		this.properties = properties;
 	}
 
@@ -115,6 +118,7 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public void send(final Object o) {
+		NetCom2Utils.parameterNotNull(o);
 		sendBridge.send(o);
 	}
 
@@ -125,6 +129,7 @@ class SessionImpl implements Session {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		pipelines.computeIfAbsent(clazz, k -> {
 			logging.trace("Adding new SessionEventPipeline for " + clazz);
 			return Pipeline.unifiedCreation();
@@ -139,6 +144,7 @@ class SessionImpl implements Session {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public <T> void triggerEvent(final Class<T> clazz, T t) {
+		NetCom2Utils.parameterNotNull(clazz, t);
 		final Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
 		if (pipeline != null) {
 			pipeline.run(t);
@@ -152,6 +158,7 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public void addHeartBeat(final HeartBeat<Session> heartBeat) {
+		NetCom2Utils.parameterNotNull(heartBeat);
 		heartBeats.add(heartBeat);
 		heartBeat.parallel().run(this);
 	}
@@ -161,6 +168,7 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {
+		NetCom2Utils.parameterNotNull(heartBeat);
 		final HeartBeat<Session> heartBeat1 = heartBeats.remove(heartBeats.indexOf(heartBeat));
 		if (heartBeat1 != null) {
 			heartBeat1.stop();

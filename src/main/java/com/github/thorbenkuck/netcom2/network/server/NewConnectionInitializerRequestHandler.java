@@ -8,6 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 	@Override
 	public void accept(final Connection connection, final Session session,
 					   final NewConnectionInitializer newConnectionInitializer) {
+		NetCom2Utils.parameterNotNull(connection, session, newConnectionInitializer);
 		final Class connectionKey = newConnectionInitializer.getConnectionKey();
 		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
 		logging.debug(clients.toString());
