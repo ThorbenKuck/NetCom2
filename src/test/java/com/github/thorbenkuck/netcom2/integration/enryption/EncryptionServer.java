@@ -3,11 +3,11 @@ package com.github.thorbenkuck.netcom2.integration.enryption;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
-import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
 public class EncryptionServer {
+
+	private final ServerStart serverStart;
 
 	public EncryptionServer(int port) {
 		this.serverStart = ServerStart.at(port);
@@ -21,8 +21,6 @@ public class EncryptionServer {
 			e.printStackTrace();
 		}
 	}
-
-	private final ServerStart serverStart;
 
 	public void run() throws StartFailedException {
 		serverStart.addClientConnectedHandler(client -> {
