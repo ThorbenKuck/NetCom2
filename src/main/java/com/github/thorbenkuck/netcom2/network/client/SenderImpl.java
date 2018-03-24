@@ -11,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchronization;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @APILevel
 class SenderImpl implements InternalSender, Loggable {
 
-	private Client client;
 	// TODO ersetzten durch synchronized
 	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new ConcurrentHashMap<>();
+	private Client client;
 	private Logging logging = new NetComLogging();
 
 	@APILevel
@@ -33,6 +34,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o) {
+		NetCom2Utils.parameterNotNull(o);
 		return client.send(o);
 	}
 
@@ -41,6 +43,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o, final Connection connection) {
+		NetCom2Utils.parameterNotNull(o, connection);
 		return client.send(connection, o);
 	}
 
@@ -49,6 +52,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public ReceiveOrSendSynchronization objectToServer(final Object o, final Class connectionKey) {
+		NetCom2Utils.parameterNotNull(o, connectionKey);
 		return client.send(connectionKey, o);
 	}
 
@@ -91,6 +95,7 @@ class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
@@ -104,6 +109,7 @@ class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
+		NetCom2Utils.parameterNotNull(clazz, connection);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
@@ -117,6 +123,7 @@ class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
+		NetCom2Utils.parameterNotNull(clazz, connectionKey);
 		if (pendingObservers.containsKey(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
@@ -141,6 +148,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public <T> void addPendingObserver(final Class<T> clazz, final CacheObserver<T> observer) {
+		NetCom2Utils.parameterNotNull(clazz, observer);
 		if (observer.accept(clazz)) {
 			logging.debug("Added pending CacheObserver for " + clazz);
 			synchronized (pendingObservers) {
@@ -157,6 +165,7 @@ class SenderImpl implements InternalSender, Loggable {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		return (CacheObserver<T>) pendingObservers.remove(clazz);
 	}
 
@@ -166,11 +175,13 @@ class SenderImpl implements InternalSender, Loggable {
 	@SuppressWarnings ("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
 	@Override
 	public void setClient(final Client client) {
+		NetCom2Utils.parameterNotNull(client);
 		this.client = client;
 	}
 
@@ -190,6 +201,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public void setLogging(Logging logging) {
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging = logging;
 	}
 }

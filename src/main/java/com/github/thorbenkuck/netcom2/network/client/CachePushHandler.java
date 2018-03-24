@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This Handler will handle an received CachePush at the Client-Side.
@@ -29,12 +30,13 @@ class CachePushHandler implements OnReceiveSingle<CachePush> {
 	@Asynchronous
 	@Override
 	public void accept(final CachePush cachePush) {
+		NetCom2Utils.parameterNotNull(cachePush);
 		logging.debug("Updating cache, based on received information!");
 		try {
 			cache.acquire();
 			cache.addAndOverride(cachePush.getObject());
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			cache.release();
 		}

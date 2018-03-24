@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ class DistributorRegistration {
 
 	@APILevel
 	void addRegistration(final Class s, final Session session) {
+		NetCom2Utils.parameterNotNull(s, session);
 		synchronized (registration) {
 			getAndCreate(s).add(session);
 		}
@@ -39,6 +41,7 @@ class DistributorRegistration {
 
 	@APILevel
 	void removeRegistration(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		final List<Class> keys;
 		synchronized (registration) {
 			keys = registration.keySet().stream()
@@ -50,6 +53,7 @@ class DistributorRegistration {
 
 	@APILevel
 	void removeRegistration(final Class s, final Session session) {
+		NetCom2Utils.parameterNotNull(s, session);
 		final Set<Session> set;
 		synchronized (registration) {
 			set = get(s);
@@ -66,6 +70,7 @@ class DistributorRegistration {
 
 	@APILevel
 	List<Session> getRegistered(final Class s) {
+		NetCom2Utils.parameterNotNull(s);
 		synchronized (registration) {
 			return new ArrayList<>(get(s));
 		}

@@ -2,8 +2,10 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -47,15 +49,9 @@ class ReflectionBasedObjectAnalyzer {
 		return contains;
 	}
 
-	private <T> Optional<Class<T>> getResponsibleClassFromMethod(final Method method) {
-		if (method.getParameterCount() == 0) {
-			return Optional.empty();
-		}
-		return Optional.empty();
-	}
-
 	@APILevel
 	<T> Optional<Method> getResponsibleMethod(final Object o, final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(o, clazz);
 		return getCorrespondingMethod(o, clazz);
 	}
 

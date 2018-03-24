@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
@@ -10,7 +10,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,12 +39,12 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 			return null;
 		}
 
-		if(throwable instanceof RemoteObjectNotRegisteredException) {
+		if (throwable instanceof RemoteObjectNotRegisteredException) {
 			return executeFallback(throwable, method, args);
 		}
 
 		IgnoreRemoteExceptions annotation = method.getAnnotation(IgnoreRemoteExceptions.class);
-		if(annotation == null) {
+		if (annotation == null) {
 			annotation = clazz.getAnnotation(IgnoreRemoteExceptions.class);
 		}
 		if (annotation != null) {
@@ -66,7 +65,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	private void throwEncapsulated(Throwable throwable) throws Throwable {
 		List<Throwable> causes = new ArrayList<>();
 		Throwable currentCause = throwable.getCause();
-		while(currentCause != null) {
+		while (currentCause != null) {
 			causes.add(currentCause);
 			currentCause = currentCause.getCause();
 		}
@@ -74,7 +73,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 			throwable = new RemoteRequestException("Throwable(" + throwable.getClass().getName() + ") received from Server: " + throwable.getMessage());
 		}
 
-		for(Throwable cause : causes) {
+		for (Throwable cause : causes) {
 			throwable.addSuppressed(cause);
 		}
 
@@ -141,9 +140,9 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 
 	protected Object executeFallback(Throwable received, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
 		synchronized (this) {
-			if(fallbackInstance != null) {
+			if (fallbackInstance != null) {
 				return method.invoke(fallbackInstance, args);
-			} else if(fallbackRunnable != null) {
+			} else if (fallbackRunnable != null) {
 				fallbackRunnable.run();
 				return null;
 			} else {

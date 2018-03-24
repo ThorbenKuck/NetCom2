@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
 class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
@@ -13,11 +14,13 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 
 	@APILevel
 	OnReceiveSingleWrapper(final OnReceiveSingle<O> onReceive) {
+		NetCom2Utils.assertNotNull(onReceive);
 		this.onReceive = onReceive;
 	}
 
 	@Override
 	public final void accept(final Connection connection, final Session session, final O o) {
+		NetCom2Utils.parameterNotNull(o);
 		onReceive.accept(o);
 	}
 
@@ -43,11 +46,11 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 
 	@Override
 	public final boolean equals(final Object o) {
-		if(o == null) {
+		if (o == null) {
 			return false;
 		}
 
-		if(o instanceof OnReceiveSingleWrapper) {
+		if (o instanceof OnReceiveSingleWrapper) {
 			return onReceive.equals(((OnReceiveSingleWrapper) o).onReceive);
 		}
 

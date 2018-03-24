@@ -1,10 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.keller.pipe.Pipeline;
 
 import java.io.Serializable;
 import java.util.Properties;
@@ -142,6 +142,9 @@ public interface Session extends Mutex, Serializable {
 	 * <p>
 	 * It searches for an corresponding Pipeline and if present runs it.
 	 * If it cannot find an Pipeline a.e. no Event has been registered, an {@link IllegalArgumentException} is thrown.
+	 * <p>
+	 * The class is required, because of Javas type-erasure. Because <code>t.getClass()</code>, does not return an Class
+	 * of the Type of the Object, but of ? extends Object.
 	 *
 	 * @param clazz the Identifier Class for this event
 	 * @param t     an Object instance of the Class

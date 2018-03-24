@@ -6,12 +6,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import org.junit.Test;
 
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class NewConnectionInitializerHandlerTest {
 	@Test
@@ -32,6 +27,7 @@ public class NewConnectionInitializerHandlerTest {
 		verify(client).setConnection(ConnectionKey.class, connection);
 	}
 
-	private class ConnectionKey {}
+	private class ConnectionKey {
+	}
 
 }

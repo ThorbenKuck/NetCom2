@@ -6,13 +6,14 @@ import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
+import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
+import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
-import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -67,7 +68,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 	/**
 	 * This method is only called, if the Connection is closed.
-	 *
+	 * <p>
 	 * To be exact, it will be called AFTER the closing routing
 	 */
 	protected abstract void onClose();
@@ -144,6 +145,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		logging.debug("Removed DisconnectedConsumer(" + consumer + ") from Connection " + this);
 		disconnectedPipeline.remove(consumer);
 	}
@@ -154,10 +156,11 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	@Asynchronous
 	@Override
 	public void write(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
 		}
-		if(!isActive()) {
+		if (! isActive()) {
 			throw new IllegalStateException("Connection is closed");
 		}
 		logging.trace("Running write in new Thread to write " + object + " ..");
@@ -176,6 +179,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void addObjectSendListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.trace("Adding SendCallback " + callback + " to " + this);
 		sendingService.addSendDoneCallback(callback);
 	}
@@ -185,6 +189,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void addObjectReceivedListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.trace("Adding ReceiveCallback " + callback + " to " + this);
 		receivingService.addReceivingCallback(callback);
 	}
@@ -214,7 +219,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		try {
 			startListening().synchronize();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		}
 		*/
 	}
@@ -223,7 +228,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final Synchronize startListening() {
+	public final Awaiting startListening() {
 		if (! setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
@@ -236,6 +241,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		threadPool.submit(() -> {
 			try {
 				logging.trace("Awaiting Synchronization of ReceivingService");
+				receivingService.onDisconnect(() -> disconnectedPipeline.run(this));
 				receivingService.started().synchronize();
 				logging.trace("Awaiting Synchronization of SendingService");
 				sendingService.setConnectionIDSupplier(this::toString);
@@ -261,6 +267,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		logging.debug("Added DisconnectedConsumer(" + consumer + ") for Connection " + this);
 		return disconnectedPipeline.addLast(consumer);
 	}
@@ -299,6 +306,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public final void setSession(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		logging.debug("Overriding Session for " + this);
 		receivingService.setSession(session);
 		this.session = session;
@@ -349,16 +357,38 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public void setKey(final Class<?> connectionKey) {
+		NetCom2Utils.parameterNotNull(connectionKey);
 		this.key = connectionKey;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean equals(final Object o) {
-		return o != null && o.getClass().equals(AbstractConnection.class) &&
-				((AbstractConnection) o).socket.equals(socket);
+		if (this == o) return true;
+		if (! (o instanceof AbstractConnection)) return false;
+
+		final AbstractConnection that = (AbstractConnection) o;
+
+		return setup == that.setup && started == that.started && socket.equals(that.socket)
+				&& toSend.equals(that.toSend) && disconnectedPipeline.equals(that.disconnectedPipeline)
+				&& semaphore.equals(that.semaphore) && session.equals(that.session)
+				&& key.equals(that.key) && threadPool.equals(that.threadPool)
+				&& sendingService.equals(that.sendingService) && receivingService.equals(that.receivingService);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = socket.hashCode();
+		result = 31 * result + toSend.hashCode();
+		result = 31 * result + disconnectedPipeline.hashCode();
+		result = 31 * result + semaphore.hashCode();
+		result = 31 * result + (setup ? 1 : 0);
+		result = 31 * result + (started ? 1 : 0);
+		result = 31 * result + session.hashCode();
+		result = 31 * result + key.hashCode();
+		result = 31 * result + threadPool.hashCode();
+		result = 31 * result + sendingService.hashCode();
+		result = 31 * result + receivingService.hashCode();
+		return result;
 	}
 
 	/**
@@ -381,25 +411,23 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public final void release() {
+		semaphore.release();
+	}	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void finalize() throws Throwable {
 		Logging.unified().debug("Connection ist collected by the GC ..");
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
-		if(!socket.isClosed()) {
+		if (! socket.isClosed()) {
 			socket.shutdownInput();
 			socket.shutdownOutput();
 			socket.close();
 		}
 		super.finalize();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final void release() {
-		semaphore.release();
 	}
 
 	/**
@@ -421,6 +449,8 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			return "DefaultReceiveCallback{removable=" + ! started + "}";
 		}
 	}
+
+
 
 
 }

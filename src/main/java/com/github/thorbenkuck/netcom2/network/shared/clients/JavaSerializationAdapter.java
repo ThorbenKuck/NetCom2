@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 	@Asynchronous
 	@Override
 	public String get(final Object o) throws SerializationFailedException {
+		NetCom2Utils.parameterNotNull(o);
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;
 		try {
@@ -31,13 +33,13 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				try {
 					oos.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logging.catching(e);
 				}
 			}
 			try {
 				baos.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		}
 		final String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());

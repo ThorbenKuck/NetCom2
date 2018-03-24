@@ -15,12 +15,12 @@ import java.net.Socket;
 
 /**
  * This class creates an DefaultConnection, based on the provided SocketFactory.
- *
+ * <p>
  * If you use this Class, you provide a Client to be maintained. It provides a function to establish the default
  * Connection as well as a function to establish a new Connection, with a provided key.
- *
+ * <p>
  * This means it is internally used, to allow multiple Connections to be established.
- *
+ * <p>
  * It may be shut-down function, disconnects the internally maintained Client.
  */
 @APILevel
@@ -54,7 +54,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		logging.debug("Trying to establish connection to " + address + ":" + port);
 		logging.trace("Creating Socket by SocketFactory ..");
 		final Socket socket = factory.create(port, address);
-		if(socket == null) {
+		if (socket == null) {
 			throw new IOException("Socket creation failed");
 		}
 		logging.trace("Creating Connection ..");

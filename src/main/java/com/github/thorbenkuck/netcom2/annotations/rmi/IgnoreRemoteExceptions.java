@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
+package com.github.thorbenkuck.netcom2.annotations.rmi;
 
 import java.lang.annotation.*;
 
@@ -27,7 +27,7 @@ public @interface IgnoreRemoteExceptions {
 	 * <p>
 	 * Note: The thrown Exception will be encapsulated in an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException}
 	 * if it is'nt already.
-	 *
+	 * <p>
 	 * You may filter any Exception with that, but you cannot filter out the {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}.
 	 * If you want to prohibit this, you should use {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory#setFallback(Class, Runnable)}
 	 *

@@ -1,11 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.SingletonRemoteObject;
+import com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,14 +17,14 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
 	private final Semaphore invocationHandlerProducerMutex = new Semaphore(1);
 	private final Logging logging = Logging.unified();
-	private Runnable defaultFallback;
 	@APILevel
 	final Map<Class<?>, JavaRemoteInformationInvocationHandler<?>> singletons = new HashMap<>();
-	private InvocationHandlerProducer invocationHandlerProducer;
 	@APILevel
 	final Map<Class<?>, Runnable> fallbackRunnableMap = new HashMap<>();
 	@APILevel
 	final Map<Class<?>, Object> fallbackInstances = new HashMap<>();
+	private Runnable defaultFallback;
+	private InvocationHandlerProducer invocationHandlerProducer;
 
 	@APILevel
 	RemoteObjectFactoryImpl(@APILevel final Sender sender) {
@@ -54,18 +53,18 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		// Since null is valid in JavaRemoteInformationInvocationHandler
 		// to delete the currently set instances.
 		Runnable runnable = fallbackRunnableMap.get(clazz);
-		if(runnable != null) {
+		if (runnable != null) {
 			invocationHandler.setFallbackRunnable(runnable);
 		}
 		Object o = fallbackInstances.get(clazz);
-		if(o != null && clazz.isAssignableFrom(o.getClass())) {
+		if (o != null && clazz.isAssignableFrom(o.getClass())) {
 			invocationHandler.setFallbackInstance((T) o);
 		}
 
 		return invocationHandler;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	private <T> JavaRemoteInformationInvocationHandler<T> produceSingleton(Class<T> clazz) {
 		singletons.computeIfAbsent(clazz, this::produceNew);
 		return (JavaRemoteInformationInvocationHandler<T>) singletons.get(clazz);
@@ -94,9 +93,84 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		return UUID.randomUUID();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings ("unchecked")
 	private <T> T createRemoteObject(JavaRemoteInformationInvocationHandler<T> invocationHandler, Class<T> clazz) {
 		return (T) Proxy.newProxyInstance(RemoteObjectFactoryImpl.class.getClassLoader(), new Class[] { clazz }, invocationHandler);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDefaultFallback(Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
+		this.defaultFallback = runnable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setFallback(Class<?> clazz, Runnable runnable) {
+		NetCom2Utils.parameterNotNull(clazz, runnable);
+		synchronized (fallbackRunnableMap) {
+			fallbackRunnableMap.put(clazz, runnable);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T, S extends T> void setFallbackInstance(Class<T> clazz, S instance) {
+		NetCom2Utils.parameterNotNull(clazz, instance);
+		synchronized (fallbackInstances) {
+			fallbackInstances.put(clazz, instance);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T create(Class<T> type) {
+		return createRemoteObject(type);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T create(Class<T> type, Runnable customFallback) {
+		NetCom2Utils.parameterNotNull(type, customFallback);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
+		invocationHandler.setFallbackRunnable(customFallback);
+
+		return createRemoteObject(invocationHandler, type);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T create(Class<T> type, T fallbackInstance) {
+		NetCom2Utils.parameterNotNull(type, fallbackInstance);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
+		invocationHandler.setFallbackInstance(fallbackInstance);
+
+		return createRemoteObject(invocationHandler, type);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T createWithoutFallback(Class<T> type) {
+		NetCom2Utils.parameterNotNull(type);
+		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
+		invocationHandler.setFallbackRunnable(null);
+
+		return createRemoteObject(invocationHandler, type);
 	}
 
 	<T> T createRemoteObject(Class<T> clazz, Runnable fallback) {
@@ -145,74 +219,5 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 		} finally {
 			invocationHandlerProducerMutex.release();
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setFallback(Class<?> clazz, Runnable runnable) {
-		synchronized (fallbackRunnableMap) {
-			fallbackRunnableMap.put(clazz, runnable);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setDefaultFallback(Runnable runnable) {
-		this.defaultFallback = runnable;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <T, S extends T> void setFallbackInstance(Class<T> clazz, S instance) {
-		synchronized (fallbackInstances) {
-			fallbackInstances.put(clazz, instance);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <T> T create(Class<T> type) {
-		return createRemoteObject(type);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <T> T create(Class<T> type, Runnable customFallback) {
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
-		invocationHandler.setFallbackRunnable(customFallback);
-
-		return createRemoteObject(invocationHandler, type);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <T> T create(Class<T> type, T fallbackInstance) {
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
-		invocationHandler.setFallbackInstance(fallbackInstance);
-
-		return createRemoteObject(invocationHandler, type);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <T> T createWithoutFallback(Class<T> type) {
-		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(type);
-		invocationHandler.setFallbackRunnable(null);
-
-		return createRemoteObject(invocationHandler, type);
 	}
 }

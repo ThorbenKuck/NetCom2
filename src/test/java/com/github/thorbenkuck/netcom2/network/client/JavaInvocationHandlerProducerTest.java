@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class JavaInvocationHandlerProducerTest {
@@ -26,11 +26,12 @@ public class JavaInvocationHandlerProducerTest {
 		JavaInvocationHandlerProducer producer = new JavaInvocationHandlerProducer(mock(Sender.class), mock(RemoteAccessBlockRegistration.class));
 
 		// Act
-		JavaRemoteInformationInvocationHandler<TestInterface> test = producer.produce(null, TestInterface.class);
+		JavaRemoteInformationInvocationHandler<TestInterface> test = producer.produce(UUID.fromString("57f28dd6-29e8-11e8-b467-0ed5f89f718b"), TestInterface.class);
 
 		// Assert
 		assertNotNull(test);
 	}
 
-	private interface TestInterface {}
+	private interface TestInterface {
+	}
 }

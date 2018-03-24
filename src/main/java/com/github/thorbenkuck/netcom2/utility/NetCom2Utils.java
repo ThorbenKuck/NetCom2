@@ -50,7 +50,7 @@ public class NetCom2Utils {
 				assertNotNull(runnable);
 				runnable.run();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 		});
 	}
@@ -115,6 +115,8 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static void parameterNotNull(final Object... objects) {
+		if(objects == null)
+			throw new IllegalArgumentException("Null is not a valid parameter!");
 		for (final Object object : objects) {
 			parameterNotNull(object);
 		}
@@ -133,6 +135,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static <T> OnReceiveTriple<T> wrap(OnReceiveSingle<T> onReceiveSingle) {
+		parameterNotNull(onReceiveSingle);
 		return wrapper.wrap(onReceiveSingle);
 	}
 
@@ -149,6 +152,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static <T> OnReceiveTriple<T> wrap(OnReceive<T> onReceive) {
+		parameterNotNull(onReceive);
 		return wrapper.wrap(onReceive);
 	}
 
@@ -166,7 +170,7 @@ public class NetCom2Utils {
 			synchronization.acquire();
 			runnable.run();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			synchronization.release();
 		}
@@ -271,9 +275,11 @@ public class NetCom2Utils {
 		Thread currentThread = Thread.currentThread();
 		netComThread.execute(() -> {
 			try {
+				logging.trace("Awaiting for " + currentThread.getName() + " to finish..");
 				currentThread.join();
+				logging.trace(currentThread.getName() + "finished. Continue...");
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			}
 			runnable.run();
 		});
@@ -293,8 +299,10 @@ public class NetCom2Utils {
 	public static void runOnNetComThread(final Runnable runnable) {
 		parameterNotNull(runnable);
 		if (onNetComThread()) {
+			logging.trace("On NetComThread. Running now..");
 			runnable.run();
 		} else {
+			logging.trace("Extracting provided runnable (" + runnable + ") into a NetComThread.");
 			netComThread.execute(runnable);
 		}
 	}
@@ -307,12 +315,13 @@ public class NetCom2Utils {
 	 * @return an ThreadSafe iterator
 	 */
 	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of) {
+		parameterNotNull(of);
 		return new AsynchronousIterator<>(of);
 	}
 
 	/**
 	 * Creates an ThreadSafe Iterator over the provided Collection
-	 *
+	 * <p>
 	 * If true is passed in as the <code>removeAllowed</code> the Iterator will use its {@link Iterator#remove()} on the
 	 * provided Collection.
 	 *
@@ -327,12 +336,13 @@ public class NetCom2Utils {
 
 	/**
 	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
-	 *
+	 * <p>
 	 * By Default, all NetComThreads are daemon.
 	 *
 	 * @return a new ThreadFactory
 	 */
 	public static ThreadFactory createNewNonDaemonThreadFactory() {
+		logging.trace("Creating a new NetComThreadFactory(non-daemon)");
 		NetComThreadFactory threadFactory = createNewDaemonThreadFactory();
 		threadFactory.setDaemon(false);
 
@@ -341,7 +351,7 @@ public class NetCom2Utils {
 
 	/**
 	 * Creates a ThreadFactory that of which all Threads are nonDaemon.
-	 *
+	 * <p>
 	 * By Default, all NetComThreads are daemon.
 	 *
 	 * @return a new ThreadFactory

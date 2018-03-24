@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.net.Socket;
 import java.util.concurrent.locks.Lock;
@@ -74,6 +75,7 @@ public class ConnectionFactory {
 	 * @return a Connection
 	 */
 	public Connection create(final Socket socket, final Client client, final Class key) {
+		NetCom2Utils.parameterNotNull(socket, client, key);
 		logging.trace("Creating services..");
 		final ReceivingService receivingService = getReceivingService(client);
 		final SendingService sendingService = getSendingService(client);

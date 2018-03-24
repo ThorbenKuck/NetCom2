@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.annotations.remoteObjects;
+package com.github.thorbenkuck.netcom2.annotations.rmi;
 
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 
@@ -16,11 +16,8 @@ import java.lang.annotation.*;
  * interface Test {
  * void test();
  * }
- *
  * class Testing {
- *
  * RemoteObjectRegistration registration = ...
- *
  * void run() {
  * // This will register the TestImpl Class to the Registration, identified by the Test.class
  * registration.register(new TestImpl(), Test.class);
@@ -29,7 +26,6 @@ import java.lang.annotation.*;
  * // Same as above. However, TestImpl will still be registered to TestImpl.class
  * registration.hook(new TestImpl());
  * }
- *
  * private class TestImpl implements Test {
  * \\@Override
  * public void test() {

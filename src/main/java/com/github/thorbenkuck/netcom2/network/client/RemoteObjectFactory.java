@@ -91,16 +91,16 @@ public interface RemoteObjectFactory {
 
 	/**
 	 * This method will produce an Proxy for the RemoteObject.
-	 *
+	 * <p>
 	 * In contrast to the other create Methods, this will result in an Proxy with no fallback.
-	 *
+	 * <p>
 	 * This means, if the requested Object is not registered at the Server-side, calling any method of the Proxy
 	 * will result in an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}.
-	 *
+	 * <p>
 	 * If you plan on using the RemoteObjects in any Module, that does not know of the Network, this is not recommended.
 	 *
 	 * @param type the Class of the requested RemoteObject
-	 * @param <T> the Type of the requested RemoteObject
+	 * @param <T>  the Type of the requested RemoteObject
 	 * @return an new Proxy class of the provided type.
 	 */
 	<T> T createWithoutFallback(Class<T> type);

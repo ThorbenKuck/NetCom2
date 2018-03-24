@@ -3,13 +3,10 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -26,7 +23,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -41,7 +37,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -55,7 +50,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -71,7 +65,7 @@ public class RemoteObjectFactoryImplTest {
 		assertNotNull(registration);
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setInvocationHandlerProducer() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
@@ -91,11 +85,11 @@ public class RemoteObjectFactoryImplTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act
@@ -108,11 +102,11 @@ public class RemoteObjectFactoryImplTest {
 		testInterface.test();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setDefaultFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act
@@ -129,7 +123,7 @@ public class RemoteObjectFactoryImplTest {
 	public void setFallbackInstance() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
-		when(sender.objectToServer(ArgumentMatchers.any())).thenThrow(new SendFailedException("MockedSendFailed"));
+		when(sender.objectToServer(any())).thenThrow(new SendFailedException("MockedSendFailed"));
 		RemoteObjectFactoryImpl remoteObjectFactory = new RemoteObjectFactoryImpl(sender);
 
 		// Act
@@ -151,7 +145,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -166,7 +159,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -180,10 +172,9 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
-	@Test (expected = RemoteObjectNotRegisteredException.class)
+	@Test(expected = RemoteObjectNotRegisteredException.class)
 	public void createWithoutFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);

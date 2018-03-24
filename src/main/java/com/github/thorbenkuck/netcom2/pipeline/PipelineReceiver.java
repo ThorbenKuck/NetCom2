@@ -26,6 +26,8 @@ class PipelineReceiver<T> {
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
 	 * Since the {@link TriPredicate} is optional, it is not required in the constructor
 	 *
+	 * Null is a valid parameter.
+	 *
 	 * @param onReceive the OnReceive to be handled
 	 */
 	@APILevel

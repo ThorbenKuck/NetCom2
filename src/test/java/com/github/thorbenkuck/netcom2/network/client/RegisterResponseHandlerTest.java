@@ -6,11 +6,10 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings ("ALL")
+@SuppressWarnings("ALL")
 public class RegisterResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {
@@ -50,5 +49,6 @@ public class RegisterResponseHandlerTest {
 		verify(sender, never()).removePendingObserver(CacheKey.class);
 	}
 
-	private class CacheKey {}
+	private class CacheKey {
+	}
 }

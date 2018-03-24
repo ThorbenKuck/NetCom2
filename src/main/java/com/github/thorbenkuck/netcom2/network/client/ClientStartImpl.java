@@ -31,15 +31,13 @@ class ClientStartImpl implements ClientStart {
 	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
-	@APILevel Client client;
-	@APILevel InternalSender sender;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
 	@APILevel
 	private AtomicBoolean launched = new AtomicBoolean(false);
-
-	AtomicBoolean launched() {
-		return launched;
-	}
+	@APILevel
+	Client client;
+	@APILevel
+	InternalSender sender;
 
 	/**
 	 * The creation of the ClientStartImpl will:
@@ -74,7 +72,7 @@ class ClientStartImpl implements ClientStart {
 	}
 
 	private void requireRunning() {
-		if(!launched().get()) {
+		if (! launched().get()) {
 			throw new IllegalStateException("Launch required!");
 		}
 	}
@@ -249,6 +247,14 @@ class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	@Override
+	public RemoteObjectFactory getRemoteObjectFactory() {
+		return remoteObjectFactoryImpl;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @throws NullPointerException if the logging is null
 	 */
@@ -287,15 +293,11 @@ class ClientStartImpl implements ClientStart {
 
 		final ClientStartImpl that = (ClientStartImpl) o;
 
-		if (launched != that.launched) return false;
-		if (! cache.equals(that.cache)) return false;
-		if (! clientConnector.equals(that.clientConnector)) return false;
-		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (! clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! socketFactory.equals(that.socketFactory)) return false;
-		if (! client.equals(that.client)) return false;
-		return sender.equals(that.sender);
+		return launched == that.launched && cache.equals(that.cache) && clientConnector.equals(that.clientConnector)
+				&& communicationRegistration.equals(that.communicationRegistration)
+				&& clientConnectionEstablish.equals(that.clientConnectionEstablish)
+				&& logging.equals(that.logging) && socketFactory.equals(that.socketFactory)
+				&& client.equals(that.client) && sender.equals(that.sender);
 	}
 
 	/**
@@ -313,10 +315,11 @@ class ClientStartImpl implements ClientStart {
 
 	/**
 	 * Potentially deprecated in the future.
-	 *
+	 * <p>
 	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
-	 *
+	 * <p>
 	 * {@inheritDoc}
+	 *
 	 * @see RemoteObjectFactory
 	 */
 	@Override
@@ -328,20 +331,15 @@ class ClientStartImpl implements ClientStart {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public RemoteObjectFactory getRemoteObjectFactory() {
-		return remoteObjectFactoryImpl;
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
 		try {
 			remoteObjectFactoryImpl.setInvocationHandlerProducer(invocationHandlerProducer);
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
+	}
+
+	AtomicBoolean launched() {
+		return launched;
 	}
 }

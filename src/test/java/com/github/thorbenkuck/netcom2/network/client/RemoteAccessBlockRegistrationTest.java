@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class RemoteAccessBlockRegistrationTest {
 	@Test
@@ -91,5 +91,6 @@ public class RemoteAccessBlockRegistrationTest {
 		assertEquals(response, foundResponse);
 	}
 
-	public class Example {}
+	public class Example {
+	}
 }

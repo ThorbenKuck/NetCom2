@@ -20,6 +20,7 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	@Override
 	public final void accept(final Connection connection, final Session session, final O o) {
+		NetCom2Utils.parameterNotNull(session, o);
 		onReceive.accept(session, o);
 	}
 
@@ -45,11 +46,11 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	@Override
 	public final boolean equals(final Object o) {
-		if(o == null) {
+		if (o == null) {
 			return false;
 		}
 
-		if(o instanceof OnReceiveWrapper) {
+		if (o instanceof OnReceiveWrapper) {
 			return onReceive.equals(((OnReceiveWrapper) o).onReceive);
 		}
 

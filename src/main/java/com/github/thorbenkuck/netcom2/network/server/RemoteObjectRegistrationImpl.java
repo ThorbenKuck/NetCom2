@@ -1,10 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
+import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
-import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -23,6 +23,21 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private final Map<Class<?>, Object> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
+	private static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPING;
+
+	static {
+		Map<Class<?>, Class<?>> primitives = new HashMap<>();
+		primitives.put(int.class, Integer.class);
+		primitives.put(double.class, Double.class);
+		primitives.put(long.class, Long.class);
+		primitives.put(short.class, Short.class);
+		primitives.put(float.class, Float.class);
+		primitives.put(char.class, Character.class);
+		primitives.put(boolean.class, Boolean.class);
+		primitives.put(byte.class, Byte.class);
+
+		PRIMITIVE_MAPPING = Collections.unmodifiableMap(primitives);
+	}
 
 	@APILevel
 	RemoteObjectRegistrationImpl() {
@@ -51,7 +66,8 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		List<Object> parameters = new ArrayList<>();
 
 		for (Class parameterClass : method.getParameterTypes()) {
-			Object o = get(arguments, parameterClass);
+			Class casedParameter = convertPrimitiveTypes(parameterClass);
+			Object o = get(arguments, casedParameter);
 			parameters.add(o);
 		}
 
@@ -60,7 +76,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private Object get(List<Object> array, Class clazz) {
 		for (Object object : array) {
-			if (object.getClass().equals(clazz)) {
+			if (convertPrimitiveTypes(object.getClass()).equals(clazz)) {
 				return object;
 			}
 		}
@@ -128,6 +144,22 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		return false;
 	}
 
+	/**
+	 * This method converts primitive types to their wrapper types.
+	 *
+	 * Because of the way, the java.io serialization runs, primitive classes are changed to their wrapper types.
+	 * This mean, that remote-methods, that declare a primitive type, will never be called, because the arguments do not
+	 * match.
+	 *
+	 * This method was introduced because of the Issue#50
+	 *
+	 * @param input the potential primitive type
+	 * @return the Wrapper type, or the type that provided if not primitive.
+	 */
+	private Class<?> convertPrimitiveTypes(Class<?> input) {
+		return PRIMITIVE_MAPPING.getOrDefault(input, input);
+	}
+
 	private boolean parameterTypesEqual(Method method, Object[] args) {
 		Class<?>[] declaredParameterTypes = method.getParameterTypes();
 		if (args == null) {
@@ -137,13 +169,29 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 			return false;
 		}
 		for (int i = 0; i < args.length; i++) {
-			if (! declaredParameterTypes[i].equals(args[i].getClass())
+			Class<?> declaredType = convertPrimitiveTypes(declaredParameterTypes[i]);
+			Class<?> argumentType = convertPrimitiveTypes(args[i].getClass());
+			// This check, checks for Session
+			// or Connection types as well as for
+			// the declared type.  This means,
+			// if you would be able to, you could inject
+			// a Session or Connection into an Method-Declaration
+			// and still be running this RMI API.
+			// This is not relevant for Java.
+			if (! declaredType.equals(argumentType)
 					|| declaredParameterTypes[i].equals(Session.class)
 					|| declaredParameterTypes[i].equals(Connection.class)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	private void unregisterCertainClass(Class clazz) {
+		logging.trace("Unregister " + clazz);
+		synchronized (mapping) {
+			mapping.remove(clazz);
+		}
 	}
 
 	/**
@@ -231,7 +279,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				logging.error("The Object " + object.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
-			unregister(clazz);
+			unregisterCertainClass(clazz);
 		}
 	}
 
@@ -240,11 +288,9 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void unregister(Class... identifier) {
+		NetCom2Utils.parameterNotNull(identifier);
 		for (Class clazz : identifier) {
-			logging.trace("Unregister " + clazz);
-			synchronized (mapping) {
-				mapping.remove(clazz);
-			}
+			unregisterCertainClass(clazz);
 		}
 	}
 
@@ -276,6 +322,8 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
+		NetCom2Utils.parameterNotNull(request);
+		NetCom2Utils.parameterNotNull(request.getMethodName(), request.getClazz(), request.getUuid());
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());
@@ -288,30 +336,33 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 		Exception exception = null;
 		Object methodCallResult = null;
-		Method calledMethod = null;
+		Method methodToCall = null;
 
-		logging.trace("Checking declared methods of object " + handlingObject);
 		for (Method method : handlingObject.getClass().getMethods()) {
 			if (method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
-				Object[] args = orderParameters(request.getParameters(), method);
 				logging.debug("Found suitable Method " + method.getName() + " of " + handlingObject);
-				try {
-					methodCallResult = handleMethod(method, handlingObject, args);
-					logging.debug("Computed result detected: " + methodCallResult);
-					break;
-				} catch (final Exception e) {
-					logging.catching(e);
-					exception = e;
-					break;
-				} catch (final Throwable throwable) {
-					logging.fatal("Encountered throwable, non Exception: " + throwable + " while executing " + method + " on " + handlingObject.getClass(), throwable);
-					exception = new RemoteException("RemoteObjectRegistration encountered " + throwable.getClass());
-				} finally {
-					calledMethod = method;
-				}
+				methodToCall = method;
+				break;
 			}
 		}
+
+		if(methodToCall != null) {
+			Object[] args = orderParameters(request.getParameters(), methodToCall);
+			try {
+				methodCallResult = handleMethod(methodToCall, handlingObject, args);
+				logging.debug("Computed result detected: " + methodCallResult);
+			} catch (final Exception e) {
+				logging.catching(e);
+				exception = e;
+			} catch (final Throwable throwable) {
+				logging.fatal("Encountered throwable, non Exception: " + throwable + " while executing " + methodToCall + " on " + handlingObject.getClass(), throwable);
+				exception = new RemoteException("RemoteObjectRegistration encountered " + throwable.getClass());
+			}
+		} else {
+			exception = new RemoteObjectInvalidMethodException("No suitable method found for name " + request.getMethodName() + " with parameters" + Arrays.toString(request.getParameters()));
+		}
 		logging.trace("Finalizing run of " + request.getClazz());
-		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), calledMethod);
+
+		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), methodToCall);
 	}
 }

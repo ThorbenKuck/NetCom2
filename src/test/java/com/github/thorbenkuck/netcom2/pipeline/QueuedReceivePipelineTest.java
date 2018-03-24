@@ -260,7 +260,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.contains(onReceiveSingle2));
 	}
 
-	@Test (expected = PipelineAccessException.class)
+	@Test(expected = PipelineAccessException.class)
 	public void isSealed() throws Exception {
 		// Arrange
 		QueuedReceivePipeline<ReceivePipelineTestObject> pipeline = create(ReceivePipelineTestObject.class);
@@ -274,7 +274,7 @@ public class QueuedReceivePipelineTest {
 		fail();
 	}
 
-	@Test (expected = PipelineAccessException.class)
+	@Test(expected = PipelineAccessException.class)
 	public void isClosed() throws Exception {
 		// Arrange
 		QueuedReceivePipeline<ReceivePipelineTestObject> pipeline = create(ReceivePipelineTestObject.class);
@@ -355,7 +355,7 @@ public class QueuedReceivePipelineTest {
 		pipeline.ifClosed(() -> {
 			throw new PipelineAccessException("");
 		});
-		assertTrue(!pipeline.isClosed());
+		assertFalse(pipeline.isClosed());
 	}
 
 	@Test(expected = PipelineAccessException.class)

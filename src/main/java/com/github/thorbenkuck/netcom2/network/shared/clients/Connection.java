@@ -19,18 +19,18 @@ public interface Connection extends Loggable {
 
 	/**
 	 * Closes the Connection.
-	 *
+	 * <p>
 	 * This will close the underlying connection-type. In the case of the {@link AbstractConnection}, this is the Socket.
-	 *
+	 * <p>
 	 * It may throw an IOException, if anything goes wrong while closing the Connection.
 	 */
 	void close() throws IOException;
 
 	/**
 	 * Sets up internal dependencies.
-	 *
+	 * <p>
 	 * Depending on the implementation, this requires an already established connection to the source.
-	 *
+	 * <p>
 	 * In the Case of the {@link AbstractConnection}, this means it creates the {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}
 	 * and {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService}, that listen on the Connection and
 	 * handle Objects.
@@ -46,11 +46,11 @@ public interface Connection extends Loggable {
 
 	/**
 	 * Writes an Object to this Connection.
-	 *
+	 * <p>
 	 * This means the Object is Send "to the other Side of the Connection".
 	 * In fact, an Connection is only the entry/exit point. So writing an Connection means, it will be received by the
 	 * corresponding exit point.
-	 *
+	 * <p>
 	 * This method is used by the {@link Client}.
 	 *
 	 * @param object the Object that should be send over the Connection
@@ -66,7 +66,7 @@ public interface Connection extends Loggable {
 
 	/**
 	 * Adds an listener, that will be called once an Object, was received.
-	 *
+	 * <p>
 	 * These Callbacks will be send after the CommunicationRegistration is finished to handel the Object.
 	 *
 	 * @param callback the Callback, that should be called, once the Object is called.
@@ -76,7 +76,7 @@ public interface Connection extends Loggable {
 	/**
 	 * This Method sets the {@link ExecutorService}, that the {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService}
 	 * and the {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService} are executed in.
-	 *
+	 * <p>
 	 * NOTE: Currently this does NOT work!
 	 *
 	 * @param executorService the ExecutorService, that should be used.
@@ -93,7 +93,7 @@ public interface Connection extends Loggable {
 
 	/**
 	 * Adds an Consumer, that should handled once this Connection disconnects.
-	 *
+	 * <p>
 	 * All of those Consumers are executed within an Pipeline.
 	 *
 	 * @param consumer the Consumer, that should consume this Connection, once this Connection is disconnected
@@ -119,11 +119,11 @@ public interface Connection extends Loggable {
 
 	/**
 	 * Returns the Object sending queue.
-	 *
+	 * <p>
 	 * Objects are added to this Blocking queue. If you want to just dump any Object into this Connection, you may use this.
 	 * The {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService} will take this Object (sooner or later)
 	 * and Send it.
-	 *
+	 * <p>
 	 * Note, that no Callback Object will be added.
 	 *
 	 * @return an internally maintained SendingQueue

@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
-import com.github.thorbenkuck.netcom2.interfaces.Factory;
 
 /**
  * This Exception is signalling that the internal creation of an Client, based upon an Socket failed.
@@ -12,7 +11,7 @@ import com.github.thorbenkuck.netcom2.interfaces.Factory;
  * Retrying is possible. But you will most likely have to check you Socket-Configuration inside of the {@link com.github.thorbenkuck.netcom2.interfaces.Factory}
  * that is responsible for creating the ServerSocket
  *
- * @see com.github.thorbenkuck.netcom2.network.server.ServerStart#setServerSocketFactory(Factory)
+ * @see com.github.thorbenkuck.netcom2.network.server.ServerStart#setServerSocketFactory(com.github.thorbenkuck.netcom2.interfaces.Factory)
  */
 public class ClientConnectionFailedException extends NetComException {
 
