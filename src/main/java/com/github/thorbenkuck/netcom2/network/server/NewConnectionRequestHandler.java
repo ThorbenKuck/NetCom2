@@ -20,7 +20,7 @@ class NewConnectionRequestHandler implements OnReceiveTriple<NewConnectionReques
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session, final NewConnectionRequest o) {
-		NetCom2Utils.parameterNotNull(connection, session, o);
+		NetCom2Utils.parameterNotNull(connection, o);
 		logging.info("Client of Session " + session + " requested new Connection with key: " + o.getKey());
 		logging.trace("Acknowledging request..");
 		connection.write(o);
