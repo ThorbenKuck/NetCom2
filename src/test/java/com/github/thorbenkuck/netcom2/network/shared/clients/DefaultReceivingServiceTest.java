@@ -6,7 +6,6 @@ import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
