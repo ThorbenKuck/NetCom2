@@ -65,7 +65,7 @@ public class RemoteObjectFactoryImplTest {
 		assertNotNull(registration);
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setInvocationHandlerProducer() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
@@ -85,7 +85,7 @@ public class RemoteObjectFactoryImplTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
@@ -102,7 +102,7 @@ public class RemoteObjectFactoryImplTest {
 		testInterface.test();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setDefaultFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);
@@ -174,7 +174,7 @@ public class RemoteObjectFactoryImplTest {
 		// Assert is in act, no Exception should be thrown
 	}
 
-	@Test (expected = RemoteObjectNotRegisteredException.class)
+	@Test(expected = RemoteObjectNotRegisteredException.class)
 	public void createWithoutFallback() throws Exception {
 		// Arrange
 		Sender sender = mock(Sender.class);

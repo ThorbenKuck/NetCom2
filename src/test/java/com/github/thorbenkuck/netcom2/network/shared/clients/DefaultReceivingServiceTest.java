@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.exceptions.SetupError;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
@@ -14,9 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultReceivingServiceTest {
 
@@ -149,7 +146,8 @@ public class DefaultReceivingServiceTest {
 		DefaultReceivingService receivingService = createReceivingService();
 
 		// Act
-		receivingService.addReceivingCallback(o -> {});
+		receivingService.addReceivingCallback(o -> {
+		});
 
 		// Assert
 		assertEquals(1, receivingService.callbacks.size());

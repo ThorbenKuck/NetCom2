@@ -81,6 +81,7 @@ public class RegisterRequestReceiveHandlerTest {
 		fail();
 	}
 
-	private class RegisterTest {}
+	private class RegisterTest {
+	}
 
 }

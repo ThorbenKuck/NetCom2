@@ -25,15 +25,15 @@ public class TCPClientTest {
 		}
 
 		int count = 0;
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
-		clientStart.send().objectToServer(new TestObject(Integer.toString(++ count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
+		clientStart.send().objectToServer(new TestObject(Integer.toString(++count)));
 	}
 
 	public static void main(String[] args) {

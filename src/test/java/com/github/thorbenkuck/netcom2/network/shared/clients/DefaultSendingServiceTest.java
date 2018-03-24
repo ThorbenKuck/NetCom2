@@ -31,7 +31,7 @@ public class DefaultSendingServiceTest {
 		return new DefaultSendingService(new TestSerializationAdapter(), new HashSet<>(), new TestEncryptionAdapter());
 	}
 
-	@Test (expected = SetupListenerException.class)
+	@Test(expected = SetupListenerException.class)
 	public void runNotSetUp() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -55,7 +55,7 @@ public class DefaultSendingServiceTest {
 		assertEquals(1, sendingService.callbacks.size());
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void addSendDoneCallbackNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -81,7 +81,7 @@ public class DefaultSendingServiceTest {
 		assertNotNull(sendingService.toSend);
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void overrideSendingQueueWithNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -93,7 +93,7 @@ public class DefaultSendingServiceTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setupMethodOutputStreamAndSendInterfaceNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -105,7 +105,7 @@ public class DefaultSendingServiceTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setupMethodOutputStreamNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -117,7 +117,7 @@ public class DefaultSendingServiceTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setupMethodSendInterfaceNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -161,7 +161,7 @@ public class DefaultSendingServiceTest {
 //		assertFalse(Synchronize.isEmpty();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setConnectionIDSupplierNull() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();
@@ -173,7 +173,7 @@ public class DefaultSendingServiceTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setConnectionIDSupplierNullGet() throws Exception {
 		// Arrange
 		DefaultSendingService sendingService = createSendingService();

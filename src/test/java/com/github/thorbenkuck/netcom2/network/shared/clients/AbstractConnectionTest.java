@@ -300,7 +300,7 @@ public class AbstractConnectionTest {
 		Consumer<Connection> connectionConsumer = new Consumer<Connection>() {
 			@Override
 			public void accept(final Connection disconnected) {
-				assertSame(connection,disconnected);
+				assertSame(connection, disconnected);
 				finished.set(true);
 			}
 		};
@@ -532,6 +532,7 @@ public class AbstractConnectionTest {
 		}
 	}
 
-	private class TestSendObject {}
+	private class TestSendObject {
+	}
 
 }

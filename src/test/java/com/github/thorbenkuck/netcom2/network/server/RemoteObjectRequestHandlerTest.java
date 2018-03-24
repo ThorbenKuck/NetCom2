@@ -51,7 +51,7 @@ public class RemoteObjectRequestHandlerTest {
 		verify(remoteObjectRegistration).run(eq(remoteAccessCommunicationRequest));
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void acceptConnectionNull() throws Exception {
 		// Arrange
 		RemoteAccessCommunicationRequest remoteAccessCommunicationRequest = new RemoteAccessCommunicationRequest("", RemoteInterface.class, UUID.fromString(TestUtils.UUID_SEED_1), new Object[1]);
@@ -67,7 +67,7 @@ public class RemoteObjectRequestHandlerTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void acceptRequestNull() throws Exception {
 		// Arrange
 		Session session = mock(Session.class);
@@ -83,7 +83,7 @@ public class RemoteObjectRequestHandlerTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void acceptConnectionAndRequestNull() throws Exception {
 		// Arrange
 		Session session = mock(Session.class);
@@ -98,7 +98,7 @@ public class RemoteObjectRequestHandlerTest {
 		fail();
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void acceptSessionAndConnectionAndRequestNull() throws Exception {
 		// Arrange
 		RemoteObjectRegistration remoteObjectRegistration = mock(RemoteObjectRegistration.class);

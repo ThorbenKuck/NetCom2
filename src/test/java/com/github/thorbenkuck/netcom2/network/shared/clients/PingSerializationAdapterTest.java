@@ -31,7 +31,7 @@ public class PingSerializationAdapterTest {
 		String serializedPing = adapter.get(nullPing);
 
 		// Assert
-		assertEquals("Ping|"+clientID, serializedPing);
+		assertEquals("Ping|" + clientID, serializedPing);
 	}
 
 }
