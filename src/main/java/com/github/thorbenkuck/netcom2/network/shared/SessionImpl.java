@@ -169,10 +169,12 @@ class SessionImpl implements Session {
 	@Override
 	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {
 		NetCom2Utils.parameterNotNull(heartBeat);
-		final HeartBeat<Session> heartBeat1 = heartBeats.remove(heartBeats.indexOf(heartBeat));
-		if (heartBeat1 != null) {
-			heartBeat1.stop();
+		if(!heartBeats.contains(heartBeat)) {
+			logging.warn("The HeartBeat " + heartBeat + " was never set.");
+			return;
 		}
+		heartBeats.remove(heartBeat);
+		heartBeat.stop();
 	}
 
 	/**
