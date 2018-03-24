@@ -187,7 +187,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 		return true;
 	}
 
-	private void _unregister(Class clazz) {
+	private void unregisterCertainClass(Class clazz) {
 		logging.trace("Unregister " + clazz);
 		synchronized (mapping) {
 			mapping.remove(clazz);
@@ -279,7 +279,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 				logging.error("The Object " + object.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
-			_unregister(clazz);
+			unregisterCertainClass(clazz);
 		}
 	}
 
@@ -289,7 +289,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	@Override
 	public void unregister(Class... identifier) {
 		for (Class clazz : identifier) {
-			_unregister(clazz);
+			unregisterCertainClass(clazz);
 		}
 	}
 
