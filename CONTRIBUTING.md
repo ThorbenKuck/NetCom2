@@ -6,7 +6,7 @@ The main work-branch is __dev__. New features as well as bug-fixes are merged in
 
 The hot-spot-branch is the __NIGHTLY__ branch. Every new branch (except for urgent fixes) comes from/goes into this branch. This branch is branched from dev.
 
-Every change in any of these branches requires an pull-request.
+Every change in any of these branches requires a pull-request.
 
 If you want, you may freely perform a __pull-down-update__. This means, merging the master into dev and merging dev into NIGHTLY. Please add to your pullrequest the comment "pull-down-update".
 
@@ -31,13 +31,16 @@ Once finished, open the pull-request only to the branch you originally branched 
 
 # Workflow
 
-To correctly contribute on NetCom2, follow the following guidelines:
+To correctly contribute on NetCom2, follow the guidelines below:
 
 
 ### Conventions
 
  * The code-conventions in this repository are the default Java conventions.
- * Intend your code with taps rather than 4 spaces.
+ * Intent your code with tabs rather than 4 spaces.
+ * Branch from Nightly and name your Branch the following: #{ISSUE-NUMBER}_{ISSUE_DESCRIPTION}
+ * Last Commit: #{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished.
+ * Force-Push is under all circumstances prohibited!
 
 ### External Contributions
 
@@ -59,22 +62,22 @@ In most cases, pull-request from external contributors about urgent Issues or ne
 
 ### Direct Contributions
 
-If you are a direct contributor (you have push rights to this repository), please follow the following guid
+If you are a direct contributor (you have push rights to this repository), please follow the following guide
 
 1) Create a branch named exactly as the issue you are working on. If the issue has the label "urgent", branch from dev, else branch from NIGHTLY.    
-2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequenz-diagramm, this wont hurt either.
+2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequence-diagram, this wont hurt either.
 3) Fix the bug/develop the new feature based on your design.
 4) Write a test. Test any case you could come up with.
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
-6) If your pull-request get's denied, start over from 3.
+6) If your pull-request gets denied, start over from 3.
 
 ### Releases
 
-The right to provide a new release lies by the repository owner.
+The repository owner reserves the right to provide a new release.
 
 ### Becoming a direct Contributor
 
-For becoming a direct contributor, you have to apply to the owner of this repository.
+To become a direct contributor, you have to apply to the owner of this repository.
 
 You should already have:
 
@@ -91,6 +94,6 @@ You are granted:
  * The right to alter the existing templates (requires the acknowledge and the okay from the repository owner)
  * Whatever you don't know, you will be taught. (The repository-owner does not have all the time in the world, so please resign to any direct contributor for help)
  
-The repository owner holds a local copy of the project. If you do any malicious action or an major break, the repository owner holds his right to remove you as a direct contributor.
+The repository owner keeps a local copy of the project. If you perform any malicious action or cause a major break, the repository owner reserves the right to remove you as a direct contributor.
 
-**Note:** You do *NOT* have the right to release a new version! This right might however be granted temporary by the repository owner.
+**Note:** You do *NOT* have the right to release a new version! This right might however be granted temporarily by the repository owner.
