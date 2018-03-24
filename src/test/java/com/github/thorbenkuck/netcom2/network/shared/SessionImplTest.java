@@ -236,7 +236,7 @@ public class SessionImplTest {
 		SessionImpl session = new SessionImpl(bridge);
 
 		// Act
-		session.triggerEvent(null, new TestObject());
+		session.triggerEvent(null, null);
 
 		// Assert
 		fail();
@@ -283,6 +283,7 @@ public class SessionImplTest {
 
 		// Assert
 		verify(logging).warn(contains("was never set"));
+		verify(heartBeat, never()).stop();
 	}
 
 	@Test
