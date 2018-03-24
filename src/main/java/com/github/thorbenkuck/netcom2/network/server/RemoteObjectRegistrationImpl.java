@@ -288,6 +288,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	 */
 	@Override
 	public void unregister(Class... identifier) {
+		NetCom2Utils.parameterNotNull(identifier);
 		for (Class clazz : identifier) {
 			_unregister(clazz);
 		}
@@ -322,6 +323,7 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 	@Override
 	public RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
 		NetCom2Utils.parameterNotNull(request);
+		NetCom2Utils.parameterNotNull(request.getMethodName(), request.getClazz(), request.getUuid());
 		final Object handlingObject;
 		synchronized (mapping) {
 			handlingObject = mapping.get(request.getClazz());

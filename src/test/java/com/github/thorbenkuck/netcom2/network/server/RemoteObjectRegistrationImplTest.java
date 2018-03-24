@@ -26,6 +26,7 @@ public class RemoteObjectRegistrationImplTest {
 		remoteObjectRegistration.register(remoteObject, classes);
 
 		//Assert
+		fail();
 	}
 
 	@Test
@@ -113,6 +114,7 @@ public class RemoteObjectRegistrationImplTest {
 		remoteObjectRegistration.hook(null);
 
 		//Assert
+		fail();
 	}
 
 	@Test
@@ -177,6 +179,66 @@ public class RemoteObjectRegistrationImplTest {
 		verify(object, never()).anInterfaceMethod();
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void unregisterNullClassArray() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unregister((Class[]) null);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unregisterNullObject() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unregister((Object) null);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unregisterNullObjectAndClassArray() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unregister(null, (Class[]) null);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unregisterNullObjectWithClassArray() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unregister((Object) null, TestRemoteObject.class);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unregisterNullClassArrayWithObject() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unregister(new TestRemoteObject(), (Class[]) null);
+
+		//Assert
+		fail();
+	}
+
 	@Test
 	public void unhook() throws Exception {
 		//Arrange
@@ -199,6 +261,18 @@ public class RemoteObjectRegistrationImplTest {
 		//Assert
 		verify(object, never()).anInterfaceMethod();
 		verify(object, never()).aMethod();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unhookNull() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.unhook(null);
+
+		//Assert
+		fail();
 	}
 
 	@Test
@@ -315,6 +389,74 @@ public class RemoteObjectRegistrationImplTest {
 		assertEquals(uuid, response.getUuid());
 		assertNotNull(response.getThrownThrowable());
 		assertThat(response.getThrownThrowable(), instanceOf(RemoteObjectInvalidMethodException.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void runNullRequest() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+
+		//Act
+		remoteObjectRegistration.run(null);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void runNullMethod() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+		TestRemoteObject remoteObject = spy(new TestRemoteObject());
+		Class<?> classToAssign = TestRemoteObject.class;
+		String methodName = null;
+		UUID uuid = UUID.fromString(UUID_SEED_1);
+		Object[] parameters = null;
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+
+		//Act
+		remoteObjectRegistration.register(remoteObject, classToAssign);
+		remoteObjectRegistration.run(communicationRequest);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void runNullClass() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+		TestRemoteObject remoteObject = spy(new TestRemoteObject());
+		Class<?> classToAssign = TestRemoteObject.class;
+		String methodName = "aMethod";
+		UUID uuid = UUID.fromString(UUID_SEED_1);
+		Object[] parameters = null;
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, null, uuid, parameters);
+
+		//Act
+		remoteObjectRegistration.register(remoteObject, classToAssign);
+		remoteObjectRegistration.run(communicationRequest);
+
+		//Assert
+		fail();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void runNullUuid() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+		TestRemoteObject remoteObject = spy(new TestRemoteObject());
+		Class<?> classToAssign = TestRemoteObject.class;
+		String methodName = "aMethod";
+		Object[] parameters = null;
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, null, parameters);
+
+		//Act
+		remoteObjectRegistration.register(remoteObject, classToAssign);
+		remoteObjectRegistration.run(communicationRequest);
+
+		//Assert
+		fail();
 	}
 
 	private class TestRemoteObject {
