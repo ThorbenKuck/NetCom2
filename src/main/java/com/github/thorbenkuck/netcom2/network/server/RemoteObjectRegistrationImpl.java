@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -333,30 +334,33 @@ class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 		Exception exception = null;
 		Object methodCallResult = null;
-		Method calledMethod = null;
+		Method methodToCall = null;
 
-		logging.trace("Checking declared methods of object " + handlingObject);
 		for (Method method : handlingObject.getClass().getMethods()) {
 			if (method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
-				Object[] args = orderParameters(request.getParameters(), method);
 				logging.debug("Found suitable Method " + method.getName() + " of " + handlingObject);
-				try {
-					methodCallResult = handleMethod(method, handlingObject, args);
-					logging.debug("Computed result detected: " + methodCallResult);
-					break;
-				} catch (final Exception e) {
-					logging.catching(e);
-					exception = e;
-					break;
-				} catch (final Throwable throwable) {
-					logging.fatal("Encountered throwable, non Exception: " + throwable + " while executing " + method + " on " + handlingObject.getClass(), throwable);
-					exception = new RemoteException("RemoteObjectRegistration encountered " + throwable.getClass());
-				} finally {
-					calledMethod = method;
-				}
+				methodToCall = method;
+				break;
 			}
 		}
+
+		if(methodToCall != null) {
+			Object[] args = orderParameters(request.getParameters(), methodToCall);
+			try {
+				methodCallResult = handleMethod(methodToCall, handlingObject, args);
+				logging.debug("Computed result detected: " + methodCallResult);
+			} catch (final Exception e) {
+				logging.catching(e);
+				exception = e;
+			} catch (final Throwable throwable) {
+				logging.fatal("Encountered throwable, non Exception: " + throwable + " while executing " + methodToCall + " on " + handlingObject.getClass(), throwable);
+				exception = new RemoteException("RemoteObjectRegistration encountered " + throwable.getClass());
+			}
+		} else {
+			exception = new RemoteObjectInvalidMethodException("No suitable method found for name " + request.getMethodName() + " with parameters" + Arrays.toString(request.getParameters()));
+		}
 		logging.trace("Finalizing run of " + request.getClazz());
-		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), calledMethod);
+
+		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), methodToCall);
 	}
 }

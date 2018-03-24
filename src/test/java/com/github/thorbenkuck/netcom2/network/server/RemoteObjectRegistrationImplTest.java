@@ -1,13 +1,16 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 import static com.github.thorbenkuck.netcom2.TestUtils.UUID_SEED_1;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -242,7 +245,32 @@ public class RemoteObjectRegistrationImplTest {
 	}
 
 	@Test
-	public void runNonExistentMethod() throws Exception {
+	public void runExistingMethodWithParameters() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+		TestRemoteObject remoteObject = spy(new TestRemoteObject());
+		Class<?> classToAssign = TestRemoteObject.class;
+		String methodName = "aBigIntMethod";
+		UUID uuid = UUID.fromString(UUID_SEED_1);
+		BigInteger inputParam = new BigInteger("3");
+		Object[] parameters = new Object[] {inputParam};
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+
+		//Act
+		remoteObjectRegistration.register(remoteObject, classToAssign);
+		RemoteAccessCommunicationResponse response = remoteObjectRegistration.run(communicationRequest);
+
+		//Assert
+		verify(remoteObject).aBigIntMethod(eq(inputParam));
+		assertNotNull(response);
+		assertNotNull(response.getResult());
+		assertEquals(new BigInteger("4"), response.getResult());
+		assertEquals(uuid, response.getUuid());
+		assertNull(response.getThrownThrowable());
+	}
+
+	@Test
+	public void runNonExistentNameMethod() throws Exception {
 		//Arrange
 		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 		TestRemoteObject remoteObject = spy(new TestRemoteObject());
@@ -262,11 +290,40 @@ public class RemoteObjectRegistrationImplTest {
 		assertNull(response.getResult());
 		assertEquals(uuid, response.getUuid());
 		assertNotNull(response.getThrownThrowable());
+		assertThat(response.getThrownThrowable(), instanceOf(RemoteObjectInvalidMethodException.class));
+	}
+
+	@Test
+	public void runNonExistentParameterMethod() throws Exception {
+		//Arrange
+		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+		TestRemoteObject remoteObject = spy(new TestRemoteObject());
+		Class<?> classToAssign = TestRemoteObject.class;
+		String methodName = "aNonExistentMethod";
+		UUID uuid = UUID.fromString(UUID_SEED_1);
+		Object[] parameters = new Object[] {new BigInteger("3")};
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+
+		//Act
+		remoteObjectRegistration.register(remoteObject, classToAssign);
+		RemoteAccessCommunicationResponse response = remoteObjectRegistration.run(communicationRequest);
+
+		//Assert
+		verify(remoteObject, never()).aMethod();
+		assertNotNull(response);
+		assertNull(response.getResult());
+		assertEquals(uuid, response.getUuid());
+		assertNotNull(response.getThrownThrowable());
+		assertThat(response.getThrownThrowable(), instanceOf(RemoteObjectInvalidMethodException.class));
 	}
 
 	private class TestRemoteObject {
 
 		public void aMethod() {}
+
+		public BigInteger aBigIntMethod(final BigInteger bigInteger) {
+			return bigInteger.add(BigInteger.ONE);
+		}
 
 	}
 
