@@ -34,8 +34,7 @@ public class ConnectionFactory {
 	 */
 	private ReceivingService getReceivingService(final Client client) {
 		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
-				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(),
-				client.getDecryptionAdapter());
+				client::getMainDeSerializationAdapter, client::getFallBackDeSerialization, client::getDecryptionAdapter);
 		receivingService.onDisconnect(client::disconnect);
 		return receivingService;
 
@@ -48,8 +47,8 @@ public class ConnectionFactory {
 	 * @return a SendingService, usable by a Connection
 	 */
 	private SendingService getSendingService(final Client client) {
-		return new DefaultSendingService(client.getMainSerializationAdapter(), client.getFallBackSerialization(),
-				client.getEncryptionAdapter());
+		return new DefaultSendingService(client::getMainSerializationAdapter, client::getFallBackSerialization,
+				client::getEncryptionAdapter);
 	}
 
 	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,

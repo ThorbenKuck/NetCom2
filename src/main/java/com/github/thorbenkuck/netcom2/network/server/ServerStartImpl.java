@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -76,6 +77,7 @@ class ServerStartImpl implements ServerStart {
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
 		}
+		Collections.reverse(clientConnectedHandlerList);
 		final Client client = createClient(clientConnectedHandlerList, socket);
 
 		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {

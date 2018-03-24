@@ -18,12 +18,13 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 
 @APILevel
 @Synchronized
 class DefaultReceivingService implements ReceivingService {
 
-	private final DecryptionAdapter decryptionAdapter;
+	private final Supplier<DecryptionAdapter> decryptionAdapter;
 	@APILevel
 	private final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
@@ -33,16 +34,16 @@ class DefaultReceivingService implements ReceivingService {
 	private Session session;
 	private Scanner in;
 	private CommunicationRegistration communicationRegistration;
-	private DeSerializationAdapter<String, Object> deSerializationAdapter;
-	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization;
+	private Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
+	private Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
 	private boolean running = false;
 	private Logging logging = Logging.unified();
 
 	@APILevel
 	DefaultReceivingService(final CommunicationRegistration communicationRegistration,
-							final DeSerializationAdapter<String, Object> deSerializationAdapter,
-							final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
-							final DecryptionAdapter decryptionAdapter) {
+							final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter,
+							final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization,
+							final Supplier<DecryptionAdapter> decryptionAdapter) {
 		this.communicationRegistration = communicationRegistration;
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
@@ -80,17 +81,17 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private String decrypt(final String s) {
-		return decryptionAdapter.get(s);
+		return decryptionAdapter.get().get(s);
 	}
 
 	private Object deserialize(final String string) throws DeSerializationFailedException {
-		final String toDeserialize = decryptionAdapter.get(string);
+		final String toDeserialize = decrypt(string);
 		final DeSerializationFailedException deSerializationFailedException;
 		try {
-			return deSerializationAdapter.get(toDeserialize);
+			return deSerializationAdapter.get().get(toDeserialize);
 		} catch (final DeSerializationFailedException ex) {
 			deSerializationFailedException = new DeSerializationFailedException(ex);
-			for (final DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization) {
+			for (final DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization.get()) {
 				try {
 					return adapter.get(toDeserialize);
 				} catch (final DeSerializationFailedException e) {
