@@ -58,7 +58,7 @@ public class JavaRemoteInformationInvocationHandlerTest {
 		assertNull(result);
 	}
 
-	@Test (expected = PipelineAccessException.class)
+	@Test(expected = PipelineAccessException.class)
 	public void setFallbackRunnable() throws Throwable {
 		// Arrange
 		UUID id = UUID.randomUUID();

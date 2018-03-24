@@ -67,7 +67,7 @@ public class ServerStartTest {
 					.addLast(login -> {
 						System.out.println("Okay, ich logge dich ein...");
 						session.setIdentified(true);
-					}).withRequirement(login -> ! session.isIdentified());
+					}).withRequirement(login -> !session.isIdentified());
 
 
 //			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();

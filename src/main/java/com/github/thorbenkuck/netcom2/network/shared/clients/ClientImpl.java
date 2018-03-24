@@ -242,7 +242,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
-		NetCom2Utils.assertNotNull(disconnectedHandler);
+		NetCom2Utils.parameterNotNull(disconnectedHandler);
 		disconnectedHandlers.addFirst(disconnectedHandler::handle).withRequirement(client -> disconnectedHandler.active());
 	}
 
@@ -310,7 +310,7 @@ class ClientImpl implements Client {
 	@Override
 	public final Awaiting createNewConnection(final Class connectionKey) {
 		logging.debug("Requesting new Connection for key: " + connectionKey);
-		NetCom2Utils.assertNotNull(connectionKey);
+		NetCom2Utils.parameterNotNull(connectionKey);
 		send(new NewConnectionRequest(connectionKey));
 		return prepareConnection(connectionKey);
 	}
@@ -332,6 +332,10 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public String getFormattedAddress() {
+		Optional<Connection> defaultConnection = getConnection(DefaultConnection.class);
+		if(defaultConnection.isPresent())  {
+			return defaultConnection.get().getFormattedAddress();
+		}
 		Connection anyConnection = getAnyConnection();
 		return anyConnection != null ? anyConnection.getFormattedAddress() : "NOT CONNECTED";
 	}
@@ -446,6 +450,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 * @deprecated since more than one adapter is allowed, this method is wrongly named
 	 */
 	@Override
 	@Deprecated
@@ -464,6 +469,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 * @deprecated since more than one adapter is allowed, this method is wrongly named
 	 */
 	@Override
 	@Deprecated

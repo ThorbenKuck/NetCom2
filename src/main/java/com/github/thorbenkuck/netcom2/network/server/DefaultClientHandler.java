@@ -23,7 +23,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
 	private final ConnectionFactory connectionFactory = new ConnectionFactory();
-	private Connection connection;
+	protected Connection connection;
 	private Logging logging = Logging.unified();
 
 	@APILevel

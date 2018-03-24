@@ -2,10 +2,16 @@ package com.github.thorbenkuck.netcom2.network.shared;
 
 public interface Synchronize extends Awaiting {
 
-	Synchronize EMPTY_SYNCHRONIZE = new EmptySynchronize();
-
 	static Synchronize empty() {
-		return EMPTY_SYNCHRONIZE;
+		return SynchronizeCache.EMPTY_SYNCHRONIZE;
+	}
+
+	static boolean isEmpty(Synchronize synchronize) {
+		return synchronize == SynchronizeCache.EMPTY_SYNCHRONIZE;
+	}
+
+	static boolean isEmpty(Awaiting awaiting) {
+		return awaiting == SynchronizeCache.EMPTY_SYNCHRONIZE;
 	}
 
 	void error();

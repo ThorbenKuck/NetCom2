@@ -121,7 +121,7 @@ public class SenderImplTest {
 		assertEquals(observer, sender.getPendingObserver(TestSendObject.class));
 	}
 
-	@Test (expected = UnRegistrationException.class)
+	@Test(expected = UnRegistrationException.class)
 	public void unRegistrationToServerNeg() throws Exception {
 		// Arrange
 		Client client = mock(Client.class);
@@ -152,7 +152,7 @@ public class SenderImplTest {
 		assertEquals(observer, sender.getPendingObserver(TestSendObject.class));
 	}
 
-	@Test (expected = UnRegistrationException.class)
+	@Test(expected = UnRegistrationException.class)
 	public void unRegistrationToServer1Neg() throws Exception {
 		// Arrange
 		Client client = mock(Client.class);
@@ -183,7 +183,7 @@ public class SenderImplTest {
 		assertEquals(observer, sender.getPendingObserver(TestSendObject.class));
 	}
 
-	@Test (expected = UnRegistrationException.class)
+	@Test(expected = UnRegistrationException.class)
 	public void unRegistrationToServer2Neg() throws Exception {
 		// Arrange
 		Client client = mock(Client.class);
