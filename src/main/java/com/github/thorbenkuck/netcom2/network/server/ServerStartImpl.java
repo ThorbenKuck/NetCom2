@@ -170,6 +170,10 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
+		if(!running()) {
+			logging.warn("Server not running!");
+			return;
+		}
 		logging.debug("Starting to accept all next Clients ..");
 		try {
 			while (running()) {
@@ -220,6 +224,14 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public void setPort(final int port) {
 		serverConnector = new ServerConnector(port);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getPort() {
+		return serverConnector.getPort();
 	}
 
 	/**
@@ -328,6 +340,14 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void softStop() {
+		// This is done, because
+		// if the ServerStart is
+		// not running, we do not
+		// need to go through the
+		// disconnect routine
+		if(!running()) {
+			return;
+		}
 		logging.debug("Stopping ..");
 		logging.trace("Notifying about stop ..");
 		running = false;

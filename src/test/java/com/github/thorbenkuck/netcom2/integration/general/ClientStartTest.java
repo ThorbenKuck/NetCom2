@@ -159,7 +159,7 @@ public class ClientStartTest {
 
 		@Override
 		public void run() {
-			++ tries;
+			++tries;
 			try {
 				clientStart.launch();
 				System.out.println("Reconnected after " + tries + " tries!");

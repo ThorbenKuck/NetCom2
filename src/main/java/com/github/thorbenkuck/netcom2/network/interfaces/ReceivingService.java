@@ -53,4 +53,6 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 	 * @return the internal Synchronization mechanism
 	 */
 	Awaiting started();
+
+	boolean isSetup();
 }

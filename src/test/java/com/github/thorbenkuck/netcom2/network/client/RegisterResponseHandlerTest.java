@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings ("ALL")
+@SuppressWarnings("ALL")
 public class RegisterResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {

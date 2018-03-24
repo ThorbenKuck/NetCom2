@@ -44,7 +44,7 @@ public class DistributorImplTest {
 		ObjectToSend objectToSend = new ObjectToSend();
 
 		//Act
-		distributor.toSpecific(objectToSend, (List<Predicate<Session>>)null);
+		distributor.toSpecific(objectToSend, (List<Predicate<Session>>) null);
 
 		//Assert
 	}
@@ -140,9 +140,6 @@ public class DistributorImplTest {
 	}
 
 
-
-
-
 	@Test(expected = IllegalArgumentException.class)
 	public void toSpecificListObjectNull() throws Exception {
 		//Arrange
@@ -174,7 +171,7 @@ public class DistributorImplTest {
 		ObjectToSend objectToSend = new ObjectToSend();
 
 		//Act
-		distributor.toSpecific(objectToSend, (Predicate<Session>[])null);
+		distributor.toSpecific(objectToSend, (Predicate<Session>[]) null);
 
 		//Assert
 	}
@@ -272,8 +269,6 @@ public class DistributorImplTest {
 		verify(session2, never()).send(eq(objectToSend));
 		verify(session3, never()).send(eq(objectToSend));
 	}
-
-
 
 
 	@Test
