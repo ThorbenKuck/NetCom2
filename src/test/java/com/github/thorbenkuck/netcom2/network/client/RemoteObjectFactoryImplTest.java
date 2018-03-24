@@ -23,7 +23,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -38,7 +37,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -52,7 +50,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -148,7 +145,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -163,7 +159,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test
@@ -177,7 +172,6 @@ public class RemoteObjectFactoryImplTest {
 
 		// Assert
 		// Assert is in act, no Exception should be thrown
-		fail();
 	}
 
 	@Test (expected = RemoteObjectNotRegisteredException.class)

@@ -155,7 +155,7 @@ class DefaultReceivingService implements ReceivingService {
 	@Override
 	public synchronized void run() {
 		if(!isSetup()) {
-			throw new SetupError("[ReceivingService] has to be setup before running it!");
+			throw new SetupListenerException("[ReceivingService] has to be setup before running it!");
 		}
 		running = true;
 		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());

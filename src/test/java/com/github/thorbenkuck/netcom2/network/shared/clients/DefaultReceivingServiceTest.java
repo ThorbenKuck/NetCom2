@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.exceptions.SetupError;
+import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -23,7 +24,7 @@ public class DefaultReceivingServiceTest {
 		return new DefaultReceivingService(mock(CommunicationRegistration.class), string -> null, new HashSet<>(), string -> string);
 	}
 
-	@Test(expected = SetupError.class)
+	@Test(expected = SetupListenerException.class)
 	public void runWithoutSetup() throws Exception {
 		// Arrange
 		DefaultReceivingService receivingService = createReceivingService();
