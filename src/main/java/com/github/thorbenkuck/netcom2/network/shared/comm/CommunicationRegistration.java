@@ -35,6 +35,9 @@ import java.util.Map;
  *
  * @see #trigger(Class, Connection, Session, Object)
  * @see ReceivePipeline
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Synchronized
 public interface CommunicationRegistration extends Mutex {

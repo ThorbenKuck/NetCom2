@@ -16,6 +16,14 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
+/**
+ * This is the DefaultCommunicationRegistration.
+ *
+ * It is used everywhere. Get used to it.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Synchronized
 class DefaultCommunicationRegistration implements CommunicationRegistration {
@@ -27,10 +35,14 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
-	private void requireNotNull(final Object... objects) {
-		NetCom2Utils.assertNotNull(objects);
-	}
-
+	/**
+	 * Check, whether or not, the class is assignable by the objects class.
+	 *
+	 * Throws an IllegalArgumentException if not.
+	 *
+	 * @param clazz the class
+	 * @param o the Object
+	 */
 	private void sanityCheck(final Class<?> clazz, final Object o) {
 		if (!(o != null && clazz.equals(o.getClass()))) {
 			throw new IllegalArgumentException("Possible internal error!\n" +
@@ -39,6 +51,15 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
+	 *
+	 * @param clazz the class of the received Object
+	 * @param connection the Connection, this Object was received over
+	 * @param session the Session of the received Object
+	 * @param o the received Object
+	 * @throws CommunicationNotSpecifiedException if not defaultCommunicationHandler is set.
+	 */
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
 	                                 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
@@ -50,6 +71,18 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Triggers an set {@link ReceivePipeline}.
+	 *
+	 * If that ReceivePipeline is not existing, an ConcurrentModificationException will be thrown
+	 *
+	 * @param clazz the class of the received Object
+	 * @param connection the Connection, this Object was received over
+	 * @param session the Session of the received Object
+	 * @param o the received Object
+	 * @param <T> The type of that ReceivePipeline
+	 * @throws ConcurrentModificationException if the ReceivePipeline cannot be found
+	 */
 	@SuppressWarnings("unchecked")
 	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
 	                                 final Object o) {
@@ -72,6 +105,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Runs the default CommunicationHandlers.
+	 *
+	 * @param connection the Connection, the Object was received over
+	 * @param session the Session, associated with the Connection
+	 * @param o the received Object
+	 */
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
@@ -86,6 +126,15 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Handles an Object, that was received and is registered.
+	 *
+	 * @param pipeline The {@link ReceivePipeline} registered for that Object
+	 * @param connection the Connection, the Object was received over
+	 * @param session the Session, associated with the Connection
+	 * @param o the received Object
+	 * @param <T> the Type of that ReceivePipeline.
+	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
 	                                  final Session session, final T o) {
 		try {

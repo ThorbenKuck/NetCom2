@@ -5,6 +5,12 @@ import com.github.thorbenkuck.netcom2.pipeline.CanBeRegistered;
 
 import java.util.function.BiConsumer;
 
+/**
+ * @param <T> The Object, that should be Consumed beneath the Session
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @FunctionalInterface
-public interface OnReceive<O> extends BiConsumer<Session, O>, CanBeRegistered, ReceiveFamily {
+public interface OnReceive<T> extends BiConsumer<Session, T>, CanBeRegistered, ReceiveFamily {
 }

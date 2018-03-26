@@ -4,7 +4,19 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
  * This interface has only default methods.
+ *
  * You may override any number of those, but you are not required to.
+ *
+ * The DefaultFamily currently includes:
+ *
+ * <ul>
+ *     <li>{@link OnReceiveSingle}</li>
+ *     <li>{@link OnReceive}</li>
+ *     <li>{@link OnReceiveTriple}</li>
+ * </ul>
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface ReceiveFamily {
 
