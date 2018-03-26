@@ -1,5 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+/**
+ * This EmptySynchronize is an NullObject for Synchronize.
+ *
+ * This is non-blocking.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class EmptySynchronize implements Synchronize {
 
 	/**

@@ -7,6 +7,12 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Properties;
 
+/**
+ * Well, this is... The implementation... of... the.... wait for it..... SessionUpdater.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class SessionUpdaterImpl implements SessionUpdater {
 
@@ -19,6 +25,9 @@ class SessionUpdaterImpl implements SessionUpdater {
 		this.session = session;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SessionUpdater updateIdentified(final boolean to) {
 		try {
@@ -32,6 +41,9 @@ class SessionUpdaterImpl implements SessionUpdater {
 		return this;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SessionUpdater updateProperties(final Properties properties) {
 		NetCom2Utils.parameterNotNull(properties);
@@ -46,6 +58,9 @@ class SessionUpdaterImpl implements SessionUpdater {
 		return this;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SessionUpdater updateIdentifier(final String identifier) {
 		NetCom2Utils.parameterNotNull(identifier);
@@ -60,6 +75,9 @@ class SessionUpdaterImpl implements SessionUpdater {
 		return this;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void sendOverNetwork() {
 		final Session toSend = new SessionImpl(null);

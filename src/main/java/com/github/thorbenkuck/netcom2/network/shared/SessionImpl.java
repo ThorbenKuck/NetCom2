@@ -18,6 +18,9 @@ import java.util.concurrent.Semaphore;
  * <p>
  * Note that only the Methods: {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()} are marked final,
  * so that the default behaviour of the internal Mechanisms is ensured.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 class SessionImpl implements Session {

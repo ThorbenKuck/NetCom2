@@ -64,9 +64,12 @@ class Initializer {
 			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
-
 			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
 					.addFirst(new RemoteObjectRequestHandler(remoteObjectRegistration));
+
+			ReceivePipeline<SessionUpdate> sessionUpdatePipeline = communicationRegistration.register(SessionUpdate.class);
+			sessionUpdatePipeline.close();
+			sessionUpdatePipeline.seal();
 
 			// DO NOT CHANGE THIS!
 			final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);

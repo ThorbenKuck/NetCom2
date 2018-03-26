@@ -5,6 +5,12 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * This Class helps with creating a Synchronize instance, based on an {@link CountDownLatch}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public abstract class AbstractSynchronize implements Synchronize {
 
 	protected final int numberOfActions;
@@ -23,6 +29,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		this.countDownLatch = new CountDownLatch(numberOfActions);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void synchronize() throws InterruptedException {
@@ -31,6 +40,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		logging.trace("Synchronized!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void goOn() {
@@ -41,6 +53,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void reset() {

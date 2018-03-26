@@ -2,6 +2,15 @@ package com.github.thorbenkuck.netcom2.network.shared;
 
 import java.util.function.Consumer;
 
+/**
+ * This Callback is used for latching onto the {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService}
+ * and {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}.
+ *
+ * @param <T> The Type, this Callback expects
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @FunctionalInterface
 public interface Callback<T> extends Consumer<T> {
 

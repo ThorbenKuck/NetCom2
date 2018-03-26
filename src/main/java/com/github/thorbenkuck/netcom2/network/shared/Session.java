@@ -24,6 +24,9 @@ import java.util.Properties;
  * Client-Server-Communication or Connection establishment.
  * <p>
  * Otherwise you can feel free to create an custom Session.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface Session extends Mutex, Serializable {
 
