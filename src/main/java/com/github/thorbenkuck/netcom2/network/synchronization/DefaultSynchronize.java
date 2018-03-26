@@ -4,6 +4,14 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.AbstractSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This is the default entry for Synchronize-instances.
+ *
+ * You may provide an Runnable, that should be run if an error occurs
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class DefaultSynchronize extends AbstractSynchronize {
 
 	private Runnable onError = () -> Logging.unified().fatal(this + ": error notification received!");

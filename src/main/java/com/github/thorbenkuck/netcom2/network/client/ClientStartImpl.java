@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @APILevel
 @Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.ClientStartImplTest")
 class ClientStartImpl implements ClientStart {
 
 	private final Cache cache = Cache.create();
