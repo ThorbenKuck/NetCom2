@@ -6,23 +6,44 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import java.io.Serializable;
 
 @APILevel
-public class SessionUpdate implements Serializable {
+public final class SessionUpdate implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
 	private final Session session;
 
-	public SessionUpdate(Session session) {
+	public SessionUpdate(final Session session) {
 		this.session = session;
 	}
 
-	public Session getSession() {
+	public final Session getSession() {
 		return session;
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "SessionUpdate{" +
 				"session=" + session +
 				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean equals(final Object o) {
+		if (this == o) return true;
+		if (!(o instanceof SessionUpdate)) return false;
+
+		SessionUpdate that = (SessionUpdate) o;
+
+		return session.equals(that.session);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final int hashCode() {
+		return session.hashCode();
 	}
 }

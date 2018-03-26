@@ -38,7 +38,7 @@ public class DefaultClientHandlerTest {
 		verify(list).add(eq(client));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNull() throws Exception {
 		// Arrange
 		ClientList list = mock(ClientList.class);
@@ -74,7 +74,7 @@ public class DefaultClientHandlerTest {
 		verify(client).addDisconnectedHandler(any());
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void handleNull() throws Exception {
 		// Arrange
 		ClientList list = mock(ClientList.class);
