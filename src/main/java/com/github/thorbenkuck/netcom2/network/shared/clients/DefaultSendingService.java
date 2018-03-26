@@ -25,9 +25,9 @@ import java.util.function.Supplier;
 @APILevel
 class DefaultSendingService implements SendingService {
 
-	private final SerializationAdapter<Object, String> mainSerializationAdapter;
-	private final Set<SerializationAdapter<Object, String>> fallBackSerialization;
-	private final EncryptionAdapter encryptionAdapter;
+	private final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter;
+	private final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization;
+	private final Supplier<EncryptionAdapter> encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
@@ -41,9 +41,9 @@ class DefaultSendingService implements SendingService {
 	private Thread containingThread;
 
 	@APILevel
-	DefaultSendingService(final SerializationAdapter<Object, String> mainSerializationAdapter,
-						  final Set<SerializationAdapter<Object, String>> fallBackSerialization,
-						  final EncryptionAdapter encryptionAdapter) {
+	DefaultSendingService(final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter,
+						  final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization,
+						  final Supplier<EncryptionAdapter> encryptionAdapter) {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
 		this.encryptionAdapter = encryptionAdapter;
@@ -57,7 +57,7 @@ class DefaultSendingService implements SendingService {
 			logging.trace("[SendingService{" + connectionID.get() + "}] Encrypting " + toSend + " ..");
 			toSend = encrypt(toSend);
 			logging.trace("[SendingService{" + connectionID.get() + "}] Writing: " + toSend + " ..");
-			printWriter.println(encryptionAdapter.get(toSend));
+			printWriter.println(toSend);
 			printWriter.flush();
 			logging.trace("[SendingService{" + connectionID.get() + "}] Successfully wrote " + toSend + "!");
 			logging.trace("[SendingService{" + connectionID.get() + "}] Accepting CallBacks ..");
@@ -73,11 +73,11 @@ class DefaultSendingService implements SendingService {
 		final SerializationFailedException serializationFailedException;
 		try {
 			logging.trace("[SendingService{" + connectionID.get() + "}] Trying to use mainSerializationAdapter for " + o + " .. ");
-			return mainSerializationAdapter.get(o);
+			return mainSerializationAdapter.get().get(o);
 		} catch (SerializationFailedException ex) {
 			logging.trace("[SendingService{" + connectionID.get() + "}] Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
 			serializationFailedException = new SerializationFailedException(ex);
-			for (final SerializationAdapter<Object, String> adapter : fallBackSerialization) {
+			for (final SerializationAdapter<Object, String> adapter : fallBackSerialization.get()) {
 				try {
 					logging.trace("[SendingService{" + connectionID.get() + "}] Trying to use: " + adapter + " ..");
 					return adapter.get(o);
@@ -92,7 +92,7 @@ class DefaultSendingService implements SendingService {
 	}
 
 	private String encrypt(final String s) {
-		return encryptionAdapter.get(s);
+		return encryptionAdapter.get().get(s);
 	}
 
 	private void triggerCallbacks(final Object o) {

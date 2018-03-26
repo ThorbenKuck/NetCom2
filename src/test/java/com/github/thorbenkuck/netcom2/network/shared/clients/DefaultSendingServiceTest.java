@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 public class DefaultSendingServiceTest {
 
 	private DefaultSendingService createSendingService() {
-		return new DefaultSendingService(new TestSerializationAdapter(), new HashSet<>(), new TestEncryptionAdapter());
+		return new DefaultSendingService(TestSerializationAdapter::new, HashSet::new, TestEncryptionAdapter::new);
 	}
 
 	@Test(expected = SetupListenerException.class)
