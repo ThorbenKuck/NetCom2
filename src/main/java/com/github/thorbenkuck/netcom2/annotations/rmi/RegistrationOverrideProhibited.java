@@ -11,37 +11,44 @@ import java.lang.annotation.*;
  * If the {@link RemoteObjectRegistration} contains any instance of the provided
  * annotated Type, it will not be overridden. So the following will lead to the first object staying within the registration
  * <p>
- * <code>
- * \\@RegistrationOverrideProhibited
+ * <pre>
+ * {@code
+ * {@literal @}RegistrationOverrideProhibited
  * interface Test {
- * void test();
+ *     void test();
  * }
+ *
  * class Testing {
- * RemoteObjectRegistration registration = ...
- * void run() {
- * // This will register the TestImpl Class to the Registration, identified by the Test.class
- * registration.register(new TestImpl(), Test.class);
- * // This call will not work. It will debug, that it could not be registered
- * registration.register(new TestImpl(), Test.class);
- * // Same as above. However, TestImpl will still be registered to TestImpl.class
- * registration.hook(new TestImpl());
+ *     RemoteObjectRegistration registration = ...
+ *     void run() {
+ *         // This will register the TestImpl Class to the Registration, identified by the Test.class
+ *         registration.register(new TestImpl(), Test.class);
+ *         // This call will not work. It will debug, that it could not be registered
+ *         registration.register(new TestImpl(), Test.class);
+ *         // Same as above. However, TestImpl will still be registered to TestImpl.class
+ *         registration.hook(new TestImpl());
+ *     }
+ *
+ *     private class TestImpl implements Test {
+ *         {@literal @}Override
+ *         public void test() {
+ *             // Do Something
+ *         }
+ *     }
  * }
- * private class TestImpl implements Test {
- * \\@Override
- * public void test() {
- * // Do Something
  * }
- * }
- * }
- * </code>
+ * </pre>
  * <p>
  * So you may say that, any Object may be set to the RemoteObjectRegistration, but not updated.
  * <p>
  * Note: If you call {@link RemoteObjectRegistration#clear()}, this instance will still be cleared from the Registration
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
 @Inherited
-@Retention (RetentionPolicy.RUNTIME)
-@Target (ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface RegistrationOverrideProhibited {
 }

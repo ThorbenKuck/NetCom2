@@ -1,6 +1,14 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+/**
+ * This Exception will be thrown, if anything goes wrong within the {@link com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration}.
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration
+ * @since 1.0
+ */
 public class HandlerInvocationException extends NetComRuntimeException {
+
 	/**
 	 * {@inheritDoc}
 	 */

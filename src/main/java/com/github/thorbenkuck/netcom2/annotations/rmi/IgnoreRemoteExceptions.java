@@ -13,10 +13,13 @@ import java.lang.annotation.*;
  * <p>
  * This Annotation has to be present at the requested class/interface, which should be proxied. So if the Client requests
  * an RemoteObject via an interface, the interface has to declare this annotation at its Method.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Retention (RetentionPolicy.RUNTIME)
-@Target ({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface IgnoreRemoteExceptions {
 
 	/**

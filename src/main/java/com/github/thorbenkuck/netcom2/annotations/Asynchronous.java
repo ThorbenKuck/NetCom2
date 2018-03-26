@@ -12,9 +12,12 @@ import java.lang.annotation.*;
  * <p>
  * Outside of NetCom2s internal Modules, this Annotation is a signal, that you will be seduced to asynchronous behaviour
  * if you call this Method. Therefor you may not be able to work synchronous or in an procedural style.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Retention (RetentionPolicy.SOURCE)
-@Target (ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.METHOD)
 public @interface Asynchronous {
 }

@@ -9,9 +9,12 @@ import java.lang.annotation.*;
  * So it is not possible to have an class be annotated with @Synchronized and any method with {@link Asynchronous}.
  * <p>
  * Future: Create an Annotation-Processor, that ensures that no Method is annotated with {@link Asynchronous}
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Target (ElementType.TYPE)
-@Retention (RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Synchronized {
 }
