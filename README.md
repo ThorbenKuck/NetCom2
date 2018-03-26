@@ -3,14 +3,32 @@
 NetCom2 is a framework, highly modular desigend to function as a universal and asynchronus Client-Server-Communication-Interface.
 It is designed to function as an over-network EventBus.
 
-NOTE: The documentation is still in Work!
-
-__Currently the Tests are written. Expect bad Codacy Grades untill all tests are filled!__
-
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)    
 [![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser)    
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+
+## Near future releases:
+
+__Version 1.0 will be released on the 30th of march.__
+
+Once Version 1.0 is released, it will be published at [Twitter](https://twitter.com/ThorbenKu) and potentially on [Google+](https://plus.google.com/u/0/+ThorbenKuck).
+
+Preparations are mildly needed. Since all Versions 0.x are beta-versions, you will need to look close, whether or not, you import the correct class/interface. No other major-breaks, appart from logical package-relocations, have been introduced. All interfaces are still the same, some have just changed theire location.
+
+The only thing that realy did change in interfaces is, that methods annotated with @Deprecated have been removed! No Exceptions!
+
+Appart from relocations, this Version fixes some bugs, that no one had discovered yet.
+
+The APIs had been worked out and tested in 450 Tests.
+
+#### What comes next?
+
+First of, we would like to get this framework out there. Future changes are not planed yet, tho we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Have Problems starting? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki) or post on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
+If you are having some other trouble with NetCom2, please also turn to StackOverflow.
           
 ----
 
