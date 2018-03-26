@@ -39,6 +39,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	private final int port;
 
 	ClientConnector(@APILevel final String address, @APILevel final int port, final Client client) {
+		NetCom2Utils.assertNotNull(address, port, client);
 		this.address = address;
 		this.port = port;
 		this.client = client;
@@ -78,14 +79,12 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws IllegalArgumentException if the factory is null
-	 * @throws NullPointerException     if the provided Class is null
+	 * @throws IllegalArgumentException if the factory or the provided Class is null
 	 */
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
-		NetCom2Utils.parameterNotNull(factory);
-		NetCom2Utils.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(factory, key);
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");

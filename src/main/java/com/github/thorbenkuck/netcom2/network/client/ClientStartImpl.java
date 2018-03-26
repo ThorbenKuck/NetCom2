@@ -136,11 +136,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if provided key is null
+	 * @throws IllegalArgumentException if provided key is null
 	 */
 	@Override
 	public Awaiting createNewConnection(final Class key) {
-		NetCom2Utils.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(key);
 		requireRunning();
 		logging.trace("Trying to establish new Connection ..");
 		return clientConnectionEstablish.newFor(key, client);
@@ -149,11 +149,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SocketFactory is null
+	 * @throws IllegalArgumentException if the SocketFactory is null
 	 */
 	@Override
 	public synchronized void setSocketFactory(final SocketFactory factory) {
-		NetCom2Utils.assertNotNull(factory);
+		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Set SocketFactory to: " + factory);
 		socketFactory = factory;
 	}
@@ -169,11 +169,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SerializationAdapter is null
+	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
 	public synchronized void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
-		NetCom2Utils.assertNotNull(serializationAdapter);
+		NetCom2Utils.parameterNotNull(serializationAdapter);
 		logging.debug("Added fallback Serialization " + serializationAdapter);
 		client.addFallBackSerialization(serializationAdapter);
 	}
@@ -181,11 +181,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
 	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
-		NetCom2Utils.assertNotNull(deSerializationAdapter);
+		NetCom2Utils.parameterNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
 		client.addFallBackDeSerialization(deSerializationAdapter);
 	}
@@ -193,11 +193,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SerializationAdapter is null
+	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
 	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
-		NetCom2Utils.assertNotNull(mainSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
 		client.setMainSerializationAdapter(mainSerializationAdapter);
 	}
@@ -205,11 +205,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
 	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
-		NetCom2Utils.assertNotNull(mainDeSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
 		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
 	}
@@ -217,11 +217,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DisconnectedHandler is null
+	 * @throws IllegalArgumentException if the DisconnectedHandler is null
 	 */
 	@Override
 	public synchronized void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
-		NetCom2Utils.assertNotNull(disconnectedHandler);
+		NetCom2Utils.parameterNotNull(disconnectedHandler);
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
 		client.addDisconnectedHandler(disconnectedHandler);
 	}
@@ -229,11 +229,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DecryptionAdapter is null
+	 * @throws IllegalArgumentException if the DecryptionAdapter is null
 	 */
 	@Override
 	public synchronized void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
-		NetCom2Utils.assertNotNull(decryptionAdapter);
+		NetCom2Utils.parameterNotNull(decryptionAdapter);
 		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
 		client.setDecryptionAdapter(decryptionAdapter);
 	}
@@ -241,11 +241,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the EncryptionAdapter is null
+	 * @throws IllegalArgumentException if the EncryptionAdapter is null
 	 */
 	@Override
 	public synchronized void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
-		NetCom2Utils.assertNotNull(encryptionAdapter);
+		NetCom2Utils.parameterNotNull(encryptionAdapter);
 		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
 		client.setEncryptionAdapter(encryptionAdapter);
 	}
@@ -278,11 +278,11 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the logging is null
+	 * @throws IllegalArgumentException if the logging is null
 	 */
 	@Override
 	public synchronized void setLogging(final Logging logging) {
-		NetCom2Utils.assertNotNull(logging);
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
@@ -345,9 +345,12 @@ class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the invocationHandlerProducer is null
 	 */
 	@Override
 	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
+		NetCom2Utils.parameterNotNull(invocationHandlerProducer);
 		try {
 			remoteObjectFactoryImpl.setInvocationHandlerProducer(invocationHandlerProducer);
 		} catch (InterruptedException e) {

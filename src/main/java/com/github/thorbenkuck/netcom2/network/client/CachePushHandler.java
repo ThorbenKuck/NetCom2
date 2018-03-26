@@ -29,6 +29,7 @@ class CachePushHandler implements OnReceiveSingle<CachePush> {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IllegalArgumentException if the cachePush is null
 	 */
 	@Asynchronous
 	@Override
