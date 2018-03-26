@@ -27,6 +27,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
+/**
+ * This Abstract Connection makes it easier for you, to create a custom Connection
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public abstract class AbstractConnection implements Connection, Mutex {
 
 	private final Socket socket;
@@ -361,6 +367,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		this.key = connectionKey;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
@@ -375,6 +384,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 				&& sendingService.equals(that.sendingService) && receivingService.equals(that.receivingService);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = socket.hashCode();
@@ -413,7 +425,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	@Override
 	public final void release() {
 		semaphore.release();
-	}	/**
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -431,7 +445,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * This callback, will be injected into the Receiving and SendingService
 	 */
 	private class DefaultReceiveCallback implements Callback<Object> {
 		@Override
@@ -449,8 +463,4 @@ public abstract class AbstractConnection implements Connection, Mutex {
 			return "DefaultReceiveCallback{removable=" + ! started + "}";
 		}
 	}
-
-
-
-
 }

@@ -22,6 +22,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+/**
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class DefaultSendingService implements SendingService {
 
@@ -49,6 +53,11 @@ class DefaultSendingService implements SendingService {
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
+	/**
+	 * Send the Object and will execute all needed steps.
+	 *
+	 * @param o the Object to be send.
+	 */
 	private void send(final Object o) {
 		try {
 			logging.debug("[SendingService{" + connectionID.get() + "}] Sending " + o + " ..");
@@ -69,6 +78,15 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
+	/**
+	 * Serializes an Object, to an String
+	 *
+	 * Will ask first the mainSerializationAdapter, then, if not successful, all FallbackSerializationAdapters.
+	 *
+	 * @param o the Object to be serialized
+	 * @return the serialized String
+	 * @throws SerializationFailedException if no Adapter could serialize it.
+	 */
 	private String serialize(final Object o) throws SerializationFailedException {
 		final SerializationFailedException serializationFailedException;
 		try {
@@ -91,10 +109,23 @@ class DefaultSendingService implements SendingService {
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
+	/**
+	 * Encrypts the provided String
+	 *
+	 * @param s the raw String
+	 * @return the encrypted String
+	 */
 	private String encrypt(final String s) {
 		return encryptionAdapter.get().get(s);
 	}
 
+	/**
+	 * Triggers all Callbacks, listening for sending Objects.
+	 *
+	 * Afterwards, it will clean up to free up resources.
+	 *
+	 * @param o the Object that was send.
+	 */
 	private void triggerCallbacks(final Object o) {
 		final List<Callback<Object>> temp;
 		synchronized (callbacks) {
@@ -107,6 +138,11 @@ class DefaultSendingService implements SendingService {
 		NetCom2Utils.runOnNetComThread(this::tryClearCallBacks);
 	}
 
+	/**
+	 * Deletes an Callback
+	 *
+	 * @param callback the callback
+	 */
 	private void deleteCallBack(final Callback<Object> callback) {
 		logging.debug("[SendingService{" + connectionID.get() + "}] Removing " + callback + " from SendingService ..");
 		synchronized (callbacks) {
@@ -114,6 +150,9 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
+	/**
+	 * Clears up all Callbacks, that are removable
+	 */
 	private void tryClearCallBacks() {
 		final List<Callback<Object>> removable = new ArrayList<>();
 

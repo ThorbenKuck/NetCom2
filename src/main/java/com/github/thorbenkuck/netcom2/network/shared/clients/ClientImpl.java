@@ -33,6 +33,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * This Client might be used, to create custom parts.
  * <p>
  * {@inheritDoc}
+ *
+ * @version 1.0
+ * @since 1.0
  */
 class ClientImpl implements Client {
 
@@ -758,11 +761,17 @@ class ClientImpl implements Client {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

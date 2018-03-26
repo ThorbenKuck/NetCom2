@@ -51,6 +51,11 @@ class DefaultReceivingService implements ReceivingService {
 		this.decryptionAdapter = decryptionAdapter;
 	}
 
+	/**
+	 * Handles an received String, with all needed steps
+	 *
+	 * @param string the raw received Strings.
+	 */
 	@Asynchronous
 	private void handle(final String string) {
 		logging.trace("[ReceivingService] Handling " + string + " ..");
@@ -75,16 +80,34 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Triggers the disconnectedRunnable
+	 */
 	private void onDisconnect() {
 		logging.info("[ReceivingService] Shutting down ReceivingService!");
 		onDisconnect.run();
 		running = false;
 	}
 
+	/**
+	 * Decrypts the provided String.
+	 *
+	 * @param s the encrypted String
+	 * @return the decrypted String
+	 */
 	private String decrypt(final String s) {
 		return decryptionAdapter.get().get(s);
 	}
 
+	/**
+	 * Deserialize the provided String.
+	 *
+	 * Will ask all DeserializationAdapters if the main Adapter fails.
+	 *
+	 * @param string the received String
+	 * @return the Object for that String
+	 * @throws DeSerializationFailedException if no DeSerializationAdapter can handle the String
+	 */
 	private Object deserialize(final String string) throws DeSerializationFailedException {
 		final String toDeserialize = decrypt(string);
 		final DeSerializationFailedException deSerializationFailedException;
@@ -103,6 +126,12 @@ class DefaultReceivingService implements ReceivingService {
 		throw new DeSerializationFailedException(deSerializationFailedException);
 	}
 
+	/**
+	 * Triggers the CommunicationRegistration with the needed Objects.
+	 *
+	 * @param object the receivedObject.
+	 * @see CommunicationRegistration#trigger(Connection, Session, Object)
+	 */
 	private void trigger(final Object object) {
 		try {
 			try {
@@ -118,6 +147,13 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Triggers Callbacks, listening to the Receiving of an Object.
+	 *
+	 * Afterwards, the CallBacks will be cleaned to free up resources.
+	 *
+	 * @param object the Object we received.
+	 */
 	private void callBack(final Object object) {
 		logging.debug("[ReceivingService] Accepting CallBacks(" + object + ")!");
 		runSynchronizedOverCallbacks(() -> {
@@ -133,6 +169,11 @@ class DefaultReceivingService implements ReceivingService {
 		cleanUpCallBacks();
 	}
 
+	/**
+	 * Runs an Runnable synchronized over the Callbacks
+	 *
+	 * @param runnable the Runnable
+	 */
 	private void runSynchronizedOverCallbacks(final Runnable runnable) {
 		logging.trace("[ReceivingService] Awaiting ThreadAccess over callbacks ..");
 		synchronized (callbacks) {
@@ -141,6 +182,11 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Removes a callback.
+	 *
+	 * @param toRemove the callback
+	 */
 	@Asynchronous
 	private void removeCallback(final Callback<Object> toRemove) {
 		logging.trace("[ReceivingService] Preparing to remove Callback: " + toRemove);
@@ -151,7 +197,6 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
-	 * This setupError should be changed to the Exception, introduced with #27
 	 */
 	@Override
 	public synchronized void run() {

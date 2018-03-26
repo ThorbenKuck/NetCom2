@@ -10,10 +10,19 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 
+/**
+ * This SerializationAdapter utilizes the Java-serialization, to serialize an Object into an String
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
 	private final Logging logging = Logging.unified();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public String get(final Object o) throws SerializationFailedException {
@@ -47,6 +56,9 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 		return toReturn;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "JavaSerializationAdapter{Default SerializationAdapter requiring java.io.Serializable}";

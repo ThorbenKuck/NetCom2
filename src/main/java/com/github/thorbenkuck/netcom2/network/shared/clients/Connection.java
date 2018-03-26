@@ -15,6 +15,20 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+/**
+ * A Connection is an Object-representation of an physical connection between the ClientStart and the ServerStat.
+ *
+ * Such a Connection is build in an similar way as {@link java.nio}. The idea is, that you have a {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService},
+ * that handles incoming objects asynchronously and an {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}
+ * that handles outgoing objects asynchronously.
+ *
+ * Both are Runnable classes and will use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils} for extracting
+ * procedures into other Threads.
+ *
+ * @see ConnectionFactory
+ * @version 1.0
+ * @since 1.0
+ */
 public interface Connection extends Loggable {
 
 	/**

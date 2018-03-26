@@ -36,6 +36,9 @@ import java.util.concurrent.ExecutorService;
  * <p>
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface Client extends Mutex {
 

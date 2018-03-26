@@ -14,6 +14,9 @@ import java.util.UUID;
  *
  * For example, the establishment of a new Connection requires the Client to identify falsely create IDs to delete falsely
  * create clients.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Synchronized
 public final class ClientID implements Serializable {

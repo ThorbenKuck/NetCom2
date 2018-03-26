@@ -11,6 +11,14 @@ import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * The ConnectionFactory is meant for creating certain instances of the {@link Connection}.
+ *
+ * This class is currently not the subject of abstraction, but it is planned to be, to allow you to create custom Connections.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @Synchronized
 public class ConnectionFactory {
 
@@ -18,6 +26,11 @@ public class ConnectionFactory {
 	private final Logging logging = Logging.unified();
 	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
 
+	/**
+	 * Sets the ConnectionFactoryHook, which finally creates the Connection
+	 *
+	 * @param connectionFactoryHook the factory
+	 */
 	public static void setConnectionFactoryHook(final ConnectionFactoryHook connectionFactoryHook) {
 		try {
 			connectionFactoryHookLock.lock();
@@ -28,7 +41,8 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * TODO Decouple to factory
+	 * This Method creates an ReceivingService.
+	 * Future: Decouple to factory
 	 *
 	 * @param client the Client that holds the main parts
 	 * @return a ReceivingService, usable by a Connection
@@ -42,7 +56,8 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * TODO Decouple to factory
+	 * This Method creates an SendingService
+	 * Future: Decouple to factory
 	 *
 	 * @param client the Client that holds the main parts
 	 * @return a SendingService, usable by a Connection
@@ -52,6 +67,16 @@ public class ConnectionFactory {
 				client::getEncryptionAdapter);
 	}
 
+	/**
+	 * This Method hooks an connection up, which basically means, this method creates Connections.
+	 *
+	 * @param socket the base Socket
+	 * @param session the Session associated with this Connection
+	 * @param sendingService the SendingService for this Connection
+	 * @param receivingService the ReceivingService for this Connection
+	 * @param key the Key, identifying the Connection
+	 * @return a new Connection instance.
+	 */
 	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
 									 final ReceivingService receivingService, final Class<?> key) {
 		try {
@@ -62,12 +87,23 @@ public class ConnectionFactory {
 		}
 	}
 
+	/**
+	 * Creates a new Connection without any specific ConnectionKey
+	 *
+	 * @param socket the base Socket
+	 * @param client the base Client
+	 * @return a new Connection instnace
+	 */
 	public Connection create(final Socket socket, final Client client) {
 		return create(socket, client, DefaultConnection.class);
 	}
 
 	/**
-	 * TODO Decouple to a factory
+	 * Creates a new Connection, with a custom Identifier.
+	 *
+	 * With this call, dependencies will be gathered, mostly from the Client provided.
+	 *
+	 * Future: Decouple to a factory
 	 *
 	 * @param socket the underlying Socket for the connection
 	 * @param client the client, embedded into the connection
