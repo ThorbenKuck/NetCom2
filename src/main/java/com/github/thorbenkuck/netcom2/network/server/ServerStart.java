@@ -4,7 +4,6 @@ import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;

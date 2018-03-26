@@ -39,12 +39,13 @@ To correctly contribute on NetCom2, follow the guidelines below:
  * The code-conventions in this repository are the default Java conventions.
  * Intent your code with tabs rather than 4 spaces.
  * Branch from Nightly and name your Branch the following: #{ISSUE-NUMBER}_{ISSUE_DESCRIPTION}
+ * For new features, the first Commit should be the interface of said feature.
  * Last Commit: #{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished.
  * Force-Push is under all circumstances prohibited!
 
 ### External Contributions
 
-If you want to provide a new feature, a bug-fix, please follow these steps:
+If you want to provide a new feature or a bug-fix, please follow these steps:
 
 0) Fork this repository
 1) Create a branch named exactly as the issue you are working on. If the issue has the label "urgent", branch from dev, else branch from NIGHTLY.    

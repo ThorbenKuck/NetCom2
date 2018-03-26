@@ -5,7 +5,6 @@ import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;

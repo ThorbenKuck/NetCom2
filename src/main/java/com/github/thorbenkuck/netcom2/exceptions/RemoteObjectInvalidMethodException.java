@@ -1,12 +1,14 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
+
 /**
- * This Exception will be thrown, if the {@link com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration} receives
+ * This Exception will be thrown, if the {@link RemoteObjectRegistration} receives
  * an {@link com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest} with an declared method,
  * that the defined class does not have.
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration
+ * @see RemoteObjectRegistration
  * @since 1.0
  */
 public class RemoteObjectInvalidMethodException extends RemoteRequestException {

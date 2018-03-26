@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations.rmi;
 
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
+import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 
 import java.lang.annotation.*;
 

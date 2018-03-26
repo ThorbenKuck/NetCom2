@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.TestUtils;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;

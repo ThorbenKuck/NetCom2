@@ -5,6 +5,9 @@ package com.github.thorbenkuck.netcom2.interfaces;
  * <p>
  * You might create a class, that is inherited by {@link Runnable} and SoftStoppable to create a Runnable that you
  * can stop using the {@link #softStop()} Method. So you do not need to hard-stop the Thread it is running in.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface SoftStoppable {
 

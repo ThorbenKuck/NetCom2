@@ -1,11 +1,13 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
+
 /**
  * This Exception will be thrown, if no Object is registered for the requested Class inside the RMI API.
  *
  * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory
- * @see com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration
+ * @see RemoteObjectRegistration
  * @since 1.0
  */
 public class RemoteObjectNotRegisteredException extends RemoteRequestException {

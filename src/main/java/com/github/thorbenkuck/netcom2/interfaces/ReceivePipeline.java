@@ -20,31 +20,37 @@ import java.util.function.Consumer;
  * <p>
  * So, for example, if you have the following code:
  * <p>
- * <code>
+ * <pre>
+ *     {@code
  * public void register(CommunicationRegistration registration) {
  * registration.register(TestObject.class)
- * .addFirst(this::handle);
+ *        .addFirst(this::handle);
  * }
+ *
  * private void handle(TestObject testObject) {
- * // do something with the test Object
- * ...
+ *     // do something with the test Object
+ *     ...
  * }
- * </code>
+ *     }
+ * </pre>
+ * <p>
  * You can change it easily by simple changing the handle method like this:
  * <p>
- * <code>
+ * <pre><code>
  * private void handle(Session session, TestObject testObject) {
- * // do something with the test Object AND the Session
- * ...
+ *     // do something with the test Object AND the Session
+ *     ...
  * }
- * </code>
+ * </code></pre>
+ * <p>
  * or, if you need the Connection:
- * <code>
+ * <p>
+ * <pre><code>
  * private void handle(Connection connection, Session session, TestObject testObject) {
- * // do something with the test Object, the Session AND the Connection
- * ...
+ *     // do something with the test Object, the Session AND the Connection
+ *     ...
  * }
- * </code>
+ * </code></pre>
  * <p>
  * You do not need to change the register Method with this. The only important thing is, that the sequence of those 3 Objects
  * is not changed. So first the Connection, than the Session, than the Object. You may leave out any Number of parameters,
@@ -53,6 +59,8 @@ import java.util.function.Consumer;
  * The massive amount of Methods is simply for convenience sake.
  *
  * @param <T> T tye Type that should be handled by this ReceivePipeline
+ * @version 1.0
+ * @since 1.0
  */
 public interface ReceivePipeline<T> extends Mutex {
 	/**
@@ -224,25 +232,27 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * <p>
 	 * It looked something like this:
 	 * <p>
-	 * <code>
+	 * <pre><code>
 	 * class TestObjectHandler {
-	 * // This line is commented to ensure correct JavaDOC parsing @ReceiveHandler
-	 * private void handle(TestObject testObject, Session session) {
-	 * // Do something
+	 *     {@literal @}ReceiveHandler
+	 *     private void handle(TestObject testObject, Session session) {
+	 *         // Do something
+	 *     }
 	 * }
-	 * }
+	 *
 	 * class Register {
-	 * private CommunicationRegistration registration;
-	 * private TestObjectHandler handler = new TestObjectHandler();
-	 * ...
-	 * public void registerObjects() {
-	 * communicationRegistration.register(TestObject.class)
-	 * .to(handler);
+	 *     private CommunicationRegistration registration;
+	 *     private TestObjectHandler handler = new TestObjectHandler();
+	 *     ...
+	 *
+	 *     public void registerObjects() {
+	 *         communicationRegistration.register(TestObject.class)
+	 *                   .to(handler);
+	 *     }
 	 * }
-	 * }
-	 * </code>
+	 * </code></pre>
 	 * <p>
-	 * Note that the @ReceiveHandler Annotation is commented out to ensure the correct JavaDOC parsing.
+	 * Note that the {@literal @}ReceiveHandler Annotation is commented out to ensure the correct JavaDOC parsing.
 	 * <p>
 	 * WARNING: This methods needs to use Reflections to find the correct Method!
 	 *
