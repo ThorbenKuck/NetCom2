@@ -115,7 +115,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static void parameterNotNull(final Object... objects) {
-		if(objects == null)
+		if (objects == null)
 			throw new IllegalArgumentException("Null is not a valid parameter!");
 		for (final Object object : objects) {
 			parameterNotNull(object);

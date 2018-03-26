@@ -20,7 +20,7 @@ class HeartBeatCore<T> implements Runnable {
 
 	@APILevel
 	HeartBeatCore(Predicate<T> activePredicate, Predicate<T> runningPredicate, long times, long delay,
-				  TimeUnit timeUnit) {
+	              TimeUnit timeUnit) {
 		this.activePredicate = activePredicate;
 		this.runningPredicate = runningPredicate;
 		this.delay = (long) (timeUnit.toMillis(delay) / (float) times);
@@ -37,7 +37,7 @@ class HeartBeatCore<T> implements Runnable {
 	}
 
 	private boolean running(T t) {
-		return (runningPredicate == null || ! runningPredicate.test(t)) && running;
+		return (runningPredicate == null || !runningPredicate.test(t)) && running;
 	}
 
 	private boolean active(T t) {

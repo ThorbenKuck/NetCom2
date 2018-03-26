@@ -129,7 +129,7 @@ class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
@@ -144,7 +144,7 @@ class SessionImpl implements Session {
 	 * {@inheritDoc}
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void triggerEvent(final Class<T> clazz, T t) {
 		NetCom2Utils.parameterNotNull(clazz, t);
@@ -172,7 +172,7 @@ class SessionImpl implements Session {
 	@Override
 	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {
 		NetCom2Utils.parameterNotNull(heartBeat);
-		if(!heartBeats.contains(heartBeat)) {
+		if (!heartBeats.contains(heartBeat)) {
 			logging.warn("The HeartBeat " + heartBeat + " was never set.");
 			return;
 		}

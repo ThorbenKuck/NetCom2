@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 /**
  * @param <T> The Object, that should be Consumed
- *
  * @version 1.0
  * @since 1.0
  */

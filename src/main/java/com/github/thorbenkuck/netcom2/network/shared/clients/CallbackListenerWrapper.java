@@ -21,25 +21,33 @@ class CallbackListenerWrapper implements Callback<Object> {
 		this.listener = listener;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void accept(final Object object) {
 		listener.tryAccept(object.getClass());
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isAcceptable(final Object object) {
 		return listener.isAcceptable(object);
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isRemovable() {
 		return listener.isRemovable();
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "{ " + listener.toString() + "}";

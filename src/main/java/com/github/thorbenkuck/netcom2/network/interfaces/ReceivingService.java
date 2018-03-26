@@ -8,7 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 /**
  * The ReceivingService class is the entry-point for receiving objects, that are send over the network.
- *
+ * <p>
  * This Runnable is meant to be run in a separate Thread and to be (sort of) forgotten about. It is used within a {@link Connection}.
  *
  * @version 1.0

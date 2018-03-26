@@ -9,9 +9,8 @@ import com.github.thorbenkuck.netcom2.interfaces.Adapter;
  * It is utilized within the DefaultReceivingService, to
  * decrypt messages received over the Network.
  *
- * @see EncryptionAdapter
- *
  * @version 1.0
+ * @see EncryptionAdapter
  * @since 1.0
  */
 @FunctionalInterface

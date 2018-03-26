@@ -2,7 +2,6 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
-import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -37,7 +36,7 @@ class ReflectionBasedObjectAnalyzer {
 	private <T> boolean containsOnlyAskedParameter(final Method method, final Class<T> clazz) {
 		boolean contains = false;
 		for (final Class clazzToCheck : method.getParameterTypes()) {
-			if (! clazzToCheck.equals(Connection.class) && ! clazzToCheck.equals(Session.class)) {
+			if (!clazzToCheck.equals(Connection.class) && !clazzToCheck.equals(Session.class)) {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
 				} else {

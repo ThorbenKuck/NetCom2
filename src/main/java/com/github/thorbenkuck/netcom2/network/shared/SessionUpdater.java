@@ -36,9 +36,9 @@ public interface SessionUpdater {
 
 	/**
 	 * Sends the new Session over the network.
-	 *
+	 * <p>
 	 * Calling this Method is not necessary! You might as well just use the other Methods.
-	 *
+	 * <p>
 	 * Note: Calling this Method at the ClientStart-side will have no effect at all. The Server will simply ignore the
 	 * incoming SessionUpdate
 	 */

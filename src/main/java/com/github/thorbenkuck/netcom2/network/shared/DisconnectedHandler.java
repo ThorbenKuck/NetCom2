@@ -14,7 +14,7 @@ public interface DisconnectedHandler {
 
 	/**
 	 * This method handles the Client, once it disconnects.
-	 *
+	 * <p>
 	 * Note that Sending stuff has no Effect at this point. Should be quit obvious.
 	 *
 	 * @param client The Client that disconnected

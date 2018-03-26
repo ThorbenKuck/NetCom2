@@ -40,11 +40,11 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 
 	@Override
 	public final boolean equals(final Object o) {
-		if(o == null) {
+		if (o == null) {
 			return false;
 		}
 
-		if(o instanceof OnReceivePredicateWrapper) {
+		if (o instanceof OnReceivePredicateWrapper) {
 			return biPredicate.equals(((OnReceivePredicateWrapper) o).biPredicate);
 		}
 

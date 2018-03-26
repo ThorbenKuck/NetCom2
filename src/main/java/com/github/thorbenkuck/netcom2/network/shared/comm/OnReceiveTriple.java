@@ -7,7 +7,6 @@ import com.github.thorbenkuck.netcom2.pipeline.CanBeRegistered;
 
 /**
  * @param <T> The Object, that should be Consumed beneath the Session and the Connection
- *
  * @version 1.0
  * @since 1.0
  */

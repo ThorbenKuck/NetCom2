@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * This Class helps with creating a Synchronize instance, based on an {@link CountDownLatch}
- *
+ * <p>
  * The only method, you would have to define is: {@link Synchronize#error()}
  *
  * @version 1.0

@@ -29,16 +29,18 @@ import java.util.function.Supplier;
 @APILevel
 class DefaultSendingService implements SendingService {
 
+	@APILevel
+	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter;
 	private final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization;
 	private final Supplier<EncryptionAdapter> encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final int MAXIMUM_WAITING_TIME = 10;
+	@APILevel
+	protected BlockingQueue<Object> toSend;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
-	@APILevel protected BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
 	private int waitingTimeInSeconds = 2;
@@ -46,8 +48,8 @@ class DefaultSendingService implements SendingService {
 
 	@APILevel
 	DefaultSendingService(final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter,
-						  final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization,
-						  final Supplier<EncryptionAdapter> encryptionAdapter) {
+	                      final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization,
+	                      final Supplier<EncryptionAdapter> encryptionAdapter) {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
 		this.encryptionAdapter = encryptionAdapter;
@@ -80,7 +82,7 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * Serializes an Object, to an String
-	 *
+	 * <p>
 	 * Will ask first the mainSerializationAdapter, then, if not successful, all FallbackSerializationAdapters.
 	 *
 	 * @param o the Object to be serialized
@@ -121,7 +123,7 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * Triggers all Callbacks, listening for sending Objects.
-	 *
+	 * <p>
 	 * Afterwards, it will clean up to free up resources.
 	 *
 	 * @param o the Object that was send.
@@ -173,7 +175,7 @@ class DefaultSendingService implements SendingService {
 	 */
 	@Override
 	public void run() {
-		if (! setup) {
+		if (!setup) {
 			throw new SetupListenerException("[SendingService{" + connectionID.get() + "}] Setup required before run!");
 		}
 		running = true;
@@ -198,7 +200,7 @@ class DefaultSendingService implements SendingService {
 					waitingTimeInSeconds = 2;
 					NetCom2Utils.runOnNetComThread(() -> send(o));
 				} else if (waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
-					++ waitingTimeInSeconds;
+					++waitingTimeInSeconds;
 					logging.trace("[SendingService{\" + connectionID.get() + \"}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {

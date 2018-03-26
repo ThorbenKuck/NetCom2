@@ -117,7 +117,7 @@ class ClientImpl implements Client {
 		if (connection == null) {
 			throw new SendFailedException("Connection does not exist!");
 		}
-		if (! connection.isActive()) {
+		if (!connection.isActive()) {
 			throw new SendFailedException("Connection is not yet Connected!");
 		}
 	}
@@ -274,7 +274,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(final Connection connection, final Object object) {
-		if(connection == null || object == null) {
+		if (connection == null || object == null) {
 			throw new SendFailedException("Null is not allowed either as the Connection, nor as the object");
 		}
 		requireConnected(connection);
@@ -336,7 +336,7 @@ class ClientImpl implements Client {
 	@Override
 	public String getFormattedAddress() {
 		Optional<Connection> defaultConnection = getConnection(DefaultConnection.class);
-		if(defaultConnection.isPresent())  {
+		if (defaultConnection.isPresent()) {
 			return defaultConnection.get().getFormattedAddress();
 		}
 		Connection anyConnection = getAnyConnection();
@@ -364,7 +364,7 @@ class ClientImpl implements Client {
 		NetCom2Utils.parameterNotNull(id);
 		try {
 			idLock.lock();
-			if (! ClientID.isEmpty(this.id)) {
+			if (!ClientID.isEmpty(this.id)) {
 				logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
 			}
 			this.id = id;
@@ -453,6 +453,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @deprecated since more than one adapter is allowed, this method is wrongly named
 	 */
 	@Override
@@ -472,6 +473,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @deprecated since more than one adapter is allowed, this method is wrongly named
 	 */
 	@Override
@@ -720,26 +722,26 @@ class ClientImpl implements Client {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientImpl)) return false;
+		if (!(o instanceof ClientImpl)) return false;
 
 		final ClientImpl client = (ClientImpl) o;
 
-		if (! disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
-		if (! fallBackSerialization.equals(client.fallBackSerialization)) return false;
-		if (! fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
-		if (! connections.equals(client.connections)) return false;
-		if (! falseIDs.equals(client.falseIDs)) return false;
-		if (! synchronizeMap.equals(client.synchronizeMap)) return false;
-		if (! connectionLock.equals(client.connectionLock)) return false;
-		if (! threadPoolLock.equals(client.threadPoolLock)) return false;
-		if (! idLock.equals(client.idLock)) return false;
-		if (! encryptionAdapter.equals(client.encryptionAdapter)) return false;
-		if (! decryptionAdapter.equals(client.decryptionAdapter)) return false;
-		if (! mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
-		if (! mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
-		if (! logging.equals(client.logging)) return false;
-		if (! session.equals(client.session)) return false;
-		if (! communicationRegistration.equals(client.communicationRegistration)) return false;
+		if (!disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
+		if (!fallBackSerialization.equals(client.fallBackSerialization)) return false;
+		if (!fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
+		if (!connections.equals(client.connections)) return false;
+		if (!falseIDs.equals(client.falseIDs)) return false;
+		if (!synchronizeMap.equals(client.synchronizeMap)) return false;
+		if (!connectionLock.equals(client.connectionLock)) return false;
+		if (!threadPoolLock.equals(client.threadPoolLock)) return false;
+		if (!idLock.equals(client.idLock)) return false;
+		if (!encryptionAdapter.equals(client.encryptionAdapter)) return false;
+		if (!decryptionAdapter.equals(client.decryptionAdapter)) return false;
+		if (!mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
+		if (!mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
+		if (!logging.equals(client.logging)) return false;
+		if (!session.equals(client.session)) return false;
+		if (!communicationRegistration.equals(client.communicationRegistration)) return false;
 		return id.equals(client.id);
 	}
 

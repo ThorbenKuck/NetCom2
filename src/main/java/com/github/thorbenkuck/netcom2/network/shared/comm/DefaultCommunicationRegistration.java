@@ -18,7 +18,7 @@ import java.util.concurrent.Semaphore;
 
 /**
  * This is the DefaultCommunicationRegistration.
- *
+ * <p>
  * It is used everywhere. Get used to it.
  *
  * @version 1.0
@@ -37,11 +37,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * Check, whether or not, the class is assignable by the objects class.
-	 *
+	 * <p>
 	 * Throws an IllegalArgumentException if not.
 	 *
 	 * @param clazz the class
-	 * @param o the Object
+	 * @param o     the Object
 	 */
 	private void sanityCheck(final Class<?> clazz, final Object o) {
 		if (!(o != null && clazz.equals(o.getClass()))) {
@@ -54,10 +54,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
 	 *
-	 * @param clazz the class of the received Object
+	 * @param clazz      the class of the received Object
 	 * @param connection the Connection, this Object was received over
-	 * @param session the Session of the received Object
-	 * @param o the received Object
+	 * @param session    the Session of the received Object
+	 * @param o          the received Object
 	 * @throws CommunicationNotSpecifiedException if not defaultCommunicationHandler is set.
 	 */
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
@@ -73,14 +73,14 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * Triggers an set {@link ReceivePipeline}.
-	 *
+	 * <p>
 	 * If that ReceivePipeline is not existing, an ConcurrentModificationException will be thrown
 	 *
-	 * @param clazz the class of the received Object
+	 * @param clazz      the class of the received Object
 	 * @param connection the Connection, this Object was received over
-	 * @param session the Session of the received Object
-	 * @param o the received Object
-	 * @param <T> The type of that ReceivePipeline
+	 * @param session    the Session of the received Object
+	 * @param o          the received Object
+	 * @param <T>        The type of that ReceivePipeline
 	 * @throws ConcurrentModificationException if the ReceivePipeline cannot be found
 	 */
 	@SuppressWarnings("unchecked")
@@ -109,8 +109,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 * Runs the default CommunicationHandlers.
 	 *
 	 * @param connection the Connection, the Object was received over
-	 * @param session the Session, associated with the Connection
-	 * @param o the received Object
+	 * @param session    the Session, associated with the Connection
+	 * @param o          the received Object
 	 */
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
@@ -129,11 +129,11 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Handles an Object, that was received and is registered.
 	 *
-	 * @param pipeline The {@link ReceivePipeline} registered for that Object
+	 * @param pipeline   The {@link ReceivePipeline} registered for that Object
 	 * @param connection the Connection, the Object was received over
-	 * @param session the Session, associated with the Connection
-	 * @param o the received Object
-	 * @param <T> the Type of that ReceivePipeline.
+	 * @param session    the Session, associated with the Connection
+	 * @param o          the received Object
+	 * @param <T>        the Type of that ReceivePipeline.
 	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
 	                                  final Session session, final T o) {

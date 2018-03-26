@@ -9,7 +9,6 @@ import java.io.IOException;
  *
  * @param <T> The input argument
  * @param <S> The output argument
- *
  * @version 1.0
  * @since 1.0
  */

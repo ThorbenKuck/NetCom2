@@ -7,7 +7,6 @@ import java.util.function.Consumer;
  * and {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}.
  *
  * @param <T> The Type, this Callback expects
- *
  * @version 1.0
  * @since 1.0
  */

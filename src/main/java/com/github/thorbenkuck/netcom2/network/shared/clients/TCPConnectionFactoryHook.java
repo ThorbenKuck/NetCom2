@@ -21,7 +21,7 @@ class TCPConnectionFactoryHook implements ConnectionFactoryHook {
 	 */
 	@Override
 	public Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
-							 final ReceivingService receivingService, final Class<?> key) {
+	                         final ReceivingService receivingService, final Class<?> key) {
 		return new TCPDefaultConnection(socket, sendingService, receivingService, session, key);
 	}
 }

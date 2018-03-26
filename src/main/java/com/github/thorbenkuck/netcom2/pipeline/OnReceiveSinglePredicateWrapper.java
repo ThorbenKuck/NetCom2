@@ -32,11 +32,11 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 
 	@Override
 	public final boolean equals(final Object o) {
-		if(o == null) {
+		if (o == null) {
 			return false;
 		}
 
-		if(o instanceof OnReceiveSinglePredicateWrapper) {
+		if (o instanceof OnReceiveSinglePredicateWrapper) {
 			return predicate.equals(((OnReceiveSinglePredicateWrapper) o).predicate);
 		}
 

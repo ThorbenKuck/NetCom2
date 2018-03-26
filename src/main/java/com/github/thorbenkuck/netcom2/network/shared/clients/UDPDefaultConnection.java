@@ -17,7 +17,7 @@ import java.net.Socket;
 public class UDPDefaultConnection extends AbstractConnection {
 
 	UDPDefaultConnection(final Socket socket, final Session session, final ReceivingService receivingService,
-						 final SendingService sendingService, final Class<?> key) {
+	                     final SendingService sendingService, final Class<?> key) {
 		super(socket, sendingService, receivingService, session, key);
 	}
 

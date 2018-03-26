@@ -34,17 +34,17 @@ public interface ConnectionFactoryHook {
 
 	/**
 	 * With the call of this Method, the Connection is created.
-	 *
+	 * <p>
 	 * Note: This method will only create, not setup nor start the Connection.
 	 *
-	 * @param socket the base Socket
-	 * @param session the Session associated with this Connection
-	 * @param sendingService the SendingService for this Connection
+	 * @param socket           the base Socket
+	 * @param session          the Session associated with this Connection
+	 * @param sendingService   the SendingService for this Connection
 	 * @param receivingService the ReceivingService for this Connection
-	 * @param key the Key, identifying the Connection
+	 * @param key              the Key, identifying the Connection
 	 * @return a new Connection instance.
 	 */
 	Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
-					  final ReceivingService receivingService, final Class<?> key);
+	                  final ReceivingService receivingService, final Class<?> key);
 
 }

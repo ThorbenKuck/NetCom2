@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The ConnectionFactory is meant for creating certain instances of the {@link Connection}.
- *
+ * <p>
  * This class is currently not the subject of abstraction, but it is planned to be, to allow you to create custom Connections.
  *
  * @version 1.0
@@ -23,8 +23,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionFactory {
 
 	private final static Lock connectionFactoryHookLock = new ReentrantLock();
-	private final Logging logging = Logging.unified();
 	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
+	private final Logging logging = Logging.unified();
 
 	/**
 	 * Sets the ConnectionFactoryHook, which finally creates the Connection
@@ -70,15 +70,15 @@ public class ConnectionFactory {
 	/**
 	 * This Method hooks an connection up, which basically means, this method creates Connections.
 	 *
-	 * @param socket the base Socket
-	 * @param session the Session associated with this Connection
-	 * @param sendingService the SendingService for this Connection
+	 * @param socket           the base Socket
+	 * @param session          the Session associated with this Connection
+	 * @param sendingService   the SendingService for this Connection
 	 * @param receivingService the ReceivingService for this Connection
-	 * @param key the Key, identifying the Connection
+	 * @param key              the Key, identifying the Connection
 	 * @return a new Connection instance.
 	 */
 	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
-									 final ReceivingService receivingService, final Class<?> key) {
+	                                 final ReceivingService receivingService, final Class<?> key) {
 		try {
 			connectionFactoryHookLock.lock();
 			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);
@@ -100,9 +100,9 @@ public class ConnectionFactory {
 
 	/**
 	 * Creates a new Connection, with a custom Identifier.
-	 *
+	 * <p>
 	 * With this call, dependencies will be gathered, mostly from the Client provided.
-	 *
+	 * <p>
 	 * Future: Decouple to a factory
 	 *
 	 * @param socket the underlying Socket for the connection

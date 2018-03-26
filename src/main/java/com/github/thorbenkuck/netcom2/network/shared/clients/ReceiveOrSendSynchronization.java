@@ -10,7 +10,7 @@ public interface ReceiveOrSendSynchronization {
 
 	/**
 	 * With calling this Method, the ReceivingService will receive an Callback, that listens for the specified Object.
-	 *
+	 * <p>
 	 * This call will block, until the required class is received.
 	 *
 	 * @param clazz the type, that should be received.
@@ -21,7 +21,7 @@ public interface ReceiveOrSendSynchronization {
 	/**
 	 * With calling this Method, the SendingService will receive an Callback, that will block until the Object, you just send
 	 * is successfully send over the Connection.
-	 *
+	 * <p>
 	 * This call will block, until the required object is send.
 	 *
 	 * @throws InterruptedException if the Thread is interrupted, while waiting for the receiving of this Object

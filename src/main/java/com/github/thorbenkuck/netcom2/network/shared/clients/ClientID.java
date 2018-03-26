@@ -8,10 +8,10 @@ import java.util.UUID;
 
 /**
  * This Class is the Identification of any Client.
- *
+ * <p>
  * Classes like the {@link com.github.thorbenkuck.netcom2.network.server.ClientList} use this ID to identify any Client
  * that has connected. Tho this is mostly not needed, there are some needed Cases where this ID is compared and queried.
- *
+ * <p>
  * For example, the establishment of a new Connection requires the Client to identify falsely create IDs to delete falsely
  * create clients.
  *
@@ -25,9 +25,9 @@ public final class ClientID implements Serializable {
 
 	/**
 	 * The ClientID is a wrapper for the UUID Class.
-	 *
+	 * <p>
 	 * This means it is required to inject the UUID into this constructor.
-	 *
+	 * <p>
 	 * This Constructor is private, so that the wrapped class might be changed if needed.
 	 *
 	 * @param id the UUID that is kept within this ClientID
@@ -49,9 +49,9 @@ public final class ClientID implements Serializable {
 
 	/**
 	 * Creates a new ClientID.
-	 *
+	 * <p>
 	 * This generates a completely random ClientID.
-	 *
+	 * <p>
 	 * This is the recommended entry-point for creating any kind of ClientID
 	 *
 	 * @return a new ClientID instance
@@ -63,11 +63,11 @@ public final class ClientID implements Serializable {
 
 	/**
 	 * Creates a new ClientID.
-	 *
+	 * <p>
 	 * This call uses a preset seed to determine the next ClientID. With this call, a specific ClientID can be created.
-	 *
+	 * <p>
 	 * This String has to be matched with the UUID implementation.
-	 *
+	 * <p>
 	 * Tho this appears handy, the use of this is not recommended. If you plan on creating the same ClientID for a Client
 	 * every Time this Client Connects, don't.
 	 *
@@ -82,7 +82,7 @@ public final class ClientID implements Serializable {
 
 	/**
 	 * Determines if the provided clientID is empty or not.
-	 *
+	 * <p>
 	 * This call is the same as {@link ClientID#isEmpty()}
 	 *
 	 * @param clientID the ID that should be checked.
@@ -109,7 +109,7 @@ public final class ClientID implements Serializable {
 
 	/**
 	 * Returns, whether or not this ClientID is empty or not.
-	 *
+	 * <p>
 	 * An Empty ClientID might be used, if an Client is not yet created correctly or if he has to be removed, but the
 	 * remove is still in progress.
 	 *
@@ -129,7 +129,7 @@ public final class ClientID implements Serializable {
 	 */
 	public void ifNotEmpty(final Runnable runnable) {
 		NetCom2Utils.parameterNotNull(runnable);
-		if (! isEmpty()) {
+		if (!isEmpty()) {
 			runnable.run();
 		}
 	}

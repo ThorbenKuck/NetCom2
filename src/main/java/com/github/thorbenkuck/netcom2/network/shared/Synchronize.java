@@ -39,7 +39,7 @@ import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize
  * }
  * }
  * </pre>
- *
+ * <p>
  * So, the User can do some separate work and at a certain Point, await that the doSomethingAndAwaitFinished finishes.
  *
  * @version 1.0
@@ -67,7 +67,7 @@ public interface Synchronize extends Awaiting {
 
 	/**
 	 * Checks, whether or not the given Synchronize is empty or not.
-	 *
+	 * <p>
 	 * This call checks for same. The provided Synchronize has to be the same as the EmptySynchronize to return true.
 	 *
 	 * @param synchronize the Synchronize to check
@@ -79,7 +79,7 @@ public interface Synchronize extends Awaiting {
 
 	/**
 	 * Checks, whether or not the given Awaiting is empty or not.
-	 *
+	 * <p>
 	 * This call checks for same. The provided Awaiting has to be the same as the EmptySynchronize to return true.
 	 *
 	 * @param awaiting the Awaiting to check
@@ -96,7 +96,7 @@ public interface Synchronize extends Awaiting {
 
 	/**
 	 * Can be called, if the awaited procedure is finished.
-	 *
+	 * <p>
 	 * Releases awaiting Threads.
 	 */
 	void goOn();

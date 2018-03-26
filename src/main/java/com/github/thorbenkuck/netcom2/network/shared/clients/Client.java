@@ -1,10 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.Session;

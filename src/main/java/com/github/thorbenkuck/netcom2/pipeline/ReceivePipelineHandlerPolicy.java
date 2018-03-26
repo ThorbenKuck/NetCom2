@@ -23,7 +23,7 @@ public enum ReceivePipelineHandlerPolicy {
 		void prepare(final ReceivePipeline receivePipeline) {
 			NetCom2Utils.parameterNotNull(receivePipeline);
 			requireNotSealed(receivePipeline);
-			if (! receivePipeline.isEmpty()) {
+			if (!receivePipeline.isEmpty()) {
 				warn("Clearing Pipeline to suit ReceivePipelineHandlerPolicy");
 				receivePipeline.clear();
 			}
@@ -50,7 +50,7 @@ public enum ReceivePipelineHandlerPolicy {
 
 	@APILevel
 	final void requireNotSealed(final ReceivePipeline receivePipeline) {
-		if(receivePipeline == null) {
+		if (receivePipeline == null) {
 			throw new PipelineAccessException("ReceivePipeline is null!");
 		}
 		if (receivePipeline.isSealed()) {

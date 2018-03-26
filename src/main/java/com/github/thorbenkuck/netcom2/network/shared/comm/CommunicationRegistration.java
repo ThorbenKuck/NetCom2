@@ -33,10 +33,9 @@ import java.util.Map;
  * <p>
  * Its instantiation is limited to internal Developers.
  *
+ * @version 1.0
  * @see #trigger(Class, Connection, Session, Object)
  * @see ReceivePipeline
- *
- * @version 1.0
  * @since 1.0
  */
 @Synchronized
@@ -129,7 +128,7 @@ public interface CommunicationRegistration extends Mutex {
 	 *                                            and no DefaultCommunicationHandler has been set.
 	 */
 	@Asynchronous
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	<T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException;
 

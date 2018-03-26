@@ -2,12 +2,11 @@ package com.github.thorbenkuck.netcom2.network.shared.cache;
 
 /**
  * This AbstractCacheObserver is used fo observing a certain type.
- *
+ * <p>
  * It requires you, to provide a class of the Type, you want to observer, but takes of the check for whether or not the
  * Object will be injected or not
  *
  * @param <T> The generic type, that should be observed.
- *
  * @version 1.0
  * @since 1.0
  */

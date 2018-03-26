@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * <p>
  * This Annotation has to be present at the requested class/interface, which should be proxied. So if the Client requests
  * an RemoteObject via an interface, the interface has to declare this annotation at its Method.
- *
+ * <p>
  * If this Annotation is placed at the Class description AND the method, which ultimately will throw an Exception, the
  * annotation placed at the method will be used over the class-annotation. This means, method annotations override any
  * other annotation.

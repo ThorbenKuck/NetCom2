@@ -2,7 +2,6 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * @version 1.0

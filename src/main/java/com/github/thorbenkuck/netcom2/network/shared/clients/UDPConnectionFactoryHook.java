@@ -21,7 +21,7 @@ class UDPConnectionFactoryHook implements ConnectionFactoryHook {
 	 */
 	@Override
 	public Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
-							 final ReceivingService receivingService, final Class<?> key) {
+	                         final ReceivingService receivingService, final Class<?> key) {
 		return new UDPDefaultConnection(socket, session, receivingService, sendingService, key);
 	}
 

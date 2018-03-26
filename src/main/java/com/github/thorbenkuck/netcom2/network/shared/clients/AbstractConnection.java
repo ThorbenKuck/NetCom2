@@ -39,18 +39,18 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = Pipeline.unifiedCreation();
 	private final Semaphore semaphore = new Semaphore(1);
+	protected Logging logging = Logging.unified();
+	protected SendingService sendingService;
+	protected ReceivingService receivingService;
 	private boolean setup;
 	private boolean started;
 	private Session session;
 	private Class<?> key;
 	private ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
-	protected Logging logging = Logging.unified();
-	protected SendingService sendingService;
-	protected ReceivingService receivingService;
 
 	protected AbstractConnection(final Socket socket, final SendingService sendingService,
-								 final ReceivingService receivingService,
-								 final Session session, final Class<?> key) {
+	                             final ReceivingService receivingService,
+	                             final Session session, final Class<?> key) {
 		this.socket = socket;
 		this.sendingService = sendingService;
 		this.receivingService = receivingService;
@@ -163,10 +163,10 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	@Override
 	public void write(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		if (! setup) {
+		if (!setup) {
 			throw new IllegalStateException("Connection has to be setup to beforeSend objects!");
 		}
-		if (! isActive()) {
+		if (!isActive()) {
 			throw new IllegalStateException("Connection is closed");
 		}
 		logging.trace("Running write in new Thread to write " + object + " ..");
@@ -235,7 +235,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	 */
 	@Override
 	public final Awaiting startListening() {
-		if (! setup) {
+		if (!setup) {
 			throw new IllegalStateException("Connection has to be setup to listen!");
 		}
 		if (started) {
@@ -373,7 +373,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof AbstractConnection)) return false;
+		if (!(o instanceof AbstractConnection)) return false;
 
 		final AbstractConnection that = (AbstractConnection) o;
 
@@ -436,7 +436,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		for (Object o : toSend) {
 			Logging.unified().warn("LeftOver-Object " + o + " at dead connection!");
 		}
-		if (! socket.isClosed()) {
+		if (!socket.isClosed()) {
 			socket.shutdownInput();
 			socket.shutdownOutput();
 			socket.close();
@@ -450,7 +450,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	private class DefaultReceiveCallback implements Callback<Object> {
 		@Override
 		public boolean isRemovable() {
-			return ! started;
+			return !started;
 		}
 
 		@Override
@@ -460,7 +460,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 
 		@Override
 		public String toString() {
-			return "DefaultReceiveCallback{removable=" + ! started + "}";
+			return "DefaultReceiveCallback{removable=" + !started + "}";
 		}
 	}
 }

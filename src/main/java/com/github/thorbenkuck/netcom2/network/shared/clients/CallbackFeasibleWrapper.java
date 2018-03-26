@@ -22,25 +22,33 @@ class CallbackFeasibleWrapper implements Callback<Object> {
 		this.feasible = feasible;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void accept(final Object object) {
 		feasible.tryAccept(object.getClass());
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isAcceptable(final Object object) {
 		return feasible.isAcceptable(object);
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isRemovable() {
 		return feasible.isRemovable();
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return feasible.toString();

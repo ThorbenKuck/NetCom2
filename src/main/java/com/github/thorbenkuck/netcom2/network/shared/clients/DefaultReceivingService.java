@@ -25,8 +25,9 @@ import java.util.function.Supplier;
 @Synchronized
 class DefaultReceivingService implements ReceivingService {
 
+	@APILevel
+	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<DecryptionAdapter> decryptionAdapter;
-	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private Runnable onDisconnect = () -> {
 	};
@@ -42,9 +43,9 @@ class DefaultReceivingService implements ReceivingService {
 
 	@APILevel
 	DefaultReceivingService(final CommunicationRegistration communicationRegistration,
-							final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter,
-							final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization,
-							final Supplier<DecryptionAdapter> decryptionAdapter) {
+	                        final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter,
+	                        final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization,
+	                        final Supplier<DecryptionAdapter> decryptionAdapter) {
 		this.communicationRegistration = communicationRegistration;
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
@@ -101,7 +102,7 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * Deserialize the provided String.
-	 *
+	 * <p>
 	 * Will ask all DeserializationAdapters if the main Adapter fails.
 	 *
 	 * @param string the received String
@@ -149,7 +150,7 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * Triggers Callbacks, listening to the Receiving of an Object.
-	 *
+	 * <p>
 	 * Afterwards, the CallBacks will be cleaned to free up resources.
 	 *
 	 * @param object the Object we received.
@@ -200,7 +201,7 @@ class DefaultReceivingService implements ReceivingService {
 	 */
 	@Override
 	public synchronized void run() {
-		if(!isSetup()) {
+		if (!isSetup()) {
 			throw new SetupListenerException("[ReceivingService] has to be setup before running it!");
 		}
 		running = true;

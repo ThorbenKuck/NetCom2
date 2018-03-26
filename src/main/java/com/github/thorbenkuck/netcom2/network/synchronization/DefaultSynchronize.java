@@ -6,7 +6,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This is the default entry for Synchronize-instances.
- *
+ * <p>
  * You may provide an Runnable, that should be run if an error occurs
  *
  * @version 1.0

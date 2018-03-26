@@ -25,7 +25,7 @@ public abstract class CacheObservable {
 	 * Converts internally saved Observers into an Array
 	 *
 	 * @param <T> The Type of the CacheObservers. This is not really necessary... at all.. because of the Type-erasure,
-	 *              we just simply.. like... cast.
+	 *            we just simply.. like... cast.
 	 * @return an Array, consisting of the saved Observers
 	 */
 	@SuppressWarnings({"unchecked", "SuspiciousToArrayCall"})
@@ -46,7 +46,7 @@ public abstract class CacheObservable {
 	 * Adds an CacheObserver to this Observable
 	 *
 	 * @param cacheObserver the observer
-	 * @param <T> the generic type of that observer
+	 * @param <T>           the generic type of that observer
 	 */
 	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
 		NetCom2Utils.assertNotNull(cacheObserver);
@@ -110,7 +110,7 @@ public abstract class CacheObservable {
 	/**
 	 * Notifies about a new Entry
 	 *
-	 * @param o the new Entry
+	 * @param o   the new Entry
 	 * @param <T> the Type of that entry
 	 */
 	protected <T> void newEntry(final T o) {
@@ -126,7 +126,7 @@ public abstract class CacheObservable {
 	/**
 	 * Notifies about an updated Entry
 	 *
-	 * @param o the updated Entry
+	 * @param o   the updated Entry
 	 * @param <T> the Type of that entry
 	 */
 	protected <T> void updatedEntry(final T o) {
@@ -142,7 +142,7 @@ public abstract class CacheObservable {
 	/**
 	 * Notifies about an deleted Entry
 	 *
-	 * @param o the deleted Entry
+	 * @param o   the deleted Entry
 	 * @param <T> the Type of that entry
 	 */
 	protected <T> void deletedEntry(final T o) {

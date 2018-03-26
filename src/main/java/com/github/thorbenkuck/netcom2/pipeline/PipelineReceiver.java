@@ -25,7 +25,7 @@ class PipelineReceiver<T> {
 	/**
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
 	 * Since the {@link TriPredicate} is optional, it is not required in the constructor
-	 *
+	 * <p>
 	 * Null is a valid parameter.
 	 *
 	 * @param onReceive the OnReceive to be handled
@@ -64,7 +64,7 @@ class PipelineReceiver<T> {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof PipelineReceiver)) return false;
+		if (!(o instanceof PipelineReceiver)) return false;
 
 		final PipelineReceiver<?> that = (PipelineReceiver<?>) o;
 
@@ -82,7 +82,7 @@ class PipelineReceiver<T> {
 		NetCom2Utils.parameterNotNull(connection, session, t);
 		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
-			if (! predicateTemp.remove().test(connection, session, t)) {
+			if (!predicateTemp.remove().test(connection, session, t)) {
 				return false;
 			}
 		}
