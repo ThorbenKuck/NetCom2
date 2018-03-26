@@ -7,6 +7,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * This is an asynchronous Iterator. It works by making a copy of the specified collection,
+ * and only working on that.
+ *
+ * @param <T> The type of the elements of this iterator
+ *
+ * @since 1.0
+ * @version 1.0
+ */
 public class AsynchronousIterator<T> implements Iterator<T> {
 
 	private final Queue<T> core;

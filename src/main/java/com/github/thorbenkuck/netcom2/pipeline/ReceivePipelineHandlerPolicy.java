@@ -6,6 +6,12 @@ import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This enumeration encapsulates methods to check capabilities of ReceivePipeline handlers in the respective modes.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public enum ReceivePipelineHandlerPolicy {
 
 	NOT_ALLOWED {

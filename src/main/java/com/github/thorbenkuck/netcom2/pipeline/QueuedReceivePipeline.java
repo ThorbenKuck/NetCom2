@@ -17,6 +17,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+/**
+ * A queued ReceivePipeline implementation.
+ *
+ * @param <T> The type
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();
@@ -29,11 +37,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private boolean sealed = false;
 	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
 
+	/**
+	 * Create a queued ReceivePipeline for the specified class
+	 *
+	 * @param clazz The class
+	 */
 	public QueuedReceivePipeline(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		this.clazz = clazz;
 	}
 
+	/**
+	 * Tries to put the specified connection, session and S into the specified pipeline receiver.
+	 *
+	 * @param receiver The PipelineReceiver
+	 * @param connection The connection
+	 * @param session The session
+	 * @param s The S
+	 * @param <S> The type
+	 */
 	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
 		if (onReceiveTriple == null) {
@@ -53,10 +75,20 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * Add a fail to the specified CanBeRegistered
+	 *
+	 * @param canBeRegistered The CanBeRegistered
+	 */
 	private void falseAdd(final CanBeRegistered canBeRegistered) {
 		canBeRegistered.onAddFailed();
 	}
 
+	/**
+	 * Execute the specified runnable (on the current thread) if the pipeline is open.
+	 *
+	 * @param runnable The runnable to execute
+	 */
 	private void ifOpen(final Runnable runnable) {
 		if (! closed) {
 			runnable.run();
@@ -458,12 +490,18 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		semaphore.release();
 	}
 
+	/**
+	 * Throws PipelineAccessException if pipeline is closed.
+	 */
 	protected void requiresOpen() {
 		if (closed) {
 			throw new PipelineAccessException("ReceivePipeline Closed!");
 		}
 	}
 
+	/**
+	 * Throws PipelineAccessException if pipeline is sealed.
+	 */
 	protected void requiredNotSealed() {
 		if (sealed) {
 			throw new PipelineAccessException("ReceivePipeline is sealed!");

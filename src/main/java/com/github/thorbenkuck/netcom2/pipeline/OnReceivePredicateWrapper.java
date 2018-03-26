@@ -15,6 +15,9 @@ import java.util.function.BiPredicate;
  * This class is not meant for use outside of NetCom2. It is an internal component and only used by the {@link ReceivePipeline}
  *
  * @param <T> the Object, which will be received over the network and handled at either the ClientStartup or ServerStartup.
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @APILevel
 class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, T> {
@@ -27,17 +30,26 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 		this.biPredicate = biPredicate;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean test(final Connection connection, final Session session, final T t) {
 		NetCom2Utils.parameterNotNull(session, t);
 		return biPredicate.test(session, t);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final int hashCode() {
 		return biPredicate.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean equals(final Object o) {
 		if(o == null) {
@@ -51,6 +63,9 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, 
 		return biPredicate.equals(o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final String toString() {
 		return biPredicate.toString();

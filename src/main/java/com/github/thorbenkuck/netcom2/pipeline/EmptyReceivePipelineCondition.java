@@ -10,6 +10,9 @@ import java.util.function.Predicate;
  * This Class is an NullObject, used to ensure null are not necessary within the {@link ReceivePipelineCondition}
  *
  * @param <T> The generic Type the should be mimicked
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @APILevel
 class EmptyReceivePipelineCondition<T> implements ReceivePipelineCondition<T> {
