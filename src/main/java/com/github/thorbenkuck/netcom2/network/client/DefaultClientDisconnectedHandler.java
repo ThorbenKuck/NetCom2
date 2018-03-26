@@ -15,6 +15,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * If anything cuts the Connection between ServerStart and ClientStart, this handler will be called.
  * It cleans up any Resources, which are connected to the Session and therefor need to be reset, before a new Connection
  * to the ServerStart can be established.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized

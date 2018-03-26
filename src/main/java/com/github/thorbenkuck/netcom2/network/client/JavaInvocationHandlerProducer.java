@@ -5,6 +5,15 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.UUID;
 
+/**
+ * This InvocationHandlerProducer produces JavaRemoteInformationInvocationHandler.
+ * <p>
+ * This Class is very likely to be subject to change! Keep that in mind when using it!
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@APILevel
 public class JavaInvocationHandlerProducer implements InvocationHandlerProducer {
 
 	@APILevel
@@ -17,6 +26,9 @@ public class JavaInvocationHandlerProducer implements InvocationHandlerProducer 
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> JavaRemoteInformationInvocationHandler<T> produce(final UUID uuid, final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz, uuid);

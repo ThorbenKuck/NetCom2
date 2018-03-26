@@ -16,6 +16,14 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This Sender is an Implementation of the InternalSender.
+ * <p>
+ * This does mean, it is also an {@link Sender} implementation. In fact, this class is used within the {@link ClientStart}.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class SenderImpl implements InternalSender, Loggable {
 
@@ -61,7 +69,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz,
-																 final CacheObserver<T> observer) {
+	                                                             final CacheObserver<T> observer) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(new RegisterRequest(clazz));
@@ -72,7 +80,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
-																 final Connection connection) {
+	                                                             final Connection connection) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connection, new RegisterRequest(clazz));
@@ -83,7 +91,7 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@Override
 	public <T> ReceiveOrSendSynchronization registrationToServer(final Class<T> clazz, final CacheObserver<T> observer,
-																 final Class connectionKey) {
+	                                                             final Class connectionKey) {
 		logging.debug("Registering to " + clazz);
 		addPendingObserver(clazz, observer);
 		return client.send(connectionKey, new RegisterRequest(clazz));
@@ -162,7 +170,7 @@ class SenderImpl implements InternalSender, Loggable {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
@@ -172,13 +180,16 @@ class SenderImpl implements InternalSender, Loggable {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		return (CacheObserver<T>) pendingObservers.get(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setClient(final Client client) {
 		NetCom2Utils.parameterNotNull(client);

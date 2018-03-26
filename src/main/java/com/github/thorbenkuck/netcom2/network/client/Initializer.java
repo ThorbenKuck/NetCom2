@@ -19,6 +19,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
  * This Class initializes the client and all of its dependencies.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized
@@ -38,8 +41,8 @@ class Initializer {
 
 	@APILevel
 	Initializer(final Client client, final CommunicationRegistration communicationRegistration,
-				final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
-				final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
+	            final Cache cache, final InternalSender sender, final ClientConnector clientConnector,
+	            final SocketFactory socketFactory, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		NetCom2Utils.assertNotNull(client, communicationRegistration, cache, sender, clientConnector, socketFactory);
 		this.client = client;
@@ -63,7 +66,7 @@ class Initializer {
 		registerCriticalSingle(NewConnectionInitializer.class, new NewConnectionInitializerHandler(client))
 				.withRequirement((session, newConnectionInitializer) ->
 						client.getID().equals(newConnectionInitializer.getID()) &&
-								! ClientID.isEmpty(newConnectionInitializer.getID()));
+								!ClientID.isEmpty(newConnectionInitializer.getID()));
 		registerCriticalSingle(CachePush.class, new CachePushHandler(cache));
 		registerCriticalSingle(SessionUpdate.class, new SessionUpdateHandler());
 
@@ -99,16 +102,39 @@ class Initializer {
 		logging.trace("Handshake complete!");
 	}
 
+	/**
+	 * This method registers a {@link OnReceive} for the specified Class.
+	 *
+	 * @param clazz     the identifier
+	 * @param onReceive the handler
+	 * @param <T>       the type of the OnReceive defined by the Class
+	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
+	/**
+	 * This method registers a {@link OnReceiveSingle} for the specified Class.
+	 *
+	 * @param clazz     the identifier
+	 * @param onReceive the handler
+	 * @param <T>       the type of the OnReceiveSingle defined by the Class
+	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
 	}
 
+	/**
+	 * This method registers a {@link OnReceiveTriple} for a specified Class.
+	 *
+	 * @param clazz     the identifier
+	 * @param onReceive the handler
+	 * @param <T>       the type of the OnReceiveTriple defined by the Class
+	 * @return an {@link ReceivePipelineCondition} to define conditions for it
+	 * @throws IllegalArgumentException if the Class or the OnReceiveTriple are null.
+	 */
 	private <T> ReceivePipelineCondition<T> registerCriticalSingle(final Class<T> clazz, final OnReceiveTriple<T> onReceive) {
-		NetCom2Utils.assertNotNull(clazz, onReceive);
+		NetCom2Utils.parameterNotNull(clazz, onReceive);
 		logging.trace("Registering Handler for " + clazz + " ..");
 		requireClear(clazz);
 		final ReceivePipelineCondition<T> toReturn = communicationRegistration.register(clazz)
@@ -117,21 +143,34 @@ class Initializer {
 		return toReturn;
 	}
 
+	/**
+	 * Closes the {@link ReceivePipeline} for the specified Class.
+	 *
+	 * @param clazz the ReceivePipeline that should be closed.
+	 * @throws IllegalArgumentException if the Class is null
+	 */
 	private void close(final Class<?> clazz) {
-		NetCom2Utils.assertNotNull(clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		logging.trace("Closing, but not sealing the CachePushReceivePipeline");
 		communicationRegistration.register(clazz).close();
 	}
 
+	/**
+	 * This Method will clear a Pipeline, identified by the class
+	 *
+	 * @param clazz the identifier for the ReceivePipeline
+	 * @param <T>   the Type of the ReceivePipeline, defined by the class.
+	 * @throws IllegalArgumentException if the Class is null
+	 */
 	private <T> void requireClear(final Class<T> clazz) {
-		NetCom2Utils.assertNotNull(clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		logging.trace("Checking for the Receive Pipeline of Class " + clazz);
 		final ReceivePipeline<T> receivePipeline = communicationRegistration.register(clazz);
 
 		if (receivePipeline.isSealed()) {
 			logging.warn("Found sealed ReceivePipeline " + receivePipeline +
 					"! If you sealed this Pipeline, make sure, that the System-critical NetCom2 Handler are inserted!");
-			if (! receivePipeline.isClosed()) {
+			if (!receivePipeline.isClosed()) {
 				logging.error("You sealed an open ReceivePipeline, handling NetCom2 internal mechanisms! This ReceivePipeline WILL be reset NOW!");
 				reset(clazz);
 				logging.info("Do not seal open ReceivePipelines, that handle NetCom2 internal mechanisms!");
@@ -139,7 +178,7 @@ class Initializer {
 			}
 		}
 
-		if (! receivePipeline.isClosed() && ! receivePipeline.isEmpty()) {
+		if (!receivePipeline.isClosed() && !receivePipeline.isEmpty()) {
 			logging.warn("Found non-empty, open ReceivePipeline " + receivePipeline +
 					". This should not happen. Clearing ReceivePipeline");
 			logging.trace("Clearing ReceivePipeline ..");
@@ -148,12 +187,22 @@ class Initializer {
 		}
 	}
 
+	/**
+	 * Clears the CommunicationRegistration from the ReceivePipeline of the provided Type.
+	 *
+	 * @param clazz the identifier for the ReceivePipeline
+	 * @param <T>   the Type of the ReceivePipeline, defined of the Class.
+	 * @throws IllegalArgumentException if the Class is null
+	 */
 	private <T> void reset(final Class<T> clazz) {
-		NetCom2Utils.assertNotNull(clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		logging.trace("Unregister of Class " + clazz + " will be performed");
 		communicationRegistration.unRegister(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = client.hashCode();
@@ -166,22 +215,28 @@ class Initializer {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof Initializer)) return false;
+		if (!(o instanceof Initializer)) return false;
 
 		final Initializer that = (Initializer) o;
 
-		if (! client.equals(that.client)) return false;
-		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! cache.equals(that.cache)) return false;
-		if (! sender.equals(that.sender)) return false;
-		if (! clientConnector.equals(that.clientConnector)) return false;
+		if (!client.equals(that.client)) return false;
+		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
+		if (!logging.equals(that.logging)) return false;
+		if (!cache.equals(that.cache)) return false;
+		if (!sender.equals(that.sender)) return false;
+		if (!clientConnector.equals(that.clientConnector)) return false;
 		return socketFactory.equals(that.socketFactory);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "Initializer{" +

@@ -13,6 +13,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * <p>
  * It takes the received Object and puts it into the locally held cache. Further the mutex of the cache is used to ensure
  * Thread-Safety
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 class CachePushHandler implements OnReceiveSingle<CachePush> {

@@ -8,6 +8,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles an {@link RegisterResponse}, received from the ServerStart
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 
@@ -21,6 +27,9 @@ class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 		this.sender = sender;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final RegisterResponse o) {
@@ -36,5 +45,33 @@ class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 				cache.release();
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "RegisterResponseHandler{" +
+				"cache=" + cache +
+				", sender=" + sender +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof RegisterResponseHandler)) return false;
+
+		RegisterResponseHandler handler = (RegisterResponseHandler) o;
+
+		if (!logging.equals(handler.logging)) return false;
+		if (!cache.equals(handler.cache)) return false;
+		return sender.equals(handler.sender);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = logging.hashCode();
+		result = 31 * result + cache.hashCode();
+		result = 31 * result + sender.hashCode();
+		return result;
 	}
 }

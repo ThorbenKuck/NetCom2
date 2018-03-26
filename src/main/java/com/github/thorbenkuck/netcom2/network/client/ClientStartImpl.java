@@ -20,6 +20,25 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This Class is the main point for creating the Client-side of an over-network Communication
+ * <p>
+ * You create this Class the following way:
+ * <p>
+ * <pre>
+ *     {@code
+ * ClientStart clientStart = ClientStart.create(address, port);
+ *     }
+ * </pre>
+ * <p>
+ * However! You cannot access the type of this class directly! Always use the {@link ClientStart} interface, since NetCom2
+ * is interface-driven designed!
+ * <p>
+ * This class, or even its signature may be subject to change!
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Synchronized
 class ClientStartImpl implements ClientStart {
@@ -29,15 +48,15 @@ class ClientStartImpl implements ClientStart {
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	@APILevel
 	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
+	@APILevel
+	Client client;
+	@APILevel
+	InternalSender sender;
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
 	@APILevel
 	private AtomicBoolean launched = new AtomicBoolean(false);
-	@APILevel
-	Client client;
-	@APILevel
-	InternalSender sender;
 
 	/**
 	 * The creation of the ClientStartImpl will:
@@ -50,7 +69,7 @@ class ClientStartImpl implements ClientStart {
 	 * <li>Lastly add the {@link DefaultClientDisconnectedHandler}</li>
 	 * </ul>
 	 * <p>
-	 * This is quit a lot, but needed. This should not be that workload intensive.
+	 * This is quite a lot, but needed. This should not be that workload intensive.
 	 *
 	 * @param address the address
 	 * @param port    the port
@@ -71,8 +90,11 @@ class ClientStartImpl implements ClientStart {
 		remoteObjectFactoryImpl = new RemoteObjectFactoryImpl(sender);
 	}
 
+	/**
+	 * This method will throw an {@link IllegalStateException} if this ClientStart is not launched yet.
+	 */
 	private void requireRunning() {
-		if (! launched().get()) {
+		if (!launched().get()) {
 			throw new IllegalStateException("Launch required!");
 		}
 	}
@@ -289,7 +311,7 @@ class ClientStartImpl implements ClientStart {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientStartImpl)) return false;
+		if (!(o instanceof ClientStartImpl)) return false;
 
 		final ClientStartImpl that = (ClientStartImpl) o;
 
@@ -314,13 +336,7 @@ class ClientStartImpl implements ClientStart {
 	}
 
 	/**
-	 * Potentially deprecated in the future.
-	 * <p>
-	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
-	 * <p>
 	 * {@inheritDoc}
-	 *
-	 * @see RemoteObjectFactory
 	 */
 	@Override
 	public <T> T getRemoteObject(final Class<T> clazz) {
@@ -339,6 +355,11 @@ class ClientStartImpl implements ClientStart {
 		}
 	}
 
+	/**
+	 * Returns the internal {@link AtomicBoolean}, which changes to true, once this ClientStart is launched.
+	 *
+	 * @return the AtomicBoolean instance.
+	 */
 	AtomicBoolean launched() {
 		return launched;
 	}

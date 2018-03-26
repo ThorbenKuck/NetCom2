@@ -8,6 +8,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles {@link UnRegisterResponse}, received over the Network.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 
@@ -39,5 +45,43 @@ class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 				cache.release();
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "UnRegisterResponseHandler{" +
+				"logging=" + logging +
+				", cache=" + cache +
+				", sender=" + sender +
+				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof UnRegisterResponseHandler)) return false;
+
+		UnRegisterResponseHandler handler = (UnRegisterResponseHandler) o;
+
+		if (!logging.equals(handler.logging)) return false;
+		if (!cache.equals(handler.cache)) return false;
+		return sender.equals(handler.sender);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = logging.hashCode();
+		result = 31 * result + cache.hashCode();
+		result = 31 * result + sender.hashCode();
+		return result;
 	}
 }

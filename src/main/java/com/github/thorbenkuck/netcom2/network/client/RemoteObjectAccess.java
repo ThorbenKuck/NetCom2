@@ -1,8 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
-import com.github.thorbenkuck.netcom2.network.client.ClientStart;
-import com.github.thorbenkuck.netcom2.network.client.InvocationHandlerProducer;
 import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 
 /**
@@ -28,11 +26,10 @@ import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
  * <p>
  * Further any Throwable encountered while running the real Object will be pinged back to the executing client.
  *
+ * @version 1.0
  * @see com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions
  * @see com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject
  * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler
- *
- * @version 1.0
  * @since 1.0
  */
 public interface RemoteObjectAccess {
@@ -42,10 +39,16 @@ public interface RemoteObjectAccess {
 	 * <p>
 	 * This instance will be delegating the quarry back to the Server and return any result and throw any Throwable back
 	 * from the Server.
+	 * <p>
+	 * This Method will be potentially deprecated in the future.
+	 * <p>
+	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
+	 * <p>
 	 *
 	 * @param clazz the Class of the Object that should be created
 	 * @param <T>   the Type, identified by the provided class
 	 * @return an callable instance of the type <code>T</code>
+	 * @see RemoteObjectFactory
 	 */
 	@Experimental
 	<T> T getRemoteObject(Class<T> clazz);

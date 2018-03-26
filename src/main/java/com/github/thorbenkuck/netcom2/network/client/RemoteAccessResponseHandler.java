@@ -5,6 +5,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles the {@link RemoteAccessCommunicationResponse} received over the network.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class RemoteAccessResponseHandler implements OnReceiveSingle<RemoteAccessCommunicationResponse> {
 
@@ -16,13 +22,42 @@ class RemoteAccessResponseHandler implements OnReceiveSingle<RemoteAccessCommuni
 	}
 
 	/**
-	 * Performs this operation on the given arguments.
-	 *
-	 * @param response the second input argument
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void accept(final RemoteAccessCommunicationResponse response) {
 		NetCom2Utils.parameterNotNull(response);
 		remoteAccessBlockRegistration.release(response);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "RemoteAccessResponseHandler{" +
+				"remoteAccessBlockRegistration=" + remoteAccessBlockRegistration +
+				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof RemoteAccessResponseHandler)) return false;
+
+		RemoteAccessResponseHandler that = (RemoteAccessResponseHandler) o;
+
+		return remoteAccessBlockRegistration.equals(that.remoteAccessBlockRegistration);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return remoteAccessBlockRegistration.hashCode();
 	}
 }

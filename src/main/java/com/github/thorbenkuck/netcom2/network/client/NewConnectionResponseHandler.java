@@ -16,6 +16,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This Class handles an {@link NewConnectionRequest}, received from the ServerStart
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionRequest> {
 
@@ -27,13 +33,16 @@ class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionReque
 
 	@APILevel
 	NewConnectionResponseHandler(final Client client, final ClientConnector clientConnector,
-								 final SocketFactory socketFactory, final Sender sender) {
+	                             final SocketFactory socketFactory, final Sender sender) {
 		this.client = client;
 		this.clientConnector = clientConnector;
 		this.socketFactory = socketFactory;
 		this.sender = sender;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final NewConnectionRequest o) {
@@ -72,5 +81,47 @@ class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionReque
 			logging.fatal("No fallback! Server and Client are now possibly desynchronized!");
 			throw new ConnectionCreationFailedException(e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "NewConnectionResponseHandler{" +
+				"client=" + client +
+				", clientConnector=" + clientConnector +
+				", socketFactory=" + socketFactory +
+				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof NewConnectionResponseHandler)) return false;
+
+		NewConnectionResponseHandler handler = (NewConnectionResponseHandler) o;
+
+		if (!logging.equals(handler.logging)) return false;
+		if (!client.equals(handler.client)) return false;
+		if (!clientConnector.equals(handler.clientConnector)) return false;
+		if (!socketFactory.equals(handler.socketFactory)) return false;
+		return sender.equals(handler.sender);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = logging.hashCode();
+		result = 31 * result + client.hashCode();
+		result = 31 * result + clientConnector.hashCode();
+		result = 31 * result + socketFactory.hashCode();
+		result = 31 * result + sender.hashCode();
+		return result;
 	}
 }

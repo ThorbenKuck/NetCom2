@@ -41,7 +41,11 @@ class ReflectionBasedObjectAnalyzer {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
 				} else {
-					// If it contains anything else than a Session, a Connection of the object to Receive, return immediately!
+					// If it contains anything else
+					// than a Session, a Connection
+					// or the object to Receive, return immediately!
+					// We do not want this, because
+					// we only know those 3 types here.
 					return false;
 				}
 			}

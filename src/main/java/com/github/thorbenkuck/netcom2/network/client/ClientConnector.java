@@ -22,6 +22,9 @@ import java.net.Socket;
  * This means it is internally used, to allow multiple Connections to be established.
  * <p>
  * It may be shut-down function, disconnects the internally maintained Client.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 class ClientConnector implements Connector<SocketFactory, Connection> {

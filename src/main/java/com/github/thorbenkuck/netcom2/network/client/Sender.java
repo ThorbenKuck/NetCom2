@@ -19,6 +19,9 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchr
  * <p>
  * The reset Method should not be used within production. Reset clears out all saved instances of requested registrations
  * and therefor is after calling it not able to resolve register responses.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface Sender {
 
@@ -93,7 +96,7 @@ public interface Sender {
 	 * @return a synchronization mechanism
 	 */
 	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-														  Connection connection);
+	                                                      Connection connection);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -111,7 +114,7 @@ public interface Sender {
 	 * @return a synchronization mechanism
 	 */
 	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-														  Class connectionKey);
+	                                                      Class connectionKey);
 
 	/**
 	 * Requests an unRegistration from the specified message type.
