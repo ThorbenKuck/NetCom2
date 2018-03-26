@@ -11,6 +11,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles the receive of any {@link RegisterRequest} over the network.
+ */
 @APILevel
 class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 

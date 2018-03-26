@@ -9,6 +9,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterReques
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles {@link UnRegisterRequest}, received over the network
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 

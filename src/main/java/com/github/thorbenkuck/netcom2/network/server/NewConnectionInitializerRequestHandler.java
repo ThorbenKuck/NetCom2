@@ -12,6 +12,12 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Optional;
 
+/**
+ * This Class Handles any received {@link NewConnectionInitializer} over the network.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConnectionInitializer> {
 
@@ -23,10 +29,13 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 		this.clients = clients;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session,
-					   final NewConnectionInitializer newConnectionInitializer) {
+	                   final NewConnectionInitializer newConnectionInitializer) {
 		NetCom2Utils.parameterNotNull(connection, session, newConnectionInitializer);
 		final Class connectionKey = newConnectionInitializer.getConnectionKey();
 		logging.debug("Processing NewConnectionInitializer: realId=" + newConnectionInitializer.getID() + " updatedId=" + newConnectionInitializer.getToDeleteID());
@@ -62,10 +71,10 @@ class NewConnectionInitializerRequestHandler implements OnReceiveTriple<NewConne
 				logging.catching(e);
 			}
 		} else {
-			if (! clientOptional.isPresent()) {
+			if (!clientOptional.isPresent()) {
 				logging.warn("[" + identifier + "]: Could not find client for: " + newConnectionInitializer.getID());
 			}
-			if (! toDeleteClientOptional.isPresent()) {
+			if (!toDeleteClientOptional.isPresent()) {
 				logging.warn("[" + identifier + "]: Could not find faulty Client: " +
 						newConnectionInitializer.getToDeleteID());
 			}

@@ -12,10 +12,20 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * This class is the default ClientHandler for the ServerStart.
+ * <p>
+ * It creates the default {@link Client}. It also handles said Client, which includes the ping-handshake between the ServerStart
+ * and the ClientStart
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class DefaultClientHandler implements ClientConnectedHandler {
 
@@ -28,12 +38,17 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	@APILevel
 	DefaultClientHandler(final ClientList clientList, final CommunicationRegistration communicationRegistration,
-						 final DistributorRegistration distributorRegistration) {
+	                     final DistributorRegistration distributorRegistration) {
 		this.clientList = clientList;
 		this.communicationRegistration = communicationRegistration;
 		this.distributorRegistration = distributorRegistration;
 	}
 
+	/**
+	 * Clear an Client from the ClientList and the DistributorRegistration.
+	 *
+	 * @param client the Client, that should be cleared.
+	 */
 	private void clearClient(final Client client) {
 		logging.info("disconnected " + client + " ");
 		logging.trace("Removing Client(" + client + ") from ClientList");
@@ -44,11 +59,13 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the client is null
 	 */
 	@Asynchronous
 	@Override
 	public void handle(final Client client) {
-		assertNotNull(client);
+		NetCom2Utils.parameterNotNull(client);
 		logging.trace("Pinging Client ..");
 		final Awaiting awaiting = client.primed();
 		client.send(new Ping(client.getID()));
@@ -65,11 +82,13 @@ class DefaultClientHandler implements ClientConnectedHandler {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the client is null
 	 */
 	@Asynchronous
 	@Override
 	public Client create(final Socket socket) {
-		assertNotNull(socket);
+		NetCom2Utils.parameterNotNull(socket);
 		final Client client = Client.create(communicationRegistration);
 		final ClientID id = ClientID.create();
 		logging.trace("Setting new id to Client ..");

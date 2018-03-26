@@ -7,6 +7,12 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/**
+ * This ServerSocketFactory is the default for NetCom2 and creates a simple {@link ServerSocket}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class DefaultServerSocketFactory implements Factory<Integer, ServerSocket> {
 

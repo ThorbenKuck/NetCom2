@@ -12,6 +12,12 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Optional;
 
+/**
+ * This Class handles any received {@link Ping} over the network.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class PingRequestHandler implements OnReceiveTriple<Ping> {
 
@@ -33,7 +39,7 @@ class PingRequestHandler implements OnReceiveTriple<Ping> {
 		logging.debug("Ping received from Session " + session);
 		logging.trace("Receiving Client for Session " + session);
 		final Optional<Client> clientOptional = clients.getClient(session);
-		if (! clientOptional.isPresent()) {
+		if (!clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session" + session);
 			return;
 		}

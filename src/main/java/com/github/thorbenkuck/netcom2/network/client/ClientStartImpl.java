@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * <pre>
  *     {@code
- * ClientStart clientStart = ClientStart.create(address, port);
+ * ClientStart clientStart = ClientStart.at(address, port);
  *     }
  * </pre>
  * <p>

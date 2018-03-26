@@ -65,6 +65,6 @@ public interface ClientConnectedHandler {
 	 * @throws NullPointerException if o is null
 	 */
 	default void assertNotNull(final Object o) {
-		NetCom2Utils.assertNotNull(o);
+		NetCom2Utils.parameterNotNull(o);
 	}
 }

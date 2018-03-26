@@ -9,6 +9,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles any received {@link NewConnectionRequest} over the Network
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 class NewConnectionRequestHandler implements OnReceiveTriple<NewConnectionRequest> {
 
