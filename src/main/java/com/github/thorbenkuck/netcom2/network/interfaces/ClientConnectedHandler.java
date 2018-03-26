@@ -5,6 +5,22 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.net.Socket;
 
+/**
+ * This interface defines what to do, if a new physical Client connected.
+ *
+ * It defines multiple things, like:
+ *
+ * <ul>
+ *     <li>handle a newly created client instance</li>
+ *     <li>create a new client instance for the physical Client.<br>This would be used, if you wanted to provide a custom
+ *     Client object</li>
+ * </ul>
+ *
+ * If you use this ClientConnectedHandler as a lambda, you will inevitably override the handle method.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @FunctionalInterface
 public interface ClientConnectedHandler {
 

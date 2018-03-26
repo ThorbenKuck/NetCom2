@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
@@ -328,7 +329,7 @@ public interface Client extends Mutex {
 	 * <p>
 	 * If you use:
 	 * <code>client.routConnection(OriginalKey.class, null);</code>
-	 * a warning will be logged via the {@link com.github.thorbenkuck.netcom2.network.interfaces.Logging} and the Connection is
+	 * a warning will be logged via the {@link Logging} and the Connection is
 	 * used, whenever you state:
 	 * <code>client.send(new MessageObject(), null);</code>
 	 * <p>

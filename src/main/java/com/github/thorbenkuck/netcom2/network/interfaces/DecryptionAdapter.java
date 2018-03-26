@@ -3,13 +3,16 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 import com.github.thorbenkuck.netcom2.interfaces.Adapter;
 
 /**
- * This interface is used to encrypt any String.
+ * This interface is used to decrypt any String.
  * <p>
  * It inherits from the Adapter interface and converts a String into another String.
  * It is utilized within the DefaultReceivingService, to
  * decrypt messages received over the Network.
  *
  * @see EncryptionAdapter
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface DecryptionAdapter extends Adapter<String, String> {

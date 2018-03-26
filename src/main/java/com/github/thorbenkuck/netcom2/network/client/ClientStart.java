@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
+import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;

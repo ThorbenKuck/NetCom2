@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
+import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 

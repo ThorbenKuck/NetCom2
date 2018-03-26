@@ -2,6 +2,14 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 
+/**
+ * This interface abstracts the implementing interface, to allow it to have a launch() method.
+ *
+ * This launch method is defining a {@link StartFailedException} to be thrown if anything goes wrong
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface Launch {
 
 	/**

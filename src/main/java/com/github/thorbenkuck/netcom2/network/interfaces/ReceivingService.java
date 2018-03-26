@@ -6,6 +6,14 @@ import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
+/**
+ * The ReceivingService class is the entry-point for receiving objects, that are send over the network.
+ *
+ * This Runnable is meant to be run in a separate Thread and to be (sort of) forgotten about. It is used within a {@link Connection}.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface ReceivingService extends Runnable, SoftStoppable {
 
 	/**
@@ -54,5 +62,11 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 	 */
 	Awaiting started();
 
+	/**
+	 * Returns whether or not, this ReceivingService is safe to run.
+	 *
+	 * @return true if {@link #setup(Connection, Session)} has been called, else false
+	 * @see #setup(Connection, Session)
+	 */
 	boolean isSetup();
 }

@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.keller.pipe.PipelineCondition;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
-import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
+import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;

@@ -3,11 +3,20 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
 
+/**
+ * The SendingService class is the entry-point for sending objects over the network.
+ *
+ * This Runnable is meant to be run in a separate Thread and to be (sort of) forgotten about. It is used within a {@link Connection}.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface SendingService extends Runnable, SoftStoppable {
 
 	/**
