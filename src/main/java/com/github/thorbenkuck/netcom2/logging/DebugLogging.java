@@ -4,6 +4,9 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
  * This implementation of {@link Logging} ignores the trace method
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public class DebugLogging implements Logging {
 

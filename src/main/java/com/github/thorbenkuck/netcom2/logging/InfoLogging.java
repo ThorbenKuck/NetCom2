@@ -2,6 +2,12 @@ package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
+/**
+ * This {@link Logging} implementation ignores all calls up to info
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class InfoLogging implements Logging {
 
 	private final Logging style;

@@ -7,6 +7,13 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * This logging implementation uses reflection to determine the caller of any method.
  * <p>
  * For that, this implementation uses the {@link CallerTraceSystemDefaultStyleLogging}.
+ * <p>
+ * Since this class is using the {@link CallerTraceSystemDefaultStyleLogging}, using this logging version is extremely
+ * workload intensive. Trace is the most common call and in nearly all methods, at least one of this call can be found.
+ * This means, that with this Logging implementation, in nearly all methods the stacktrace will be analysed at least once.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public class CallerReflectionLogging implements Logging {
 

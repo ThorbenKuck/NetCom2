@@ -2,6 +2,12 @@ package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
+/**
+ * This is an instance of Logging, that logs every step.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class TraceLogging implements Logging {
 
 	private final Logging style;

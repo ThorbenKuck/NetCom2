@@ -2,6 +2,12 @@ package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
+/**
+ * This Logging implementation ignores all calls, up to {@link Logging#error()}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class ErrorLogging implements Logging {
 
 	private final Logging style;
