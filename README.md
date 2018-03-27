@@ -63,14 +63,22 @@ The Framework-Versions are to be red like this:
 
 A.B.C.D
 
-A is a breaking, major releas (feature-change)    
-B is a non-breaking for normal use, potentially breaking for custom Instances, major release (feature-extention)    
+A is a breaking, major release (feature-change)    
+B is a non-breaking for normal use, potentially breaking for custom Instances, major release (feature-extension)    
 C is a non-breaking, minor release (bug-fix)    
 D is a non-breaking, security release    
 
 Also there is a NIGHTLY branch, for the inpatient.
 
 ### Current State
+
+0.4.1.0_BETA
+ * Further Documentation
+ * Improved Thread-Safety and Performance
+ * Preparations for release candidate 1.0.0.0
+ * Added some tests
+ * Improved upon the advanced RMI API
+ * Small Bug-Fixes
 
 0.4.0.0_BETA (Release 11.01.2017)
  * Further Documentation
@@ -84,7 +92,7 @@ Also there is a NIGHTLY branch, for the inpatient.
 #### Current Development
 
  * Completion of JavaDOC
- * Connection Routes
+ * Finish of the Wiki
 
 ## For whom this is
 
