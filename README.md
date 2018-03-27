@@ -1,16 +1,35 @@
 # NetCom2
 
-NetCom2 is a framework, highly modular desigend to function as a universal and asynchronus Client-Server-Communication-Interface.
+NetCom2 is a framework, highly modular designed to function as a universal and asynchronous Client-Server-Communication-Interface.
 It is designed to function as an over-network EventBus.
 
-NOTE: The documentation is still in Work!
-
-__Currently the Tests are written. Expect bad Codacy Grades untill all tests are filled!__
-
-[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2)    
-[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser)    
+[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
+[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser) 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+
+## Near future releases:
+
+__Version 1.0 will be released on the 30th of march.__
+
+Once Version 1.0 is released, it will be published on [Twitter](https://twitter.com/ThorbenKu) and potentially on [Google+](https://plus.google.com/u/0/+ThorbenKuck).
+
+Preparations are mildly needed. Since all Versions 0.x are beta-versions, you will need to look close, whether or not, you import the correct class/interface. No other major-breaks, apart from logical package-relocations, have been introduced. All interfaces are still the same, some have just changed their location.
+
+**All methods, annotated with <code>@Deprecated</code> have been removed! No Exceptions!**
+
+Apart from relocations, this Version fixes some bugs, that no one had discovered yet.
+
+The APIs had been worked out and tested in 450 Tests.
+
+#### What comes next?
+
+First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
+If you are having any other trouble with NetCom2, please also turn to StackOverflow.
           
 ----
 
@@ -44,8 +63,8 @@ The Framework-Versions are to be red like this:
 
 A.B.C.D
 
-A is a breaking, major releas (feature-change)    
-B is a non-breaking for normal use, potentially breaking for custom Instances, major release (feature-extention)    
+A is a breaking, major release (feature-change)    
+B is a non-breaking for normal use, potentially breaking for custom Instances, major release (feature-extension)    
 C is a non-breaking, minor release (bug-fix)    
 D is a non-breaking, security release    
 
@@ -72,15 +91,15 @@ Have Problems starting? Post your question on [StackOverflow](https://stackoverf
 
 ## For whom this is
 
-If you are searching for a easy to use framework, that gives you the option to fastly create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
+If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
 
-But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easyer to send Object to specific clients, that want those object. This framework is completly modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
+But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easier to send Object to specific clients, that want those object. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
 
 ----
 
 ## Getting started
 
-If you are german, you might be interrested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
+If you are german, you might be interested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
 If you cannot understand german, there is also a YouTube Tutorial-series in [english](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
 
 ### Installation
@@ -105,7 +124,7 @@ dependencies {
 
 ### Starting to code
 
-Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
+Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that example, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
 #### Creating a Server
 
@@ -131,7 +150,7 @@ Launch creates internal dependencies and acceptAllNextClients(); waits for the n
 
 #### Creating a Client
 
-You create a Client similiiar to a Server. You just say:
+You create a Client similar to a Server. You just say:
 
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
@@ -146,6 +165,7 @@ clientStart.launch();
 #### Sending Stuff
 
 Let's assume, you have an Object called Test in the Shared project, which looks like this:
+
 ```java
 public class Test implements Serializable {
   private String s;
@@ -161,6 +181,7 @@ public class Test implements Serializable {
 ```
 
 Now we want to send this from the Client to the Server. We realize this by saying:
+
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
@@ -168,6 +189,7 @@ clientStart.send().objectToServer(new Test());
 ```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
+
 ```java
 ServerStart serverStart = ServerStart.at(88888);
 serverStart.launch();
@@ -186,11 +208,13 @@ try {
 }
 ```
 
-Now, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
+There you go, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
 ## Where to go from here
 
-Check out the Wiki for more informations about creating a Server and a Client, with more depth.
+Every module from NetCom2 has some sort of modular base. This might sound overwhelming, but in fact, this Framework provides a vast amount of default implementation, which make it very easy to get started.
+
+Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
 
 If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
 
