@@ -96,7 +96,7 @@ If you want to provide a new feature or a bug-fix, please follow these steps:
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
 6) Add a direct contributor as an reviewer to your pull-request
 7) Add a direct contributor as an assignee to your pull-request
-8) If your pull-request get's denied, start over from 3.
+8) If your pull-request gets denied, start over from 3.
 
 **NOTE**: Only change thing relevant to your issue! If your pull-request changes anything, that is not important, your pull-request will be denied!
 
