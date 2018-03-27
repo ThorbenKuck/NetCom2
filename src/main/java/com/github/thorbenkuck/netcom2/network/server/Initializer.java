@@ -4,7 +4,6 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
@@ -13,6 +12,12 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
+/**
+ * This Class is used for initializing the ServerStart for the first time.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Synchronized
 class Initializer {
@@ -26,7 +31,7 @@ class Initializer {
 
 	@APILevel
 	Initializer(final InternalDistributor distributor, final CommunicationRegistration communicationRegistration,
-				final Cache cache, final ClientList clients, final RemoteObjectRegistration remoteObjectRegistration) {
+	            final Cache cache, final ClientList clients, final RemoteObjectRegistration remoteObjectRegistration) {
 		this.distributor = distributor;
 		this.communicationRegistration = communicationRegistration;
 		this.cache = cache;
@@ -34,13 +39,16 @@ class Initializer {
 		this.remoteObjectRegistration = remoteObjectRegistration;
 	}
 
+	/**
+	 * This method registers all internally needed communication protocols
+	 */
 	private void register() {
 		synchronized (communicationRegistration) {
 			logging.trace("Registering Handler for RegisterRequest.class ..");
 			communicationRegistration.register(RegisterRequest.class)
 					.addFirstIfNotContained(
 							new RegisterRequestReceiveHandler(distributor.getDistributorRegistration(), cache))
-					.withRequirement((session, registerRequest) -> ! distributor.getDistributorRegistration()
+					.withRequirement((session, registerRequest) -> !distributor.getDistributorRegistration()
 							.getRegistered(registerRequest.getCorrespondingClass()).contains(session));
 			logging.trace("Registering Handler for UnRegisterRequest.class ..");
 			communicationRegistration.register(UnRegisterRequest.class)
@@ -56,11 +64,14 @@ class Initializer {
 			logging.trace("Registering Handler for NewConnectionInitializer.class ..");
 			communicationRegistration.register(NewConnectionInitializer.class)
 					.addFirstIfNotContained(new NewConnectionInitializerRequestHandler(clients));
-
 			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
 					.addFirst(new RemoteObjectRequestHandler(remoteObjectRegistration));
 
-			// TO NOT CHANGE THIS!
+			ReceivePipeline<SessionUpdate> sessionUpdatePipeline = communicationRegistration.register(SessionUpdate.class);
+			sessionUpdatePipeline.close();
+			sessionUpdatePipeline.seal();
+
+			// DO NOT CHANGE THIS!
 			final ReceivePipeline<Acknowledge> pipeline = communicationRegistration.register(Acknowledge.class);
 			try {
 				pipeline.acquire();
@@ -74,6 +85,9 @@ class Initializer {
 		}
 	}
 
+	/**
+	 * Sets the internal CacheObserver to check the cache for changed, new or deleted entries
+	 */
 	private void setObserver() {
 		logging.trace("Adding internal CacheObserver ..");
 		synchronized (cache) {
@@ -97,6 +111,9 @@ class Initializer {
 	private void handleAck(Acknowledge acknowledge) {
 	}
 
+	/**
+	 * The main method to call.
+	 */
 	@APILevel
 	void init() {
 		logging.trace("Creating internal dependencies");
@@ -115,6 +132,9 @@ class Initializer {
 			this.distributor = distributor;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void newEntry(final Object o, final CacheObservable observable) {
 			logging.debug("Received a new entry for the set Cache!");
@@ -122,6 +142,9 @@ class Initializer {
 			distributor.toRegistered(o);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void updatedEntry(final Object o, final CacheObservable observable) {
 			logging.debug("Received an updated entry for the set Cache!");
@@ -129,6 +152,9 @@ class Initializer {
 			distributor.toRegistered(o);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void deletedEntry(final Object o, final CacheObservable observable) {
 			logging.fatal("TODO!");

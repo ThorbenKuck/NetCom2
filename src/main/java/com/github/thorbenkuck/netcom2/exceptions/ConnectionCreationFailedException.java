@@ -1,5 +1,15 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+/**
+ * This Exception will be thrown, if the creation of the Connection failed.
+ * <p>
+ * This might be caused by an {@link java.io.IOException} within the used {@link java.net.Socket}, or because the Thread,
+ * creating this Exception is interrupted while creating the Connection
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.network.client.NewConnectionResponseHandler
+ * @since 1.0
+ */
 public class ConnectionCreationFailedException extends NetComRuntimeException {
 
 	/**

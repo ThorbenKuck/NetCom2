@@ -105,7 +105,7 @@ public class NetComThread extends Thread {
 	 *
 	 */
 	public String toString() {
-		if (! getName().equals(getThreadGroup().getName())) {
+		if (!getName().equals(getThreadGroup().getName())) {
 			return getName() + "[" + getThreadGroup().getName() + "#" + getId() + "]";
 		} else {
 			return getName();

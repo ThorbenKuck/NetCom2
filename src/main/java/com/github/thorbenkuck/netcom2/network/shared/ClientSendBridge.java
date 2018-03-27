@@ -10,7 +10,9 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 /**
  * This class is used to send objects to the client.
  *
+ * @version 1.0
  * @see SendBridge
+ * @since 1.0
  */
 @APILevel
 @Synchronized

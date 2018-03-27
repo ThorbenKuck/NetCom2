@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
@@ -16,6 +17,7 @@ import static com.github.thorbenkuck.netcom2.TestUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@Testing(ClientListImpl.class)
 public class ClientListImplTest {
 
 	@Test

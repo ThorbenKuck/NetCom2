@@ -12,9 +12,12 @@ import java.lang.annotation.*;
  * This means, that even if you clear an local instance, the created Class will be present in the RemoteObjectFactory!
  * <p>
  * By Design, every instantiation is lazy. You do not need to declare it and you cannot change this behaviour.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Retention (RetentionPolicy.RUNTIME)
-@Target (ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface SingletonRemoteObject {
 }

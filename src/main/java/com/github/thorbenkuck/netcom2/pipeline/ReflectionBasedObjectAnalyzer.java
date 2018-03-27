@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * @version 1.0
  */
 @APILevel
+@Synchronized
 class ReflectionBasedObjectAnalyzer {
 
 	/**
@@ -64,11 +66,15 @@ class ReflectionBasedObjectAnalyzer {
 	private <T> boolean containsOnlyAskedParameter(final Method method, final Class<T> clazz) {
 		boolean contains = false;
 		for (final Class clazzToCheck : method.getParameterTypes()) {
-			if (! clazzToCheck.equals(Connection.class) && ! clazzToCheck.equals(Session.class)) {
+			if (!clazzToCheck.equals(Connection.class) && !clazzToCheck.equals(Session.class)) {
 				if (clazzToCheck.equals(clazz)) {
 					contains = true;
 				} else {
-					// If it contains anything else than a Session, a Connection of the object to Receive, return immediately!
+					// If it contains anything else
+					// than a Session, a Connection
+					// or the object to Receive, return immediately!
+					// We do not want this, because
+					// we only know those 3 types here.
 					return false;
 				}
 			}

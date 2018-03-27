@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
@@ -14,6 +15,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Testing(JavaRemoteInformationInvocationHandler.class)
 public class JavaRemoteInformationInvocationHandlerTest {
 
 	final Semaphore semaphore = new Semaphore(1);

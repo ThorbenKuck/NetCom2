@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -25,6 +26,7 @@ import java.util.Optional;
  * @version 1.0
  */
 @APILevel
+@Synchronized
 class ReceiveObjectHandlerWrapper {
 
 	private final Logging logging = Logging.unified();
@@ -64,8 +66,9 @@ class ReceiveObjectHandlerWrapper {
 		NetCom2Utils.parameterNotNull(o, clazz);
 		final Optional<Method> methodOptional = getResponsibleForClass(o, clazz);
 		final Method method = methodOptional.orElseThrow(() -> new NoCorrectHandlerFoundException(
-				"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
-						"Found more than one Object to handle!"));
+					"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
+							"Found more than one Object to handle!"));
+
 
 		return wrap(clazz, method, o);
 	}
@@ -86,12 +89,11 @@ class ReceiveObjectHandlerWrapper {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ReceiveObjectHandlerWrapper)) return false;
+		if (!(o instanceof ReceiveObjectHandlerWrapper)) return false;
 
 		final ReceiveObjectHandlerWrapper that = (ReceiveObjectHandlerWrapper) o;
 
-		if (! logging.equals(that.logging)) return false;
-		return reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
+		return logging.equals(that.logging) && reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
 	}
 
 	/**
@@ -140,7 +142,7 @@ class ReceiveObjectHandlerWrapper {
 			logging.trace("calling ..");
 			synchronized (toInvoke) {
 				logging.trace("Updating accessibility ..");
-				if (! accessible) {
+				if (!accessible) {
 					logging.trace("Setting method accessible ..");
 					toInvoke.setAccessible(true);
 				}
@@ -202,7 +204,7 @@ class ReceiveObjectHandlerWrapper {
 		@Override
 		public void accept(final Connection connection, final Session session, final T t) {
 			logging.debug("Trying to access " + t);
-			if (! t.getClass().equals(toExpect) || ! t.getClass().isAssignableFrom(toExpect)) {
+			if (!t.getClass().equals(toExpect) || !t.getClass().isAssignableFrom(toExpect)) {
 				throw new HandlerInvocationException(
 						"Could not invoke method: " + toInvoke + " awaiting class " + toExpect);
 			}

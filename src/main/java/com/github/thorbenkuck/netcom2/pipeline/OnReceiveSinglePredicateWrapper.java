@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -19,6 +20,7 @@ import java.util.function.Predicate;
  * @version 1.0
  */
 @APILevel
+@Synchronized
 class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Session, T> {
 
 	private final Predicate<Session> predicate;
@@ -56,11 +58,11 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 	 */
 	@Override
 	public final boolean equals(final Object o) {
-		if(o == null) {
+		if (o == null) {
 			return false;
 		}
 
-		if(o instanceof OnReceiveSinglePredicateWrapper) {
+		if (o instanceof OnReceiveSinglePredicateWrapper) {
 			return predicate.equals(((OnReceiveSinglePredicateWrapper) o).predicate);
 		}
 

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.utility;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import java.util.Queue;
  * @since 1.0
  * @version 1.0
  */
+@Synchronized
 public class AsynchronousIterator<T> implements Iterator<T> {
 
 	private final Queue<T> core;

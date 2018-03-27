@@ -1,9 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
 @APILevel
 class DefaultReceiveOrSendSync implements ReceiveOrSendSynchronization {
 
@@ -18,11 +23,17 @@ class DefaultReceiveOrSendSync implements ReceiveOrSendSynchronization {
 		this.sendType = sendType;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void andWaitForReceiving(final Class clazz) throws InterruptedException {
 		send.andWaitFor(clazz);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void andWaitForSendFinished() throws InterruptedException {
 		received.andWaitFor(sendType);

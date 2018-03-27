@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 
 import java.util.function.Consumer;
 
@@ -16,6 +17,7 @@ class InternalHeartBeatParallel<T> implements HeartBeatParallel<T> {
 		this.consumer = consumer;
 	}
 
+	@Asynchronous
 	@Override
 	public Thread run(final T t) {
 		heartBeatCore.setup(t, consumer);

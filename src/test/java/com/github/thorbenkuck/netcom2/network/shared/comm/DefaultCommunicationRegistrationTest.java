@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.verify;
 /**
  * trigger1 does not need to be checked against null. The method trigger will check those to.
  */
+@Testing(DefaultCommunicationRegistration.class)
 public class DefaultCommunicationRegistrationTest {
 	@Test
 	public void register() throws Exception {

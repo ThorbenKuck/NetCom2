@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
@@ -17,6 +18,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * @since 1.0
  * @version 1.0
  */
+@Synchronized
 public class Wrapper {
 
 	/**

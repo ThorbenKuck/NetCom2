@@ -2,11 +2,10 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -30,7 +29,26 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-@Synchronized
+/**
+ * This Class is the main point for creating the Server-side of an over-network Communication
+ * <p>
+ * You create this Class the following way:
+ * <p>
+ * <pre>
+ *     {@code
+ * ServerStart serverStart = ServerStart.at(port);
+ *     }
+ * </pre>
+ * <p>
+ * However! You cannot access the type of this class directly! Always use the {@link ServerStart} interface, since NetCom2
+ * is interface-driven designed!
+ * <p>
+ * This class, or even its signature may be subject to change!
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.ServerStartImplTest")
 class ServerStartImpl implements ServerStart {
 
 	@APILevel
@@ -68,7 +86,7 @@ class ServerStartImpl implements ServerStart {
 	 * @see #acceptNextClient()
 	 */
 	private void handle(final Socket socket) {
-		if (! running) {
+		if (!running) {
 			return;
 		}
 		logging.debug("Handling new Socket: " + socket);
@@ -182,7 +200,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
-		if(!running()) {
+		if (!running()) {
 			logging.warn("Server not running!");
 			return;
 		}
@@ -207,8 +225,9 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Asynchronous
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		if (! running) {
+		if (!running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
@@ -234,16 +253,16 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setPort(final int port) {
-		serverConnector = new ServerConnector(port);
+	public int getPort() {
+		return serverConnector.getPort();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getPort() {
-		return serverConnector.getPort();
+	public void setPort(final int port) {
+		serverConnector = new ServerConnector(port);
 	}
 
 	/**
@@ -357,7 +376,7 @@ class ServerStartImpl implements ServerStart {
 		// not running, we do not
 		// need to go through the
 		// disconnect routine
-		if(!running()) {
+		if (!running()) {
 			return;
 		}
 		logging.debug("Stopping ..");
@@ -379,7 +398,7 @@ class ServerStartImpl implements ServerStart {
 			try {
 				logging.trace("Awaiting termination of all Threads ..");
 				threadPool.awaitTermination(20, TimeUnit.SECONDS);
-				if (! threadPool.isShutdown()) {
+				if (!threadPool.isShutdown()) {
 					logging.trace("Detected some running Threads " + 20 + " seconds after ShutdownRequest! Forcefully shutting down the ThreadPool");
 					hardStop();
 				}
@@ -434,7 +453,7 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Trying to create Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
 		final Optional<Client> clientOptional = clientList.getClient(session);
-		if (! clientOptional.isPresent()) {
+		if (!clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session: " + session);
 			return Synchronize.empty();
 		}

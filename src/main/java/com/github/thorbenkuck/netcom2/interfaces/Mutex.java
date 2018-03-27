@@ -7,6 +7,9 @@ package com.github.thorbenkuck.netcom2.interfaces;
  * <p>
  * It emulates a {@link java.util.concurrent.Semaphore}. Therefor, it can be realized internally with a Semaphore.
  * It encapsulates an Semaphore. Therefor the Synchronization Mechanism can be changed easily.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface Mutex {
 
