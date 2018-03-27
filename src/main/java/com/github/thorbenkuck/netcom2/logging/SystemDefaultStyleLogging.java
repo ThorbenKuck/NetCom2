@@ -8,6 +8,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 
+/**
+ * This Class defines how NetCom2 logging looks.
+ * <p>
+ * It in and of itself is an implementation from {@link Logging}. So, the other Implementations may simply delegate any
+ * call to an instance of this class. Thereby, SRP is maintainable
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @Synchronized
 public class SystemDefaultStyleLogging implements Logging {
 
@@ -22,7 +31,7 @@ public class SystemDefaultStyleLogging implements Logging {
 	}
 
 	/**
-	 * This Method synchronized prints the given String s to the provided {@link PrintStream} out
+	 * This Method prints the given String s synchronized to the provided {@link PrintStream} <code>out</code>
 	 *
 	 * @param s the String, that should be printed
 	 */

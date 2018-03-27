@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -12,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 @APILevel
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.PingHandlerTest")
 class PingHandler implements OnReceiveTriple<Ping> {
 
 	private final Logging logging = Logging.unified();
@@ -22,11 +24,14 @@ class PingHandler implements OnReceiveTriple<Ping> {
 		this.client = client;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final Connection connection, final Session session, final Ping ping) {
 		NetCom2Utils.parameterNotNull(connection, session, ping);
-		if (! ClientID.isEmpty(client.getID())) {
+		if (!ClientID.isEmpty(client.getID())) {
 			logging.debug("Received faulty Ping..");
 			client.addFalseID(ping.getId());
 		} else {
@@ -39,6 +44,9 @@ class PingHandler implements OnReceiveTriple<Ping> {
 		client.triggerPrimation();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = logging.hashCode();
@@ -46,22 +54,26 @@ class PingHandler implements OnReceiveTriple<Ping> {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof PingHandler)) return false;
+		if (!(o instanceof PingHandler)) return false;
 
 		final PingHandler that = (PingHandler) o;
 
-		if (! logging.equals(that.logging)) return false;
-		return client.equals(that.client);
+		return logging.equals(that.logging) && client.equals(that.client);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "PingHandler{" +
-				"logging=" + logging +
-				", client=" + client +
+				"client=" + client +
 				'}';
 	}
 }

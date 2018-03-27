@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.*;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
@@ -28,10 +29,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 
+@Testing(ClientStartImpl.class)
 public class ClientStartImplTest {
 
-	private final String ADDRESS = "localhost";
-	private final int PORT = 1;
+	private static final String ADDRESS = "localhost";
+	private static final int PORT = 1;
 	private Socket mockedSocket = mock(Socket.class);
 	private InputStream mockedInputStream = mock(InputStream.class);
 	private OutputStream mockedOutputStream = mock(OutputStream.class);

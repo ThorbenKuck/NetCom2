@@ -1,5 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+/**
+ * This implementations will create RemoteObjects.
+ * <p>
+ * Those RemoteObjects are proxies. There should be NO reason to check for that.
+ */
 public interface RemoteObjectFactory {
 
 	/**

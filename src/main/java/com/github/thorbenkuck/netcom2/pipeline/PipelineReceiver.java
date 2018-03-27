@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -15,8 +16,12 @@ import java.util.Queue;
  * they are clustered.
  *
  * @param <T> The object, that is handled by the {@link OnReceiveTriple} and tested by the {@link TriPredicate}
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @APILevel
+@Synchronized
 class PipelineReceiver<T> {
 
 	private final OnReceiveTriple<T> onReceive;
@@ -25,7 +30,7 @@ class PipelineReceiver<T> {
 	/**
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
 	 * Since the {@link TriPredicate} is optional, it is not required in the constructor
-	 *
+	 * <p>
 	 * Null is a valid parameter.
 	 *
 	 * @param onReceive the OnReceive to be handled
@@ -64,31 +69,55 @@ class PipelineReceiver<T> {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof PipelineReceiver)) return false;
+		if (!(o instanceof PipelineReceiver)) return false;
 
 		final PipelineReceiver<?> that = (PipelineReceiver<?>) o;
 
 		return onReceive.equals(that.onReceive);
 	}
 
+	/**
+	 * Adds a TriPredicate to the internal Queue.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @param triPredicate The TriPredicate to add
+	 */
 	@APILevel
 	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
 		NetCom2Utils.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
+	/**
+	 * Test all TriPredicates and return false early if one returns false.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @param connection The connection to test with
+	 * @param session The session to test with
+	 * @param t The T to test with
+	 * @return false if one predicate returns false, true otherwise
+	 */
 	@APILevel
 	final boolean test(Connection connection, Session session, T t) {
 		NetCom2Utils.parameterNotNull(connection, session, t);
 		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
-			if (! predicateTemp.remove().test(connection, session, t)) {
+			if (!predicateTemp.remove().test(connection, session, t)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	/**
+	 * Get the internal OnReceiveTriple instance.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @return The OnReceiveTriple
+	 */
 	@APILevel
 	final OnReceiveTriple<T> getOnReceive() {
 		return onReceive;

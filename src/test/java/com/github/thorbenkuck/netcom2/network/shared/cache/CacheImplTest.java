@@ -1,11 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import org.junit.Test;
 
 import java.util.Optional;
 
 import static org.junit.Assert.*;
 
+@Testing(CacheImpl.class)
 public class CacheImplTest {
 	@Test
 	public void updateNonExisting() throws Exception {

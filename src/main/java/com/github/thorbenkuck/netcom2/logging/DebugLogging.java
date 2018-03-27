@@ -1,10 +1,15 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
  * This implementation of {@link Logging} ignores the trace method
+ *
+ * @version 1.0
+ * @since 1.0
  */
+@Synchronized
 public class DebugLogging implements Logging {
 
 	private final Logging style;

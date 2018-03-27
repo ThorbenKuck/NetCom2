@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
+@Testing(HeartBeat.class)
 public class HeartBeatTest {
 
 	private final AtomicInteger counts = new AtomicInteger(0);

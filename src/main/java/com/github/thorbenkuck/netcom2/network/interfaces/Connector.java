@@ -4,6 +4,14 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 
 import java.io.IOException;
 
+/**
+ * This interface connects an type <code>T</code> to an synchronization mechanism <code>S</code>
+ *
+ * @param <T> The input argument
+ * @param <S> The output argument
+ * @version 1.0
+ * @since 1.0
+ */
 public interface Connector<T, S> {
 
 	/**

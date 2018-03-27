@@ -6,6 +6,12 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * This interface is used to allow internal components to to other things than what is exposed
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 interface InternalDistributor extends Distributor {
 
@@ -19,7 +25,7 @@ interface InternalDistributor extends Distributor {
 	 * @return a new InternalDistributor instantiation
 	 */
 	static InternalDistributor create(final ClientList clientList,
-									  final DistributorRegistration distributorRegistration) {
+	                                  final DistributorRegistration distributorRegistration) {
 		return new DistributorImpl(clientList, distributorRegistration);
 	}
 
@@ -34,9 +40,27 @@ interface InternalDistributor extends Distributor {
 	@APILevel
 	DistributorRegistration getDistributorRegistration();
 
+	/**
+	 * Sends the Object o, to only one specific user, specified by the list of predicates
+	 *
+	 * @param o          the object to send
+	 * @param predicates the predicate describing the receiver
+	 */
 	void toSpecific(Object o, List<Predicate<Session>> predicates);
 
+	/**
+	 * Sends the Object o, to all users, except those specified by the list of predicates
+	 *
+	 * @param o          the object to send
+	 * @param predicates the predicate describing the excluded receiver
+	 */
 	void toAllExcept(Object o, List<Predicate<Session>> predicates);
 
+	/**
+	 * Sends the Object o, to specific users which registered to the type of the Object, further reduced by the list of predicates
+	 *
+	 * @param o          the object to send
+	 * @param predicates the predicate describing the receiver
+	 */
 	void toRegistered(Object o, List<Predicate<Session>> predicates);
 }

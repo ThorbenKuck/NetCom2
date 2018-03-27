@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
@@ -11,6 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@Testing(UnRegisterRequestReceiveHandler.class)
 public class UnRegisterRequestReceiveHandlerTest {
 
 	@Test

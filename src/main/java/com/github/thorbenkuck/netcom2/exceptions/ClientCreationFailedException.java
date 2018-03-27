@@ -12,9 +12,11 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * tries to close its internally saved Socket using {@link java.net.Socket#close()}. This may throw another IOException. Those Exceptions
  * are suppressed within the first encountered Exception.
  *
+ * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.AbstractConnection#setup
  * @see com.github.thorbenkuck.netcom2.network.interfaces.SendingService#setup(java.io.OutputStream, java.util.concurrent.BlockingQueue)
  * @see com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService#setup(com.github.thorbenkuck.netcom2.network.shared.clients.Connection, com.github.thorbenkuck.netcom2.network.shared.Session)
+ * @since 1.0
  */
 public class ClientCreationFailedException extends NetComRuntimeException {
 

@@ -1,7 +1,8 @@
-package com.github.thorbenkuck.netcom2.interfaces;
+package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.network.client.RemoteObjectAccess;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
@@ -12,6 +13,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
  * Internally it holds Objects, that are responsible to be called when ever an Object, created with {@link RemoteObjectAccess}
  * is created. It contains methods to register and unregister Objects, identified by Classes. However, the provided classes
  * have to be assignable from the provided Object.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface RemoteObjectRegistration {
 

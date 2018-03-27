@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -13,8 +15,13 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * This internally used Class is responsible for establishing a new Connection.
  * <p>
  * Further, it decouples the code that wants to create a new Connection from the exact way of creating a new Connection.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.ClientConnectionEstablishTest")
+@Synchronized
 class ClientConnectionEstablish {
 
 	private final Logging logging = new NetComLogging();

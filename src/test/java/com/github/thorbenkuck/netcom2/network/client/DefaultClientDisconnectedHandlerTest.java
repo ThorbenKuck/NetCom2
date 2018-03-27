@@ -1,15 +1,16 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@Testing(DefaultClientDisconnectedHandler.class)
 public class DefaultClientDisconnectedHandlerTest {
 	@Test
 	public void handle() throws Exception {
@@ -32,6 +33,20 @@ public class DefaultClientDisconnectedHandlerTest {
 		verify(client, atLeastOnce()).setup();
 
 		assertFalse(launched.get());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void handleNull() throws Exception {
+
+		// Arrange
+		ClientStartImpl clientStart = mock(ClientStartImpl.class);
+		DefaultClientDisconnectedHandler handler = new DefaultClientDisconnectedHandler(clientStart);
+
+		// Act
+		handler.handle(null);
+
+		// Assert
+		fail();
 	}
 
 	@Test

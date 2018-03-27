@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -16,6 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Testing(DefaultClientHandler.class)
 public class DefaultClientHandlerTest {
 
 	@Test
@@ -38,7 +40,7 @@ public class DefaultClientHandlerTest {
 		verify(list).add(eq(client));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNull() throws Exception {
 		// Arrange
 		ClientList list = mock(ClientList.class);
@@ -74,7 +76,7 @@ public class DefaultClientHandlerTest {
 		verify(client).addDisconnectedHandler(any());
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void handleNull() throws Exception {
 		// Arrange
 		ClientList list = mock(ClientList.class);

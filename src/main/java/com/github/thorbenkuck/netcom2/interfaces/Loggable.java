@@ -1,5 +1,13 @@
-package com.github.thorbenkuck.netcom2.network.interfaces;
+package com.github.thorbenkuck.netcom2.interfaces;
 
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+
+/**
+ * This interface describes, that the internally set {@link Logging} instance may be overridden separate
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface Loggable {
 
 	/**

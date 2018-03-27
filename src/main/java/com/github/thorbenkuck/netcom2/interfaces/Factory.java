@@ -11,6 +11,8 @@ package com.github.thorbenkuck.netcom2.interfaces;
  *
  * @param <F> The Type of the Object, required to create the T
  * @param <T> The Type of the Object, which is instantiated by calling the {@link #create(Object)} method
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface Factory<F, T> {
