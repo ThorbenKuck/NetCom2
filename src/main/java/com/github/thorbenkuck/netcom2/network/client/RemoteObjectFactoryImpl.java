@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 /**
- * This Factory creates JavaRemoteInformationInvocationHandler.
+ * This Factory creates JavaRemoteInformationInvocationHandlers.
  *
  * @version 1.0
  * @since 1.0

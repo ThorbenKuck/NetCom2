@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * Thread. Everything that is important, is that the annotated class does not <b>directly</b> extract an procedure into
  * another Thread!
  * <p>
- * So, if a using a class that, will always extract something into another Thread, like {@link Thread} (duh) or the
+ * So, if you are using a class that, will always extract something into another Thread, like {@link Thread} (duh) or the
  * {@link java.util.concurrent.ExecutorService}, this annotation is not allowed!
  * <p>
  * Future: Create an Annotation-Processor, that ensures that no Method is annotated with {@link Asynchronous}.

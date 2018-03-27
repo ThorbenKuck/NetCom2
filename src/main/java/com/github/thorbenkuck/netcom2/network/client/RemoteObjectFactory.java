@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 /**
- * This implementations will create RemoteObjects.
+ * Implementations will create RemoteObjects.
  * <p>
  * Those RemoteObjects are proxies. There should be NO reason to check for that.
  */
@@ -12,17 +12,17 @@ public interface RemoteObjectFactory {
 	 * <p>
 	 * This allows you, to say what to do, if the RemoteObject is not registered.
 	 * <p>
-	 * The Runnable will be executed, if and only if the requested Object is not registered i.e. if an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}
-	 * is thrown at the Server. Else, the received Exception will be rethrown, encapsulated in an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException}.
+	 * The Runnable will be executed, if and only if the requested Object is not registered i.e. if a {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}
+	 * is thrown on the Server. Else, the received Exception will be rethrown, encapsulated in a {@link com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException}.
 	 *
 	 * @param runnable the runnable, that should be executed, if the requested Class is not present.
 	 */
 	void setDefaultFallback(Runnable runnable);
 
 	/**
-	 * Adds an fallback, mapped to a certain Class.
+	 * Adds a fallback, mapped to a certain Class.
 	 * <p>
-	 * If an RemoteObject of the type <code>clazz</code> is not registered, this runnable will be executed.
+	 * If a RemoteObject of the type <code>clazz</code> is not registered, this runnable will be executed.
 	 * <p>
 	 * If the provided Class is requested, this fallback runnable is used preferred over {@link #setDefaultFallback(Runnable)}.
 	 * Otherwise, the behaviour is the same.
@@ -33,7 +33,7 @@ public interface RemoteObjectFactory {
 	void setFallback(Class<?> clazz, Runnable runnable);
 
 	/**
-	 * Adds an fallback instance, that should be executed if the remote-object is not registered.
+	 * Adds a fallback instance, that should be executed if the remote-object is not registered.
 	 * <p>
 	 * If the provided Class is requested, this fallback runnable is used preferred over {@link #setFallback(Class, Runnable)}.
 	 * Otherwise, the behaviour is the same.

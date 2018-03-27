@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 /**
- * This Exception will be thrown, if an Serialization fails.
+ * This Exception will be thrown if Serialization fails.
  *
  * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter

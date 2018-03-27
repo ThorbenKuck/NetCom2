@@ -11,7 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This Class handles an {@link RegisterResponse}, received from the ServerStart
+ * This Class handles a {@link RegisterResponse}, received from the ServerStart
  *
  * @version 1.0
  * @since 1.0

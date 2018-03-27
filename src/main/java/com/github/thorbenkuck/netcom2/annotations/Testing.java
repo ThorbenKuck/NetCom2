@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.annotations;
 import java.lang.annotation.*;
 
 /**
- * This annotations is used for Tests, to show, which class is tested.
+ * This annotation is used for Tests to show which class is tested.
  * <p>
  * This is done, so that the Test may be associated with a class.
  * <p>

@@ -5,7 +5,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * <p>
  * So, if you want, you can simply catch this Exception, if multiple Exceptions are thrown anywhere.
  * <p>
- * You cant however create a custom <code>NetComException</code>! The Constructors of this Exception are package-private
+ * You can't, however, create a custom <code>NetComException</code>! The Constructors of this Exception are package-private
  * so that only Exceptions defined within this package are NetComExceptions.
  *
  * @version 1.0

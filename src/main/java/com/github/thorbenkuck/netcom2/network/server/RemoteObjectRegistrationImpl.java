@@ -20,7 +20,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 /**
- * This Class is used at the ServerSide to define the RemoteObjectRegistration.
+ * This Class is used on the ServerSide to define the RemoteObjectRegistration.
  *
  * @version 1.0
  * @since 1.0

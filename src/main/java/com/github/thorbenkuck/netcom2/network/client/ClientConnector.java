@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * This class creates an DefaultConnection, based on the provided SocketFactory.
+ * This class creates a DefaultConnection, based on the provided SocketFactory.
  * <p>
  * If you use this Class, you provide a Client to be maintained. It provides a function to establish the default
  * Connection as well as a function to establish a new Connection, with a provided key.

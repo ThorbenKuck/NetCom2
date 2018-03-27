@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 
 /**
  * This Exception will be thrown, if the {@link RemoteObjectRegistration} receives
- * an {@link com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest} with an declared method,
+ * a {@link com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest} with a declared method,
  * that the defined class does not have.
  *
  * @version 1.0

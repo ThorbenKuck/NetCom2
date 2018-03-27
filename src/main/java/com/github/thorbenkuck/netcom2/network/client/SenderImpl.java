@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * This Sender is an Implementation of the InternalSender.
  * <p>
- * This does mean, it is also an {@link Sender} implementation. In fact, this class is used within the {@link ClientStart}.
+ * This does mean, it is also a {@link Sender} implementation. In fact, this class is used within the {@link ClientStart}.
  *
  * @version 1.0
  * @since 1.0
@@ -42,7 +42,7 @@ class SenderImpl implements InternalSender, Loggable {
 	}
 
 	/**
-	 * Checks synchronized if a observer is set.
+	 * Checks synchronized if an observer is set.
 	 *
 	 * @param clazz the class that should be observed
 	 * @return whether or not an observer exists for the class

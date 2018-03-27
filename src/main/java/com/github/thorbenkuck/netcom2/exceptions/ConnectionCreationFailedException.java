@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 /**
- * This Exception will be thrown, if the creation of the Connection failed.
+ * This Exception will be thrown if the creation of the Connection failed.
  * <p>
  * This might be caused by an {@link java.io.IOException} within the used {@link java.net.Socket}, or because the Thread,
  * creating this Exception is interrupted while creating the Connection

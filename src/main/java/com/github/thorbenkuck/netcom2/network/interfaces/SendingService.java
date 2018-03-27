@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 public interface SendingService extends Runnable, SoftStoppable {
 
 	/**
-	 * Adds a Callback, that will be executed, if the object is send
+	 * Adds a Callback, that will be executed, if the object is sent
 	 *
 	 * @param callback the Callback, that should be held internally.
 	 */
@@ -46,9 +46,9 @@ public interface SendingService extends Runnable, SoftStoppable {
 	void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom);
 
 	/**
-	 * Returns an Synchronization mechanism, that allows to wait until the SendingService is setup.
+	 * Returns a synchronization mechanism, that allows to wait until the SendingService is setup.
 	 * <p>
-	 * This mechanism stops to block if the SendingService is setup und running.
+	 * This mechanism stops blocking if the SendingService is setup und running.
 	 *
 	 * @return the Synchronization mechanism.
 	 */

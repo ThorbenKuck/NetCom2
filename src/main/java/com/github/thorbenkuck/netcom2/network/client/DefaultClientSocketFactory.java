@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * This Class defines the Default behaviour for creating a Socket, utilized within the {@link ClientStart}.
+ * This Class defines the default behaviour for creating a Socket, utilized within the {@link ClientStart}.
  *
  * @version 1.0
  * @since 1.0

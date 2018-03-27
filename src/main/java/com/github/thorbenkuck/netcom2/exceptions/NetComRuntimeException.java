@@ -1,9 +1,9 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 /**
- * Any Exception, that is not declared at any interface within NetCom2 is a sub-class of this Exception.
+ * Any Exception, that is not declared in any interface within NetCom2 is a sub-class of this Exception.
  * <p>
- * You may catch this type, to catch any RuntimeException, coming from NetCom2, except for:
+ * You may catch this type to catch any RuntimeException coming from NetCom2, except for:
  * <p>
  * <ul>
  * <li>IllegalArgumentException</li>

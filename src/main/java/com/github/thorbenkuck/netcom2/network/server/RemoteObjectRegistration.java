@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessComm
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
 /**
- * Any Implementation of this Interface will handle the Registration of RemoteObjects at the Server-Side and therefor the delegation and Handling
+ * Any Implementation of this Interface will handle the Registration of RemoteObjects at the Server-Side and therefore the delegation and Handling
  * of {@link RemoteAccessCommunicationRequest}s
  * <p>
  * Internally it holds Objects, that are responsible to be called when ever an Object, created with {@link RemoteObjectAccess}
@@ -106,7 +106,7 @@ public interface RemoteObjectRegistration {
 	void unregister(Class... identifier);
 
 	/**
-	 * Likewise to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
+	 * Similarly to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
 	 *
 	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
@@ -125,14 +125,14 @@ public interface RemoteObjectRegistration {
 
 	/**
 	 * This call executes an {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
-	 * an {@link RemoteAccessCommunicationResponse}.
+	 * a {@link RemoteAccessCommunicationResponse}.
 	 * <p>
 	 * This method will search internally for the set instance, according to the {@link RemoteAccessCommunicationRequest#clazz},
 	 * which identifies the Object that should be called. If it finds an corresponding Class, it searches the Class via
-	 * reflections for the provided {@link RemoteAccessCommunicationRequest#methodName}, which matches the {@link RemoteAccessCommunicationRequest#parameters}.
+	 * reflection for the provided {@link RemoteAccessCommunicationRequest#methodName}, which matches the {@link RemoteAccessCommunicationRequest#parameters}.
 	 * if it can find any matching method, it will execute the first one and generate the Results of that Method.
 	 * <p>
-	 * Any Exception thrown, will be cached and send back to the Client. This means, the StackTrace will be the StackTrace
+	 * Any Exception thrown, will be cached and sent back to the Client. This means, the StackTrace will be the StackTrace
 	 * which contains information about the Server! Use the {@link com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions}
 	 * annotation to suppress this behaviour.
 	 * <p>

@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.interfaces;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
- * This interface describes, that the internally set {@link Logging} instance may be overridden separate
+ * This interface describes, that the internally set {@link Logging} instance may be overridden separately.
  *
  * @version 1.0
  * @since 1.0
@@ -13,7 +13,7 @@ public interface Loggable {
 	/**
 	 * Allows to override internally set Logging-instances.
 	 * <p>
-	 * By default, every component uses the {@link Logging#unified()}, therefor, by calling:
+	 * By default, every component uses the {@link Logging#unified()}, therefore, by calling:
 	 * <p>
 	 * <code>
 	 * Logging instance = ...

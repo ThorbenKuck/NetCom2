@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import java.io.IOException;
 
 /**
- * This interface connects an type <code>T</code> to an synchronization mechanism <code>S</code>
+ * This interface connects a type <code>T</code> to a synchronization mechanism <code>S</code>
  *
  * @param <T> The input argument
  * @param <S> The output argument
@@ -41,9 +41,9 @@ public interface Connector<T, S> {
 	S establishConnection(final Class key, final T t) throws IOException, StartFailedException;
 
 	/**
-	 * This Method might be overridden, to signal the Connector to shutDown any internal components.
+	 * This Method may be overridden, to signal the Connector to shutDown any internal components.
 	 * <p>
-	 * By Default, this Method does nothing by default.
+	 * By Default, this Method does nothing.
 	 *
 	 * @throws IOException if something goes wrong during shutdown
 	 */

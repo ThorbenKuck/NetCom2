@@ -1,12 +1,12 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 /**
- * A Factory interface is used, to create any Object.
+ * A Factory interface is used to create any Object.
  * <p>
- * Differently to the {@link SimpleFactory}, this interface expects a parameter inside of the {@link Factory#create(Object)} method.
- * This might be used to create the Object. It either is the base or an parameter of the newly created Object
+ * In contrast to the {@link SimpleFactory}, this interface expects a parameter inside of the {@link Factory#create(Object)} method.
+ * This might be used to create the Object. It either is the base or a parameter of the newly created Object
  * <p>
- * Differently to the {@link Adapter} interface, the call of the {@link #create(Object)} method will <b>ALWAYS</b> create
+ * In contrast to the {@link Adapter} interface, the call of the {@link #create(Object)} method will <b>ALWAYS</b> create
  * a new Instance of the said type T.
  *
  * @param <F> The Type of the Object, required to create the T

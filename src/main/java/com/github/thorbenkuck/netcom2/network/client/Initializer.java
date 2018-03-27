@@ -87,7 +87,7 @@ class Initializer {
 	/**
 	 * This Method blocks, until the {@link ClientID} is received via the {@link Ping} from the Server.
 	 *
-	 * @throws StartFailedException if the Client is interrupted before he is primed
+	 * @throws StartFailedException if the Client is interrupted before it is primed
 	 */
 	private void awaitHandshake() throws StartFailedException {
 		logging.debug("Awaiting ping from Server ..");
@@ -251,7 +251,7 @@ class Initializer {
 	 * By calling this Method the internal registrations of Objects are started and
 	 * the Client waits for a Handshake from the Server. This means this Method
 	 * will only return if the Server send the corresponding {@link ClientID} that
-	 * the Client is associated with and therefor signals the Client that it is primed.
+	 * the Client is associated with and therefore signals the Client that it is primed.
 	 *
 	 * @throws StartFailedException if the Synchronization, awaiting the Client
 	 *                              primed failed, an StartFailedException is thrown

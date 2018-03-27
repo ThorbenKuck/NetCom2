@@ -3,10 +3,10 @@ package com.github.thorbenkuck.netcom2.annotations;
 import java.lang.annotation.*;
 
 /**
- * This Annotation is used, to signal multiple different tests for the same Class.
+ * This Annotation is used to signal multiple different tests for the same Class.
  * <p>
- * If you would have an integration-test, testing the correct Communication between 2 Clients and a Server, this would
- * not be a unit test. But you maybe testing this specific module that the integration test handles locally. Than, you
+ * If you had an integration-test, testing the correct Communication between 2 Clients and a Server, this would
+ * not be a unit test. But you may be testing this specific module that the integration test handles locally. Then, you
  * would do the following:
  * <p>
  * <pre><code>
@@ -22,7 +22,7 @@ import java.lang.annotation.*;
  * <p>
  * This ensures better readability.
  * <p>
- * This annotation is only used at the RetentionPolicy of Source. It is not meant to be analyzed at Runtime, nor at
+ * This annotation is only used at the RetentionPolicy of Source. It is neither meant to be analyzed at Runtime, nor at
  * compile-time. All this class does, is to be more transparent about the Tests for the developers. The test-package
  * should not be of need if this Framework is used.
  * <p>

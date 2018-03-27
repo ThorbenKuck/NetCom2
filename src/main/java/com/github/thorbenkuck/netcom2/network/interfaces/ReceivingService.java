@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 /**
- * The ReceivingService class is the entry-point for receiving objects, that are send over the network.
+ * The ReceivingService class is the entry-point for receiving objects, that are sent over the network.
  * <p>
  * This Runnable is meant to be run in a separate Thread and to be (sort of) forgotten about. It is used within a {@link Connection}.
  *
@@ -24,7 +24,7 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 	void cleanUpCallBacks();
 
 	/**
-	 * Adds an Callback, that will be handled internally
+	 * Adds a Callback, that will be handled internally
 	 *
 	 * @param callback the Callback, that should be used
 	 */
@@ -33,7 +33,7 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 	/**
 	 * Sets up internal Components.
 	 * <p>
-	 * It is therefor branded to the provided Connection and Session.
+	 * It is therefore branded to the provided Connection and Session.
 	 * This is needed for the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
 	 *
 	 * @param connection the Connection, this ReceivingService listens to
@@ -56,7 +56,7 @@ public interface ReceivingService extends Runnable, SoftStoppable {
 	void onDisconnect(final Runnable runnable);
 
 	/**
-	 * Returns an synchronization mechanism, that will stop blocking if this is listening
+	 * Returns a synchronization mechanism, that will stop blocking if this is listening
 	 *
 	 * @return the internal Synchronization mechanism
 	 */
