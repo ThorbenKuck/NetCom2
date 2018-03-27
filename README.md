@@ -115,7 +115,7 @@ Include this in your pom.xml (if you are using Maven)
 <dependency>
   <groupId>com.github.thorbenkuck</groupId>
   <artifactId>NetCom2</artifactId>
-  <version>0.4</version>
+  <version>0.4.1</version>
 </dependency>
 ```
 
@@ -123,7 +123,7 @@ Or this in you build.gradle (if you are using Gradle)
 
 ```
 dependencies {
-    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.4'
+    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.4.1'
 }
 ```
 
