@@ -3,6 +3,10 @@ package com.github.thorbenkuck.netcom2.exceptions;
 /**
  * This Exception signals that, the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
  * has no provided OnReceive provided for the provided Class.
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration
+ * @since 1.0
  */
 public class CommunicationNotSpecifiedException extends NetComException {
 

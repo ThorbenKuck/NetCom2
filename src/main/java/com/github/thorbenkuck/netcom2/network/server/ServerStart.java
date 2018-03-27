@@ -3,18 +3,25 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
+import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * This interface describes the Server-side of NetCom2.
+ * <p>
+ * As most other components, this interface has an implementation, that is hidden for different Reasons.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleConnections {
 
 	/**
@@ -68,6 +75,13 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	void acceptNextClient() throws ClientConnectionFailedException;
 
 	/**
+	 * Returns the current port of the ServerStart.
+	 *
+	 * @return the port this ServerStart uses
+	 */
+	int getPort();
+
+	/**
 	 * Sets the port of the ServerStart.
 	 * <p>
 	 * Allows you, to set the Port, even after the ServerStart has been created.
@@ -76,13 +90,6 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	 * @param port the port the ServerStart should letch onto
 	 */
 	void setPort(final int port);
-
-	/**
-	 * Returns the current port of the ServerStart.
-	 *
-	 * @return the port this ServerStart uses
-	 */
-	int getPort();
 
 	/**
 	 * Adds an {@link ClientConnectedHandler}, that should handle a newly created Client.

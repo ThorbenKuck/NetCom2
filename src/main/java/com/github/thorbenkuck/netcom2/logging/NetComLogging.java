@@ -1,14 +1,35 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * This class is the central entry point for the NetCom2Logging api.
+ * <p>
+ * Setting any logging instance using {@link #setLogging(Logging)}, will override the behaviour of any logger, created
+ * using {@link Logging#unified()}
+ *
+ * @version 1.0
+ * @see Logging
+ * @since 1.0
+ */
+@Synchronized
 public class NetComLogging implements Logging {
 
 	private static Logging logging = Logging.getDefault();
+	private static Lock loggingLock = new ReentrantLock(true);
 
 	private static Logging getLogging() {
-		return logging;
+		try {
+			loggingLock.lock();
+			return logging;
+		} finally {
+			loggingLock.unlock();
+		}
 	}
 
 	/**
@@ -18,10 +39,15 @@ public class NetComLogging implements Logging {
 	 */
 	public static void setLogging(final Logging logging) {
 		NetCom2Utils.parameterNotNull(logging);
-		if (NetComLogging.logging == logging) {
+		if (NetComLogging.getLogging() == logging) {
 			throw new IllegalArgumentException("Cyclic dependency!");
 		}
-		NetComLogging.logging = logging;
+		try {
+			loggingLock.lock();
+			NetComLogging.logging = logging;
+		} finally {
+			loggingLock.unlock();
+		}
 	}
 
 	/**

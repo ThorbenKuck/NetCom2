@@ -8,6 +8,15 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * The ClientList contains all connected Clients.
+ * <p>
+ * It is maintained within the ServerStart. Manually manipulating this instance is under no circumstance prohibited, but
+ * definitely not recommended. Manually removing or adding Clients might screw with some internal mechanisms.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**

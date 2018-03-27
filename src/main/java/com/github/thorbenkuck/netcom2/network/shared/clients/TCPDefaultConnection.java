@@ -14,17 +14,28 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * This ConnectionImplementation attempts to create an TCP Connection. It attempts.. Sryl, can someone please do this?
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public class TCPDefaultConnection extends AbstractConnection {
 
 	private final Map<Class, Semaphore> mapping = new HashMap<>();
 	private final Lock communicationLock = new ReentrantLock();
 
 	protected TCPDefaultConnection(final Socket socket, final SendingService sendingService,
-								   final ReceivingService receivingService,
-								   final Session session, final Class<?> key) {
+	                               final ReceivingService receivingService,
+	                               final Session session, final Class<?> key) {
 		super(socket, sendingService, receivingService, session, key);
 	}
 
+	/**
+	 * Acknowledges an received {@link Acknowledge}
+	 *
+	 * @param acknowledge the received Acknowledge, that should be acknowledged
+	 */
 	private void ack(final Acknowledge acknowledge) {
 		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
 		final Semaphore synchronize;
@@ -41,11 +52,19 @@ public class TCPDefaultConnection extends AbstractConnection {
 		synchronize.release();
 	}
 
+	/**
+	 * Send an Acknowledge for an specific Object.
+	 *
+	 * @param o the Object, that was send and should be acknowledged
+	 */
 	private void sendAck(final Object o) {
 		logging.debug("[TCP] Acknowledging " + o.getClass());
 		write(new Acknowledge(o.getClass()));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected synchronized void beforeSend(final Object object) {
 		NetCom2Utils.assertNotNull(object);
@@ -80,11 +99,17 @@ public class TCPDefaultConnection extends AbstractConnection {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onClose() {
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void afterSend(final Object object) {
 		if (object.getClass().equals(Acknowledge.class)) {
@@ -118,22 +143,34 @@ public class TCPDefaultConnection extends AbstractConnection {
 			this.hint = hint;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void accept(final Object o) {
 			receivedObject(o);
 			removable = true;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public boolean isAcceptable(final Object o) {
 			return o != null && o.getClass().equals(Acknowledge.class) && ((Acknowledge) o).getOf().equals(hint);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public boolean isRemovable() {
 			return removable;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public String toString() {
 			return "TCPAckCallback{hint=" + hint + ", removable=" + removable + "}";

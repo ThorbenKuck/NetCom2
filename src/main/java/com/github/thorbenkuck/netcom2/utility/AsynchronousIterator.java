@@ -1,12 +1,23 @@
 package com.github.thorbenkuck.netcom2.utility;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * This is an asynchronous Iterator. It works by making a copy of the specified collection,
+ * and only working on that.
+ *
+ * @param <T> The type of the elements of this iterator
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+@Synchronized
 public class AsynchronousIterator<T> implements Iterator<T> {
 
 	private final Queue<T> core;

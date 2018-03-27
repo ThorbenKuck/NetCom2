@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.TimeUnit;
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @APILevel
+@Synchronized
 class HeartBeatCore<T> implements Runnable {
 
 	private final Predicate<T> activePredicate;
@@ -20,7 +22,7 @@ class HeartBeatCore<T> implements Runnable {
 
 	@APILevel
 	HeartBeatCore(Predicate<T> activePredicate, Predicate<T> runningPredicate, long times, long delay,
-				  TimeUnit timeUnit) {
+	              TimeUnit timeUnit) {
 		this.activePredicate = activePredicate;
 		this.runningPredicate = runningPredicate;
 		this.delay = (long) (timeUnit.toMillis(delay) / (float) times);
@@ -37,7 +39,7 @@ class HeartBeatCore<T> implements Runnable {
 	}
 
 	private boolean running(T t) {
-		return (runningPredicate == null || ! runningPredicate.test(t)) && running;
+		return (runningPredicate == null || !runningPredicate.test(t)) && running;
 	}
 
 	private boolean active(T t) {

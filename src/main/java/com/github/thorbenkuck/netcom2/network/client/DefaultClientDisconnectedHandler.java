@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -15,9 +16,13 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * If anything cuts the Connection between ServerStart and ClientStart, this handler will be called.
  * It cleans up any Resources, which are connected to the Session and therefor need to be reset, before a new Connection
  * to the ServerStart can be established.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.DefaultClientDisconnectedHandlerTest")
 class DefaultClientDisconnectedHandler implements DisconnectedHandler {
 
 	private final Logging logging = Logging.unified();

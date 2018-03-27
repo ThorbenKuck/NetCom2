@@ -14,9 +14,12 @@ import java.lang.annotation.*;
  * <p>
  * Future: There might be a warning, when an class, annotated with Experimental is compiled, so that using developers know
  * what there up against. This should be possible with an annotationProcessor.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Target (ElementType.METHOD)
-@Retention (RetentionPolicy.SOURCE)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Experimental {
 }

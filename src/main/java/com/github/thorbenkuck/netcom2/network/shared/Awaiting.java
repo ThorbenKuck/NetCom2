@@ -7,6 +7,9 @@ package com.github.thorbenkuck.netcom2.network.shared;
  * <p>
  * The object, that creates this element will, in some form or another create a thread, that does stuff. As soon, as it
  * is sendOverNetwork, the implementation of this interface will, in some form, let the synchronize method continue.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface Awaiting {

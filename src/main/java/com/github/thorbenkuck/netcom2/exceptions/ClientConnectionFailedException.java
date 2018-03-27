@@ -11,7 +11,9 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * Retrying is possible. But you will most likely have to check you Socket-Configuration inside of the {@link com.github.thorbenkuck.netcom2.interfaces.Factory}
  * that is responsible for creating the ServerSocket
  *
+ * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.server.ServerStart#setServerSocketFactory(com.github.thorbenkuck.netcom2.interfaces.Factory)
+ * @since 1.0
  */
 public class ClientConnectionFailedException extends NetComException {
 

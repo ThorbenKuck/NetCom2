@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -9,30 +11,56 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
+/**
+ * .. This is an implementation... what else to say?
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.cache.CacheImplTest")
 public class CacheImpl extends CacheObservable implements Cache {
 
 	private final Map<Class<?>, Object> internals = new HashMap<>();
 	private final Semaphore semaphore = new Semaphore(1);
 	private Logging logging = new NetComLogging();
 
+	/**
+	 * Notifies all Observers about an updated Entry.
+	 *
+	 * @param updatedEntry the Object, that was updated
+	 */
 	private void notifyAboutChangedEntry(final Object updatedEntry) {
 		logging.trace("Updated Cache-Entry at " + updatedEntry.getClass());
 		setChanged();
 		updatedEntry(updatedEntry);
 	}
 
+	/**
+	 * Notifies all Observers about an new Entry.
+	 *
+	 * @param newEntry the Object, that was newly added
+	 */
 	private void notifyAboutNewEntry(final Object newEntry) {
 		logging.trace("New Cache-Entry at " + newEntry.getClass());
 		setChanged();
 		newEntry(newEntry);
 	}
 
+	/**
+	 * Notifies all Observers about an removed Entry.
+	 *
+	 * @param object the Object, that was removed
+	 */
 	private void notifyAboutRemovedEntry(final Object object) {
 		logging.trace("Removed Cache-entry at " + object.getClass());
 		setChanged();
 		deletedEntry(object);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void update(final Object object) {
 		logging.trace("Trying to update an existing Object(" + object + ") to Cache ..");
@@ -48,11 +76,14 @@ public class CacheImpl extends CacheObservable implements Cache {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addNew(final Object object) {
 		logging.trace("Trying to add a new Object(" + object + ") to Cache ..");
 		NetCom2Utils.parameterNotNull(object);
-		if (! isSet(object.getClass())) {
+		if (!isSet(object.getClass())) {
 			synchronized (internals) {
 				internals.put(object.getClass(), object);
 				logging.debug("Added new entry for " + object.getClass());
@@ -63,16 +94,22 @@ public class CacheImpl extends CacheObservable implements Cache {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addAndOverride(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		if (! isSet(object.getClass())) {
+		if (!isSet(object.getClass())) {
 			addNew(object);
 		} else {
 			update(object);
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void remove(final Class clazz) {
 		logging.trace("Trying to isRemovable Object(" + clazz + ") to Cache ..");
@@ -87,8 +124,11 @@ public class CacheImpl extends CacheObservable implements Cache {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	public <T> Optional<T> get(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		final Object retrieved;
@@ -101,12 +141,18 @@ public class CacheImpl extends CacheObservable implements Cache {
 		return Optional.empty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isSet(final Class<?> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		return get(clazz).isPresent();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> void addCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Adding CacheObserver(" + cacheObserver + ") to " + toString());
@@ -114,6 +160,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		addObserver(cacheObserver);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> void removeCacheObserver(final CacheObserver<T> cacheObserver) {
 		logging.debug("Removing CacheObserver(" + cacheObserver + ") from " + toString());
@@ -121,6 +170,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		deleteObserver(cacheObserver);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Adding Observer(" + observer + ") to " + toString());
@@ -129,6 +181,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		addObserver(observer);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeGeneralObserver(final GeneralCacheObserver observer) {
 		logging.debug("Removing Observer(" + observer + ") from " + toString());
@@ -136,6 +191,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		deleteObserver(observer);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clearObservers() {
 		logging.trace("Deleting all Observers currently registered ..");
@@ -144,6 +202,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		logging.trace("#Observers after: " + countObservers());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void reset() {
 		logging.debug("Resetting Cache!");
@@ -152,6 +213,9 @@ public class CacheImpl extends CacheObservable implements Cache {
 		internals.clear();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "Cache{" +
@@ -159,12 +223,17 @@ public class CacheImpl extends CacheObservable implements Cache {
 				'}';
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

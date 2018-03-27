@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
@@ -12,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@Testing(RegisterRequestReceiveHandler.class)
 public class RegisterRequestReceiveHandlerTest {
 	@Test
 	public void accept() throws Exception {

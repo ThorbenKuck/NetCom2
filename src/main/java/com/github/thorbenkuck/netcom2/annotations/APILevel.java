@@ -17,9 +17,12 @@ import java.lang.annotation.*;
  * <p>
  * Any method, class, parameter or field might be changed or deleted without any warning or without the use of the {@link Deprecated}
  * annotation.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @Documented
-@Target ({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
-@Retention (RetentionPolicy.SOURCE)
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
+@Retention(RetentionPolicy.SOURCE)
 public @interface APILevel {
 }

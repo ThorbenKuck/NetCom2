@@ -12,6 +12,8 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * @param <T> T the first type to test
  * @param <U> U the second type to test
  * @param <V> V the third type tot test
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface TriPredicate<T, U, V> {
@@ -54,7 +56,7 @@ public interface TriPredicate<T, U, V> {
 	 * triPredicate
 	 */
 	default TriPredicate<T, U, V> negate() {
-		return (t, u, v) -> ! test(t, u, v);
+		return (t, u, v) -> !test(t, u, v);
 	}
 
 	/**

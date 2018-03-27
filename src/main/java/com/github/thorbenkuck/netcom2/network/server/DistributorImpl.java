@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
@@ -16,8 +17,15 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * This implementation of the InternalDistributor, is maintained manually within the {@link ServerStart}.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.DistributorImplTest")
 class DistributorImpl implements InternalDistributor {
 
 	private final Logging logging = Logging.unified();
@@ -39,7 +47,7 @@ class DistributorImpl implements InternalDistributor {
 	 */
 	private boolean testAgainst(final Session session, final List<Predicate<Session>> predicates) {
 		for (final Predicate<Session> predicate : predicates) {
-			if (! predicate.test(session)) {
+			if (!predicate.test(session)) {
 				return false;
 			}
 		}
@@ -63,7 +71,7 @@ class DistributorImpl implements InternalDistributor {
 	 * Filters the given sessions list by the given predicates. A session is <b>not</b> filtered out,
 	 * if it matches all predicates.
 	 *
-	 * @param sessions The sessions to be filtered
+	 * @param sessions   The sessions to be filtered
 	 * @param predicates The predicates to filter by
 	 * @return The filtered list
 	 */
@@ -75,7 +83,7 @@ class DistributorImpl implements InternalDistributor {
 	 * Sends the specified object to all of the given sessions.
 	 *
 	 * @param sessions The sessions to send the specified object to.
-	 * @param o The object to be sent
+	 * @param o        The object to be sent
 	 */
 	private void send(final List<Session> sessions, final Object o) {
 		NetCom2Utils.parameterNotNull(sessions, o);
@@ -137,7 +145,7 @@ class DistributorImpl implements InternalDistributor {
 		NetCom2Utils.parameterNotNull(o, predicates);
 
 		final List<Session> sessions = new ArrayList<>();
-		synchronized(clientList) {
+		synchronized (clientList) {
 			clientList.sessionStream().forEach(sessions::add);
 		}
 		predicates.forEach(sessions::removeIf);

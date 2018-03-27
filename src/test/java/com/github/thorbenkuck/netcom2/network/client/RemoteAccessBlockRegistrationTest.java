@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import org.junit.Test;
@@ -9,6 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import static org.junit.Assert.assertEquals;
 
+@Testing(RemoteAccessBlockRegistration.class)
 public class RemoteAccessBlockRegistrationTest {
 	@Test
 	public void clearSemaphore() throws Exception {
@@ -91,6 +93,6 @@ public class RemoteAccessBlockRegistrationTest {
 		assertEquals(response, foundResponse);
 	}
 
-	public class Example {
+	private class Example {
 	}
 }

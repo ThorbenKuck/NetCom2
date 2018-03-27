@@ -11,6 +11,8 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * @param <T> T the first input type
  * @param <U> U the second input type
  * @param <V> V the third input type
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface TriConsumer<T, U, V> {

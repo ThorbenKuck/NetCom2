@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import org.junit.Test;
 
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Testing(JavaSerializationAdapter.class)
 public class JavaSerializationAdapterTest {
 
 	@Test(expected = SerializationFailedException.class)
@@ -58,15 +60,14 @@ public class JavaSerializationAdapterTest {
 	public void getNull() throws Exception {
 		// Arrange
 		JavaSerializationAdapter adapter = new JavaSerializationAdapter();
-		SerializableClass object = null;
 
 		// Act
-		adapter.get(object);
+		adapter.get(null);
 
 		// Assert
 	}
 
-	private class NotSerializableObject {
+	private static class NotSerializableObject {
 
 	}
 
