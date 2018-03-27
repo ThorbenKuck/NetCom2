@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.integration.enryption;
+package com.github.thorbenkuck.netcom2.integration.example.enryption;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;

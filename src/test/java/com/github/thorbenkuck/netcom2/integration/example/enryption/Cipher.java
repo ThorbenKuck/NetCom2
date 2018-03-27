@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.integration.enryption;
+package com.github.thorbenkuck.netcom2.integration.example.enryption;
 
 public class Cipher {
 
