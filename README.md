@@ -96,15 +96,15 @@ Also there is a NIGHTLY branch, for the inpatient.
 
 ## For whom this is
 
-If you are searching for a easy to use framework, that gives you the option to fastly create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
+If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
 
-But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easyer to send Object to specific clients, that want those object. This framework is completly modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
+But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easier to send Object to specific clients, that want those object. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
 
 ----
 
 ## Getting started
 
-If you are german, you might be interrested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
+If you are german, you might be interested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
 If you cannot understand german, there is also a YouTube Tutorial-series in [english](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
 
 ### Installation
@@ -112,11 +112,13 @@ If you cannot understand german, there is also a YouTube Tutorial-series in [eng
 Include this in your pom.xml (if you are using Maven)
 
 ```
-<dependency>
-  <groupId>com.github.thorbenkuck</groupId>
-  <artifactId>NetCom2</artifactId>
-  <version>0.4.1</version>
-</dependency>
+<dependencies>
+  <dependency>
+    <groupId>com.github.thorbenkuck</groupId>
+    <artifactId>NetCom2</artifactId>
+    <version>0.4.1</version>
+  </dependency>
+</dependencies>
 ```
 
 Or this in you build.gradle (if you are using Gradle)
@@ -129,7 +131,7 @@ dependencies {
 
 ### Starting to code
 
-Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that excample, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
+Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that example, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
 #### Creating a Server
 
@@ -155,7 +157,7 @@ Launch creates internal dependencies and acceptAllNextClients(); waits for the n
 
 #### Creating a Client
 
-You create a Client similiiar to a Server. You just say:
+You create a Client similar to a Server. You just say:
 
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
@@ -170,6 +172,7 @@ clientStart.launch();
 #### Sending Stuff
 
 Let's assume, you have an Object called Test in the Shared project, which looks like this:
+
 ```java
 public class Test implements Serializable {
   private String s;
@@ -185,6 +188,7 @@ public class Test implements Serializable {
 ```
 
 Now we want to send this from the Client to the Server. We realize this by saying:
+
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
@@ -192,6 +196,7 @@ clientStart.send().objectToServer(new Test());
 ```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
+
 ```java
 ServerStart serverStart = ServerStart.at(88888);
 serverStart.launch();
@@ -213,6 +218,8 @@ try {
 There you go, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
 ## Where to go from here
+
+Every module from NetCom2 has some sort of modular base. This might sound overwhelming, but in fact, this Framework provides a vast amount of default implementation, which make it very easy to get started.
 
 Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
 
