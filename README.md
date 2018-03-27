@@ -53,19 +53,22 @@ Also there is a NIGHTLY branch, for the inpatient.
 
 ### Current State
 
-0.4.0.0_BETA (Release 11.01.2017)
- * Further Documentation
- * Greater Thread-Safety and Performance
- * RemoteObjects
- * Connection-Routes
- * Bug-Fixes
- 
-0.3.0.0_BETA (Release 09.07.2017)
+1.0.0.0 (release 30.03.2018)
+ * First major release (end of beta).
+ * Pipeline based Communication protocols.
+ * Advanced RMI API (multi language compatible).
+ * Asynchronous behaviour with extreme performance.
+ * Highly modular, yet easy to use.
+ * Designed with functional programming in mind.
+ * Decoupled logging API (<code>NetComLogging</code>).
 
 #### Current Development
 
- * Completion of JavaDOC
- * Connection Routes
+__We are currently looking for a good, free and reliable board for new Feature suggestions__
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
 
 ## For whom this is
 
@@ -88,7 +91,7 @@ Include this in your pom.xml (if you are using Maven)
 <dependency>
   <groupId>com.github.thorbenkuck</groupId>
   <artifactId>NetCom2</artifactId>
-  <version>0.4</version>
+  <version>1.0</version>
 </dependency>
 ```
 
@@ -96,7 +99,7 @@ Or this in you build.gradle (if you are using Gradle)
 
 ```
 dependencies {
-    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.4'
+    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0'
 }
 ```
 
