@@ -33,6 +33,12 @@ Once finished, open the pull-request only to the branch you originally branched 
 
 To correctly contribute on NetCom2, follow the guidelines below:
 
+1) Design your changes
+2) Implement your changes
+3) Test your changes
+4) Create a pull-request
+5) Await the reviewer to finish
+6) If your pull-request is denied, repeat at 1.
 
 ### Conventions
 
@@ -40,7 +46,7 @@ To correctly contribute on NetCom2, follow the guidelines below:
  * Intent your code with tabs rather than 4 spaces.
  * Branch from Nightly and name your Branch the following: #{ISSUE-NUMBER}_{ISSUE_DESCRIPTION}
  * For new features, the first Commit should be the interface of said feature.
- * Last Commit: #{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished.
+ * Last Commit should be: "#{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished."
  * The reviewer and the assignee of your pull-request should (if possible) be different
  * Force-Push is under all circumstances prohibited!
  
@@ -60,6 +66,23 @@ Design the new feature beforehand!
 If possible, do not make major changes to the design!  
 Create a test, that thoroughly tests your new feature!
 
+### Tests
+
+Tests can be done in 2 ways:
+
+1) Unit-Tests.  
+   Create your test in <code>src/test/java</code> and then in the same package as the class you are testing  
+   Name your Test in the following pattern: _"{Class-Name}Test"_  
+   You may freely define the size of your unit. Make it as small as possible.  
+   Mock external dependencies, but do not mock message-objects.  
+2) Integration-Tests.  
+   Create your test in <code>src/test/java/integration</code> and then in whatever package you feel comfortable with  
+   Describe, what has to be done, so that your test can be run and succeeds.  
+   
+Annotate your Test with the Annotation <code>@Testing</code> and your code with <code>@Tested</code>. Those Annotations are for documentation-purposes only.  
+Anything, that you need for a Unit-Test, should be exposed via the TestUtils class.
+
+---
 
 ### External Contributions
 
@@ -94,7 +117,7 @@ If you are a direct contributor (you have push rights to this repository), pleas
 
 ### Releases
 
-The repository owner reserves the right to provide a new release.
+The repository owner reserves the right to provide a new release to maven-central.
 
 ### Becoming a direct Contributor
 
