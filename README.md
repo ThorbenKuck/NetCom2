@@ -1,6 +1,6 @@
 # NetCom2
 
-NetCom2 is a framework, highly modular desigend to function as a universal and asynchronus Client-Server-Communication-Interface.
+NetCom2 is a framework, highly modular designed to function as a universal and asynchronous Client-Server-Communication-Interface.
 It is designed to function as an over-network EventBus.
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2)    
@@ -12,23 +12,24 @@ It is designed to function as an over-network EventBus.
 
 __Version 1.0 will be released on the 30th of march.__
 
-Once Version 1.0 is released, it will be published at [Twitter](https://twitter.com/ThorbenKu) and potentially on [Google+](https://plus.google.com/u/0/+ThorbenKuck).
+Once Version 1.0 is released, it will be published on [Twitter](https://twitter.com/ThorbenKu) and potentially on [Google+](https://plus.google.com/u/0/+ThorbenKuck).
 
-Preparations are mildly needed. Since all Versions 0.x are beta-versions, you will need to look close, whether or not, you import the correct class/interface. No other major-breaks, appart from logical package-relocations, have been introduced. All interfaces are still the same, some have just changed theire location.
+Preparations are mildly needed. Since all Versions 0.x are beta-versions, you will need to look close, whether or not, you import the correct class/interface. No other major-breaks, apart from logical package-relocations, have been introduced. All interfaces are still the same, some have just changed their location.
 
-The only thing that realy did change in interfaces is, that methods annotated with @Deprecated have been removed! No Exceptions!
+**All methods, annotated with <code>@Deprecated</code> have been removed! No Exceptions!**
 
-Appart from relocations, this Version fixes some bugs, that no one had discovered yet.
+Apart from relocations, this Version fixes some bugs, that no one had discovered yet.
 
 The APIs had been worked out and tested in 450 Tests.
 
 #### What comes next?
 
-First of, we would like to get this framework out there. Future changes are not planed yet, tho we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
+First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
 
 Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Have Problems starting? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki) or post on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
-If you are having some other trouble with NetCom2, please also turn to StackOverflow.
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
+If you are having any other trouble with NetCom2, please also turn to StackOverflow.
           
 ----
 
@@ -201,11 +202,11 @@ try {
 }
 ```
 
-Now, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
+There you go, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
 ## Where to go from here
 
-Check out the Wiki for more informations about creating a Server and a Client, with more depth.
+Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
 
 If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
 
