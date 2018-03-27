@@ -41,7 +41,25 @@ To correctly contribute on NetCom2, follow the guidelines below:
  * Branch from Nightly and name your Branch the following: #{ISSUE-NUMBER}_{ISSUE_DESCRIPTION}
  * For new features, the first Commit should be the interface of said feature.
  * Last Commit: #{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished.
+ * The reviewer and the assignee of your pull-request should (if possible) be different
  * Force-Push is under all circumstances prohibited!
+ 
+### Bug-fixes
+
+Only change things, that are relevant to your issue!  
+If possible, do not make major changes to the design!  
+Modify/create the/a test, so that the test shows, that the fixed bug is really fixed!
+
+### New features
+
+__Currently, there is no board for new features. Once one is found, this part should be updated to include the used board.__
+
+Import the feature request as an issue!  
+Only change things, that are relevant to your issue!  
+Design the new feature beforehand!  
+If possible, do not make major changes to the design!  
+Create a test, that thoroughly tests your new feature!
+
 
 ### External Contributions
 
@@ -53,7 +71,9 @@ If you want to provide a new feature or a bug-fix, please follow these steps:
 3) Fix the bug/develop the new feature based on your design.
 4) Write a test. Test any case you could come up with.
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
-6) If your pull-request get's denied, start over from 3.
+6) Add an direct contributor as an reviewer to your pull-request
+7) Add an direct contributor as an assignee to your pull-request
+8) If your pull-request get's denied, start over from 3.
 
 **NOTE**: Only change thing relevant to your issue! If your pull-request changes anything, that is not important, your pull-request will be denied!
 
