@@ -784,10 +784,10 @@ public class ClientImplTest {
 		fail();
 	}
 
-	private class TestConnectionKey {
+	private static class TestConnectionKey {
 	}
 
-	private class TestObject {
+	private static class TestObject {
 	}
 
 }

@@ -27,6 +27,6 @@ public class CachePushHandlerTest {
 		Mockito.verify(cache, atLeastOnce()).release();
 	}
 
-	private class TestObject {
+	private static class TestObject {
 	}
 }

@@ -155,10 +155,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the SocketFactory is null
 	 */
 	@Override
-	public synchronized void setSocketFactory(final SocketFactory factory) {
+	public void setSocketFactory(final SocketFactory factory) {
 		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Set SocketFactory to: " + factory);
-		socketFactory = factory;
+		synchronized (this) {
+			socketFactory = factory;
+		}
 	}
 
 	/**
@@ -175,10 +177,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
-	public synchronized void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
+	public void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
 		NetCom2Utils.parameterNotNull(serializationAdapter);
 		logging.debug("Added fallback Serialization " + serializationAdapter);
-		client.addFallBackSerialization(serializationAdapter);
+		synchronized (this) {
+			client.addFallBackSerialization(serializationAdapter);
+		}
 	}
 
 	/**
@@ -187,10 +191,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
-	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
+	public void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		NetCom2Utils.parameterNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
-		client.addFallBackDeSerialization(deSerializationAdapter);
+		synchronized (this) {
+			client.addFallBackDeSerialization(deSerializationAdapter);
+		}
 	}
 
 	/**
@@ -199,10 +205,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
-	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
+	public void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
 		NetCom2Utils.parameterNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
-		client.setMainSerializationAdapter(mainSerializationAdapter);
+		synchronized (this) {
+			client.setMainSerializationAdapter(mainSerializationAdapter);
+		}
 	}
 
 	/**
@@ -211,10 +219,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
-	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		NetCom2Utils.parameterNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
-		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
+		synchronized (this) {
+			client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
+		}
 	}
 
 	/**
@@ -223,10 +233,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the DisconnectedHandler is null
 	 */
 	@Override
-	public synchronized void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
+	public void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		NetCom2Utils.parameterNotNull(disconnectedHandler);
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
-		client.addDisconnectedHandler(disconnectedHandler);
+		synchronized (this) {
+			client.addDisconnectedHandler(disconnectedHandler);
+		}
 	}
 
 	/**
@@ -235,10 +247,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the DecryptionAdapter is null
 	 */
 	@Override
-	public synchronized void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+	public void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
 		NetCom2Utils.parameterNotNull(decryptionAdapter);
 		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
-		client.setDecryptionAdapter(decryptionAdapter);
+		synchronized (this) {
+			client.setDecryptionAdapter(decryptionAdapter);
+		}
 	}
 
 	/**
@@ -247,10 +261,12 @@ class ClientStartImpl implements ClientStart {
 	 * @throws IllegalArgumentException if the EncryptionAdapter is null
 	 */
 	@Override
-	public synchronized void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+	public void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
 		NetCom2Utils.parameterNotNull(encryptionAdapter);
 		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
-		client.setEncryptionAdapter(encryptionAdapter);
+		synchronized (this) {
+			client.setEncryptionAdapter(encryptionAdapter);
+		}
 	}
 
 	/**

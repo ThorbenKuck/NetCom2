@@ -15,8 +15,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This Sender is an Implementation of the InternalSender.
@@ -32,13 +32,25 @@ import java.util.concurrent.ConcurrentHashMap;
 class SenderImpl implements InternalSender, Loggable {
 
 	// TODO ersetzten durch synchronized
-	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new ConcurrentHashMap<>();
+	private final Map<Class<?>, CacheObserver<?>> pendingObservers = new HashMap<>();
 	private Client client;
 	private Logging logging = new NetComLogging();
 
 	@APILevel
 	SenderImpl(final Client client) {
 		this.client = client;
+	}
+
+	/**
+	 * Checks synchronized if a observer is set.
+	 *
+	 * @param clazz the class that should be observed
+	 * @return whether or not an observer exists for the class
+	 */
+	private boolean doesObserverExist(Class<?> clazz) {
+		synchronized (pendingObservers) {
+			return pendingObservers.containsKey(clazz);
+		}
 	}
 
 	/**
@@ -108,7 +120,7 @@ class SenderImpl implements InternalSender, Loggable {
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz) {
 		logging.trace("Trying to unregister from " + clazz);
 		NetCom2Utils.parameterNotNull(clazz);
-		if (pendingObservers.containsKey(clazz)) {
+		if (doesObserverExist(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(new UnRegisterRequest(clazz));
 		}
@@ -122,7 +134,7 @@ class SenderImpl implements InternalSender, Loggable {
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Connection connection) {
 		logging.trace("Trying to unregister from " + clazz);
 		NetCom2Utils.parameterNotNull(clazz, connection);
-		if (pendingObservers.containsKey(clazz)) {
+		if (doesObserverExist(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connection, new UnRegisterRequest(clazz));
 		}
@@ -136,7 +148,7 @@ class SenderImpl implements InternalSender, Loggable {
 	public <T> ReceiveOrSendSynchronization unRegistrationToServer(final Class<T> clazz, final Class connectionKey) {
 		logging.trace("Trying to unregister from " + clazz);
 		NetCom2Utils.parameterNotNull(clazz, connectionKey);
-		if (pendingObservers.containsKey(clazz)) {
+		if (doesObserverExist(clazz)) {
 			logging.debug("Sending unregister-Request at " + clazz + " to Server");
 			return client.send(connectionKey, new UnRegisterRequest(clazz));
 		}
@@ -176,9 +188,11 @@ class SenderImpl implements InternalSender, Loggable {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized <T> CacheObserver<T> removePendingObserver(Class clazz) {
+	public <T> CacheObserver<T> removePendingObserver(Class clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
-		return (CacheObserver<T>) pendingObservers.remove(clazz);
+		synchronized (pendingObservers) {
+			return (CacheObserver<T>) pendingObservers.remove(clazz);
+		}
 	}
 
 	/**
@@ -188,7 +202,9 @@ class SenderImpl implements InternalSender, Loggable {
 	@Override
 	public synchronized <T> CacheObserver<T> getPendingObserver(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
-		return (CacheObserver<T>) pendingObservers.get(clazz);
+		synchronized (pendingObservers) {
+			return (CacheObserver<T>) pendingObservers.get(clazz);
+		}
 	}
 
 	/**

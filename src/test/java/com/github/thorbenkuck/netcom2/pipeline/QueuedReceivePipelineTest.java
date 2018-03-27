@@ -498,7 +498,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.isClosed());
 	}
 
-	private class OnReceiveSingleImpl<T> implements OnReceiveSingle<T> {
+	private static class OnReceiveSingleImpl<T> implements OnReceiveSingle<T> {
 
 		private final Consumer<T> consumer;
 
@@ -517,7 +517,7 @@ public class QueuedReceivePipelineTest {
 		}
 	}
 
-	private class Handler {
+	private static class Handler {
 
 		int value;
 

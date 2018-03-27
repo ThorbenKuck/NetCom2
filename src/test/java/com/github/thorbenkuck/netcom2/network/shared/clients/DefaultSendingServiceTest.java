@@ -214,7 +214,7 @@ public class DefaultSendingServiceTest {
 		assertFalse(running);
 	}
 
-	private class TestEncryptionAdapter implements EncryptionAdapter {
+	private static class TestEncryptionAdapter implements EncryptionAdapter {
 
 		/**
 		 * {@inheritDoc}
@@ -225,7 +225,7 @@ public class DefaultSendingServiceTest {
 		}
 	}
 
-	private class TestSerializationAdapter implements SerializationAdapter<Object, String> {
+	private static class TestSerializationAdapter implements SerializationAdapter<Object, String> {
 
 		/**
 		 * {@inheritDoc}

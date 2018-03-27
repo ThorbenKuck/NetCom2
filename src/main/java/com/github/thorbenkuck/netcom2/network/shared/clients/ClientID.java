@@ -134,12 +134,19 @@ public final class ClientID implements Serializable {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public boolean equals(final Object o) {
-		return o != null && (o.getClass().equals(ClientID.class) && ((ClientID) o).id.equals(id));
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ClientID)) return false;
+
+		ClientID clientID = (ClientID) o;
+
+		return id != null ? id.equals(clientID.id) : clientID.id == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : 0;
 	}
 
 	/**

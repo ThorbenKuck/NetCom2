@@ -271,12 +271,6 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	<T> T createRemoteObject(Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		JavaRemoteInformationInvocationHandler<T> invocationHandler = produceInvocationHandler(clazz);
-
-		if (invocationHandler == null) {
-			logging.warn("The provided InvocationHandlerProducer appears to be faulty! Please check the InvocationHandlerProducer" + invocationHandlerProducer + "!");
-			throw new IllegalStateException("InvocationHandler is null! This cannot be recovered!");
-		}
-
 		return createRemoteObject(invocationHandler, clazz);
 	}
 

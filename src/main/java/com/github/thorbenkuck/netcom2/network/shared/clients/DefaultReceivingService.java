@@ -282,8 +282,8 @@ class DefaultReceivingService implements ReceivingService {
 		try {
 			synchronized (this) {
 				in = new Scanner(connection.getInputStream());
-				setup = true;
 			}
+			setup = true;
 		} catch (IOException e) {
 			throw new SetupListenerException(e);
 		}

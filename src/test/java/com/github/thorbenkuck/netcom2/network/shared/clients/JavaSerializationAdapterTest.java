@@ -67,7 +67,7 @@ public class JavaSerializationAdapterTest {
 		// Assert
 	}
 
-	private class NotSerializableObject {
+	private static class NotSerializableObject {
 
 	}
 

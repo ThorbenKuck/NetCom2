@@ -30,17 +30,17 @@ import java.util.concurrent.Semaphore;
 class SessionImpl implements Session {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private final SendBridge sendBridge;
-	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
-	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
-	private final UUID uuid;
-	private final Logging logging = Logging.unified();
-	private final Synchronize synchronize = new DefaultSynchronize();
-	private final Semaphore semaphore = new Semaphore(1);
+	private transient final SendBridge sendBridge;
+	private transient final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
+	private transient final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
+	private transient final UUID uuid;
+	private transient final Logging logging = Logging.unified();
+	private transient final Synchronize synchronize = new DefaultSynchronize();
+	private transient final Semaphore semaphore = new Semaphore(1);
+	private transient SessionUpdater sessionUpdater;
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
-	private SessionUpdater sessionUpdater;
 
 	@APILevel
 	SessionImpl(final SendBridge sendBridge) {
@@ -53,7 +53,21 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		return obj != null && obj.getClass().equals(SessionImpl.class) && ((SessionImpl) obj).uuid.equals(uuid);
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || !(obj instanceof SessionImpl)) {
+			return false;
+		}
+
+		SessionImpl that = (SessionImpl) obj;
+
+		return uuid.equals(that.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return uuid.hashCode();
 	}
 
 	/**

@@ -197,7 +197,7 @@ public class RemoteObjectFactoryImplTest {
 		String test();
 	}
 
-	private class TestImpl implements TestInterface {
+	private static class TestImpl implements TestInterface {
 		@Override
 		public String test() {
 			return "!TEST_RETURN_VALUE!";

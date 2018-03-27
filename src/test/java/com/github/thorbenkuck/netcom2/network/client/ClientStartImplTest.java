@@ -32,8 +32,8 @@ import static org.mockito.Mockito.*;
 @Testing(ClientStartImpl.class)
 public class ClientStartImplTest {
 
-	private final String ADDRESS = "localhost";
-	private final int PORT = 1;
+	private static final String ADDRESS = "localhost";
+	private static final int PORT = 1;
 	private Socket mockedSocket = mock(Socket.class);
 	private InputStream mockedInputStream = mock(InputStream.class);
 	private OutputStream mockedOutputStream = mock(OutputStream.class);

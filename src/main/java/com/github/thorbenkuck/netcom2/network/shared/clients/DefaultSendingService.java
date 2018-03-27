@@ -39,7 +39,7 @@ class DefaultSendingService implements SendingService {
 	private final Supplier<EncryptionAdapter> encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private final int MAXIMUM_WAITING_TIME = 10;
+	private static final int MAXIMUM_WAITING_TIME = 10;
 	@APILevel
 	protected BlockingQueue<Object> toSend;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";

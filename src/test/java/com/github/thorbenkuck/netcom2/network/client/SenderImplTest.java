@@ -267,7 +267,7 @@ public class SenderImplTest {
 	private class TestConnection {
 	}
 
-	private class TestCacheObserver<T> extends AbstractCacheObserver<T> {
+	private static class TestCacheObserver<T> extends AbstractCacheObserver<T> {
 		TestCacheObserver(final Class<T> clazz) {
 			super(clazz);
 		}
