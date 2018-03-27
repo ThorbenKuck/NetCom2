@@ -11,6 +11,7 @@ import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This Utility Class defines some methods, that are commonly used within NetCom2
@@ -36,26 +37,31 @@ public class NetCom2Utils {
 	private static final Wrapper wrapper = new Wrapper();
 	@APILevel
 	private static final Semaphore synchronization = new Semaphore(1);
+	@APILevel
+	private static final AtomicBoolean netComThreadRunning = new AtomicBoolean(false);
 	/*
 	 * The following is needed, for the asynchronous API
 	 * it defines multiple Thread-necessities, as well as
 	 * an custom ThreadFactory.
 	 */
 	private static final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
-	private static final ThreadFactory threadFactory = createNewDaemonThreadFactory();
-	private static final ThreadFactory nonDaemonThreadFactory = createNewNonDaemonThreadFactory();
-	private static final ExecutorService queueExecutorService = Executors.newSingleThreadExecutor(threadFactory);
-	private static final ExecutorService netComThread = createNewCachedExecutorService();
+	private static final ThreadFactory THREAD_FACTORY = createNewDaemonThreadFactory();
+	private static final ThreadFactory NON_DAEMON_THREAD_FACTORY = createNewNonDaemonThreadFactory();
+	private static final ExecutorService queueExecutorService = Executors.newSingleThreadExecutor(THREAD_FACTORY);
+	private static final ExecutorService NET_COM_THREAD = createNewCachedExecutorService();
 
 	static {
+		netComThreadRunning.set(true);
 		queueExecutorService.execute(() -> {
-			try {
-				Runnable runnable = runnableQueue.take();
-				assertNotNull(runnable);
-				runnable.run();
-			} catch (InterruptedException e) {
-				logging.catching(e);
-			}
+			do {
+				try {
+					Runnable runnable = runnableQueue.take();
+					assertNotNull(runnable);
+					runnable.run();
+				} catch (InterruptedException e) {
+					logging.catching(e);
+				}
+			} while (netComThreadRunning.get());
 		});
 	}
 
@@ -203,7 +209,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static ThreadFactory getThreadFactory() {
-		return threadFactory;
+		return THREAD_FACTORY;
 	}
 
 	/**
@@ -225,7 +231,7 @@ public class NetCom2Utils {
 	 */
 	@APILevel
 	public static ExecutorService getNetComExecutorService() {
-		return netComThread;
+		return NET_COM_THREAD;
 	}
 
 	/**
@@ -243,10 +249,10 @@ public class NetCom2Utils {
 	/**
 	 * Executes an runnable, but synchronized synchronizes over an Semaphore.
 	 * <p>
-	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * Leaves the runnable to be executed by the {@link #NET_COM_THREAD} once it is ready.
 	 * <p>
 	 * The time this is finished cannot be determined. It depends on how full the runnable queue is and whether
-	 * or not the {@link #netComThread} is blocked or not.
+	 * or not the {@link #NET_COM_THREAD} is blocked or not.
 	 * <p>
 	 * Does not wait until the current Thread finishes.
 	 *
@@ -267,9 +273,9 @@ public class NetCom2Utils {
 	/**
 	 * Executes an runnable, with an indefinite time until execution.
 	 * <p>
-	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * Leaves the runnable to be executed by the {@link #NET_COM_THREAD} once it is ready.
 	 * <p>
-	 * The time this is finished cannot be determined. It depends on whether or not the {@link #netComThread} is blocked or not.
+	 * The time this is finished cannot be determined. It depends on whether or not the {@link #NET_COM_THREAD} is blocked or not.
 	 * <p>
 	 * Does wait until the current Thread finishes. So if you depend on the finish of this Runnable, DO NOT USE THIS METHOD!
 	 *
@@ -279,7 +285,7 @@ public class NetCom2Utils {
 	public static void runLater(final Runnable runnable) {
 		parameterNotNull(runnable);
 		Thread currentThread = Thread.currentThread();
-		netComThread.execute(() -> {
+		NET_COM_THREAD.execute(() -> {
 			try {
 				logging.trace("Awaiting for " + currentThread.getName() + " to finish..");
 				currentThread.join();
@@ -294,9 +300,9 @@ public class NetCom2Utils {
 	/**
 	 * Executes an runnable, on the NetComThread.
 	 * <p>
-	 * Leaves the runnable to be executed by the {@link #netComThread} once it is ready.
+	 * Leaves the runnable to be executed by the {@link #NET_COM_THREAD} once it is ready.
 	 * <p>
-	 * The time this is finished cannot be determined. It depends on whether or not the {@link #netComThread} is blocked or not.
+	 * The time this is finished cannot be determined. It depends on whether or not the {@link #NET_COM_THREAD} is blocked or not.
 	 * <p>
 	 * If this Method is executed on the NetComThread, the runnable will be executed immediately.
 	 *
@@ -310,7 +316,7 @@ public class NetCom2Utils {
 			runnable.run();
 		} else {
 			logging.trace("Extracting provided runnable (" + runnable + ") into a NetComThread.");
-			netComThread.execute(runnable);
+			NET_COM_THREAD.execute(runnable);
 		}
 	}
 
@@ -365,6 +371,6 @@ public class NetCom2Utils {
 	 * @return a new ThreadFactory
 	 */
 	public static ExecutorService createNewNonDaemonExecutorService() {
-		return Executors.newCachedThreadPool(nonDaemonThreadFactory);
+		return Executors.newCachedThreadPool(NON_DAEMON_THREAD_FACTORY);
 	}
 }
