@@ -90,7 +90,7 @@ If you want to provide a new feature or a bug-fix, please follow these steps:
 
 0) Fork this repository
 1) Create a branch named exactly as the issue you are working on. If the issue has the label "urgent", branch from dev, else branch from NIGHTLY.    
-2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequenz-diagramm, this wont hurt either.
+2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequence-diagram, this wont hurt either.
 3) Fix the bug/develop the new feature based on your design.
 4) Write a test. Test any case you could come up with.
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
