@@ -16,6 +16,9 @@ import java.util.Queue;
  * they are clustered.
  *
  * @param <T> The object, that is handled by the {@link OnReceiveTriple} and tested by the {@link TriPredicate}
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @APILevel
 @Synchronized
@@ -73,12 +76,29 @@ class PipelineReceiver<T> {
 		return onReceive.equals(that.onReceive);
 	}
 
+	/**
+	 * Adds a TriPredicate to the internal Queue.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @param triPredicate The TriPredicate to add
+	 */
 	@APILevel
 	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
 		NetCom2Utils.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
 
+	/**
+	 * Test all TriPredicates and return false early if one returns false.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @param connection The connection to test with
+	 * @param session The session to test with
+	 * @param t The T to test with
+	 * @return false if one predicate returns false, true otherwise
+	 */
 	@APILevel
 	final boolean test(Connection connection, Session session, T t) {
 		NetCom2Utils.parameterNotNull(connection, session, t);
@@ -91,6 +111,13 @@ class PipelineReceiver<T> {
 		return true;
 	}
 
+	/**
+	 * Get the internal OnReceiveTriple instance.
+	 * <p>
+	 * This method is only meant for internal use.
+	 *
+	 * @return The OnReceiveTriple
+	 */
 	@APILevel
 	final OnReceiveTriple<T> getOnReceive() {
 		return onReceive;

@@ -6,6 +6,16 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+
+/**
+ * This ThreadFactory is primarily used to give to ExecutorServices in order to generate NetCom2's own Threads.
+ * <p>
+ * It allows to change whether newly spawned Threads should be daemon or not.
+ *
+ * @version 1.0
+ * @since 1.0
+ *
+ */
 public class NetComThreadFactory implements ThreadFactory {
 
 	static final String NET_COM_THREAD_NAME = "NetComThread";
@@ -14,12 +24,17 @@ public class NetComThreadFactory implements ThreadFactory {
 	// Check whether or not the Thread-Group helps
 	// or hinders the NetComThread (thread-safety)
 	private final NetComThreadGroup threadGroup = new NetComThreadGroup(Thread.currentThread().getThreadGroup(), "NetCom2ThreadGroup");
-	private AtomicBoolean daemon = new AtomicBoolean(true);
+	private final AtomicBoolean daemon = new AtomicBoolean(true);
 
 	NetComThreadFactory() {
 		logging.debug("Instantiated new NetComThreadFactory");
 	}
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 *
+	 */
 	@Override
 	public Thread newThread(Runnable r) {
 		NetCom2Utils.parameterNotNull(r);
@@ -33,11 +48,21 @@ public class NetComThreadFactory implements ThreadFactory {
 		return thread;
 	}
 
+	/**
+	 * Add the specified Consumer to the internal ThreadContainer, if it isn't null.
+	 *
+	 * @param threadConsumer The Consumer to add
+	 */
 	public void onThreadFinished(Consumer<Thread> threadConsumer) {
 		NetCom2Utils.parameterNotNull(threadConsumer);
 		threadContainer.addThreadFinishedConsumer(threadConsumer);
 	}
 
+	/**
+	 * Sets whether newly spawned Thread instances should be daemon or not.
+	 *
+	 * @param daemon The daemon state
+	 */
 	public void setDaemon(boolean daemon) {
 		logging.debug("Setting daemon state of all Threads to: " + daemon);
 		this.daemon.set(daemon);
