@@ -8,7 +8,7 @@ The hot-spot-branch is the __NIGHTLY__ branch. Every new branch (except for urge
 
 Every change in any of these branches requires a pull-request.
 
-If you want, you may freely perform a __pull-down-update__. This means, merging the master into dev and merging dev into NIGHTLY. Please add to your pullrequest the comment "pull-down-update".
+If you want, you may freely perform a __pull-down-update__. This means, merging the master into dev and merging dev into NIGHTLY. Please add to your pull-request the comment "pull-down-update".
 
 A push-up-update is done through the following pattern:
 
@@ -58,9 +58,9 @@ Modify/create the/a test, so that the test shows, that the fixed bug is really f
 
 ### New features
 
-__Currently, there is no board for new features. Once one is found, this part should be updated to include the used board.__
+The Issue, proposing the new feature has to be approved by more than 50% of the direct contributors!  
+Only start new feature developments on features that are accepted!
 
-Import the feature request as an issue!  
 Only change things, that are relevant to your issue!  
 Design the new feature beforehand!  
 If possible, do not make major changes to the design!  
