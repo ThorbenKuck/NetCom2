@@ -16,6 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This class uses reflection to create wrappers of OnReceiveTriple.
+ * <p>
+ * This class is meant for NetCom2 internal use only.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
 @APILevel
 class ReceiveObjectHandlerWrapper {
 
@@ -31,22 +39,40 @@ class ReceiveObjectHandlerWrapper {
 		return reflectionBasedObjectAnalyzer.getResponsibleMethod(o, clazz);
 	}
 
+	/**
+	 * Creates an InvokeWrapper for the specified class, method and object.
+	 *
+	 * @param clazz The class
+	 * @param method The method
+	 * @param o The object
+	 * @param <T> The type
+	 * @return The new InvokeWrapper
+	 */
 	private <T> OnReceiveTriple<T> wrap(final Class<T> clazz, final Method method, final Object o) {
 		return new InvokeWrapper<>(method, clazz, o);
 	}
 
+	/**
+	 * Creates a new InvokeWrapper for the specified object and class.
+	 *
+	 * @param o The object
+	 * @param clazz The class
+	 * @param <T> The type
+	 * @return The new InvokeWrapper
+	 */
 	public <T> OnReceiveTriple<T> wrap(final Object o, final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(o, clazz);
 		final Optional<Method> methodOptional = getResponsibleForClass(o, clazz);
-		if (! methodOptional.isPresent()) {
-			throw new NoCorrectHandlerFoundException(
-					"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
-							"Found more than one Object to handle!");
-		}
+		final Method method = methodOptional.orElseThrow(() -> new NoCorrectHandlerFoundException(
+				"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
+						"Found more than one Object to handle!"));
 
-		return wrap(clazz, methodOptional.get(), o);
+		return wrap(clazz, method, o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = logging.hashCode();
@@ -54,6 +80,9 @@ class ReceiveObjectHandlerWrapper {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
@@ -65,6 +94,9 @@ class ReceiveObjectHandlerWrapper {
 		return reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "ReceiveObjectHandlerWrapper{" +
@@ -72,6 +104,11 @@ class ReceiveObjectHandlerWrapper {
 				'}';
 	}
 
+	/**
+	 * An internal wrapper to invoke a method.
+	 *
+	 * @param <T> The type
+	 */
 	@APILevel
 	class InvokeWrapper<T> implements OnReceiveTriple<T> {
 
@@ -80,6 +117,13 @@ class ReceiveObjectHandlerWrapper {
 		private final boolean accessible;
 		private final Object caller;
 
+		/**
+		 * Creates a new wrapper from the specified parameters.
+		 *
+		 * @param toInvoke The method to invoke
+		 * @param toExpect The expected parameter type
+		 * @param caller The calling object
+		 */
 		InvokeWrapper(final Method toInvoke, final Class<T> toExpect, final Object caller) {
 			this.toInvoke = toInvoke;
 			this.toExpect = toExpect;
@@ -87,6 +131,11 @@ class ReceiveObjectHandlerWrapper {
 			this.caller = caller;
 		}
 
+		/**
+		 * Try to invoke the method with the given parameters.
+		 *
+		 * @param args The parameters
+		 */
 		private void invoke(final Object[] args) {
 			logging.trace("calling ..");
 			synchronized (toInvoke) {
@@ -114,6 +163,12 @@ class ReceiveObjectHandlerWrapper {
 			}
 		}
 
+		/**
+		 * Orders the parameters for invocation.
+		 *
+		 * @param objects The parameters
+		 * @return The ordered parameters
+		 */
 		private Object[] getParametersInCorrectOder(final Object... objects) {
 			final List<Object> arguments = new ArrayList<>();
 			logging.debug("Assembling object to call " + toInvoke);
@@ -123,6 +178,13 @@ class ReceiveObjectHandlerWrapper {
 			return arguments.toArray();
 		}
 
+		/**
+		 * Tries to find a parameter for the given type and adds it to the list of arguments.
+		 *
+		 * @param clazz The type to look for
+		 * @param arguments The output list of arguments
+		 * @param objects The parameters
+		 */
 		private void tryMatch(final Class<?> clazz, final List<Object> arguments, final Object[] objects) {
 			logging.trace("Searching for");
 			for (final Object o : objects) {
@@ -134,6 +196,9 @@ class ReceiveObjectHandlerWrapper {
 			}
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void accept(final Connection connection, final Session session, final T t) {
 			logging.debug("Trying to access " + t);

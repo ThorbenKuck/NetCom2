@@ -8,28 +8,52 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.function.Predicate;
 
+/**
+ * Wraps a Predicate into a TriPredicate.
+ * <p>
+ * This class is meant for NetCom2 internal use only.
+ *
+ * @param <T> The type
+ *
+ * @since 1.0
+ * @version 1.0
+ */
 @APILevel
 class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Session, T> {
 
 	private final Predicate<Session> predicate;
 
+	/**
+	 * Creates a wrapper from the specified predicate.
+	 *
+	 * @param predicate The predicate to be wrapped
+	 */
 	@APILevel
 	OnReceiveSinglePredicateWrapper(final Predicate<Session> predicate) {
 		NetCom2Utils.assertNotNull(predicate);
 		this.predicate = predicate;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean test(final Connection connection, final Session session, final T t) {
 		NetCom2Utils.parameterNotNull(session);
 		return predicate.test(session);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final int hashCode() {
 		return predicate.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean equals(final Object o) {
 		if(o == null) {
@@ -43,6 +67,9 @@ class OnReceiveSinglePredicateWrapper<T> implements TriPredicate<Connection, Ses
 		return predicate.equals(o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final String toString() {
 		return predicate.toString();

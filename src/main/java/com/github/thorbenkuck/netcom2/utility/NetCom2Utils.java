@@ -19,6 +19,9 @@ import java.util.concurrent.*;
  * <p>
  * Since this class is used mainly internally, it should not be used outside of the internal project.
  * If you want to use it anyways, use it with care! This class is highly likely to be subject of change!
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @APILevel
 public class NetCom2Utils {

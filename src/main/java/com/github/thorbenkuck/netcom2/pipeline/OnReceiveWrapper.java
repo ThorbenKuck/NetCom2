@@ -7,43 +7,76 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * Wraps an OnReceive into a OnReceiveTriple.
+ * <p>
+ * This class is meant for NetCom2 internal use only.
+ *
+ * @param <O> The type
+ *
+ * @since 1.0
+ * @version 1.0
+ */
 @APILevel
 class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 
 	private final OnReceive<O> onReceive;
 
+	/**
+	 * Creates a wrapper from the specified OnReceive.
+	 *
+	 * @param onReceive The OnReceive to wrap
+	 */
 	@APILevel
 	OnReceiveWrapper(final OnReceive<O> onReceive) {
 		NetCom2Utils.assertNotNull(onReceive);
 		this.onReceive = onReceive;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void accept(final Connection connection, final Session session, final O o) {
 		NetCom2Utils.parameterNotNull(session, o);
 		onReceive.accept(session, o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void onUnRegistration() {
 		onReceive.onUnRegistration();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void onRegistration() {
 		onReceive.onRegistration();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final void onAddFailed() {
 		onReceive.onAddFailed();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final int hashCode() {
 		return onReceive.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean equals(final Object o) {
 		if (o == null) {
@@ -57,6 +90,9 @@ class OnReceiveWrapper<O> implements OnReceiveTriple<O> {
 		return onReceive.equals(o);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final String toString() {
 		return onReceive.toString();
