@@ -1,12 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
 
 /**
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
 @APILevel
 class DefaultReceiveOrSendSync implements ReceiveOrSendSynchronization {
 

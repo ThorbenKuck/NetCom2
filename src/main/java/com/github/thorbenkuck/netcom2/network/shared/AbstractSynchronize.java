@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.CountDownLatch;
@@ -13,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
 public abstract class AbstractSynchronize implements Synchronize {
 
 	protected final int numberOfActions;

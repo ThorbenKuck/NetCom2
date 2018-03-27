@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
@@ -24,6 +26,8 @@ import java.util.*;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistrationImplTest")
 class RemoteObjectRegistrationImpl implements RemoteObjectRegistration {
 
 	private static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPING;

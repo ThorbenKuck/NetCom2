@@ -1,8 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 @APILevel
+@Synchronized
 class InternalHeartBeatConfiguration<T> implements HeartBeatConfiguration<T> {
 
 	private ThreadedHeartBeat<T> heartBeat;

@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.UUID;
@@ -14,6 +16,8 @@ import java.util.UUID;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.JavaInvocationHandlerProducerTest")
 public class JavaInvocationHandlerProducer implements InvocationHandlerProducer {
 
 	@APILevel

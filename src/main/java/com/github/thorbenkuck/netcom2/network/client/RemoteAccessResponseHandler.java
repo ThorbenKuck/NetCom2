@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -12,6 +14,8 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.RemoteAccessResponseHandlerTest")
 class RemoteAccessResponseHandler implements OnReceiveSingle<RemoteAccessCommunicationResponse> {
 
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;

@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Connector;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -27,6 +28,7 @@ import java.net.Socket;
  * @since 1.0
  */
 @APILevel
+@Synchronized
 class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	private final Logging logging = Logging.unified();

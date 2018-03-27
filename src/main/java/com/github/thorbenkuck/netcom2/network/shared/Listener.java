@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -11,6 +12,7 @@ import java.util.concurrent.CountDownLatch;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
 public class Listener implements ListenAndExpect {
 
 	private final Logging logging = Logging.unified();

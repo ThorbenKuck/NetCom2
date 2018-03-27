@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
@@ -15,6 +17,8 @@ import java.util.Base64;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.JavaDeSerializationAdapterTest")
 public class JavaDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
 
 	private final Logging logging = Logging.unified();

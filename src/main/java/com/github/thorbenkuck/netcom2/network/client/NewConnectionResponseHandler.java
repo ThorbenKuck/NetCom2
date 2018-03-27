@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -23,6 +25,8 @@ import java.util.List;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.NewConnectionResponseHandlerTest")
 class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionRequest> {
 
 	private final Logging logging = Logging.unified();
@@ -105,11 +109,9 @@ class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionReque
 
 		NewConnectionResponseHandler handler = (NewConnectionResponseHandler) o;
 
-		if (!logging.equals(handler.logging)) return false;
-		if (!client.equals(handler.client)) return false;
-		if (!clientConnector.equals(handler.clientConnector)) return false;
-		if (!socketFactory.equals(handler.socketFactory)) return false;
-		return sender.equals(handler.sender);
+		return logging.equals(handler.logging) && client.equals(handler.client)
+				&& clientConnector.equals(handler.clientConnector) && socketFactory.equals(handler.socketFactory)
+				&& sender.equals(handler.sender);
 	}
 
 	/**

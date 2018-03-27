@@ -108,6 +108,7 @@ class Initializer {
 	 * @param clazz     the identifier
 	 * @param onReceive the handler
 	 * @param <T>       the type of the OnReceive defined by the Class
+	 *           @throws IllegalArgumentException if the OnReceive is null
 	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
@@ -119,6 +120,7 @@ class Initializer {
 	 * @param clazz     the identifier
 	 * @param onReceive the handler
 	 * @param <T>       the type of the OnReceiveSingle defined by the Class
+	 *           @throws IllegalArgumentException if the OnReceiveSingle is null
 	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
@@ -225,13 +227,9 @@ class Initializer {
 
 		final Initializer that = (Initializer) o;
 
-		if (!client.equals(that.client)) return false;
-		if (!communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (!logging.equals(that.logging)) return false;
-		if (!cache.equals(that.cache)) return false;
-		if (!sender.equals(that.sender)) return false;
-		if (!clientConnector.equals(that.clientConnector)) return false;
-		return socketFactory.equals(that.socketFactory);
+		return client.equals(that.client) && communicationRegistration.equals(that.communicationRegistration)
+				&& logging.equals(that.logging) && cache.equals(that.cache) && sender.equals(that.sender)
+				&& clientConnector.equals(that.clientConnector) && socketFactory.equals(that.socketFactory);
 	}
 
 	/**

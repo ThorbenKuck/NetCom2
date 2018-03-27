@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -17,6 +19,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.EmptyReceivePipelineConditionTest")
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipelineTest")
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();

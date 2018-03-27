@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -18,6 +20,8 @@ import java.util.concurrent.Semaphore;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactoryImpl")
 class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 
 	@APILevel
@@ -138,7 +142,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 	 * @param invocationHandler the JavaRemoteInformationInvocationHandler that handles method-calls
 	 * @param clazz             the class, that should be proxied.
 	 * @param <T>               the type of that Proxy, defined by the Class
-	 * @return
+	 * @return creates a new Proxy instance RemoteObject
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> T createRemoteObject(JavaRemoteInformationInvocationHandler<T> invocationHandler, Class<T> clazz) {

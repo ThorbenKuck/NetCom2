@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.comm;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
  * @since 1.0
  */
 @APILevel
-@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.comm.DefaultCommunicationRegistrationTest")
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@APILevel
@@ -60,6 +60,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 * @param o          the received Object
 	 * @throws CommunicationNotSpecifiedException if not defaultCommunicationHandler is set.
 	 */
+	@Asynchronous
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
 	                                 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
@@ -210,16 +211,7 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			// this should not be an lambda
-			// On the use of an lambda, this line does not work any more.
-			// The cause for this is unknown
-			// TODO test for lambda expression
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					triggerExisting(clazz, connection, session, o);
-				}
-			});
+			threadPool.execute(() -> triggerExisting(clazz, connection, session, o));
 		}
 	}
 

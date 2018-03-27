@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.utility;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
@@ -248,6 +249,7 @@ public class NetCom2Utils {
 	 *
 	 * @param runnable the runnable, that should be executed synchronized
 	 */
+	@Asynchronous
 	public static void runLaterSynchronized(final Runnable runnable) {
 		parameterNotNull(runnable);
 		runLater(() -> {
@@ -270,6 +272,7 @@ public class NetCom2Utils {
 	 *
 	 * @param runnable the runnable, that should be executed synchronized
 	 */
+	@Asynchronous
 	public static void runLater(final Runnable runnable) {
 		parameterNotNull(runnable);
 		Thread currentThread = Thread.currentThread();
@@ -296,6 +299,7 @@ public class NetCom2Utils {
 	 *
 	 * @param runnable the runnable, that should be executed synchronized
 	 */
+	@Asynchronous
 	public static void runOnNetComThread(final Runnable runnable) {
 		parameterNotNull(runnable);
 		if (onNetComThread()) {
@@ -331,6 +335,7 @@ public class NetCom2Utils {
 	 * @return an ThreadSafe iterator
 	 */
 	public static <T> Iterator<T> createAsynchronousIterator(final Collection<T> of, boolean removeAllowed) {
+		parameterNotNull(of);
 		return new AsynchronousIterator<>(of, removeAllowed);
 	}
 

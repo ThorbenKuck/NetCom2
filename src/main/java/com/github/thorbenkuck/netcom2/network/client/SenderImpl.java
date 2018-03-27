@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.UnRegistrationException;
 import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -25,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.SenderImplTest")
 class SenderImpl implements InternalSender, Loggable {
 
 	// TODO ersetzten durch synchronized

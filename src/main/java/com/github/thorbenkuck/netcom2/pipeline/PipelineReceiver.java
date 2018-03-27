@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -17,6 +18,7 @@ import java.util.Queue;
  * @param <T> The object, that is handled by the {@link OnReceiveTriple} and tested by the {@link TriPredicate}
  */
 @APILevel
+@Synchronized
 class PipelineReceiver<T> {
 
 	private final OnReceiveTriple<T> onReceive;

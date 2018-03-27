@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
@@ -23,6 +25,8 @@ import java.util.concurrent.Semaphore;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.SessionImplTest")
 class SessionImpl implements Session {
 
 	private static final long serialVersionUID = 4414647424220391756L;

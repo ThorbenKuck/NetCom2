@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @APILevel
+@Synchronized
 class ReceiveObjectHandlerWrapper {
 
 	private final Logging logging = Logging.unified();
@@ -61,8 +63,7 @@ class ReceiveObjectHandlerWrapper {
 
 		final ReceiveObjectHandlerWrapper that = (ReceiveObjectHandlerWrapper) o;
 
-		if (!logging.equals(that.logging)) return false;
-		return reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
+		return logging.equals(that.logging) && reflectionBasedObjectAnalyzer.equals(that.reflectionBasedObjectAnalyzer);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.TimeUnit;
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @APILevel
+@Synchronized
 class HeartBeatCore<T> implements Runnable {
 
 	private final Predicate<T> activePredicate;

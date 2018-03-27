@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
@@ -10,6 +11,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ALL")
+@Testing(RegisterResponseHandler.class)
 public class RegisterResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {

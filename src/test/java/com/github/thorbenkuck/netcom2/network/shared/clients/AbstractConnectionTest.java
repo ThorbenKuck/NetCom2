@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Testing(AbstractConnection.class)
 public class AbstractConnectionTest {
 
 	private Socket mockedSocket;
@@ -487,7 +489,7 @@ public class AbstractConnectionTest {
 
 	private class TestConnection extends AbstractConnection {
 
-		protected TestConnection() {
+		TestConnection() {
 			super(mockedSocket, mockedSendingService, mockedReceivingService, mockedSession, TestConnection.class);
 		}
 

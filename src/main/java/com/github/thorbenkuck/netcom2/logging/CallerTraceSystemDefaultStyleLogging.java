@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+
 /**
  * This class is inherited from the {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to
  * inject the caller of any method the via reflection determined caller of any method.
@@ -9,6 +11,7 @@ package com.github.thorbenkuck.netcom2.logging;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
 class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 
 	/**

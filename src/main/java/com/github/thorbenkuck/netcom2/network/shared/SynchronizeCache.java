@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+
 /**
  * This class holds the empty Synchronize instant for use in {@link Synchronize#empty()}.
  * <p>
@@ -11,6 +13,7 @@ package com.github.thorbenkuck.netcom2.network.shared;
  * @see Synchronize#empty()
  * @since 1.0
  */
+@Synchronized
 class SynchronizeCache {
 
 	static final Synchronize EMPTY_SYNCHRONIZE = new EmptySynchronize();

@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+
 /**
  * This AbstractCacheObserver is used fo observing a certain type.
  * <p>
@@ -10,6 +12,7 @@ package com.github.thorbenkuck.netcom2.network.shared.cache;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
 public abstract class AbstractCacheObserver<T> implements CacheObserver<T> {
 
 	private final Class<T> clazz;

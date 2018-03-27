@@ -4,6 +4,7 @@ import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.pipe.PipelineCondition;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -33,6 +34,7 @@ import java.util.function.Consumer;
  * @version 1.0
  * @since 1.0
  */
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.AbstractConnectionTest")
 public abstract class AbstractConnection implements Connection, Mutex {
 
 	private final Socket socket;
@@ -233,6 +235,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Asynchronous
 	@Override
 	public final Awaiting startListening() {
 		if (!setup) {

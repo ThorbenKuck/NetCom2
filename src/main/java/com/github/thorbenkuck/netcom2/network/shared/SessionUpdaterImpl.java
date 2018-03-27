@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.SessionUpdate;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -14,6 +15,7 @@ import java.util.Properties;
  * @since 1.0
  */
 @APILevel
+@Synchronized
 class SessionUpdaterImpl implements SessionUpdater {
 
 	private final Session session;

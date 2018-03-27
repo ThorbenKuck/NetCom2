@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -20,6 +21,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  */
 @APILevel
 @Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.ClientConnectionEstablishTest")
+@Synchronized
 class ClientConnectionEstablish {
 
 	private final Logging logging = new NetComLogging();

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Testing(RemoteObjectFactoryImpl.class)
 public class RemoteObjectFactoryImplTest {
 	@Test
 	public void createRemoteObject() throws Exception {

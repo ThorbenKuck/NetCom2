@@ -3,6 +3,8 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
@@ -37,6 +39,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.ClientImplTest")
 class ClientImpl implements Client {
 
 	private final Pipeline<Client> disconnectedHandlers = Pipeline.unifiedCreation();
@@ -726,23 +730,15 @@ class ClientImpl implements Client {
 
 		final ClientImpl client = (ClientImpl) o;
 
-		if (!disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
-		if (!fallBackSerialization.equals(client.fallBackSerialization)) return false;
-		if (!fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
-		if (!connections.equals(client.connections)) return false;
-		if (!falseIDs.equals(client.falseIDs)) return false;
-		if (!synchronizeMap.equals(client.synchronizeMap)) return false;
-		if (!connectionLock.equals(client.connectionLock)) return false;
-		if (!threadPoolLock.equals(client.threadPoolLock)) return false;
-		if (!idLock.equals(client.idLock)) return false;
-		if (!encryptionAdapter.equals(client.encryptionAdapter)) return false;
-		if (!decryptionAdapter.equals(client.decryptionAdapter)) return false;
-		if (!mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
-		if (!mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
-		if (!logging.equals(client.logging)) return false;
-		if (!session.equals(client.session)) return false;
-		if (!communicationRegistration.equals(client.communicationRegistration)) return false;
-		return id.equals(client.id);
+		return disconnectedHandlers.equals(client.disconnectedHandlers) && fallBackSerialization.equals(client.fallBackSerialization)
+				&& fallBackDeSerialization.equals(client.fallBackDeSerialization) && connections.equals(client.connections)
+				&& falseIDs.equals(client.falseIDs) && synchronizeMap.equals(client.synchronizeMap)
+				&& connectionLock.equals(client.connectionLock) && threadPoolLock.equals(client.threadPoolLock)
+				&& idLock.equals(client.idLock) && encryptionAdapter.equals(client.encryptionAdapter)
+				&& decryptionAdapter.equals(client.decryptionAdapter) && mainSerializationAdapter.equals(client.mainSerializationAdapter)
+				&& mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter) && logging.equals(client.logging)
+				&& session.equals(client.session) && communicationRegistration.equals(client.communicationRegistration)
+				&& id.equals(client.id);
 	}
 
 	/**

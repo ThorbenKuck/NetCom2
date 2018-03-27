@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -27,6 +29,7 @@ import java.util.function.Supplier;
  * @since 1.0
  */
 @APILevel
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultSendingServiceTest")
 class DefaultSendingService implements SendingService {
 
 	@APILevel
@@ -173,6 +176,7 @@ class DefaultSendingService implements SendingService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Asynchronous
 	@Override
 	public void run() {
 		if (!setup) {

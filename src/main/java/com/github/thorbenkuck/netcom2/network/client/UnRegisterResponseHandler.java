@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
@@ -15,6 +17,8 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.UnRegisterResponseHandlerTest")
 class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 
 	private final Logging logging = Logging.unified();
@@ -69,9 +73,7 @@ class UnRegisterResponseHandler implements OnReceiveSingle<UnRegisterResponse> {
 
 		UnRegisterResponseHandler handler = (UnRegisterResponseHandler) o;
 
-		if (!logging.equals(handler.logging)) return false;
-		if (!cache.equals(handler.cache)) return false;
-		return sender.equals(handler.sender);
+		return logging.equals(handler.logging) && cache.equals(handler.cache) && sender.equals(handler.sender);
 	}
 
 	/**

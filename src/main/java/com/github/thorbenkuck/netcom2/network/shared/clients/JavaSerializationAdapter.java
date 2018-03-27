@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -16,6 +18,8 @@ import java.util.Base64;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.JavaSerializationAdapterTest")
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
 	private final Logging logging = Logging.unified();

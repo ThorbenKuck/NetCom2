@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 @APILevel
-@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultReceivingServiceTest")
 class DefaultReceivingService implements ReceivingService {
 
 	@APILevel
@@ -199,6 +199,7 @@ class DefaultReceivingService implements ReceivingService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Asynchronous
 	@Override
 	public synchronized void run() {
 		if (!isSetup()) {

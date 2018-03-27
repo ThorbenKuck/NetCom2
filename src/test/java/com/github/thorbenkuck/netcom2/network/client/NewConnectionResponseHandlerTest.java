@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -13,6 +14,7 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Testing(NewConnectionResponseHandler.class)
 public class NewConnectionResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {

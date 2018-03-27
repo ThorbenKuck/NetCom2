@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
  */
 @APILevel
 @Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.ClientListImplTest")
 class ClientListImpl extends Observable implements ClientList {
 
 	private final Map<ClientID, Client> clients = new HashMap<>();

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Connector;
@@ -28,6 +29,7 @@ import java.net.ServerSocket;
  * @since 1.0
  */
 @APILevel
+@Synchronized
 class ServerConnector implements Connector<Factory<Integer, ServerSocket>, ServerSocket> {
 
 	private final int port;

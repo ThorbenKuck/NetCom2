@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
@@ -15,6 +16,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * <p>
  * apiNote: Use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#wrap(OnReceive)} instead of this class. It encapsulates an Wrapper to free up resources
  */
+@Synchronized
 public class Wrapper {
 
 	/**

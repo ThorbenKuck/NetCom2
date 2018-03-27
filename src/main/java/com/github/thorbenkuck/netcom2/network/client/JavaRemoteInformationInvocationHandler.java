@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
@@ -25,6 +27,8 @@ import java.util.concurrent.Semaphore;
  * @version 1.0
  * @since 1.0
  */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.JavaRemoteInformationInvocationHandlerTest")
 public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHandler {
 
 	private final Sender sender;

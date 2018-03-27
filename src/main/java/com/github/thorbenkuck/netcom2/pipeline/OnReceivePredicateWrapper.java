@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -17,6 +18,7 @@ import java.util.function.BiPredicate;
  * @param <T> the Object, which will be received over the network and handled at either the ClientStartup or ServerStartup.
  */
 @APILevel
+@Synchronized
 class OnReceivePredicateWrapper<T> implements TriPredicate<Connection, Session, T> {
 
 	private final BiPredicate<Session, T> biPredicate;

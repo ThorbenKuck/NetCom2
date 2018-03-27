@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 1.0
  */
-@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.ServerStartImplTest")
 class ServerStartImpl implements ServerStart {
 
 	@APILevel
@@ -225,6 +225,7 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Asynchronous
 	public void acceptNextClient() throws ClientConnectionFailedException {
 		if (!running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");

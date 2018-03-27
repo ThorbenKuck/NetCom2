@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 
+@Testing(DistributorImpl.class)
 public class DistributorImplTest {
 
 	@Test(expected = IllegalArgumentException.class)

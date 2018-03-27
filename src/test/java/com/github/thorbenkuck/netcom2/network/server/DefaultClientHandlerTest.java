@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -16,6 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Testing(DefaultClientHandler.class)
 public class DefaultClientHandlerTest {
 
 	@Test

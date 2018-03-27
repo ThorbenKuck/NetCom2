@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
 
@@ -11,6 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.ListenAndExpect;
  * @since 1.0
  */
 @APILevel
+@Synchronized
 class CallbackListenerWrapper implements Callback<Object> {
 
 	@APILevel

@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 @APILevel
+@Synchronized
 class ReflectionBasedObjectAnalyzer {
 
 	private <T> Optional<Method> getCorrespondingMethod(final Object o, final Class<T> clazz) {
