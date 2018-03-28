@@ -26,24 +26,24 @@ public interface ReceiveFamily {
 	 * <p>
 	 * This means, if <code>beforeExecution</code> throws an Exception, <code>accept</code> is never called!
 	 *
-	 * @param e the encountered Exception
+	 * @param e the encountered Exception.
 	 */
 	default void exceptionEncountered(Exception e) {
 		Logging.unified().error(this + " encountered an Exception!", e);
 	}
 
 	/**
-	 * This method might be overridden, to be notified if this implementation was successfully executed
+	 * This method might be overridden, to be notified if this implementation was successfully executed.
 	 * <p>
-	 * By default, this does nothing
+	 * By default, this does nothing.
 	 */
 	default void successfullyExecuted() {
 	}
 
 	/**
-	 * This method might be overridden, to be notified before this Interface is executed
+	 * This method might be overridden, to be notified before the accept method is executed.
 	 * <p>
-	 * By default, this does nothing
+	 * By default, this does nothing.
 	 */
 	default void beforeExecution() {
 	}
