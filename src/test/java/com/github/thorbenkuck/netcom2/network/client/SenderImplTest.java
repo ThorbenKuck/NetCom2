@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.UnRegistrationException;
 import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
@@ -15,6 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Testing(SenderImpl.class)
 public class SenderImplTest {
 	@Test
 	public void objectToServer() throws Exception {
@@ -265,8 +267,8 @@ public class SenderImplTest {
 	private class TestConnection {
 	}
 
-	private class TestCacheObserver<T> extends AbstractCacheObserver<T> {
-		protected TestCacheObserver(final Class<T> clazz) {
+	private static class TestCacheObserver<T> extends AbstractCacheObserver<T> {
+		TestCacheObserver(final Class<T> clazz) {
 			super(clazz);
 		}
 

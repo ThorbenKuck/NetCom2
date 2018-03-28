@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Connector;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * This class creates an DefaultConnection, based on the provided SocketFactory.
+ * This class creates a DefaultConnection, based on the provided SocketFactory.
  * <p>
  * If you use this Class, you provide a Client to be maintained. It provides a function to establish the default
  * Connection as well as a function to establish a new Connection, with a provided key.
@@ -22,8 +23,12 @@ import java.net.Socket;
  * This means it is internally used, to allow multiple Connections to be established.
  * <p>
  * It may be shut-down function, disconnects the internally maintained Client.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
+@Synchronized
 class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	private final Logging logging = Logging.unified();
@@ -36,6 +41,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	private final int port;
 
 	ClientConnector(@APILevel final String address, @APILevel final int port, final Client client) {
+		NetCom2Utils.assertNotNull(address, port, client);
 		this.address = address;
 		this.port = port;
 		this.client = client;
@@ -75,14 +81,12 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws IllegalArgumentException if the factory is null
-	 * @throws NullPointerException     if the provided Class is null
+	 * @throws IllegalArgumentException if the factory or the provided Class is null
 	 */
 	@Asynchronous
 	@Override
 	public Connection establishConnection(final Class key, final SocketFactory factory) throws IOException {
-		NetCom2Utils.parameterNotNull(factory);
-		NetCom2Utils.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(factory, key);
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");

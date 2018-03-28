@@ -1,11 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectAccess;
+import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
@@ -57,7 +56,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * If however, the ServerStart is not yet launched, the ClientStart.launch method will fail and throw
  * an StartFailedException.
  *
+ * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.server.ServerStart
+ * @since 1.0
  */
 public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 
@@ -65,7 +66,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	 * Creates a new ClientStart.
 	 * <p>
 	 * The use of this method is recommended to be used! At all times, this method is ensured to never change.
-	 * Therefor, relying on any implementation details, is not recommended, because they might become subject to change.
+	 * Therefore, relying on any implementation details, is not recommended, because they might become subject to change.
 	 *
 	 * @param address the address of the already running ServerStart as a String
 	 * @param port    the port, that the ServerStart is bound to.
@@ -116,23 +117,102 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	 */
 	Sender send();
 
+	/**
+	 * Adds a {@link SerializationAdapter} as a fallback serialization instance to this ClientStart.
+	 *
+	 * @param serializationAdapter the adapter, that should be used.
+	 * @see SerializationAdapter
+	 */
 	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
 
+	/**
+	 * Adds a {@link DeSerializationAdapter} as a fallback deserialization instance to this ClientStart.
+	 *
+	 * @param deSerializationAdapter the adapter, that should be used.
+	 * @see DeSerializationAdapter
+	 */
 	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
 
+	/**
+	 * Sets the {@link SerializationAdapter} as the main serialization instance to this ClientStart.
+	 * <p>
+	 * This instance will be asked first, before the fallback instances will be asked
+	 *
+	 * @param mainSerializationAdapter the adapter, that should be used.
+	 * @see SerializationAdapter
+	 */
 	void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter);
 
+	/**
+	 * Sets the {@link DeSerializationAdapter} as the main deserialization instance to this ClientStart.
+	 * <p>
+	 * This instance will be asked first, before the fallback instances will be asked
+	 *
+	 * @param mainDeSerializationAdapter the adapter, that should be used.
+	 * @see DeSerializationAdapter
+	 */
 	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
 
+	/**
+	 * Adds a Handler, that will be invoked once the Connection between the Server and the Client is terminated.
+	 * <p>
+	 * Any Handler set, will be completely invoked if:
+	 * <p>
+	 * <ul>
+	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client#disconnect()}.</li>
+	 * <li>The internet-connection between the ServerStart and the ClientStart breaks.</li>
+	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
+	 * </ul>
+	 *
+	 * @param disconnectedHandler the Handler, that should be called once the Connection is terminated
+	 */
 	void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler);
 
+	/**
+	 * Sets an Adapter for decryption of received Strings.
+	 *
+	 * @param decryptionAdapter the DecryptionAdapter
+	 * @see DecryptionAdapter
+	 */
 	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
 
+	/**
+	 * Sets an Adapter for encryption of Strings that should be send.
+	 *
+	 * @param encryptionAdapter the EncryptionAdapter
+	 * @see EncryptionAdapter
+	 */
 	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
 
+	/**
+	 * Returns the internally maintained {@link CommunicationRegistration}.
+	 * <p>
+	 * This CommunicationRegistration will never be null. It cannot change the instance ever.
+	 * <p>
+	 * This means, it is not necessary to maintain any CommunicationRegistration instance anywhere else. You may change
+	 * the CommunicationRegistration of course based on the methods provided by the interface, since the CommunicationRegistration
+	 * is not immutable.
+	 * <p>
+	 * In fact, this method is the main point for defining communication protocols.
+	 *
+	 * @return the internally maintained CommunicationRegistration.
+	 * @see CommunicationRegistration
+	 */
 	CommunicationRegistration getCommunicationRegistration();
 
+	/**
+	 * This Method is a shortcut for: {@link Cache#reset()}
+	 *
+	 * @see Cache#reset()
+	 */
 	void clearCache();
 
+	/**
+	 * Returns the internally maintained {@link RemoteObjectFactory}.
+	 * <p>
+	 * This method will never return null.
+	 *
+	 * @return the internally maintained instance of a RemoteObjectFactory.
+	 */
 	RemoteObjectFactory getRemoteObjectFactory();
 }

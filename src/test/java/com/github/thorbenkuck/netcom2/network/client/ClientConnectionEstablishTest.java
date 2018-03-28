@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.junit.Test;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
+@Testing(ClientConnectionEstablish.class)
 public class ClientConnectionEstablishTest {
 	@Test
 	public void newFor() throws Exception {

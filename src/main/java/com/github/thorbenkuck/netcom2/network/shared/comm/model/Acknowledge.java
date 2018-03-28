@@ -10,24 +10,49 @@ import java.io.Serializable;
  * It has no other use at the current Time, than signaling that the send Object was correct and
  * releasing the other waiting end of the Connection
  *
- * @since 0.1
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
-public class Acknowledge implements Serializable {
+public final class Acknowledge implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private Class<?> of;
+	private final Class<?> of;
 
-	public Acknowledge(Class<?> of) {
+	public Acknowledge(final Class<?> of) {
 		this.of = of;
 	}
 
-	public Class<?> getOf() {
+	public final Class<?> getOf() {
 		return of;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "Acknowledge{of=" + of + "}";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean equals(final Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Acknowledge)) return false;
+
+		Acknowledge that = (Acknowledge) o;
+
+		return of.equals(that.of);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final int hashCode() {
+		return of.hashCode();
 	}
 }

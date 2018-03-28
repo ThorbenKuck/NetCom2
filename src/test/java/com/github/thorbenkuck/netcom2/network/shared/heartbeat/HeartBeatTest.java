@@ -1,12 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+@Testing(HeartBeat.class)
 public class HeartBeatTest {
 
 	private final AtomicInteger counts = new AtomicInteger(0);
@@ -14,6 +17,7 @@ public class HeartBeatTest {
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
 	private void proceed(Object o) {
+		assertNotNull(o);
 		i++;
 		counts.incrementAndGet();
 	}

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.TestUtils;
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Testing(ClientImpl.class)
 public class ClientImplTest {
 
 	private CommunicationRegistration registration;
@@ -48,7 +50,7 @@ public class ClientImplTest {
 	}
 
 	@Test
-	public void setup() throws Exception {
+	public void setupMethod() throws Exception {
 		// Arrange
 		ClientImpl client = new ClientImpl(registration);
 		Session session = client.getSession();
@@ -782,10 +784,10 @@ public class ClientImplTest {
 		fail();
 	}
 
-	private class TestConnectionKey {
+	private static class TestConnectionKey {
 	}
 
-	private class TestObject {
+	private static class TestObject {
 	}
 
 }

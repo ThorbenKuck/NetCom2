@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @APILevel
-public class RemoteAccessCommunicationResponse implements Serializable {
+public final class RemoteAccessCommunicationResponse implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
 	private final UUID uuid;
@@ -19,24 +19,53 @@ public class RemoteAccessCommunicationResponse implements Serializable {
 		this.result = result;
 	}
 
-	public UUID getUuid() {
+	public final UUID getUuid() {
 		return uuid;
 	}
 
-	public Throwable getThrownThrowable() {
+	public final Throwable getThrownThrowable() {
 		return throwable;
 	}
 
-	public Object getResult() {
+	public final Object getResult() {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "RemoteAccessCommunicationResponse{" +
 				"uuid=" + uuid +
 				", throwable=" + throwable +
 				", result=" + result +
 				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof RemoteAccessCommunicationResponse)) return false;
+
+		RemoteAccessCommunicationResponse that = (RemoteAccessCommunicationResponse) o;
+
+		if (!uuid.equals(that.uuid)) return false;
+		if (!throwable.equals(that.throwable)) return false;
+		return result.equals(that.result);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final int hashCode() {
+		int result1 = uuid.hashCode();
+		result1 = 31 * result1 + throwable.hashCode();
+		result1 = 31 * result1 + result.hashCode();
+		return result1;
 	}
 }

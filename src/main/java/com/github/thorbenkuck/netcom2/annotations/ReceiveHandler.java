@@ -3,32 +3,56 @@ package com.github.thorbenkuck.netcom2.annotations;
 import java.lang.annotation.*;
 
 /**
- * This annotation is to be implemented properly! It should look something like this:
+ * This annotation is used for a method that should handle am received Object.
  * <p>
+ * You register an Object as a ReceiveHandler in the following way:
+ * <p>
+ * <pre>
  * <code>
  * TestReceiver testReceiver = ...
- * *Start.getCommunicationRegistration.register(TestObject.class).to(testReceiver);
+ * CommunicationRegistration registration = ...
+ * registration.register(TestObject.class).to(testReceiver);
  * </code>
+ * </pre>
  * <p>
- * and
- * <code>
- * class TestReceiver {
- * [public/private/protected] void accept([Connection connection, | Session session,] TestObject testObject() {
- * // Handle TestObject
- * }
- * }
- * </code>
+ * This means, that you want the <code>TestReceiver</code> class to handle received TestObjects. For that, you will have to:
  * <p>
- * For that there are some requirements:
  * <ul>
- * <li>AnnotationProcessor to verify the receiver at compileTime</li>
+ * <li>Provide a Method that handles the TestObject.</li>
+ * <li>Optional: Also define the Session or the Connection as a parameter for this method.</li>
+ * <li>Annotate this Method with {@literal @}ReceiveHandler.</li>
  * </ul>
  * <p>
- * TODO AnnotationProcessor
+ * This method:
+ * <p>
+ * <ul>
+ * <li>Can have any visibility modifier you want (public/private/protected/package-private).</li>
+ * <li>Can be called what ever you want.</li>
+ * <li>Can not accept anything else than: A Connection, A Session and the Registered Object-type.</li>
+ * <li>Does not have to have the Connection or the Session as an parameter.</li>
+ * <li>Will not be marked as used by your IDE.</li>
+ * </ul>
+ * <p>
+ * For example, the TestReceiver might look like this:
+ * <p>
+ * <pre><code>
+ *     class TestReceiver {
+ *         {@literal @}ReceiveHandler
+ *         public void accept(Session session, TestObject testObject) {
+ *             // Handle TestObject
+ *         }
+ *     }
+ *     </code></pre>
+ * <p>
+ * With this annotation, NetCom2 might be used in the way of an EventBus.
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline#to(Object)
+ * @since 1.0
  */
 @Documented
-@Target (ElementType.METHOD)
-@Retention (RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ReceiveHandler {
 
 	/**
@@ -37,7 +61,7 @@ public @interface ReceiveHandler {
 	 * If this method returns false, the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration}
 	 * will not use the annotated Method, therefore ignoring the annotation and the annotated Method.
 	 * <p>
-	 * Further, if this Method returns false, it will not be saved and therefor not take up any resources to be saved,
+	 * Further, if this Method returns false, it will not be saved and therefore not take up any resources to be saved,
 	 * maintained and checked.
 	 *
 	 * @return boolean, whether or not the annotated class should be used to Handle Objects.

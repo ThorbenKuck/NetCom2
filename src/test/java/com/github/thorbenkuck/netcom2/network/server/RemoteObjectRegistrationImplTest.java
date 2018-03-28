@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
@@ -14,6 +15,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@Testing(RemoteObjectRegistrationImpl.class)
 public class RemoteObjectRegistrationImplTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void registerInvalidArrayLength() throws Exception {
@@ -37,8 +39,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestUnassignableRemoteObject.class;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
 		String methodName = "aMethod";
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -56,8 +57,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRegistrationOverrideProhibitedRemoteObject.class;
 		String methodName = "aMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -75,8 +75,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -93,9 +92,8 @@ public class RemoteObjectRegistrationImplTest {
 		TestRemoteObjectWithInterface object = spy(new TestRemoteObjectWithInterface());
 		String methodName = "anInterfaceMethod";
 		Class<TestRemoteObjectWithInterface> clazz = TestRemoteObjectWithInterface.class;
-		Object[] parameters = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, parameters);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, null);
 
 		//Act
 		remoteObjectRegistration.hook(object);
@@ -124,9 +122,8 @@ public class RemoteObjectRegistrationImplTest {
 		TestRemoteObject object = spy(new TestRemoteObject());
 		String methodName = "aMethod";
 		Class<TestRemoteObject> clazz = TestRemoteObject.class;
-		Object[] parameters = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, parameters);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(object, clazz);
@@ -144,9 +141,8 @@ public class RemoteObjectRegistrationImplTest {
 		TestRemoteObject object = spy(new TestRemoteObject());
 		String methodName = "aMethod";
 		Class<TestRemoteObject> clazz = TestRemoteObject.class;
-		Object[] parameters = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, parameters);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(object, clazz);
@@ -164,10 +160,9 @@ public class RemoteObjectRegistrationImplTest {
 		TestRemoteObjectWithInterface object = spy(new TestRemoteObjectWithInterface());
 		String methodName = "anInterfaceMethod";
 		Class<TestRemoteObjectWithInterface> clazz = TestRemoteObjectWithInterface.class;
-		Object[] parameters = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, parameters);
-		RemoteAccessCommunicationRequest request2 = new RemoteAccessCommunicationRequest(methodName, AnInterface.class, uuid, parameters);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, null);
+		RemoteAccessCommunicationRequest request2 = new RemoteAccessCommunicationRequest(methodName, AnInterface.class, uuid, null);
 
 		//Act
 		remoteObjectRegistration.hook(object);
@@ -247,10 +242,9 @@ public class RemoteObjectRegistrationImplTest {
 		String methodName = "anInterfaceMethod";
 		String methodName2 = "aMethod";
 		Class<TestRemoteObjectWithInterface> clazz = TestRemoteObjectWithInterface.class;
-		Object[] parameters = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, parameters);
-		RemoteAccessCommunicationRequest request2 = new RemoteAccessCommunicationRequest(methodName2, clazz, uuid, parameters);
+		RemoteAccessCommunicationRequest request = new RemoteAccessCommunicationRequest(methodName, clazz, uuid, null);
+		RemoteAccessCommunicationRequest request2 = new RemoteAccessCommunicationRequest(methodName2, clazz, uuid, null);
 
 		//Act
 		remoteObjectRegistration.hook(object);
@@ -283,8 +277,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -303,8 +296,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -351,8 +343,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aNonExistentMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -409,10 +400,8 @@ public class RemoteObjectRegistrationImplTest {
 		RemoteObjectRegistrationImpl remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 		TestRemoteObject remoteObject = spy(new TestRemoteObject());
 		Class<?> classToAssign = TestRemoteObject.class;
-		String methodName = null;
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(null, classToAssign, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -430,8 +419,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aMethod";
 		UUID uuid = UUID.fromString(UUID_SEED_1);
-		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, null, uuid, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, null, uuid, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);
@@ -449,7 +437,7 @@ public class RemoteObjectRegistrationImplTest {
 		Class<?> classToAssign = TestRemoteObject.class;
 		String methodName = "aMethod";
 		Object[] parameters = null;
-		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, null, parameters);
+		RemoteAccessCommunicationRequest communicationRequest = new RemoteAccessCommunicationRequest(methodName, classToAssign, null, null);
 
 		//Act
 		remoteObjectRegistration.register(remoteObject, classToAssign);

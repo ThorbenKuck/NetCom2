@@ -1,5 +1,12 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+/**
+ * This Exception will be thrown if Serialization fails.
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter
+ * @since 1.0
+ */
 public class SerializationFailedException extends NetComException {
 
 	/**

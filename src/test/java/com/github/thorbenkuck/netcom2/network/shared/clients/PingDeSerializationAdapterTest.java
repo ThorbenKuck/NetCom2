@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import static com.github.thorbenkuck.netcom2.TestUtils.UUID_SEED_1;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Testing(PingDeSerializationAdapter.class)
 public class PingDeSerializationAdapterTest {
 
 	@Test(expected = IllegalArgumentException.class)

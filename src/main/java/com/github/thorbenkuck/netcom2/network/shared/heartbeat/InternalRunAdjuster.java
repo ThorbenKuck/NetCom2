@@ -1,12 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @APILevel
+@Synchronized
 class InternalRunAdjuster<T> implements RunAdjuster<T> {
 	private ThreadedHeartBeat<T> heartBeat;
 

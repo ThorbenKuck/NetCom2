@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 /**
- * This interface describes an Session of any Network-Object.
+ * This interface describes a Session of any Network-Object.
  * <p>
  * On the {@link ClientStart} side, this object is maintained, as
  * long, as the ClientStart stays connected to the Server.
@@ -24,6 +24,13 @@ import java.util.Properties;
  * Client-Server-Communication or Connection establishment.
  * <p>
  * Otherwise you can feel free to create an custom Session.
+ *
+ * @version 1.0
+ * @see Client
+ * @see com.github.thorbenkuck.netcom2.network.shared.clients.Connection
+ * @see com.github.thorbenkuck.netcom2.network.shared.comm.ReceiveFamily
+ * @see com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration
+ * @since 1.0
  */
 public interface Session extends Mutex, Serializable {
 

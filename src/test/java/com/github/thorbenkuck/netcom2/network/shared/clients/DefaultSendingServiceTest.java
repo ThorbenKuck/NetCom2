@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.verify;
  * <p>
  * If i missed any, you may submit it to github.
  */
+@Testing(DefaultSendingService.class)
 public class DefaultSendingServiceTest {
 
 	private DefaultSendingService createSendingService() {
@@ -212,7 +214,7 @@ public class DefaultSendingServiceTest {
 		assertFalse(running);
 	}
 
-	private class TestEncryptionAdapter implements EncryptionAdapter {
+	private static class TestEncryptionAdapter implements EncryptionAdapter {
 
 		/**
 		 * {@inheritDoc}
@@ -223,7 +225,7 @@ public class DefaultSendingServiceTest {
 		}
 	}
 
-	private class TestSerializationAdapter implements SerializationAdapter<Object, String> {
+	private static class TestSerializationAdapter implements SerializationAdapter<Object, String> {
 
 		/**
 		 * {@inheritDoc}

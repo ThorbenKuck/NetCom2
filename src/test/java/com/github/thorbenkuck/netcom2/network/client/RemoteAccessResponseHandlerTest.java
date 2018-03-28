@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import org.junit.Test;
 
@@ -9,6 +10,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@Testing(RemoteAccessResponseHandler.class)
 public class RemoteAccessResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {

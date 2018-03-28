@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -22,19 +24,28 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+/**
+ * {@inheritDoc}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultSendingServiceTest")
 class DefaultSendingService implements SendingService {
 
+	private static final int MAXIMUM_WAITING_TIME = 10;
+	@APILevel
+	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter;
 	private final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization;
 	private final Supplier<EncryptionAdapter> encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	@APILevel protected final List<Callback<Object>> callbacks = new ArrayList<>();
-	private final int MAXIMUM_WAITING_TIME = 10;
+	@APILevel
+	protected BlockingQueue<Object> toSend;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";
 	private PrintWriter printWriter;
-	@APILevel protected BlockingQueue<Object> toSend;
 	private boolean running = false;
 	private boolean setup = false;
 	private int waitingTimeInSeconds = 2;
@@ -42,13 +53,18 @@ class DefaultSendingService implements SendingService {
 
 	@APILevel
 	DefaultSendingService(final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter,
-						  final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization,
-						  final Supplier<EncryptionAdapter> encryptionAdapter) {
+	                      final Supplier<Set<SerializationAdapter<Object, String>>> fallBackSerialization,
+	                      final Supplier<EncryptionAdapter> encryptionAdapter) {
 		this.mainSerializationAdapter = mainSerializationAdapter;
 		this.fallBackSerialization = fallBackSerialization;
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
+	/**
+	 * Send the Object and will execute all needed steps.
+	 *
+	 * @param o the Object to be send.
+	 */
 	private void send(final Object o) {
 		try {
 			logging.debug("[SendingService{" + connectionID.get() + "}] Sending " + o + " ..");
@@ -69,6 +85,15 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
+	/**
+	 * Serializes a Object to a String.
+	 * <p>
+	 * Will ask first the MainSerializationAdapter, then, if not successful, all FallbackSerializationAdapters.
+	 *
+	 * @param o the Object to be serialized.
+	 * @return the serialized String.
+	 * @throws SerializationFailedException if no Adapter could serialize the provided Object.
+	 */
 	private String serialize(final Object o) throws SerializationFailedException {
 		final SerializationFailedException serializationFailedException;
 		try {
@@ -91,10 +116,23 @@ class DefaultSendingService implements SendingService {
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
+	/**
+	 * Encrypts the provided String.
+	 *
+	 * @param s the raw String.
+	 * @return the encrypted String.
+	 */
 	private String encrypt(final String s) {
 		return encryptionAdapter.get().get(s);
 	}
 
+	/**
+	 * Triggers all Callbacks, listening for sending Objects.
+	 * <p>
+	 * Afterwards, it will clean up to free up resources.
+	 *
+	 * @param o the Object that was send.
+	 */
 	private void triggerCallbacks(final Object o) {
 		final List<Callback<Object>> temp;
 		synchronized (callbacks) {
@@ -107,6 +145,11 @@ class DefaultSendingService implements SendingService {
 		NetCom2Utils.runOnNetComThread(this::tryClearCallBacks);
 	}
 
+	/**
+	 * Deletes the provided Callback.
+	 *
+	 * @param callback the callback.
+	 */
 	private void deleteCallBack(final Callback<Object> callback) {
 		logging.debug("[SendingService{" + connectionID.get() + "}] Removing " + callback + " from SendingService ..");
 		synchronized (callbacks) {
@@ -114,6 +157,9 @@ class DefaultSendingService implements SendingService {
 		}
 	}
 
+	/**
+	 * Clears up all Callbacks, that are removable
+	 */
 	private void tryClearCallBacks() {
 		final List<Callback<Object>> removable = new ArrayList<>();
 
@@ -131,10 +177,13 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws SetupListenerException if the SendingService is not setup.
 	 */
+	@Asynchronous
 	@Override
 	public void run() {
-		if (! setup) {
+		if (!setup) {
 			throw new SetupListenerException("[SendingService{" + connectionID.get() + "}] Setup required before run!");
 		}
 		running = true;
@@ -159,7 +208,7 @@ class DefaultSendingService implements SendingService {
 					waitingTimeInSeconds = 2;
 					NetCom2Utils.runOnNetComThread(() -> send(o));
 				} else if (waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
-					++ waitingTimeInSeconds;
+					++waitingTimeInSeconds;
 					logging.trace("[SendingService{\" + connectionID.get() + \"}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {
@@ -175,6 +224,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the callback is null
 	 */
 	@Override
 	public void addSendDoneCallback(final Callback<Object> callback) {
@@ -186,6 +237,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the linkedBlockingQueue is null
 	 */
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
@@ -196,6 +249,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the outputStream or the BlockingQueue is null
 	 */
 	@Override
 	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
@@ -216,6 +271,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the {@link Supplier} is null or {@link Supplier#get()} return null
 	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {

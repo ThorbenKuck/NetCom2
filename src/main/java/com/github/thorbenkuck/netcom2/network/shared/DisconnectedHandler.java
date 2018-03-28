@@ -1,32 +1,31 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
-import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
+/**
+ * This Handler is called, once a {@link com.github.thorbenkuck.netcom2.network.shared.clients.Connection} terminates.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @FunctionalInterface
 public interface DisconnectedHandler {
+
+	/**
+	 * This method handles the {@link Client}, once one of its {@link com.github.thorbenkuck.netcom2.network.shared.clients.Connection connections}
+	 * disconnects.
+	 * <p>
+	 * Note that Sending stuff has no Effect at this point and will result in an {@link com.github.thorbenkuck.netcom2.exceptions.SendFailedException}.
+	 * Should be quit obvious.
+	 *
+	 * @param client The {@link Client} that disconnected.
+	 */
 	void handle(final Client client);
 
 	/**
-	 * This method tells the priority over the over Disconnected Handler
+	 * This method shows if this DisconnectedHandler should be used.
 	 * <p>
-	 * Default value is 10. Smaller is better.
-	 * <p>
-	 * It can be overridden
-	 *
-	 * @return the priority of this DisconnectedHandler
-	 * @deprecated those Handlers will now be handled within an pipeline and since the {@link Pipeline} only cares about
-	 * in which order those handlers are added, this Method is no longer needed
-	 */
-	@Deprecated
-	default int getPriority() {
-		return 10;
-	}
-
-	/**
-	 * This method shows if the DisconnectedHandler should be used.
-	 * <p>
-	 * It can be overridden
+	 * It can be overridden.
 	 *
 	 * @return boolean, whether or not this DisconnectedHandler should be used or not.
 	 */

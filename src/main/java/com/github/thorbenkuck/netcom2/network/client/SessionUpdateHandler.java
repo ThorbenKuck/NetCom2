@@ -1,13 +1,21 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.SessionUpdate;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles {@link SessionUpdate}s, received over the Network.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
+@Synchronized
 class SessionUpdateHandler implements OnReceive<SessionUpdate> {
 
 	private final Logging logging = Logging.unified();
@@ -30,5 +38,12 @@ class SessionUpdateHandler implements OnReceive<SessionUpdate> {
 		} finally {
 			session.release();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "SessionUpdateHandler{" +
+				"logging=" + logging +
+				'}';
 	}
 }

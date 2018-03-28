@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -10,10 +12,23 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 
+/**
+ * This SerializationAdapter utilizes the Java-Serialization, to serialize a Object into a String.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.JavaSerializationAdapterTest")
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
 	private final Logging logging = Logging.unified();
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
+	 */
 	@Asynchronous
 	@Override
 	public String get(final Object o) throws SerializationFailedException {
@@ -47,6 +62,9 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 		return toReturn;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "JavaSerializationAdapter{Default SerializationAdapter requiring java.io.Serializable}";

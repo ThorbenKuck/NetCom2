@@ -1,7 +1,15 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
+/**
+ * This logging implementation ignores all calls up to warn
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
 public class WarnLogging implements Logging {
 
 	private final Logging style;
