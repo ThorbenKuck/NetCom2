@@ -16,9 +16,9 @@ import java.util.concurrent.Semaphore;
 /**
  * This Class contains information about requests to the Server.
  * <p>
- * Important is, that any request send, has an unique {@link UUID}. So any invocation handler will lead to the same result
+ * Important is, that any request sent, has a unique {@link UUID}. So any invocation handler will lead to the same result
  * <p>
- * If you have an {@link com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject}, the UUID will be
+ * If you have a {@link com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject}, the UUID will be
  * the same, so that the any call will wait, no matter what.
  *
  * @version 1.0
@@ -60,7 +60,7 @@ public class RemoteAccessBlockRegistration {
 	/**
 	 * Returns the saved instance, identified by UUID.
 	 * <p>
-	 * To add a new Semaphore, if non exists, use  {@link #getAndCreateSemaphore(UUID)}
+	 * To add a new Semaphore, if none exists, use  {@link #getAndCreateSemaphore(UUID)}
 	 *
 	 * @param uuid the identifier
 	 * @return the saved Semaphore
@@ -103,9 +103,9 @@ public class RemoteAccessBlockRegistration {
 	}
 
 	/**
-	 * Returns an Semaphore, which is linked to the UUID, provided by the <code>request</code>
+	 * Returns a Semaphore, which is linked to the UUID, provided by the <code>request</code>
 	 * <p>
-	 * The returned Semaphore will be already acquired, therefor calling {@link Semaphore#acquire()}, will instantly block.
+	 * The returned Semaphore will be already acquired, therefore calling {@link Semaphore#acquire()}, will instantly block.
 	 * Once {@link #release(RemoteAccessCommunicationResponse)} is called, this Semaphore will be released and the waiting
 	 * instance will get access to the Semaphore.
 	 *
@@ -142,7 +142,7 @@ public class RemoteAccessBlockRegistration {
 	}
 
 	/**
-	 * Returns an set {@link RemoteAccessCommunicationResponse}.
+	 * Returns a set {@link RemoteAccessCommunicationResponse}.
 	 * <p>
 	 * This might be null, since it depends on some other instance previously setting this response.
 	 *
@@ -158,7 +158,7 @@ public class RemoteAccessBlockRegistration {
 	}
 
 	/**
-	 * returns how many semaphores are hold within this BlockRegistration
+	 * returns how many semaphores are held within this BlockRegistration
 	 *
 	 * @return the number of all semaphores
 	 */
@@ -170,7 +170,7 @@ public class RemoteAccessBlockRegistration {
 	}
 
 	/**
-	 * returns how many responses are hold within this BlockRegistration
+	 * returns how many responses are held within this BlockRegistration
 	 *
 	 * @return the number of all responses
 	 */

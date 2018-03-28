@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
+ * {@inheritDoc}
+ *
  * @version 1.0
  * @since 1.0
  */
@@ -84,13 +86,13 @@ class DefaultSendingService implements SendingService {
 	}
 
 	/**
-	 * Serializes an Object, to an String
+	 * Serializes a Object to a String.
 	 * <p>
-	 * Will ask first the mainSerializationAdapter, then, if not successful, all FallbackSerializationAdapters.
+	 * Will ask first the MainSerializationAdapter, then, if not successful, all FallbackSerializationAdapters.
 	 *
-	 * @param o the Object to be serialized
-	 * @return the serialized String
-	 * @throws SerializationFailedException if no Adapter could serialize it.
+	 * @param o the Object to be serialized.
+	 * @return the serialized String.
+	 * @throws SerializationFailedException if no Adapter could serialize the provided Object.
 	 */
 	private String serialize(final Object o) throws SerializationFailedException {
 		final SerializationFailedException serializationFailedException;
@@ -115,10 +117,10 @@ class DefaultSendingService implements SendingService {
 	}
 
 	/**
-	 * Encrypts the provided String
+	 * Encrypts the provided String.
 	 *
-	 * @param s the raw String
-	 * @return the encrypted String
+	 * @param s the raw String.
+	 * @return the encrypted String.
 	 */
 	private String encrypt(final String s) {
 		return encryptionAdapter.get().get(s);
@@ -144,9 +146,9 @@ class DefaultSendingService implements SendingService {
 	}
 
 	/**
-	 * Deletes an Callback
+	 * Deletes the provided Callback.
 	 *
-	 * @param callback the callback
+	 * @param callback the callback.
 	 */
 	private void deleteCallBack(final Callback<Object> callback) {
 		logging.debug("[SendingService{" + connectionID.get() + "}] Removing " + callback + " from SendingService ..");
@@ -175,6 +177,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws SetupListenerException if the SendingService is not setup.
 	 */
 	@Asynchronous
 	@Override
@@ -220,6 +224,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the callback is null
 	 */
 	@Override
 	public void addSendDoneCallback(final Callback<Object> callback) {
@@ -231,6 +237,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the linkedBlockingQueue is null
 	 */
 	@Override
 	public void overrideSendingQueue(final BlockingQueue<Object> linkedBlockingQueue) {
@@ -241,6 +249,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the outputStream or the BlockingQueue is null
 	 */
 	@Override
 	public void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom) {
@@ -261,6 +271,8 @@ class DefaultSendingService implements SendingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the {@link Supplier} is null or {@link Supplier#get()} return null
 	 */
 	@Override
 	public void setConnectionIDSupplier(Supplier<String> supplier) {

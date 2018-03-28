@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 /**
- * Likewise to the {@link Factory}, this Class creates a new object, declared using the generic type upon calling the {@link #create()}
+ * Similarly to the {@link Factory}, this Class creates a new object, declared using the generic type upon calling the {@link #create()}
  * method.
  *
  * @param <T> the return type of the SimpleFactory

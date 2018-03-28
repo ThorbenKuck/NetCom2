@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.logging;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 /**
- * This class is inherited from the {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to
+ * This class is inherits from {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to
  * inject the caller of any method the via reflection determined caller of any method.
  * <p>
  * Not that this is very workload intensive, because it analyses the current Stacktrace at runtime

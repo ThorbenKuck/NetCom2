@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 /**
- * This Exception shows that, the deserialization of some Object failed.
+ * This Exception shows that the deserialization of some Object failed.
  *
  * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter

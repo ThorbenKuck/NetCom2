@@ -61,7 +61,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	}
 
 	/**
-	 * This method is called, before an Object is beforeSend to the client.
+	 * This method is called, before an Object is sent to the client.
 	 *
 	 * @param o the Object
 	 */
@@ -82,9 +82,9 @@ public abstract class AbstractConnection implements Connection, Mutex {
 	protected abstract void onClose();
 
 	/**
-	 * This method is called, after an Object has been send
+	 * This method is called, after an Object has been sent
 	 *
-	 * @param o the Object that just was send.
+	 * @param o the Object that was just sent.
 	 */
 	protected abstract void afterSend(final Object o);
 

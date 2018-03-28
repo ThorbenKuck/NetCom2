@@ -19,7 +19,7 @@ import java.util.concurrent.Semaphore;
 /**
  * This is the DefaultCommunicationRegistration.
  * <p>
- * It is used everywhere. Get used to it.
+ * It is used. Get used to it.
  *
  * @version 1.0
  * @since 1.0
@@ -36,12 +36,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
 	/**
-	 * Check, whether or not, the class is assignable by the objects class.
+	 * Check, whether or not, the class is assignable by the Objects class.
 	 * <p>
 	 * Throws an IllegalArgumentException if not.
 	 *
 	 * @param clazz the class
 	 * @param o     the Object
+	 * @throws IllegalArgumentException if the provided class is not assignable from the provided Objects class.
 	 */
 	private void sanityCheck(final Class<?> clazz, final Object o) {
 		if (!(o != null && clazz.equals(o.getClass()))) {
@@ -55,10 +56,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
 	 *
 	 * @param clazz      the class of the received Object
-	 * @param connection the Connection, this Object was received over
-	 * @param session    the Session of the received Object
+	 * @param connection the {@link Connection}, this Object was received over
+	 * @param session    the {@link Session} of the received Object
 	 * @param o          the received Object
-	 * @throws CommunicationNotSpecifiedException if not defaultCommunicationHandler is set.
+	 * @throws CommunicationNotSpecifiedException if no defaultCommunicationHandler is set.
 	 */
 	@Asynchronous
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
@@ -75,14 +76,14 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Triggers an set {@link ReceivePipeline}.
 	 * <p>
-	 * If that ReceivePipeline is not existing, an ConcurrentModificationException will be thrown
+	 * If that {@link ReceivePipeline} is not existing, an ConcurrentModificationException will be thrown
 	 *
 	 * @param clazz      the class of the received Object
-	 * @param connection the Connection, this Object was received over
-	 * @param session    the Session of the received Object
+	 * @param connection the {@link Connection}, this Object was received over
+	 * @param session    the {@link Session} of the received Object
 	 * @param o          the received Object
-	 * @param <T>        The type of that ReceivePipeline
-	 * @throws ConcurrentModificationException if the ReceivePipeline cannot be found
+	 * @param <T>        The type of that {@link ReceivePipeline}
+	 * @throws ConcurrentModificationException if the {@link ReceivePipeline} cannot be found
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
@@ -107,10 +108,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	}
 
 	/**
-	 * Runs the default CommunicationHandlers.
+	 * Runs the defaultCommunicationHandlers.
 	 *
-	 * @param connection the Connection, the Object was received over
-	 * @param session    the Session, associated with the Connection
+	 * @param connection the {@link ReceivePipeline}, the Object was received over
+	 * @param session    the {@link Session}, associated with the {@link Connection}
 	 * @param o          the received Object
 	 */
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
@@ -131,10 +132,10 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 	 * Handles an Object, that was received and is registered.
 	 *
 	 * @param pipeline   The {@link ReceivePipeline} registered for that Object
-	 * @param connection the Connection, the Object was received over
-	 * @param session    the Session, associated with the Connection
+	 * @param connection the {@link Connection}, the Object was received over
+	 * @param session    the {@link Session}, associated with the {@link Connection}
 	 * @param o          the received Object
-	 * @param <T>        the Type of that ReceivePipeline.
+	 * @param <T>        the Type of that {@link ReceivePipeline}.
 	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
 	                                  final Session session, final T o) {
@@ -150,6 +151,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -165,6 +168,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
 	public void unRegister(final Class clazz) {
@@ -180,6 +185,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
 	public boolean isRegistered(final Class clazz) {
@@ -189,6 +196,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
 	public void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
@@ -198,6 +207,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class, Connection, Session or Object is null
 	 */
 	@Asynchronous
 	@Override
@@ -233,11 +244,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided defaultCommunicationHandler is null
 	 */
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
-		NetCom2Utils.assertNotNull(defaultCommunicationHandler);
+		NetCom2Utils.parameterNotNull(defaultCommunicationHandler);
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
@@ -278,6 +291,8 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided communicationRegistration is null
 	 */
 	@Override
 	public void updateBy(final CommunicationRegistration communicationRegistration) {

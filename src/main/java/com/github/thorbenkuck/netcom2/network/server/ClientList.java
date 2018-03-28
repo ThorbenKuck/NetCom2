@@ -70,16 +70,16 @@ public interface ClientList extends Iterable<Client>, Mutex {
 	Optional<Client> getClient(final ClientID id);
 
 	/**
-	 * Returns an Stream over the Sessions of all Clients inside this ClientList
+	 * Returns a Stream over the Sessions of all Clients inside this ClientList
 	 *
-	 * @return an Stream over all Sessions.
+	 * @return a Stream over all Sessions.
 	 */
 	Stream<Session> sessionStream();
 
 	/**
-	 * Returns an Stream over the Clients inside this ClientList
+	 * Returns a Stream over the Clients inside this ClientList
 	 *
-	 * @return an Stream over all Clients.
+	 * @return a Stream over all Clients.
 	 */
 	Stream<Client> stream();
 

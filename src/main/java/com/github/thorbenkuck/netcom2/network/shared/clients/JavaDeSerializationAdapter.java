@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * This Adapter utilizes the java-Serialization to DeSerialize an String into an Object.
+ * This Adapter utilizes the Java-Serialization to deserialize an String into an Object.
  *
  * @version 1.0
  * @since 1.0

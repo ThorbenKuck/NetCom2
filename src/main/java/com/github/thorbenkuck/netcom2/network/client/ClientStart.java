@@ -66,7 +66,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	 * Creates a new ClientStart.
 	 * <p>
 	 * The use of this method is recommended to be used! At all times, this method is ensured to never change.
-	 * Therefor, relying on any implementation details, is not recommended, because they might become subject to change.
+	 * Therefore, relying on any implementation details, is not recommended, because they might become subject to change.
 	 *
 	 * @param address the address of the already running ServerStart as a String
 	 * @param port    the port, that the ServerStart is bound to.
@@ -118,7 +118,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	Sender send();
 
 	/**
-	 * Adds an {@link SerializationAdapter} as a fallback serialization instance to this ClientStart.
+	 * Adds a {@link SerializationAdapter} as a fallback serialization instance to this ClientStart.
 	 *
 	 * @param serializationAdapter the adapter, that should be used.
 	 * @see SerializationAdapter
@@ -126,7 +126,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
 
 	/**
-	 * Adds an {@link DeSerializationAdapter} as a fallback deserialization instance to this ClientStart.
+	 * Adds a {@link DeSerializationAdapter} as a fallback deserialization instance to this ClientStart.
 	 *
 	 * @param deSerializationAdapter the adapter, that should be used.
 	 * @see DeSerializationAdapter
@@ -134,7 +134,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
 
 	/**
-	 * Stets the {@link SerializationAdapter} as the main serialization instance to this ClientStart.
+	 * Sets the {@link SerializationAdapter} as the main serialization instance to this ClientStart.
 	 * <p>
 	 * This instance will be asked first, before the fallback instances will be asked
 	 *
@@ -154,7 +154,7 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
 
 	/**
-	 * Adds an Handler, that will be invoked once the Connection between the Server and the Client is terminated.
+	 * Adds a Handler, that will be invoked once the Connection between the Server and the Client is terminated.
 	 * <p>
 	 * Any Handler set, will be completely invoked if:
 	 * <p>

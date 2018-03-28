@@ -32,9 +32,10 @@ public class TCPDefaultConnection extends AbstractConnection {
 	}
 
 	/**
-	 * Acknowledges an received {@link Acknowledge}
+	 * Acknowledges a received {@link Acknowledge}.
 	 *
-	 * @param acknowledge the received Acknowledge, that should be acknowledged
+	 * @param acknowledge the received {@link Acknowledge}, that should be acknowledged, because the {@link Acknowledge}
+	 *                    is an acknowledge, that acknowledges the receiving of an Object, that is not an {@link Acknowledge}
 	 */
 	private void ack(final Acknowledge acknowledge) {
 		logging.debug("[TCP] Grabbing Synchronization mechanism for " + acknowledge.getOf());
@@ -53,7 +54,7 @@ public class TCPDefaultConnection extends AbstractConnection {
 	}
 
 	/**
-	 * Send an Acknowledge for an specific Object.
+	 * Send a {@link Acknowledge} for an specific Object.
 	 *
 	 * @param o the Object, that was send and should be acknowledged
 	 */
@@ -64,10 +65,12 @@ public class TCPDefaultConnection extends AbstractConnection {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
 	protected synchronized void beforeSend(final Object object) {
-		NetCom2Utils.assertNotNull(object);
+		NetCom2Utils.parameterNotNull(object);
 		if (object.getClass().equals(Acknowledge.class)) {
 			logging.trace("[TCP] No need to setup an synchronization mechanism an Acknowledge!");
 			return;
@@ -109,9 +112,12 @@ public class TCPDefaultConnection extends AbstractConnection {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
 	protected void afterSend(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		if (object.getClass().equals(Acknowledge.class)) {
 			return;
 		}

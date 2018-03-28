@@ -6,7 +6,9 @@ import java.util.function.Consumer;
  * This Callback is used for latching onto the {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService}
  * and {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}.
  *
- * @param <T> The Type, this Callback expects
+ * It will listen to something, in respect to the Service it was added to.
+ *
+ * @param <T> The Type of Object, this Callback expects.
  * @version 1.0
  * @since 1.0
  */
@@ -14,31 +16,31 @@ import java.util.function.Consumer;
 public interface Callback<T> extends Consumer<T> {
 
 	/**
-	 * This Method might be overridden to say, whether or not this specific Callback will accept an element which it should
+	 * This method might be overridden to say, whether or not this specific Callback will accept an element which it should
 	 * handle.
 	 * <p>
-	 * It checks against null by default
+	 * It checks against null by default.
 	 *
-	 * @param t the Object of the specified type {@link T}
-	 * @return true, if this Callback will handle the object, else false
+	 * @param t the Object of the specified type {@link T}.
+	 * @return true, if this Callback will handle the object, else false.
 	 */
 	default boolean isAcceptable(final T t) {
 		return t != null;
 	}
 
 	/**
-	 * This Method tells the encapsulating Class, whether or not it can be removed.
+	 * This method tells the encapsulating Class, whether or not it can be removed.
 	 * <p>
-	 * By default, it states true and will be removed, on the first check
+	 * By default, it states true and will be removed, on the first check.
 	 *
-	 * @return boolean value, if this Callback can be removed or not
+	 * @return boolean value, if this Callback can be cleaned up or not.
 	 */
 	default boolean isRemovable() {
 		return true;
 	}
 
 	/**
-	 * This Method might be overridden to react, if and when this Callback is removed wherever it is held
+	 * This method might be overridden to react, if and when this Callback is removed wherever it is held.
 	 * <p>
 	 * By default, this method does nothing!
 	 */
@@ -46,7 +48,7 @@ public interface Callback<T> extends Consumer<T> {
 	}
 
 	/**
-	 * This Method might be overridden to react if an error occurs
+	 * This method might be overridden to react if an error occurs.
 	 * <p>
 	 * By default, this method does nothing!
 	 */

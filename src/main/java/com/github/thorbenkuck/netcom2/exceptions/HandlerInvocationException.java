@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
 import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 
 /**
- * This Exception will be thrown, if anything goes wrong within the {@link RemoteObjectRegistration}.
+ * This Exception will be thrown if anything goes wrong within the {@link RemoteObjectRegistration}.
  *
  * @version 1.0
  * @see RemoteObjectRegistration

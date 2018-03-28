@@ -13,7 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionIni
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This Class handles an {@link NewConnectionInitializer}, received from the ServerStart.
+ * This Class handles a {@link NewConnectionInitializer}, received from the ServerStart.
  *
  * @version 1.0
  * @since 1.0

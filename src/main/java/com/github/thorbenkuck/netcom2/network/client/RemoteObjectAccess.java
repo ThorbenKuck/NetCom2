@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 
 /**
- * This interface provides an way of getting RemoteObjects.
+ * This interface provides a way of getting RemoteObjects.
  * <p>
  * The {@link ClientStart} for example implements this method. So you
  * may get any RemoteObject by stating
@@ -35,12 +35,12 @@ import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 public interface RemoteObjectAccess {
 
 	/**
-	 * The call of this Method will result in an callable instance of the provided <code>class</code>.
+	 * The call of this Method will result in a callable instance of the provided <code>class</code>.
 	 * <p>
-	 * This instance will be delegating the quarry back to the Server and return any result and throw any Throwable back
+	 * This instance will be delegating the query back to the Server and return any result and throw any Throwable back
 	 * from the Server.
 	 * <p>
-	 * This Method will be potentially deprecated in the future.
+	 * This Method will potentially be deprecated in the future.
 	 * <p>
 	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
 	 * <p>

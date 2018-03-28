@@ -10,7 +10,7 @@ import java.util.UUID;
  * This Class is the Identification of any Client.
  * <p>
  * Classes like the {@link com.github.thorbenkuck.netcom2.network.server.ClientList} use this ID to identify any Client
- * that has connected. Tho this is mostly not needed, there are some needed Cases where this ID is compared and queried.
+ * that has connected. Though this is mostly not needed, there are some needed Cases where this ID is compared and queried.
  * <p>
  * For example, the establishment of a new Connection requires the Client to identify falsely create IDs to delete falsely
  * create clients.

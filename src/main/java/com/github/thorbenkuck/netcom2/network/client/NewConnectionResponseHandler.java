@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This Class handles an {@link NewConnectionRequest}, received from the ServerStart
+ * This Class handles a {@link NewConnectionRequest}, received from the ServerStart
  *
  * @version 1.0
  * @since 1.0

@@ -11,7 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This Handler will handle an received CachePush at the Client-Side.
+ * This Handler will handle a received CachePush on the Client-Side.
  * <p>
  * It takes the received Object and puts it into the locally held cache. Further the mutex of the cache is used to ensure
  * Thread-Safety

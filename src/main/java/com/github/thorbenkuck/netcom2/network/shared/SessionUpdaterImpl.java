@@ -45,6 +45,8 @@ class SessionUpdaterImpl implements SessionUpdater {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the properties is null
 	 */
 	@Override
 	public SessionUpdater updateProperties(final Properties properties) {
@@ -62,6 +64,8 @@ class SessionUpdaterImpl implements SessionUpdater {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the identifier is null
 	 */
 	@Override
 	public SessionUpdater updateIdentifier(final String identifier) {

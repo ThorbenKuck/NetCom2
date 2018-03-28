@@ -21,6 +21,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * {@inheritDoc}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultReceivingServiceTest")
 class DefaultReceivingService implements ReceivingService {
@@ -53,7 +59,16 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Handles an received String, with all needed steps
+	 * Handles an received String, with all needed steps.
+	 *
+	 * This, in fact means the following:
+	 *
+	 * <ul>
+	 *     <li>decrypt the String</li>
+	 *     <li>deserialize the String</li>
+	 *     <li>triggers the {@link CommunicationRegistration} with the de serialized object</li>
+	 *     <li>triggers all {@link Callback} instances with the de serialized object</li>
+	 * </ul>
 	 *
 	 * @param string the raw received Strings.
 	 */
@@ -82,7 +97,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Triggers the disconnectedRunnable
+	 * Triggers the DisconnectedRunnable
 	 */
 	private void onDisconnect() {
 		logging.info("[ReceivingService] Shutting down ReceivingService!");
@@ -93,8 +108,8 @@ class DefaultReceivingService implements ReceivingService {
 	/**
 	 * Decrypts the provided String.
 	 *
-	 * @param s the encrypted String
-	 * @return the decrypted String
+	 * @param s the encrypted String.
+	 * @return the decrypted String.
 	 */
 	private String decrypt(final String s) {
 		return decryptionAdapter.get().get(s);
@@ -103,10 +118,12 @@ class DefaultReceivingService implements ReceivingService {
 	/**
 	 * Deserialize the provided String.
 	 * <p>
+	 * This will firstly ask the set MainSerializationAdapter.
+	 *
 	 * Will ask all DeserializationAdapters if the main Adapter fails.
 	 *
-	 * @param string the received String
-	 * @return the Object for that String
+	 * @param string the received String.
+	 * @return the Object for that String.
 	 * @throws DeSerializationFailedException if no DeSerializationAdapter can handle the String
 	 */
 	private Object deserialize(final String string) throws DeSerializationFailedException {
@@ -128,7 +145,7 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Triggers the CommunicationRegistration with the needed Objects.
+	 * Triggers the {@link CommunicationRegistration} with the needed Objects.
 	 *
 	 * @param object the receivedObject.
 	 * @see CommunicationRegistration#trigger(Connection, Session, Object)
@@ -149,9 +166,9 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Triggers Callbacks, listening to the Receiving of an Object.
+	 * Triggers Callbacks, listening to the receiving of any Object.
 	 * <p>
-	 * Afterwards, the CallBacks will be cleaned to free up resources.
+	 * Afterwards, the Callbacks will be cleaned to free up resources.
 	 *
 	 * @param object the Object we received.
 	 */
@@ -171,9 +188,9 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Runs an Runnable synchronized over the Callbacks
+	 * Runs a Runnable synchronized over the Callbacks.
 	 *
-	 * @param runnable the Runnable
+	 * @param runnable the Runnable.
 	 */
 	private void runSynchronizedOverCallbacks(final Runnable runnable) {
 		logging.trace("[ReceivingService] Awaiting ThreadAccess over callbacks ..");
@@ -184,9 +201,9 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	/**
-	 * Removes a callback.
+	 * Removes a {@link Callback}.
 	 *
-	 * @param toRemove the callback
+	 * @param toRemove the provided callback.
 	 */
 	@Asynchronous
 	private void removeCallback(final Callback<Object> toRemove) {
@@ -262,6 +279,8 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided callback is null
 	 */
 	@Override
 	public void addReceivingCallback(final Callback<Object> callback) {
@@ -273,6 +292,8 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the connection or the session is null
 	 */
 	@Override
 	public void setup(final Connection connection, final Session session) {
@@ -291,6 +312,8 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the session is null
 	 */
 	@Override
 	public void setSession(final Session session) {
@@ -300,6 +323,8 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the runnable is null
 	 */
 	@Override
 	public void onDisconnect(final Runnable runnable) {

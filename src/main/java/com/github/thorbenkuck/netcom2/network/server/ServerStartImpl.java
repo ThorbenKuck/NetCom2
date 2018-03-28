@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * </pre>
  * <p>
  * However! You cannot access the type of this class directly! Always use the {@link ServerStart} interface, since NetCom2
- * is interface-driven designed!
+ * is designed as interface-driven!
  * <p>
  * This class, or even its signature may be subject to change!
  *

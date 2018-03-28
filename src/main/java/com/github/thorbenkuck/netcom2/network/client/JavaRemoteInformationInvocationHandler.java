@@ -19,9 +19,9 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 /**
- * This is the Proxy, which is used for the RMI API.
+ * This is the proxy, which is used for the RMI API.
  * <p>
- * Since it is an RemoteObjectHandler, it is in fact a Proxy.
+ * Since it is a RemoteObjectHandler, it is in fact a proxy.
  *
  * @param <T> the proxied type.
  * @version 1.0
@@ -48,7 +48,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	}
 
 	/**
-	 * Tests whether or not, the provided throwable should be thrown or not.
+	 * Tests whether or not the provided throwable should be thrown.
 	 * <p>
 	 * This method checks multiple things, including checking for the {@link IgnoreRemoteExceptions} annotation, which
 	 * might be put at the method, or the Class.
@@ -119,13 +119,13 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	 * It passes the Method, that is requested to be called, and wraps it, so that the parameters are contained, as well
 	 * as the Class, which holds the Method.
 	 * <p>
-	 * It than blocks, until an response is received from the Server, which contains the computed Result or an Exception.
+	 * It then blocks, until a response is received from the Server, which contains the computed Result or an Exception.
 	 * The Result may be null.
 	 * If any Exception is send from the Server, this Exception will be rethrown.
 	 * <p>
 	 * Whether or not an Exception will be thrown, is controlled by the {@link IgnoreRemoteExceptions} annotation.
 	 * <p>
-	 * Since the computations are done by the Server, any CastException or wrong data type is filtered and replaced by an
+	 * Since the computations are done by the Server, any CastException or wrong data type is filtered and replaced by a
 	 * corresponding Exception. This might be ignored, in which case <code>null</code> is returned.
 	 * <p>
 	 * {@inheritDoc}
@@ -193,7 +193,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	 * The return value depends on the set fallback. It will return:
 	 * <p>
 	 * <ul>
-	 * <li>An correct instance, if the Fallback is an instance</li>
+	 * <li>A correct instance, if the Fallback is an instance</li>
 	 * <li>null, if the fallback is an runnable</li>
 	 * <li>nothing, else. In this case, an RemoteObjectNotRegisteredException will be thrown.</li>
 	 * </ul>

@@ -34,7 +34,7 @@ public interface ClientConnectedHandler {
 	/**
 	 * May be overridden, to create a Client.
 	 * <p>
-	 * If you do, make sure, that you instance is conform to the interface standards.
+	 * If you do, make sure, that your instance is conform to the interface standards.
 	 * Also, make sure, to override {@link #willCreateClient()} to return true. Else this Handler will be ignored.
 	 * <p>
 	 * By overriding this, you WILL override the default Client creation!
@@ -49,7 +49,7 @@ public interface ClientConnectedHandler {
 	}
 
 	/**
-	 * defines, whether or not this handler will be asked to create the client.
+	 * Defines, whether or not this handler will be asked to create the client.
 	 *
 	 * @return if this handler should be asked to create the Client.
 	 */

@@ -29,7 +29,7 @@ class DistributorRegistration {
 	}
 
 	/**
-	 * Returns a Set of Session, which registered to a certain class.
+	 * Returns a Set of Sessions, which registered to a certain class.
 	 * <p>
 	 * A new Set will be created, if it is not set yet.
 	 *

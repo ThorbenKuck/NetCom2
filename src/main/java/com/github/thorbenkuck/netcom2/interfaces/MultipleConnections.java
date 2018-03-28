@@ -40,7 +40,7 @@ public interface MultipleConnections {
 	/**
 	 * Instantiates the creation of the new Connection.
 	 * <p>
-	 * This call should be Asynchronous, so that the caller may do different Things after calling this method.
+	 * This call should be Asynchronous, so that the caller may do different things after calling this method.
 	 * <p>
 	 * For that, an instance of the {@link Awaiting} should be instantiated and returned.
 	 * After the Connection is established <b>AND</b> usable, this Awaiting should be continued.

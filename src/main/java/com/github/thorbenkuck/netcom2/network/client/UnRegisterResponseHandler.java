@@ -11,7 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRespon
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This Class handles {@link UnRegisterResponse}, received over the Network.
+ * This Class handles {@link UnRegisterResponse}s, received over the Network.
  *
  * @version 1.0
  * @since 1.0

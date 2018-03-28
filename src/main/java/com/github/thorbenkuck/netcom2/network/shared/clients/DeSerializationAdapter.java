@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This Adapter will DeSerialize the <code>F</code> into and <code>T</code>.
+ * This Adapter will deserialize the <code>F</code> into a <code>T</code>.
  *
- * @param <F> the input-type of this adapter
- * @param <T> the output-type of this adapter
+ * @param <F> the input-type of this adapter.
+ * @param <T> the output-type of this adapter.
  * @version 1.0
  * @since 1.0
  */
 public interface DeSerializationAdapter<F, T> {
 
 	/**
-	 * Creates the default DeSerializationAdapter, utilizing the Java-Serialization
+	 * Creates the default DeSerializationAdapter, utilizing the Java-Serialization.
 	 *
 	 * @return a new Instance.
 	 */
@@ -37,13 +37,13 @@ public interface DeSerializationAdapter<F, T> {
 	}
 
 	/**
-	 * DeSerializes an <code>f</code> into an <code>T</code>.
+	 * DeSerializes a <code>f</code> into a <code>T</code>.
 	 * <p>
 	 * Most likely, an String will be deSerialized into an Object.
 	 *
 	 * @param f the input object.
-	 * @return the deSerialized input type
-	 * @throws DeSerializationFailedException if this adapter cannot Serialize the input
+	 * @return the deSerialized input type.
+	 * @throws DeSerializationFailedException if this adapter cannot Serialize the input.
 	 */
 	T get(final F f) throws DeSerializationFailedException;
 }

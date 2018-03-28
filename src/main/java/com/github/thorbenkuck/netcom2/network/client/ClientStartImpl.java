@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </pre>
  * <p>
  * However! You cannot access the type of this class directly! Always use the {@link ClientStart} interface, since NetCom2
- * is interface-driven designed!
+ * is designed as interface-driven!
  * <p>
  * This class, or even its signature may be subject to change!
  *
@@ -102,7 +102,7 @@ class ClientStartImpl implements ClientStart {
 	}
 
 	/**
-	 * This Method is synchronized. Therefor only one Thread may launch the {@link ClientStart}!
+	 * This Method is synchronized. Therefore only one Thread may launch the {@link ClientStart}!
 	 * {@inheritDoc}
 	 */
 	@Override

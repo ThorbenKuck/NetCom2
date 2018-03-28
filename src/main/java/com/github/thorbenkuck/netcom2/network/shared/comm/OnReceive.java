@@ -6,7 +6,7 @@ import com.github.thorbenkuck.netcom2.pipeline.CanBeRegistered;
 import java.util.function.BiConsumer;
 
 /**
- * @param <T> The Object, that should be Consumed beneath the Session
+ * @param <T> The Object, that should be Consumed besides the {@link Session}
  * @version 1.0
  * @since 1.0
  */

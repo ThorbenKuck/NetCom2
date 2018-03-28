@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 /**
- * This implementation is a Observable, in addition to a ClientList.
+ * This implementation is an Observable, in addition to a ClientList.
  *
  * @version 1.0
  * @since 1.0

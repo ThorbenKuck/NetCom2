@@ -16,9 +16,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
- * An Client is an Object-Representation of an physically Computer, connected via one or multiple {@link java.net.Socket}.
+ * An Client is an Object-Representation of a physical Computer, connected via one or multiple {@link java.net.Socket}.
  * <p>
- * The Client encapsulates multiple informations, needed for the Client-Server-Communication, such as:
+ * The Client encapsulates information needed for the Client-Server-Communication, such as:
  * <ul>
  * <li>Connections this Computer uses</li>
  * <li>Serialization and FallbackSerialization</li>
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
  * <p>
  * It is highly discouraged to create custom Client-Objects.
  * <p>
- * The Client is create, once a Socket connects and maintained within the {@link com.github.thorbenkuck.netcom2.network.server.ClientList}
+ * The Client is created, once a Socket connects and maintained within the {@link com.github.thorbenkuck.netcom2.network.server.ClientList}
  * <p>
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
@@ -72,7 +72,7 @@ public interface Client extends Mutex {
 	void setThreadPool(final ExecutorService executorService);
 
 	/**
-	 * This Method initially set's up the Client.
+	 * This Method initially sets up the Client.
 	 * <p>
 	 * It creates a new {@link Session} and potentially overrides the existing one. Calling this Method might be a bad idea.
 	 * It certainly is possible to call this Method at runtime, but the Session has to be passed to every Connection.

@@ -14,7 +14,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * This is an internal class, defining what should happen, once the ClientStart disconnects from the Server.
  * <p>
  * If anything cuts the Connection between ServerStart and ClientStart, this handler will be called.
- * It cleans up any Resources, which are connected to the Session and therefor need to be reset, before a new Connection
+ * It cleans up any Resources, which are connected to the Session and therefore need to be reset, before a new Connection
  * to the ServerStart can be established.
  *
  * @version 1.0

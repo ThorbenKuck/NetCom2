@@ -22,6 +22,8 @@ public class PingSerializationAdapter implements SerializationAdapter<Object, St
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Asynchronous
 	@Override
