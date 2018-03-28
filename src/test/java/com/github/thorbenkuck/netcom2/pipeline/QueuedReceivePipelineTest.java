@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+@Testing(QueuedReceivePipeline.class)
 public class QueuedReceivePipelineTest {
 
 	private <T> QueuedReceivePipeline<T> create(Class<T> clazz) {
@@ -260,7 +262,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.contains(onReceiveSingle2));
 	}
 
-	@Test (expected = PipelineAccessException.class)
+	@Test(expected = PipelineAccessException.class)
 	public void isSealed() throws Exception {
 		// Arrange
 		QueuedReceivePipeline<ReceivePipelineTestObject> pipeline = create(ReceivePipelineTestObject.class);
@@ -274,7 +276,7 @@ public class QueuedReceivePipelineTest {
 		fail();
 	}
 
-	@Test (expected = PipelineAccessException.class)
+	@Test(expected = PipelineAccessException.class)
 	public void isClosed() throws Exception {
 		// Arrange
 		QueuedReceivePipeline<ReceivePipelineTestObject> pipeline = create(ReceivePipelineTestObject.class);
@@ -355,7 +357,7 @@ public class QueuedReceivePipelineTest {
 		pipeline.ifClosed(() -> {
 			throw new PipelineAccessException("");
 		});
-		assertTrue(!pipeline.isClosed());
+		assertFalse(pipeline.isClosed());
 	}
 
 	@Test(expected = PipelineAccessException.class)
@@ -496,7 +498,7 @@ public class QueuedReceivePipelineTest {
 		assertTrue(pipeline.isClosed());
 	}
 
-	private class OnReceiveSingleImpl<T> implements OnReceiveSingle<T> {
+	private static class OnReceiveSingleImpl<T> implements OnReceiveSingle<T> {
 
 		private final Consumer<T> consumer;
 
@@ -515,7 +517,7 @@ public class QueuedReceivePipelineTest {
 		}
 	}
 
-	private class Handler {
+	private static class Handler {
 
 		int value;
 

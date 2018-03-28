@@ -8,7 +8,7 @@ The hot-spot-branch is the __NIGHTLY__ branch. Every new branch (except for urge
 
 Every change in any of these branches requires a pull-request.
 
-If you want, you may freely perform a __pull-down-update__. This means, merging the master into dev and merging dev into NIGHTLY. Please add to your pullrequest the comment "pull-down-update".
+If you want, you may freely perform a __pull-down-update__. This means, merging the master into dev and merging dev into NIGHTLY. Please add to your pull-request the comment "pull-down-update".
 
 A push-up-update is done through the following pattern:
 
@@ -33,26 +33,70 @@ Once finished, open the pull-request only to the branch you originally branched 
 
 To correctly contribute on NetCom2, follow the guidelines below:
 
+1) Design your changes
+2) Implement your changes
+3) Test your changes
+4) Create a pull-request
+5) Await the reviewer to finish
+6) If your pull-request is denied, repeat at 1.
 
 ### Conventions
 
  * The code-conventions in this repository are the default Java conventions.
  * Intent your code with tabs rather than 4 spaces.
  * Branch from Nightly and name your Branch the following: #{ISSUE-NUMBER}_{ISSUE_DESCRIPTION}
- * Last Commit: #{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished.
+ * For new features, the first Commit should be the interface of said feature.
+ * Last Commit should be: "#{ISSUE-NUMBER} {ISSUE_DESCRIPTION} Finished."
+ * The reviewer and the assignee of your pull-request should (if possible) be different
  * Force-Push is under all circumstances prohibited!
+ 
+### Bug-fixes
+
+Only change things, that are relevant to your issue!  
+If possible, do not make major changes to the design!  
+Modify/create the/a test, so that the test shows, that the fixed bug is really fixed!
+
+### New features
+
+The Issue, proposing the new feature has to be approved by more than 50% of the direct contributors!  
+Only start new feature developments on features that are accepted!
+
+Only change things, that are relevant to your issue!  
+Design the new feature beforehand!  
+If possible, do not make major changes to the design!  
+Create a test, that thoroughly tests your new feature!
+
+### Tests
+
+Tests can be done in 2 ways:
+
+1) Unit-Tests.  
+   Create your test in <code>src/test/java</code> and then in the same package as the class you are testing  
+   Name your Test in the following pattern: _"{Class-Name}Test"_  
+   You may freely define the size of your unit. Make it as small as possible.  
+   Mock external dependencies, but do not mock message-objects.  
+2) Integration-Tests.  
+   Create your test in <code>src/test/java/integration</code> and then in whatever package you feel comfortable with  
+   Describe, what has to be done, so that your test can be run and succeeds.  
+   
+Annotate your Test with the Annotation <code>@Testing</code> and your code with <code>@Tested</code>. Those Annotations are for documentation-purposes only.  
+Anything, that you need for a Unit-Test, should be exposed via the TestUtils class.
+
+---
 
 ### External Contributions
 
-If you want to provide a new feature, a bug-fix, please follow these steps:
+If you want to provide a new feature or a bug-fix, please follow these steps:
 
 0) Fork this repository
 1) Create a branch named exactly as the issue you are working on. If the issue has the label "urgent", branch from dev, else branch from NIGHTLY.    
-2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequenz-diagramm, this wont hurt either.
+2) If you want to develop a new feature: Design your code. A simple class-diagram is enough, but if you go the extra mile to also provide a sequence-diagram, this wont hurt either.
 3) Fix the bug/develop the new feature based on your design.
 4) Write a test. Test any case you could come up with.
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
-6) If your pull-request get's denied, start over from 3.
+6) Add a direct contributor as an reviewer to your pull-request
+7) Add a direct contributor as an assignee to your pull-request
+8) If your pull-request gets denied, start over from 3.
 
 **NOTE**: Only change thing relevant to your issue! If your pull-request changes anything, that is not important, your pull-request will be denied!
 
@@ -69,11 +113,13 @@ If you are a direct contributor (you have push rights to this repository), pleas
 3) Fix the bug/develop the new feature based on your design.
 4) Write a test. Test any case you could come up with.
 5) Open a pull-request based on the provided pull-request template onto the branch your branch branched from.
+6) Add a direct contributor as an reviewer to your pull-request
+7) Add a direct contributor as an assignee to your pull-request
 6) If your pull-request gets denied, start over from 3.
 
 ### Releases
 
-The repository owner reserves the right to provide a new release.
+The repository owner reserves the right to provide a new release to maven-central.
 
 ### Becoming a direct Contributor
 

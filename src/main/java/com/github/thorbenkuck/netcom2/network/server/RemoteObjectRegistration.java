@@ -1,23 +1,27 @@
-package com.github.thorbenkuck.netcom2.interfaces;
+package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
-import com.github.thorbenkuck.netcom2.annotations.remoteObjects.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.network.client.RemoteObjectAccess;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 
 /**
- * Any Implementation of this Interface will handle the Registration of RemoteObjects at the Server-Side and therefor the delegation and Handling
+ * Any Implementation of this Interface will handle the Registration of RemoteObjects at the Server-Side and therefore the delegation and Handling
  * of {@link RemoteAccessCommunicationRequest}s
  * <p>
  * Internally it holds Objects, that are responsible to be called when ever an Object, created with {@link RemoteObjectAccess}
  * is created. It contains methods to register and unregister Objects, identified by Classes. However, the provided classes
  * have to be assignable from the provided Object.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface RemoteObjectRegistration {
 
 	/**
 	 * This call will register the given Object, identified by its class.
-	 *
+	 * <p>
 	 * Be careful with this call. If you want some class to be registered by its super-class or by any of its interfaces,
 	 * use {@link #register(Object, Class[])} or {@link #hook(Object)}. In most cases
 	 *
@@ -49,7 +53,6 @@ public interface RemoteObjectRegistration {
 	 * <p>
 	 * <code>
 	 * class Foo implements Serializable, Runnable {
-	 *
 	 * }
 	 * </code>
 	 * <p>
@@ -103,9 +106,9 @@ public interface RemoteObjectRegistration {
 	void unregister(Class... identifier);
 
 	/**
-	 * Likewise to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
+	 * Similarly to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
 	 *
-	 * @param object
+	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
 	 */
 	@Experimental
@@ -122,15 +125,15 @@ public interface RemoteObjectRegistration {
 
 	/**
 	 * This call executes an {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
-	 * an {@link RemoteAccessCommunicationResponse}.
+	 * a {@link RemoteAccessCommunicationResponse}.
 	 * <p>
 	 * This method will search internally for the set instance, according to the {@link RemoteAccessCommunicationRequest#clazz},
 	 * which identifies the Object that should be called. If it finds an corresponding Class, it searches the Class via
-	 * reflections for the provided {@link RemoteAccessCommunicationRequest#methodName}, which matches the {@link RemoteAccessCommunicationRequest#parameters}.
+	 * reflection for the provided {@link RemoteAccessCommunicationRequest#methodName}, which matches the {@link RemoteAccessCommunicationRequest#parameters}.
 	 * if it can find any matching method, it will execute the first one and generate the Results of that Method.
 	 * <p>
-	 * Any Exception thrown, will be cached and send back to the Client. This means, the StackTrace will be the StackTrace
-	 * which contains information about the Server! Use the {@link com.github.thorbenkuck.netcom2.annotations.remoteObjects.IgnoreRemoteExceptions}
+	 * Any Exception thrown, will be cached and sent back to the Client. This means, the StackTrace will be the StackTrace
+	 * which contains information about the Server! Use the {@link com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions}
 	 * annotation to suppress this behaviour.
 	 * <p>
 	 * If this Annotation is present, it will substitute the throwable with null and return null, even if an exception was thrown.

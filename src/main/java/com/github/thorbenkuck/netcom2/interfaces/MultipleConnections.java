@@ -9,39 +9,38 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * To successfully use this method, the sessions have to be kept and controlled by the inherited Class. The {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}
  * is such a Class.
  * <p>
- * It is designed to be called of a registered Communication registration, for example like this:
+ * You may create a new Connection by stating the following:
  * <p>
- * <code>
- * class NewConnectionRequest {
- * private Class key;
- *
- * public NewConnectionRequest(Class key) {
- * this.key = key;
- * }
- *
- * public Class getKey() {
- * return this.key;
- * }
- * }
- *
+ * <pre>{@code
  * ServerStart serverStart = ...
- *
- * serverStart.getCommunicationRegistration()
- * .register(NewConnectionRequest.class)
- * .addFirst((session, newConnectionRequest) - serverStart.createNewConnection(session, newConnectionRequest.getKey()));
- * </code>
+ * Class connectionKey = ...
+ * Session session = ...
+ * serverStart.createNewConnection(session, connectionKey);
+ * }</pre>
+ * <p>
+ * This however is a bad approach design wise. In most situations, it is recommended to create the new Connection through
+ * the use of the {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client} class.
+ * <p>
+ * A better way to approach this, would be to encapsulate the Session within an custom <code>User</code> object and to
+ * call this at certain times within your code.
+ * <p>
  * <p>
  * So, if the ServerStart receives a NewConnectionRequest, it establishes the new Connection over the ServerStart.
  * <p>
  * If you use the ServerStart for establishing multiple Connections, you should abstract and decouple your code. Do not
  * use the ServerStart directly, but pass the MultipleConnections interface instead.
+ *
+ * @version 1.0
+ * @see com.github.thorbenkuck.netcom2.network.client.ClientStart#createNewConnection(Class)
+ * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#createNewConnection(Class)
+ * @since 1.0
  */
 public interface MultipleConnections {
 
 	/**
 	 * Instantiates the creation of the new Connection.
 	 * <p>
-	 * This call should be Asynchronous, so that the caller may do different Things after calling this method.
+	 * This call should be Asynchronous, so that the caller may do different things after calling this method.
 	 * <p>
 	 * For that, an instance of the {@link Awaiting} should be instantiated and returned.
 	 * After the Connection is established <b>AND</b> usable, this Awaiting should be continued.

@@ -1,5 +1,13 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+/**
+ * This Exception-type is thrown, whenever an RMI request failed for any reason.
+ *
+ * @version 1.0
+ * @see RemoteObjectNotRegisteredException
+ * @see RemoteObjectInvalidMethodException
+ * @since 1.0
+ */
 public class RemoteRequestException extends RuntimeException {
 
 	/**

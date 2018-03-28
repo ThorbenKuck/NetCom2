@@ -18,28 +18,31 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchr
  * </ul>
  * <p>
  * The reset Method should not be used within production. Reset clears out all saved instances of requested registrations
- * and therefor is after calling it not able to resolve register responses.
+ * and therefore is after calling it not able to resolve register responses.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 public interface Sender {
 
 	/**
 	 * Sends an Object over the network to the server.
 	 * <p>
-	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 * <p>
 	 * It uses the {@link com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection}
 	 *
 	 * @param o the Object that should be send over the network.
-	 * @return an synchronization mechanism to allow procedural programming
+	 * @return a synchronization mechanism to allow procedural programming
 	 */
 	ReceiveOrSendSynchronization objectToServer(Object o);
 
 	/**
 	 * Sends an Object over the network to the server.
 	 * <p>
-	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 * <p>
 	 * It uses the specified Connection.
 	 *
@@ -52,8 +55,8 @@ public interface Sender {
 	/**
 	 * Sends an Object over the network to the server.
 	 * <p>
-	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 * <p>
 	 * It uses the Connection, identified by the provided key.
 	 *
@@ -67,8 +70,8 @@ public interface Sender {
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
 	 * Object is updated
 	 * <p>
-	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz    the class of the message, you want to register to
 	 * @param observer the callback object, that should be called, if an Object of the specified type arrives
@@ -81,8 +84,8 @@ public interface Sender {
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
 	 * Object is updated
 	 * <p>
-	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 * <p>
 	 * Uses the provided Connection.
 	 *
@@ -93,7 +96,7 @@ public interface Sender {
 	 * @return a synchronization mechanism
 	 */
 	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-														  Connection connection);
+	                                                      Connection connection);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -111,7 +114,7 @@ public interface Sender {
 	 * @return a synchronization mechanism
 	 */
 	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-														  Class connectionKey);
+	                                                      Class connectionKey);
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -129,7 +132,7 @@ public interface Sender {
 	 * Requests an unRegistration from the specified message type.
 	 * <p>
 	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz      the class of the message, you want to register to
 	 * @param connection the Connection that should be used
@@ -142,7 +145,7 @@ public interface Sender {
 	 * Requests an unRegistration from the specified message type.
 	 * <p>
 	 * The call will result in an asynchronous extraction. However, it returns an synchronization mechanism,
-	 * that will allow te developer to listen for a successful send or incoming messages.
+	 * that will allow the developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz         the class of the message, you want to register to
 	 * @param <T>           the type of the message, you want to register to

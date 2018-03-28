@@ -1,16 +1,12 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import org.junit.Test;
-import org.mockito.Answers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,6 +15,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Testing(JavaRemoteInformationInvocationHandler.class)
 public class JavaRemoteInformationInvocationHandlerTest {
 
 	final Semaphore semaphore = new Semaphore(1);
@@ -73,7 +70,9 @@ public class JavaRemoteInformationInvocationHandlerTest {
 		JavaRemoteInformationInvocationHandler<TestInterface> handler = new JavaRemoteInformationInvocationHandler<>(sender, registration, TestInterface.class, id);
 
 		// Act
-		handler.setFallbackRunnable(() -> {throw new PipelineAccessException("");});
+		handler.setFallbackRunnable(() -> {
+			throw new PipelineAccessException("");
+		});
 
 		// Assert
 		handler.invoke(null, TestInterface.class.getMethod("testMethod"), new Object[0]);

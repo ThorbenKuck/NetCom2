@@ -5,7 +5,7 @@ It is designed to function as an over-network EventBus.
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
-[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/cliparser/badge.svg)](https://snyk.io/test/github/thorbenkuck/cliparser) 
+[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/NetCom2/badge.svg)](https://snyk.io/test/github/thorbenkuck/NetCom2) 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
 
 ## Near future releases:
@@ -72,27 +72,22 @@ Also there is a NIGHTLY branch, for the inpatient.
 
 ### Current State
 
-0.4.1.0_BETA
- * Further Documentation
- * Improved Thread-Safety and Performance
- * Preparations for release candidate 1.0.0.0
- * Added some tests
- * Improved upon the advanced RMI API
- * Small Bug-Fixes
-
-0.4.0.0_BETA (Release 11.01.2017)
- * Further Documentation
- * Greater Thread-Safety and Performance
- * RemoteObjects
- * Connection-Routes
- * Bug-Fixes
- 
-0.3.0.0_BETA (Release 09.07.2017)
+1.0.0.0 (release 30.03.2018)
+ * First major release (end of beta).
+ * Pipeline based Communication protocols.
+ * Advanced RMI API (multi language compatible).
+ * Asynchronous behaviour with extreme performance.
+ * Highly modular, yet easy to use.
+ * Designed with functional programming in mind.
+ * Decoupled logging API (<code>NetComLogging</code>).
 
 #### Current Development
 
- * Completion of JavaDOC
- * Finish of the Wiki
+__We are currently looking for a good, free and reliable board for new Feature suggestions__
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
 
 ## For whom this is
 
@@ -112,20 +107,18 @@ If you cannot understand german, there is also a YouTube Tutorial-series in [eng
 Include this in your pom.xml (if you are using Maven)
 
 ```
-<dependencies>
-  <dependency>
-    <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2</artifactId>
-    <version>0.4.1</version>
-  </dependency>
-</dependencies>
+<dependency>
+  <groupId>com.github.thorbenkuck</groupId>
+  <artifactId>NetCom2</artifactId>
+  <version>1.0</version>
+</dependency>
 ```
 
 Or this in you build.gradle (if you are using Gradle)
 
 ```
 dependencies {
-    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '0.4.1'
+    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0'
 }
 ```
 
