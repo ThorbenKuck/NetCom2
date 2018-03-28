@@ -8,7 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
- * This DeSerializationAdapter will deserialize an Ping, serialized with the {@link PingSerializationAdapter}
+ * This DeSerializationAdapter will deserialize an Ping, serialized with the {@link PingSerializationAdapter}.
  *
  * @version 1.0
  * @since 1.0
@@ -22,6 +22,8 @@ public class PingDeSerializationAdapter implements DeSerializationAdapter<String
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided String is null
 	 */
 	@Asynchronous
 	@Override
