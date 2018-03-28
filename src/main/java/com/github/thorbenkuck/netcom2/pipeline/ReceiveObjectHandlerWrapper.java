@@ -22,8 +22,8 @@ import java.util.Optional;
  * <p>
  * This class is meant for NetCom2 internal use only.
  *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized
@@ -44,10 +44,10 @@ class ReceiveObjectHandlerWrapper {
 	/**
 	 * Creates an InvokeWrapper for the specified class, method and object.
 	 *
-	 * @param clazz The class
+	 * @param clazz  The class
 	 * @param method The method
-	 * @param o The object
-	 * @param <T> The type
+	 * @param o      The object
+	 * @param <T>    The type
 	 * @return The new InvokeWrapper
 	 */
 	private <T> OnReceiveTriple<T> wrap(final Class<T> clazz, final Method method, final Object o) {
@@ -57,17 +57,17 @@ class ReceiveObjectHandlerWrapper {
 	/**
 	 * Creates a new InvokeWrapper for the specified object and class.
 	 *
-	 * @param o The object
+	 * @param o     The object
 	 * @param clazz The class
-	 * @param <T> The type
+	 * @param <T>   The type
 	 * @return The new InvokeWrapper
 	 */
 	public <T> OnReceiveTriple<T> wrap(final Object o, final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(o, clazz);
 		final Optional<Method> methodOptional = getResponsibleForClass(o, clazz);
 		final Method method = methodOptional.orElseThrow(() -> new NoCorrectHandlerFoundException(
-					"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
-							"Found more than one Object to handle!"));
+				"Could not resolve an Object to Handle " + clazz + " in " + o + " or:\n" +
+						"Found more than one Object to handle!"));
 
 
 		return wrap(clazz, method, o);
@@ -124,7 +124,7 @@ class ReceiveObjectHandlerWrapper {
 		 *
 		 * @param toInvoke The method to invoke
 		 * @param toExpect The expected parameter type
-		 * @param caller The calling object
+		 * @param caller   The calling object
 		 */
 		InvokeWrapper(final Method toInvoke, final Class<T> toExpect, final Object caller) {
 			this.toInvoke = toInvoke;
@@ -183,9 +183,9 @@ class ReceiveObjectHandlerWrapper {
 		/**
 		 * Tries to find a parameter for the given type and adds it to the list of arguments.
 		 *
-		 * @param clazz The type to look for
+		 * @param clazz     The type to look for
 		 * @param arguments The output list of arguments
-		 * @param objects The parameters
+		 * @param objects   The parameters
 		 */
 		private void tryMatch(final Class<?> clazz, final List<Object> arguments, final Object[] objects) {
 			logging.trace("Searching for");

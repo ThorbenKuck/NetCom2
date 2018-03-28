@@ -10,9 +10,9 @@ package com.github.thorbenkuck.netcom2.network.shared;
  * implementation of this interface will let the synchronize method continue and thereby release all waiting Threads.
  *
  * @version 1.0
- * @since 1.0
  * @see com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize
  * @see AbstractSynchronize
+ * @since 1.0
  */
 @FunctionalInterface
 public interface Awaiting {

@@ -16,9 +16,8 @@ import java.util.function.BiPredicate;
  * This class is not meant for use outside of NetCom2. It is an internal component and only used by the {@link ReceivePipeline}
  *
  * @param <T> the Object, which will be received over the network and handled at either the ClientStartup or ServerStartup.
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized

@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 @Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultSendingServiceTest")
 class DefaultSendingService implements SendingService {
 
+	private static final int MAXIMUM_WAITING_TIME = 10;
 	@APILevel
 	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapter;
@@ -41,7 +42,6 @@ class DefaultSendingService implements SendingService {
 	private final Supplier<EncryptionAdapter> encryptionAdapter;
 	private final Logging logging = new NetComLogging();
 	private final Synchronize synchronize = new DefaultSynchronize(1);
-	private static final int MAXIMUM_WAITING_TIME = 10;
 	@APILevel
 	protected BlockingQueue<Object> toSend;
 	private Supplier<String> connectionID = () -> "UNKNOWN-CONNECTION";

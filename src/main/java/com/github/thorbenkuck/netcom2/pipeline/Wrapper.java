@@ -14,9 +14,10 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * <p>
  * For most developers, this will not be necessary.
  * <p>
+ *
+ * @version 1.0
  * @apiNote Use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#wrap(OnReceive)} instead of this class. It encapsulates an Wrapper to free up resources
  * @since 1.0
- * @version 1.0
  */
 @Synchronized
 public class Wrapper {

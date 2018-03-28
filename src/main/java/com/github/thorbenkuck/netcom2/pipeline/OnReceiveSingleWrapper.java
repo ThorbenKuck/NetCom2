@@ -14,9 +14,8 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * This class is meant for NetCom2 internal use only.
  *
  * @param <O> The type
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized

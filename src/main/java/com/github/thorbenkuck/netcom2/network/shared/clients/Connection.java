@@ -72,9 +72,9 @@ public interface Connection extends Loggable {
 	 * This method is used by the {@link Client}.
 	 *
 	 * @param object the Object that should be send over the Connection.
-	 *               @see Client#send(Object)
-	 *               @see Client#send(Class, Object)
-	 *               @see Client#send(Connection, Object)
+	 * @see Client#send(Object)
+	 * @see Client#send(Class, Object)
+	 * @see Client#send(Connection, Object)
 	 */
 	void write(final Object object);
 

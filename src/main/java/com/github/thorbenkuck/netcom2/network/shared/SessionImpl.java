@@ -151,7 +151,7 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * <p>
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T. We ensure this at runtime.
 	 *
 	 * @throws IllegalArgumentException if the class is null
@@ -169,7 +169,7 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * <p>
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
 	 *
 	 * @throws IllegalArgumentException if the class or the object is null

@@ -4,8 +4,8 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
  * This interface allows you, to wait for a certain Object to be send or received over the previously requested {@link Connection}.
  *
  * @version 1.0
- * @since 1.0
  * @see Connection#write(Object)
+ * @since 1.0
  */
 public interface ReceiveOrSendSynchronization {
 

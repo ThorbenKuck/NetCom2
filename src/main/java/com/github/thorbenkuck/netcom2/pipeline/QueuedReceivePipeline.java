@@ -23,7 +23,6 @@ import java.util.function.Consumer;
  * A queued ReceivePipeline implementation.
  *
  * @param <T> The type
- *
  * @version 1.0
  * @since 1.0
  */
@@ -56,11 +55,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	/**
 	 * Tries to put the specified connection, session and S into the specified pipeline receiver.
 	 *
-	 * @param receiver The PipelineReceiver
+	 * @param receiver   The PipelineReceiver
 	 * @param connection The connection
-	 * @param session The session
-	 * @param s The S
-	 * @param <S> The type
+	 * @param session    The session
+	 * @param s          The S
+	 * @param <S>        The type
 	 */
 	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();

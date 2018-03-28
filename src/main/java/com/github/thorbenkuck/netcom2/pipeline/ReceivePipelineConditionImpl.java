@@ -14,9 +14,8 @@ import java.util.function.Predicate;
  * This class is meant for NetCom2 internal use only.
  *
  * @param <T> The type
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized

@@ -13,9 +13,8 @@ import java.util.Queue;
  * and only working on that.
  *
  * @param <T> The type of the elements of this iterator
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @Synchronized
 public class AsynchronousIterator<T> implements Iterator<T> {

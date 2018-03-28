@@ -6,8 +6,8 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
  * NetCom2 uses its own Threads such that developers can easily distinguish between NetCom2 Threads
  * and application Threads.
  *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 public class NetComThread extends Thread {
 
@@ -70,13 +70,12 @@ public class NetComThread extends Thread {
 	}
 
 	/**
-	 *
 	 * Makes this Thread
 	 * <ul>
-	 *     <li><b>not</b> daemon</li>
-	 *     <li>priority 7</li>
-	 *     <li>named like a NetCom2 Thread</li>
-	 *     <li>log uncaught exceptions</li>
+	 * <li><b>not</b> daemon</li>
+	 * <li>priority 7</li>
+	 * <li>named like a NetCom2 Thread</li>
+	 * <li>log uncaught exceptions</li>
 	 * </ul>
 	 * The priority is such that it is higher than normal, but still not highest
 	 */
@@ -88,9 +87,7 @@ public class NetComThread extends Thread {
 	}
 
 	/**
-	 *
 	 * {@inheritDoc}
-	 *
 	 */
 	@Override
 	public void run() {
@@ -100,9 +97,7 @@ public class NetComThread extends Thread {
 
 
 	/**
-	 *
 	 * {@inheritDoc}
-	 *
 	 */
 	public String toString() {
 		if (!getName().equals(getThreadGroup().getName())) {

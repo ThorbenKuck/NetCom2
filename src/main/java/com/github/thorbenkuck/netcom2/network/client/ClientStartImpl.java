@@ -139,7 +139,7 @@ class ClientStartImpl implements ClientStart {
 	 * {@inheritDoc}
 	 *
 	 * @throws IllegalArgumentException if provided key is null
-	 * @throws IllegalStateException if the ClientStart is not running
+	 * @throws IllegalStateException    if the ClientStart is not running
 	 */
 	@Override
 	public Awaiting createNewConnection(final Class key) {

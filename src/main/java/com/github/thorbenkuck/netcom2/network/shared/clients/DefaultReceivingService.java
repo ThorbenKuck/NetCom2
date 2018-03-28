@@ -60,14 +60,14 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * Handles an received String, with all needed steps.
-	 *
+	 * <p>
 	 * This, in fact means the following:
-	 *
+	 * <p>
 	 * <ul>
-	 *     <li>decrypt the String</li>
-	 *     <li>deserialize the String</li>
-	 *     <li>triggers the {@link CommunicationRegistration} with the de serialized object</li>
-	 *     <li>triggers all {@link Callback} instances with the de serialized object</li>
+	 * <li>decrypt the String</li>
+	 * <li>deserialize the String</li>
+	 * <li>triggers the {@link CommunicationRegistration} with the de serialized object</li>
+	 * <li>triggers all {@link Callback} instances with the de serialized object</li>
 	 * </ul>
 	 *
 	 * @param string the raw received Strings.
@@ -119,7 +119,7 @@ class DefaultReceivingService implements ReceivingService {
 	 * Deserialize the provided String.
 	 * <p>
 	 * This will firstly ask the set MainSerializationAdapter.
-	 *
+	 * <p>
 	 * Will ask all DeserializationAdapters if the main Adapter fails.
 	 *
 	 * @param string the received String.

@@ -9,9 +9,8 @@ import java.util.function.Predicate;
  * A condition for a ReceivePipeline, which adds the requirements to the underlying pipeline.
  *
  * @param <T> The type
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 public interface ReceivePipelineCondition<T> {
 

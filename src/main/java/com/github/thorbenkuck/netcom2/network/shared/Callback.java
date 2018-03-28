@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 /**
  * This Callback is used for latching onto the {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService}
  * and {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService}.
- *
+ * <p>
  * It will listen to something, in respect to the Service it was added to.
  *
  * @param <T> The Type of Object, this Callback expects.

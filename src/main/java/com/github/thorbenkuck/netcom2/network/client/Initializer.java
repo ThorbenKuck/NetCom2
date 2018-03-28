@@ -108,7 +108,7 @@ class Initializer {
 	 * @param clazz     the identifier
 	 * @param onReceive the handler
 	 * @param <T>       the type of the OnReceive defined by the Class
-	 *           @throws IllegalArgumentException if the OnReceive is null
+	 * @throws IllegalArgumentException if the OnReceive is null
 	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceive<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));
@@ -120,7 +120,7 @@ class Initializer {
 	 * @param clazz     the identifier
 	 * @param onReceive the handler
 	 * @param <T>       the type of the OnReceiveSingle defined by the Class
-	 *           @throws IllegalArgumentException if the OnReceiveSingle is null
+	 * @throws IllegalArgumentException if the OnReceiveSingle is null
 	 */
 	private <T> void registerCriticalSingle(final Class<T> clazz, final OnReceiveSingle<T> onReceive) {
 		registerCriticalSingle(clazz, NetCom2Utils.wrap(onReceive));

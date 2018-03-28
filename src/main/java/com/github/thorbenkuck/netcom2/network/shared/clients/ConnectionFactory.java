@@ -42,7 +42,7 @@ public class ConnectionFactory {
 
 	/**
 	 * This method creates an {@link ReceivingService}.
-	 *
+	 * <p>
 	 * Future: Decouple to non-static-factory.
 	 *
 	 * @param client the {@link Client} that holds the main parts.
@@ -58,7 +58,7 @@ public class ConnectionFactory {
 
 	/**
 	 * This Method creates an {@link SendingService}.
-	 *
+	 * <p>
 	 * Future: Decouple to a non-static-factory.
 	 *
 	 * @param client the {@link Client} that holds the main parts.

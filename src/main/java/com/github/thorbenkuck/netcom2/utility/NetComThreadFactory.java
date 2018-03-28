@@ -14,7 +14,6 @@ import java.util.function.Consumer;
  *
  * @version 1.0
  * @since 1.0
- *
  */
 public class NetComThreadFactory implements ThreadFactory {
 
@@ -31,9 +30,7 @@ public class NetComThreadFactory implements ThreadFactory {
 	}
 
 	/**
-	 *
 	 * {@inheritDoc}
-	 *
 	 */
 	@Override
 	public Thread newThread(Runnable r) {

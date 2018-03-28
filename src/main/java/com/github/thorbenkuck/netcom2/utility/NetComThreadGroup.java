@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
  * Represents a NetCom2 thread groups.
- *
+ * <p>
  * It is currently debated if this class is really needed.
  *
  * @version 1.0

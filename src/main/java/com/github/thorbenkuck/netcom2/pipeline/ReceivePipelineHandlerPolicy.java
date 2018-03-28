@@ -80,10 +80,10 @@ public enum ReceivePipelineHandlerPolicy {
 
 	/**
 	 * Throws an PipelineAccessException if:
-	 *
+	 * <p>
 	 * <ul>
-	 *     <il>the provided pipeline is null</il>
-	 *     <il>the provided pipeline is sealed</il>
+	 * <il>the provided pipeline is null</il>
+	 * <il>the provided pipeline is sealed</il>
 	 * </ul>
 	 *
 	 * @param receivePipeline the pipeline, that must meet the requirements

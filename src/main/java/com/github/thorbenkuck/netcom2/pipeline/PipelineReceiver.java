@@ -16,9 +16,8 @@ import java.util.Queue;
  * they are clustered.
  *
  * @param <T> The object, that is handled by the {@link OnReceiveTriple} and tested by the {@link TriPredicate}
- *
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 @APILevel
 @Synchronized
@@ -95,8 +94,8 @@ class PipelineReceiver<T> {
 	 * This method is only meant for internal use.
 	 *
 	 * @param connection The connection to test with
-	 * @param session The session to test with
-	 * @param t The T to test with
+	 * @param session    The session to test with
+	 * @param t          The T to test with
 	 * @return false if one predicate returns false, true otherwise
 	 */
 	@APILevel

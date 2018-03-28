@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  * <p>
  * Outside of NetCom2's internal Modules, this Annotation is a signal, that you will be restricted to asynchronous behaviour
  * if you call this Method. Therefore you may not be able to work synchronously or in a procedural style.
- *
+ * <p>
  * This Annotation is only used, if the method is <b>directly</b> extracting something into another thread. If (for example)
  * <code>Connection#write</code> is called, this is not reason to apply this annotation. That is because, whether or not
  * the Connection extracts something into another Thread, depends on the implementation.

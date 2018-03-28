@@ -166,7 +166,7 @@ public interface CommunicationRegistration extends Mutex {
 	 * Clears all set registration.
 	 * <p>
 	 * This Call will ignore the set {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy}.
-	 *
+	 * <p>
 	 * All internally set {@link ReceivePipeline} will be cleared.
 	 * Currently running Handlers will NOT be stopped.
 	 */
