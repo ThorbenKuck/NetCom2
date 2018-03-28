@@ -35,16 +35,14 @@ import java.lang.annotation.*;
  * <p>
  * For example, the TestReceiver might look like this:
  * <p>
- * <pre>
- *     {@code
+ * <pre><code>
  *     class TestReceiver {
  *         {@literal @}ReceiveHandler
  *         public void accept(Session session, TestObject testObject) {
  *             // Handle TestObject
  *         }
  *     }
- *     }
- * </pre>
+ *     </code></pre>
  * <p>
  * With this annotation, NetCom2 might be used in the way of an EventBus.
  *

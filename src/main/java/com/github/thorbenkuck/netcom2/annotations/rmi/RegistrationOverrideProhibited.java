@@ -11,8 +11,7 @@ import java.lang.annotation.*;
  * If the {@link RemoteObjectRegistration} contains any instance of the provided
  * annotated Type, it will not be overridden. So the following will lead to the first object staying within the registration
  * <p>
- * <pre>
- * {@code
+ * <pre><code>
  * {@literal @}RegistrationOverrideProhibited
  * interface Test {
  *     void test();
@@ -36,8 +35,7 @@ import java.lang.annotation.*;
  *         }
  *     }
  * }
- * }
- * </pre>
+ * </code></pre>
  * <p>
  * So you may say that, any Object may be set to the RemoteObjectRegistration, but not updated.
  * <p>
