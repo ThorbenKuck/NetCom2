@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @Testing(HeartBeat.class)
 public class HeartBeatTest {
@@ -16,6 +17,7 @@ public class HeartBeatTest {
 	private HeartBeatFactory heartBeatFactory = HeartBeatFactory.get();
 
 	private void proceed(Object o) {
+		assertNotNull(o);
 		i++;
 		counts.incrementAndGet();
 	}

@@ -168,7 +168,7 @@ public class DefaultReceivingServiceTest {
 	}
 
 	@Test
-	public void setup() throws Exception {
+	public void setupMethod() throws Exception {
 		// Arrange
 		DefaultReceivingService receivingService = createReceivingService();
 		Connection connection = mock(Connection.class);

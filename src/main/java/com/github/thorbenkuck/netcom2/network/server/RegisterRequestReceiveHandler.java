@@ -23,7 +23,7 @@ class RegisterRequestReceiveHandler implements OnReceive<RegisterRequest> {
 
 	private final Logging logging = Logging.unified();
 	private DistributorRegistration distributorRegistration;
-	private com.github.thorbenkuck.netcom2.network.shared.cache.Cache cache;
+	private Cache cache;
 
 	@APILevel
 	RegisterRequestReceiveHandler(final DistributorRegistration distributorRegistration, final Cache cache) {

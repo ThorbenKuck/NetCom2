@@ -50,7 +50,7 @@ public class ClientImplTest {
 	}
 
 	@Test
-	public void setup() throws Exception {
+	public void setupMethod() throws Exception {
 		// Arrange
 		ClientImpl client = new ClientImpl(registration);
 		Session session = client.getSession();
