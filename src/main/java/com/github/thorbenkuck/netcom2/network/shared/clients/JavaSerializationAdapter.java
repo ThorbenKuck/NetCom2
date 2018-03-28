@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 import java.util.Base64;
 
 /**
- * This SerializationAdapter utilizes the Java-serialization, to serialize an Object into an String
+ * This SerializationAdapter utilizes the Java-Serialization, to serialize a Object into a String.
  *
  * @version 1.0
  * @since 1.0
@@ -26,6 +26,8 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Asynchronous
 	@Override
