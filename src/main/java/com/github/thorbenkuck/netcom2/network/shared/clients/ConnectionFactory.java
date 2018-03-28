@@ -27,7 +27,7 @@ public class ConnectionFactory {
 	private final Logging logging = Logging.unified();
 
 	/**
-	 * Sets the ConnectionFactoryHook, which finally creates the Connection
+	 * Sets the {@link ConnectionFactoryHook}, which finally creates the Connection.
 	 *
 	 * @param connectionFactoryHook the factory
 	 */
@@ -41,11 +41,12 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * This Method creates an ReceivingService.
-	 * Future: Decouple to factory
+	 * This method creates an {@link ReceivingService}.
 	 *
-	 * @param client the Client that holds the main parts
-	 * @return a ReceivingService, usable by a Connection
+	 * Future: Decouple to non-static-factory.
+	 *
+	 * @param client the {@link Client} that holds the main parts.
+	 * @return a {@link ReceivingService}, usable by a {@link Connection}.
 	 */
 	private ReceivingService getReceivingService(final Client client) {
 		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
@@ -56,11 +57,12 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * This Method creates an SendingService
-	 * Future: Decouple to factory
+	 * This Method creates an {@link SendingService}.
 	 *
-	 * @param client the Client that holds the main parts
-	 * @return a SendingService, usable by a Connection
+	 * Future: Decouple to a non-static-factory.
+	 *
+	 * @param client the {@link Client} that holds the main parts.
+	 * @return a {@link ReceivingService}, usable by a {@link Connection}.
 	 */
 	private SendingService getSendingService(final Client client) {
 		return new DefaultSendingService(client::getMainSerializationAdapter, client::getFallBackSerialization,
@@ -68,14 +70,14 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * This Method hooks an connection up, which basically means, this method creates Connections.
+	 * This method "hooks a connection up", which basically means, this method creates {@link Connection connections}.
 	 *
-	 * @param socket           the base Socket
-	 * @param session          the Session associated with this Connection
-	 * @param sendingService   the SendingService for this Connection
-	 * @param receivingService the ReceivingService for this Connection
-	 * @param key              the Key, identifying the Connection
-	 * @return a new Connection instance.
+	 * @param socket           the base {@link Socket}.
+	 * @param session          the {@link Session} associated with this {@link Connection}.
+	 * @param sendingService   the {@link SendingService} for this {@link Connection}.
+	 * @param receivingService the {@link ReceivingService} for this {@link Connection}.
+	 * @param key              the Key, identifying the {@link Connection}.
+	 * @return a new {@link Connection} instance.
 	 */
 	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
 	                                 final ReceivingService receivingService, final Class<?> key) {
@@ -88,27 +90,27 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * Creates a new Connection without any specific ConnectionKey
+	 * Creates a new {@link Connection} without any specific ConnectionKey.
 	 *
-	 * @param socket the base Socket
-	 * @param client the base Client
-	 * @return a new Connection instnace
+	 * @param socket the base {@link Socket}.
+	 * @param client the base {@link Client}.
+	 * @return a new {@link Connection} instance.
 	 */
 	public Connection create(final Socket socket, final Client client) {
 		return create(socket, client, DefaultConnection.class);
 	}
 
 	/**
-	 * Creates a new Connection, with a custom Identifier.
+	 * Creates a new {@link Connection}, with a custom identifier.
 	 * <p>
-	 * With this call, dependencies will be gathered, mostly from the Client provided.
+	 * With this call, dependencies will be gathered, mostly from the {@link Client} provided.
 	 * <p>
-	 * Future: Decouple to a factory
+	 * Future: Decouple to a non-static-factory
 	 *
-	 * @param socket the underlying Socket for the connection
-	 * @param client the client, embedded into the connection
-	 * @param key    the key of the Connection
-	 * @return a Connection
+	 * @param socket the underlying {@link Socket} for the {@link Connection}
+	 * @param client the {@link Client}, embedded into the {@link Connection}
+	 * @param key    the key of the {@link Connection}
+	 * @return a new {@link Connection} instance
 	 */
 	public Connection create(final Socket socket, final Client client, final Class key) {
 		NetCom2Utils.parameterNotNull(socket, client, key);
