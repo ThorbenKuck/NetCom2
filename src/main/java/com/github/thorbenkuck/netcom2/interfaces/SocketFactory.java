@@ -6,7 +6,10 @@ import java.net.Socket;
 /**
  * This Method is nearly the same as an {@link Socket}.
  * <p>
- * The different is, that it has 2 well defined parameters for the create Method.
+ * The difference is that it has 2 well defined parameters for the create Method.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface SocketFactory {

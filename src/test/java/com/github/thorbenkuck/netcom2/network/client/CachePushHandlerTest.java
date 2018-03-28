@@ -1,16 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.CachePush;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+@Testing(CachePushHandler.class)
 public class CachePushHandlerTest {
 	@Test
 	public void accept() throws Exception {
@@ -28,5 +27,6 @@ public class CachePushHandlerTest {
 		Mockito.verify(cache, atLeastOnce()).release();
 	}
 
-	private class TestObject {}
+	private static class TestObject {
+	}
 }

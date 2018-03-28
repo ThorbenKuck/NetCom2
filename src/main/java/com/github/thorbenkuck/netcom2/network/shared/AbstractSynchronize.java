@@ -1,10 +1,20 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * This Class helps with creating a {@link Synchronize} instance, based on an {@link CountDownLatch}
+ * <p>
+ * The only method, you would have to define is: {@link Synchronize#error()}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
 public abstract class AbstractSynchronize implements Synchronize {
 
 	protected final int numberOfActions;
@@ -23,6 +33,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		this.countDownLatch = new CountDownLatch(numberOfActions);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void synchronize() throws InterruptedException {
@@ -31,6 +44,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		logging.trace("Synchronized!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void goOn() {
@@ -41,6 +57,9 @@ public abstract class AbstractSynchronize implements Synchronize {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void reset() {

@@ -5,18 +5,32 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.interfaces.SendingService;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * The ConnectionFactory is meant for creating certain instances of the {@link Connection}.
+ * <p>
+ * This class is currently not the subject of abstraction, but it is planned to be, to allow you to create custom Connections.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @Synchronized
 public class ConnectionFactory {
 
 	private final static Lock connectionFactoryHookLock = new ReentrantLock();
-	private final Logging logging = Logging.unified();
 	private static ConnectionFactoryHook connectionFactoryHook = new UDPConnectionFactoryHook();
+	private final Logging logging = Logging.unified();
 
+	/**
+	 * Sets the {@link ConnectionFactoryHook}, which finally creates the Connection.
+	 *
+	 * @param connectionFactoryHook the factory
+	 */
 	public static void setConnectionFactoryHook(final ConnectionFactoryHook connectionFactoryHook) {
 		try {
 			connectionFactoryHookLock.lock();
@@ -27,33 +41,46 @@ public class ConnectionFactory {
 	}
 
 	/**
-	 * TODO Decouple to factory
+	 * This method creates an {@link ReceivingService}.
+	 * <p>
+	 * Future: Decouple to non-static-factory.
 	 *
-	 * @param client the Client that holds the main parts
-	 * @return a ReceivingService, usable by a Connection
+	 * @param client the {@link Client} that holds the main parts.
+	 * @return a {@link ReceivingService}, usable by a {@link Connection}.
 	 */
 	private ReceivingService getReceivingService(final Client client) {
 		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
-				client.getMainDeSerializationAdapter(), client.getFallBackDeSerialization(),
-				client.getDecryptionAdapter());
+				client::getMainDeSerializationAdapter, client::getFallBackDeSerialization, client::getDecryptionAdapter);
 		receivingService.onDisconnect(client::disconnect);
 		return receivingService;
 
 	}
 
 	/**
-	 * TODO Decouple to factory
+	 * This Method creates an {@link SendingService}.
+	 * <p>
+	 * Future: Decouple to a non-static-factory.
 	 *
-	 * @param client the Client that holds the main parts
-	 * @return a SendingService, usable by a Connection
+	 * @param client the {@link Client} that holds the main parts.
+	 * @return a {@link ReceivingService}, usable by a {@link Connection}.
 	 */
 	private SendingService getSendingService(final Client client) {
-		return new DefaultSendingService(client.getMainSerializationAdapter(), client.getFallBackSerialization(),
-				client.getEncryptionAdapter());
+		return new DefaultSendingService(client::getMainSerializationAdapter, client::getFallBackSerialization,
+				client::getEncryptionAdapter);
 	}
 
+	/**
+	 * This method "hooks a connection up", which basically means, this method creates {@link Connection connections}.
+	 *
+	 * @param socket           the base {@link Socket}.
+	 * @param session          the {@link Session} associated with this {@link Connection}.
+	 * @param sendingService   the {@link SendingService} for this {@link Connection}.
+	 * @param receivingService the {@link ReceivingService} for this {@link Connection}.
+	 * @param key              the Key, identifying the {@link Connection}.
+	 * @return a new {@link Connection} instance.
+	 */
 	private Connection getConnection(final Socket socket, final Session session, final SendingService sendingService,
-									 final ReceivingService receivingService, final Class<?> key) {
+	                                 final ReceivingService receivingService, final Class<?> key) {
 		try {
 			connectionFactoryHookLock.lock();
 			return connectionFactoryHook.hookup(socket, session, sendingService, receivingService, key);
@@ -62,19 +89,31 @@ public class ConnectionFactory {
 		}
 	}
 
+	/**
+	 * Creates a new {@link Connection} without any specific ConnectionKey.
+	 *
+	 * @param socket the base {@link Socket}.
+	 * @param client the base {@link Client}.
+	 * @return a new {@link Connection} instance.
+	 */
 	public Connection create(final Socket socket, final Client client) {
 		return create(socket, client, DefaultConnection.class);
 	}
 
 	/**
-	 * TODO Decouple to a factory
+	 * Creates a new {@link Connection}, with a custom identifier.
+	 * <p>
+	 * With this call, dependencies will be gathered, mostly from the {@link Client} provided.
+	 * <p>
+	 * Future: Decouple to a non-static-factory
 	 *
-	 * @param socket the underlying Socket for the connection
-	 * @param client the client, embedded into the connection
-	 * @param key    the key of the Connection
-	 * @return a Connection
+	 * @param socket the underlying {@link Socket} for the {@link Connection}
+	 * @param client the {@link Client}, embedded into the {@link Connection}
+	 * @param key    the key of the {@link Connection}
+	 * @return a new {@link Connection} instance
 	 */
 	public Connection create(final Socket socket, final Client client, final Class key) {
+		NetCom2Utils.parameterNotNull(socket, client, key);
 		logging.trace("Creating services..");
 		final ReceivingService receivingService = getReceivingService(client);
 		final SendingService sendingService = getSendingService(client);

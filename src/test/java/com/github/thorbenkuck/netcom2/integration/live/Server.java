@@ -6,12 +6,8 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
 public class Server {
 
-	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private ServerStart serverStart;
 
 	public Server() {

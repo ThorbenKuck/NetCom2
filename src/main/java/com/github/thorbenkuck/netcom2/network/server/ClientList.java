@@ -8,11 +8,20 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * The ClientList contains all connected Clients.
+ * <p>
+ * It is maintained within the ServerStart. Manually manipulating this instance is under no circumstance prohibited, but
+ * definitely not recommended. Manually removing or adding Clients might screw with some internal mechanisms.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Creates a new ClientList.
-	 *
+	 * <p>
 	 * The implementation is hidden by design.
 	 *
 	 * @return a new Instance of the ClientList.
@@ -42,7 +51,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Returns an Optional, containing the Client which relates to the provided {@link Session}.
-	 *
+	 * <p>
 	 * If no Client with the Session is found, the Optional is empty.
 	 *
 	 * @param session the Session, that identifies the Client
@@ -52,7 +61,7 @@ public interface ClientList extends Iterable<Client>, Mutex {
 
 	/**
 	 * Returns an Optional, containing the Client which relates to the provided {@link ClientID}.
-	 *
+	 * <p>
 	 * If no Client with the ClientID is found, the Optional is empty.
 	 *
 	 * @param id the ClientID, that identifies the Client
@@ -61,22 +70,22 @@ public interface ClientList extends Iterable<Client>, Mutex {
 	Optional<Client> getClient(final ClientID id);
 
 	/**
-	 * Returns an Stream over the Sessions of all Clients inside this ClientList
+	 * Returns a Stream over the Sessions of all Clients inside this ClientList
 	 *
-	 * @return an Stream over all Sessions.
+	 * @return a Stream over all Sessions.
 	 */
 	Stream<Session> sessionStream();
 
 	/**
-	 * Returns an Stream over the Clients inside this ClientList
+	 * Returns a Stream over the Clients inside this ClientList
 	 *
-	 * @return an Stream over all Clients.
+	 * @return a Stream over all Clients.
 	 */
 	Stream<Client> stream();
 
 	/**
 	 * Closes the ClientList.
-	 *
+	 * <p>
 	 * This method will also disconnect ALL Clients contained within it.
 	 */
 	void close();

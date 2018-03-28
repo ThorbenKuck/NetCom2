@@ -1,10 +1,10 @@
-package com.github.thorbenkuck.netcom2.integration.echo;
+package com.github.thorbenkuck.netcom2.integration.example.echo;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.network.client.Sender;
-import com.github.thorbenkuck.netcom2.network.client.ClientStart;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
+import com.github.thorbenkuck.netcom2.network.client.ClientStart;
+import com.github.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

@@ -1,11 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 @APILevel
+@Synchronized
 class HeartBeatConfig<T> {
 
 	private Predicate<T> runningPredicate;
@@ -15,60 +17,60 @@ class HeartBeatConfig<T> {
 	private TimeUnit timeUnit = TimeUnit.SECONDS;
 	private boolean changed;
 
-	public void setRunningPredicate(Predicate<T> predicate) {
+	void setRunningPredicate(Predicate<T> predicate) {
 		changed = true;
 		runningPredicate = predicate;
 	}
 
-	public void addActivePredicate(Predicate<T> predicate) {
+	void addActivePredicate(Predicate<T> predicate) {
 		changed = true;
 		activePredicates = predicate;
 	}
 
-	public Predicate<T> getActivePredicates() {
+	Predicate<T> getActivePredicates() {
 		return activePredicates;
 	}
 
-	public Predicate<T> getRunningPredicates() {
+	Predicate<T> getRunningPredicates() {
 		return runningPredicate;
 	}
 
-	public int getTimes() {
+	int getTimes() {
 		return times;
 	}
 
-	public void setTimes(int times) {
+	void setTimes(int times) {
 		changed = true;
 		this.times = times;
 	}
 
-	public long getDelay() {
+	long getDelay() {
 		return delay;
 	}
 
-	public void setDelay(long delay) {
+	void setDelay(long delay) {
 		changed = true;
 		this.delay = delay;
 	}
 
-	public TimeUnit getTimeUnit() {
+	TimeUnit getTimeUnit() {
 		return timeUnit;
 	}
 
-	public void setTimeUnit(TimeUnit timeUnit) {
+	void setTimeUnit(TimeUnit timeUnit) {
 		changed = true;
 		this.timeUnit = timeUnit;
 	}
 
-	public void unsetChanged() {
+	void unsetChanged() {
 		changed = false;
 	}
 
-	public boolean changed() {
+	boolean changed() {
 		return changed;
 	}
 
-	public void clear() {
+	void clear() {
 		runningPredicate = null;
 		activePredicates = null;
 		times = 1;

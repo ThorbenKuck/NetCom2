@@ -5,23 +5,47 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import java.io.Serializable;
 
 @APILevel
-public class UnRegisterRequest implements Serializable {
+public final class UnRegisterRequest implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private Class aClass;
+	private final Class aClass;
 
-	public UnRegisterRequest(Class aClass) {
+	public UnRegisterRequest(final Class aClass) {
 		this.aClass = aClass;
 	}
 
-	public Class getCorrespondingClass() {
+	public final Class getCorrespondingClass() {
 		return aClass;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "UnRegisterRequest{" +
 				"class at interest=" + aClass +
 				'}';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean equals(final Object o) {
+		if (this == o) return true;
+		if (!(o instanceof UnRegisterRequest)) return false;
+
+		UnRegisterRequest that = (UnRegisterRequest) o;
+
+		return aClass.equals(that.aClass);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final int hashCode() {
+		return aClass.hashCode();
 	}
 }

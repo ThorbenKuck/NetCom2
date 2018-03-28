@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.comm;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
@@ -16,32 +16,54 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
+/**
+ * This is the DefaultCommunicationRegistration.
+ * <p>
+ * It is used. Get used to it.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
-@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.comm.DefaultCommunicationRegistrationTest")
 class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	@APILevel
-	private final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
+	protected final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = new NetComLogging();
 	private final ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
-	private void requireNotNull(final Object... objects) {
-		NetCom2Utils.assertNotNull(objects);
-	}
-
+	/**
+	 * Check, whether or not, the class is assignable by the Objects class.
+	 * <p>
+	 * Throws an IllegalArgumentException if not.
+	 *
+	 * @param clazz the class
+	 * @param o     the Object
+	 * @throws IllegalArgumentException if the provided class is not assignable from the provided Objects class.
+	 */
 	private void sanityCheck(final Class<?> clazz, final Object o) {
-		if (! (o != null && clazz.equals(o.getClass()))) {
+		if (!(o != null && clazz.equals(o.getClass()))) {
 			throw new IllegalArgumentException("Possible internal error!\n" +
 					"Incompatible types at " + clazz + " and " + o + "\n" +
 					"If you called CommunicationRegistration yourself, please make sure, the Object matches to the provided Class");
 		}
 	}
 
+	/**
+	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
+	 *
+	 * @param clazz      the class of the received Object
+	 * @param connection the {@link Connection}, this Object was received over
+	 * @param session    the {@link Session} of the received Object
+	 * @param o          the received Object
+	 * @throws CommunicationNotSpecifiedException if no defaultCommunicationHandler is set.
+	 */
+	@Asynchronous
 	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
-									 final Object o)
-			throws CommunicationNotSpecifiedException {
+	                                 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
@@ -51,9 +73,21 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
-	@SuppressWarnings ("unchecked")
+	/**
+	 * Triggers an set {@link ReceivePipeline}.
+	 * <p>
+	 * If that {@link ReceivePipeline} is not existing, an ConcurrentModificationException will be thrown
+	 *
+	 * @param clazz      the class of the received Object
+	 * @param connection the {@link Connection}, this Object was received over
+	 * @param session    the {@link Session} of the received Object
+	 * @param o          the received Object
+	 * @param <T>        The type of that {@link ReceivePipeline}
+	 * @throws ConcurrentModificationException if the {@link ReceivePipeline} cannot be found
+	 */
+	@SuppressWarnings("unchecked")
 	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
-									 final Object o) {
+	                                 final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 		try {
@@ -73,6 +107,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Runs the defaultCommunicationHandlers.
+	 *
+	 * @param connection the {@link ReceivePipeline}, the Object was received over
+	 * @param session    the {@link Session}, associated with the {@link Connection}
+	 * @param o          the received Object
+	 */
 	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
@@ -87,8 +128,17 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 		}
 	}
 
+	/**
+	 * Handles an Object, that was received and is registered.
+	 *
+	 * @param pipeline   The {@link ReceivePipeline} registered for that Object
+	 * @param connection the {@link Connection}, the Object was received over
+	 * @param session    the {@link Session}, associated with the {@link Connection}
+	 * @param o          the received Object
+	 * @param <T>        the Type of that {@link ReceivePipeline}.
+	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
-									  final Session session, final T o) {
+	                                  final Session session, final T o) {
 		try {
 			pipeline.acquire();
 			pipeline.run(connection, session, o);
@@ -101,10 +151,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		mapping.computeIfAbsent(clazz, k -> {
 			logging.trace("Creating ReceivingPipeline for " + clazz);
 			return new QueuedReceivePipeline<>(clazz);
@@ -115,10 +168,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
 	public void unRegister(final Class clazz) {
-		if (! isRegistered(clazz)) {
+		NetCom2Utils.parameterNotNull(clazz);
+		if (!isRegistered(clazz)) {
 			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
 			return;
 		}
@@ -129,45 +185,44 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
 	public boolean isRegistered(final Class clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		return mapping.get(clazz) != null;
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
-	public <T> void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+	public void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+		NetCom2Utils.parameterNotNull(object);
 		trigger(object.getClass(), connection, session, object);
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided Class, Connection, Session or Object is null
 	 */
 	@Asynchronous
 	@Override
 	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		requireNotNull(clazz, connection, session, o);
+		NetCom2Utils.parameterNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
 		sanityCheck(clazz, o);
-		if (! isRegistered(clazz)) {
+		if (!isRegistered(clazz)) {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			// this should not be an lambda
-			// On the use of an lambda, this line does not work any more.
-			// The cause for this is unknown
-			// TODO test for lambda expression
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					triggerExisting(clazz, connection, session, o);
-				}
-			});
+			threadPool.execute(() -> triggerExisting(clazz, connection, session, o));
 		}
 	}
 
@@ -189,11 +244,13 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided defaultCommunicationHandler is null
 	 */
 	@Override
 	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
-		requireNotNull(defaultCommunicationHandler);
+		NetCom2Utils.parameterNotNull(defaultCommunicationHandler);
 		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
 	}
 
@@ -234,17 +291,21 @@ class DefaultCommunicationRegistration implements CommunicationRegistration {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided communicationRegistration is null
 	 */
 	@Override
 	public void updateBy(final CommunicationRegistration communicationRegistration) {
+		NetCom2Utils.parameterNotNull(communicationRegistration);
 		try {
 			communicationRegistration.acquire();
 			mapping.clear();
 			defaultCommunicationHandlers.clear();
 
 			mapping.putAll(communicationRegistration.map());
+			defaultCommunicationHandlers.addAll(communicationRegistration.listDefaultsCommunicationRegistration());
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			communicationRegistration.release();
 		}

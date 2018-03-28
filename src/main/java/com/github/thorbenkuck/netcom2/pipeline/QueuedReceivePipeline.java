@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -8,6 +10,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,6 +18,17 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+
+/**
+ * A queued ReceivePipeline implementation.
+ *
+ * @param <T> The type
+ * @version 1.0
+ * @since 1.0
+ */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.EmptyReceivePipelineConditionTest")
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipelineTest")
 
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
@@ -28,10 +42,25 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private boolean sealed = false;
 	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
 
+	/**
+	 * Create a queued ReceivePipeline for the specified class
+	 *
+	 * @param clazz The class
+	 */
 	public QueuedReceivePipeline(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		this.clazz = clazz;
 	}
 
+	/**
+	 * Tries to put the specified connection, session and S into the specified pipeline receiver.
+	 *
+	 * @param receiver   The PipelineReceiver
+	 * @param connection The connection
+	 * @param session    The session
+	 * @param s          The S
+	 * @param <S>        The type
+	 */
 	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
 		if (onReceiveTriple == null) {
@@ -51,12 +80,22 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	/**
+	 * Add a fail to the specified CanBeRegistered
+	 *
+	 * @param canBeRegistered The CanBeRegistered
+	 */
 	private void falseAdd(final CanBeRegistered canBeRegistered) {
 		canBeRegistered.onAddFailed();
 	}
 
+	/**
+	 * Execute the specified runnable (on the current thread) if the pipeline is open.
+	 *
+	 * @param runnable The runnable to execute
+	 */
 	private void ifOpen(final Runnable runnable) {
-		if (! closed) {
+		if (!closed) {
 			runnable.run();
 		}
 	}
@@ -66,6 +105,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceive<T> onReceive) {
+		NetCom2Utils.parameterNotNull(onReceive);
 		return addLast(new OnReceiveWrapper<>(onReceive));
 	}
 
@@ -74,6 +114,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceiveSingle<T> onReceiveSingle) {
+		NetCom2Utils.parameterNotNull(onReceiveSingle);
 		return addLast(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
@@ -82,6 +123,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLast(final OnReceiveTriple<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
 		ifClosed(() -> falseAdd(pipelineService));
 		ifOpen(() -> {
@@ -99,6 +141,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceive<T> onReceive) {
+		NetCom2Utils.parameterNotNull(onReceive);
 		return addFirst(new OnReceiveWrapper<>(onReceive));
 	}
 
@@ -107,6 +150,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceiveSingle<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		return addFirst(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
@@ -115,6 +159,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirst(final OnReceiveTriple<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		final PipelineReceiver<T> pipelineReceiver = new PipelineReceiver<>(pipelineService);
 
 		if (isClosed()) {
@@ -138,6 +183,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceive<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		return addFirstIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
@@ -146,6 +192,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveSingle<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		return addFirstIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
@@ -154,7 +201,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addFirstIfNotContained(final OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		if (!contains(pipelineService)) {
 			return addFirst(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -165,6 +213,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceive<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		return addLastIfNotContained(new OnReceiveWrapper<>(pipelineService));
 	}
 
@@ -173,6 +222,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveSingle<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		return addLastIfNotContained(new OnReceiveSingleWrapper<>(pipelineService));
 	}
 
@@ -181,7 +231,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService) {
-		if (! contains(pipelineService)) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		if (!contains(pipelineService)) {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
@@ -192,6 +243,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public ReceivePipelineCondition<T> to(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		requiresOpen();
 		requiredNotSealed();
 		try {
@@ -210,6 +262,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
+		NetCom2Utils.parameterNotNull(onReceiveTriple);
 		return core.contains(new PipelineReceiver<>(onReceiveTriple));
 	}
 
@@ -218,6 +271,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public boolean contains(final OnReceive<T> onReceive) {
+		NetCom2Utils.parameterNotNull(onReceive);
 		return contains(new OnReceiveWrapper<>(onReceive));
 	}
 
@@ -226,6 +280,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public boolean contains(final OnReceiveSingle<T> onReceiveSingle) {
+		NetCom2Utils.parameterNotNull(onReceiveSingle);
 		return contains(new OnReceiveSingleWrapper<>(onReceiveSingle));
 	}
 
@@ -258,6 +313,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void ifClosed(final Consumer<ReceivePipeline<T>> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		ifClosed(() -> consumer.accept(this));
 	}
 
@@ -266,6 +322,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void ifClosed(final Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		if (closed) {
 			runnable.run();
 		}
@@ -276,6 +333,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy) {
+		NetCom2Utils.parameterNotNull(receivePipelineHandlerPolicy);
 		try {
 			policyLock.lock();
 			this.receivePipelineHandlerPolicy = receivePipelineHandlerPolicy;
@@ -289,6 +347,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void remove(final OnReceive<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
 		synchronized (core) {
 			core.remove(new PipelineReceiver<>(new OnReceiveWrapper<>(pipelineService)));
 			pipelineService.onUnRegistration();
@@ -311,9 +370,10 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run(final Connection connection, final Session session, final T t) {
+		NetCom2Utils.parameterNotNull(connection, session, t);
 		try {
 			synchronized (core) {
 				core.stream()
@@ -388,21 +448,16 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof QueuedReceivePipeline)) return false;
+		if (!(o instanceof QueuedReceivePipeline)) return false;
 
 		final QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
 		try {
 			that.acquire();
 
-			if (closed != that.closed) return false;
-			if (sealed != that.sealed) return false;
-			if (! core.equals(that.core)) return false;
-			if (! logging.equals(that.logging)) return false;
-			if (! policyLock.equals(that.policyLock)) return false;
-			if (! clazz.equals(that.clazz)) return false;
-			if (! receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper))
-				return false;
-			return receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+			return closed == that.closed && sealed == that.sealed && core.equals(that.core)
+					&& logging.equals(that.logging) && policyLock.equals(that.policyLock)
+					&& clazz.equals(that.clazz) && receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper)
+					&& receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
 		} catch (final InterruptedException e) {
 			logging.catching(e);
 			return false;
@@ -418,7 +473,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public String toString() {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
-				", open=" + ! closed +
+				", open=" + !closed +
 				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
 				", core=" + core +
 				'}';
@@ -440,12 +495,22 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		semaphore.release();
 	}
 
+	/**
+	 * Throws PipelineAccessException if pipeline is closed.
+	 *
+	 * @throws PipelineAccessException if the pipeline is closed
+	 */
 	protected void requiresOpen() {
 		if (closed) {
 			throw new PipelineAccessException("ReceivePipeline Closed!");
 		}
 	}
 
+	/**
+	 * Throws PipelineAccessException if pipeline is sealed.
+	 *
+	 * @throws PipelineAccessException if the pipeline is sealed
+	 */
 	protected void requiredNotSealed() {
 		if (sealed) {
 			throw new PipelineAccessException("ReceivePipeline is sealed!");

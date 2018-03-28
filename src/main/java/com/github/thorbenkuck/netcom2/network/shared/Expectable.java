@@ -1,5 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+/**
+ * Listens for the Receiving of a specific Object.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @FunctionalInterface
 public interface Expectable {
 

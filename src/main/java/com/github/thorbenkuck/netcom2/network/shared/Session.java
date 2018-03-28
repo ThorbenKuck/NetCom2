@@ -1,16 +1,16 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.keller.pipe.Pipeline;
 
 import java.io.Serializable;
 import java.util.Properties;
 
 /**
- * This interface describes an Session of any Network-Object.
+ * This interface describes a Session of any Network-Object.
  * <p>
  * On the {@link ClientStart} side, this object is maintained, as
  * long, as the ClientStart stays connected to the Server.
@@ -24,6 +24,13 @@ import java.util.Properties;
  * Client-Server-Communication or Connection establishment.
  * <p>
  * Otherwise you can feel free to create an custom Session.
+ *
+ * @version 1.0
+ * @see Client
+ * @see com.github.thorbenkuck.netcom2.network.shared.clients.Connection
+ * @see com.github.thorbenkuck.netcom2.network.shared.comm.ReceiveFamily
+ * @see com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration
+ * @since 1.0
  */
 public interface Session extends Mutex, Serializable {
 
@@ -142,6 +149,9 @@ public interface Session extends Mutex, Serializable {
 	 * <p>
 	 * It searches for an corresponding Pipeline and if present runs it.
 	 * If it cannot find an Pipeline a.e. no Event has been registered, an {@link IllegalArgumentException} is thrown.
+	 * <p>
+	 * The class is required, because of Javas type-erasure. Because <code>t.getClass()</code>, does not return an Class
+	 * of the Type of the Object, but of ? extends Object.
 	 *
 	 * @param clazz the Identifier Class for this event
 	 * @param t     an Object instance of the Class
