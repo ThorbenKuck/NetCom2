@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import java.net.Socket;
 
 /**
- * This ConnectionFactoryHook creates an TCPConnection
+ * This ConnectionFactoryHook creates a TCPConnection
  *
  * @version 1.0
  * @since 1.0
