@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class DefaultClientHandlerTest {
 		when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
 		when(socket.getInputStream()).thenReturn(mock(InputStream.class));
 		when(list.isOpen()).thenReturn(true);
-		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration);
+		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration, ConnectionFactory::udp);
 
 		// Act
 		Client client = handler.create(socket);
@@ -47,7 +48,7 @@ public class DefaultClientHandlerTest {
 		CommunicationRegistration communicationRegistration = mock(CommunicationRegistration.class);
 		DistributorRegistration distributorRegistration = mock(DistributorRegistration.class);
 		when(list.isOpen()).thenReturn(true);
-		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration);
+		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration, ConnectionFactory::udp);
 
 		// Act
 		handler.create(null);
@@ -65,7 +66,7 @@ public class DefaultClientHandlerTest {
 		Client client = mock(Client.class);
 		when(list.isOpen()).thenReturn(true);
 		when(client.primed()).thenReturn(Synchronize.empty());
-		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration);
+		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration, ConnectionFactory::udp);
 		handler.connection = mock(Connection.class);
 
 		// Act
@@ -83,7 +84,7 @@ public class DefaultClientHandlerTest {
 		CommunicationRegistration communicationRegistration = mock(CommunicationRegistration.class);
 		DistributorRegistration distributorRegistration = mock(DistributorRegistration.class);
 		when(list.isOpen()).thenReturn(true);
-		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration);
+		DefaultClientHandler handler = new DefaultClientHandler(list, communicationRegistration, distributorRegistration, ConnectionFactory::udp);
 
 		// Act
 		handler.handle(null);

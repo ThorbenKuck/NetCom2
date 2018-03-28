@@ -11,10 +11,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
-import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.clients.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -57,6 +54,9 @@ class ClientStartImpl implements ClientStart {
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
+
+	@APILevel
+	private ConnectionFactory connectionFactory = ConnectionFactory.udp();
 	@APILevel
 	private AtomicBoolean launched = new AtomicBoolean(false);
 
@@ -83,13 +83,22 @@ class ClientStartImpl implements ClientStart {
 		logging.trace("Creating Client ..");
 		client = Client.create(communicationRegistration);
 		logging.trace("Creating Client-Connector ..");
-		clientConnector = new ClientConnector(address, port, client);
+		clientConnector = new ClientConnector(this::getConnectionFactory, address, port, client);
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());
 		logging.trace("Creating Sender ..");
 		sender = InternalSender.create(client);
 		client.addDisconnectedHandler(new DefaultClientDisconnectedHandler(this));
 		remoteObjectFactoryImpl = new RemoteObjectFactoryImpl(sender);
+	}
+
+	/**
+	 * Returns the current instant of the ConnectionFactory
+	 *
+	 * @return the current ConnectionFactory
+	 */
+	private ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
 	}
 
 	/**
@@ -374,6 +383,19 @@ class ClientStartImpl implements ClientStart {
 			remoteObjectFactoryImpl.setInvocationHandlerProducer(invocationHandlerProducer);
 		} catch (InterruptedException e) {
 			logging.catching(e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the connectionFactory is null
+	 */
+	@Override
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		NetCom2Utils.parameterNotNull(connectionFactory);
+		synchronized (this) {
+			this.connectionFactory = connectionFactory;
 		}
 	}
 

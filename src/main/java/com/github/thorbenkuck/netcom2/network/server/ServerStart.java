@@ -3,13 +3,10 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
-import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
-import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
-import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.interfaces.NetworkInterface;
 
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -19,10 +16,11 @@ import java.util.concurrent.ExecutorService;
  * <p>
  * As most other components, this interface has an implementation, that is hidden for different Reasons.
  *
- * @version 1.0
+ * @version 1.1
+ * @see com.github.thorbenkuck.netcom2.network.client.ClientStart
  * @since 1.0
  */
-public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleConnections {
+public interface ServerStart extends SoftStoppable, MultipleConnections, NetworkInterface {
 
 	/**
 	 * Creates a new ServerStart at the provided port.
@@ -121,17 +119,6 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	Distributor distribute();
 
 	/**
-	 * Returns a {@link Cache} instance, to set and save specific elements.
-	 * <p>
-	 * This cache is connected to the Distributor, so that updating and setting objects results in an Distribution to all
-	 * Clients that want to be notified about new or updated instances.
-	 *
-	 * @return an internally maintained instance of the Cache
-	 * @see Cache
-	 */
-	Cache cache();
-
-	/**
 	 * Shuts down the Server and disconnects all connected Clients
 	 *
 	 * @see #softStop()
@@ -160,21 +147,6 @@ public interface ServerStart extends Launch, SoftStoppable, Loggable, MultipleCo
 	 * @return the ClientList
 	 */
 	ClientList clientList();
-
-	/**
-	 * Returns the CommunicationRegistration for this ServerStart.
-	 * <p>
-	 * The internal CommunicationRegistration is unified across al Clients and Connections. If you change this after the
-	 * {@link #launch()} call, it is still updated within all Connections.
-	 * <p>
-	 * This means, if you clear this CommunicationRegistration, it is cleared for all Clients.
-	 * <p>
-	 * Also, if you {@link CommunicationRegistration#acquire()} and never {@link CommunicationRegistration#release()}, no
-	 * Object will be handled by the CommunicationRegistration.
-	 *
-	 * @return a unified instance of the {@link CommunicationRegistration}
-	 */
-	CommunicationRegistration getCommunicationRegistration();
 
 	/**
 	 * Sets the ExecutorService, to be used internally

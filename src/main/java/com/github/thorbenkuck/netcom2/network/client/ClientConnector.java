@@ -13,6 +13,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.function.Supplier;
 
 /**
  * This class creates a DefaultConnection, based on the provided SocketFactory.
@@ -33,14 +34,15 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 
 	private final Logging logging = Logging.unified();
 	@APILevel
-	private final ConnectionFactory connectionFactory = new ConnectionFactory();
+	private final Supplier<ConnectionFactory> connectionFactory;
 	private final Client client;
 	@APILevel
 	private final String address;
 	@APILevel
 	private final int port;
 
-	ClientConnector(@APILevel final String address, @APILevel final int port, final Client client) {
+	ClientConnector(final Supplier<ConnectionFactory> connectionFactory, @APILevel final String address, @APILevel final int port, final Client client) {
+		this.connectionFactory = connectionFactory;
 		NetCom2Utils.assertNotNull(address, port, client);
 		this.address = address;
 		this.port = port;
@@ -64,7 +66,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 			throw new IOException("Socket creation failed");
 		}
 		logging.trace("Creating Connection ..");
-		final Connection connection = connectionFactory.create(socket, client);
+		final Connection connection = connectionFactory.get().create(socket, client);
 		logging.trace("Starting to listen on new Connection ..");
 		try {
 			logging.trace("Awaiting Synchronization of new Connection ..");
@@ -90,7 +92,7 @@ class ClientConnector implements Connector<SocketFactory, Connection> {
 		final String prefix = "[Connection@" + key + "]: ";
 		logging.debug(prefix + "Trying to establish connection to " + address + ":" + port + " with key: " + key);
 		logging.trace(prefix + "Creating Connection ..");
-		final Connection connection = connectionFactory.create(factory.create(port, address), client, key);
+		final Connection connection = connectionFactory.get().create(factory.create(port, address), client, key);
 		logging.trace(prefix + "Starting to listen on new Connection ..");
 		try {
 			logging.trace(prefix + "Awaiting Synchronization of new Connection");

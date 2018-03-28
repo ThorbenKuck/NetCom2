@@ -13,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -63,6 +64,7 @@ class ServerStartImpl implements ServerStart {
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
+	private ConnectionFactory connectionFactory = ConnectionFactory.udp();
 	private Logging logging = Logging.unified();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
@@ -73,9 +75,24 @@ class ServerStartImpl implements ServerStart {
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
 		addClientConnectedHandler(
-				new DefaultClientHandler(clientList, communicationRegistration, registration));
+				new DefaultClientHandler(clientList, communicationRegistration, registration, this::getConnectionFactory));
 		logging.trace("Setting DefaultServerSocketFactory ..");
 		setServerSocketFactory(new DefaultServerSocketFactory());
+	}
+
+	private ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		NetCom2Utils.parameterNotNull(connectionFactory);
+		synchronized (this) {
+			this.connectionFactory = connectionFactory;
+		}
 	}
 
 	/**

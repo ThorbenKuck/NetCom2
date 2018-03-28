@@ -5,10 +5,10 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactoryHook;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import org.junit.Ignore;
 
+@Ignore
 public class TCPServerTest {
 
 	public TCPServerTest() {
@@ -25,7 +25,6 @@ public class TCPServerTest {
 	}
 
 	public static void main(String[] args) {
-		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
 		NetComLogging.setLogging(Logging.trace());
 		new TCPServerTest();
 	}

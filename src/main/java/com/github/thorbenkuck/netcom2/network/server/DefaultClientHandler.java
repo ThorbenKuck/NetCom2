@@ -18,6 +18,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.function.Supplier;
 
 /**
  * This class is the default ClientHandler for the ServerStart.
@@ -36,16 +37,17 @@ class DefaultClientHandler implements ClientConnectedHandler {
 	private final ClientList clientList;
 	private final CommunicationRegistration communicationRegistration;
 	private final DistributorRegistration distributorRegistration;
-	private final ConnectionFactory connectionFactory = new ConnectionFactory();
+	private final Supplier<ConnectionFactory> connectionFactorySupplier;
 	protected Connection connection;
 	private Logging logging = Logging.unified();
 
 	@APILevel
 	DefaultClientHandler(final ClientList clientList, final CommunicationRegistration communicationRegistration,
-	                     final DistributorRegistration distributorRegistration) {
+	                     final DistributorRegistration distributorRegistration, final Supplier<ConnectionFactory> supplier) {
 		this.clientList = clientList;
 		this.communicationRegistration = communicationRegistration;
 		this.distributorRegistration = distributorRegistration;
+		this.connectionFactorySupplier = supplier;
 	}
 
 	/**
@@ -97,7 +99,7 @@ class DefaultClientHandler implements ClientConnectedHandler {
 		final ClientID id = ClientID.create();
 		logging.trace("Setting new id to Client ..");
 		client.setID(id);
-		final Connection connection = connectionFactory.create(socket, client);
+		final Connection connection = connectionFactorySupplier.get().create(socket, client);
 		logging.trace(toString() + " created Client(" + connection.getFormattedAddress() + ") ..");
 		try {
 			logging.trace("Awaiting listening finalization of connection..");
