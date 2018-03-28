@@ -15,34 +15,34 @@ import java.net.Socket;
 public interface ConnectionFactoryHook {
 
 	/**
-	 * Creates a new UDP connection.
+	 * Creates a new UDP {@link Connection}.
 	 *
-	 * @return a new UDPConnectionFactory that creates UDP Connections
+	 * @return a new UDPConnectionFactory that creates UDP {@link Connection}
 	 */
 	static ConnectionFactoryHook upd() {
 		return new UDPConnectionFactoryHook();
 	}
 
 	/**
-	 * Creates a new TCP connection.
+	 * Creates a new TCP {@link Connection}.
 	 *
-	 * @return a new TCPConnectionFactory that creates TCP Connections
+	 * @return a new TCPConnectionFactory that creates TCP {@link Connection}
 	 */
 	static ConnectionFactoryHook tcp() {
 		return new TCPConnectionFactoryHook();
 	}
 
 	/**
-	 * With the call of this Method, the Connection is created.
+	 * With the call of this Method, the {@link Connection} is created.
 	 * <p>
-	 * Note: This method will only create, not setup nor start the Connection.
+	 * Note: This method will only create, not setup nor start the {@link Connection}.
 	 *
-	 * @param socket           the base Socket
-	 * @param session          the Session associated with this Connection
-	 * @param sendingService   the SendingService for this Connection
-	 * @param receivingService the ReceivingService for this Connection
-	 * @param key              the Key, identifying the Connection
-	 * @return a new Connection instance.
+	 * @param socket           the base {@link Socket} to be used in this {@link Connection}
+	 * @param session          the {@link Session} associated with this {@link Connection}
+	 * @param sendingService   the {@link SendingService} for this {@link Connection}
+	 * @param receivingService the {@link ReceivingService} for this {@link Connection}
+	 * @param key              the Key, identifying the {@link Connection}
+	 * @return a new {@link Connection} instance.
 	 */
 	Connection hookup(final Socket socket, final Session session, final SendingService sendingService,
 	                  final ReceivingService receivingService, final Class<?> key);
