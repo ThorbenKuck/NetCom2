@@ -35,11 +35,11 @@ public interface SessionUpdater {
 	SessionUpdater updateIdentifier(final String identifier);
 
 	/**
-	 * Sends the new Session over the network.
+	 * Sends the new {@link Session} over the network.
 	 * <p>
-	 * Calling this Method is not necessary! You might as well just use the other Methods.
+	 * Calling this method is not necessary! You might as well just use the other methods.
 	 * <p>
-	 * Note: Calling this Method at the ClientStart-side will have no effect at all. The Server will simply ignore the
+	 * Note: Calling this method at the ClientStart-side will have no effect at all. The Server will simply ignore the
 	 * incoming SessionUpdate
 	 */
 	void sendOverNetwork();

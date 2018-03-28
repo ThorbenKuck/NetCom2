@@ -110,6 +110,8 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the identifier is null
 	 */
 	@Override
 	public void setIdentifier(final String identifier) {
@@ -127,6 +129,8 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the properties is null
 	 */
 	@Override
 	public void setProperties(final Properties properties) {
@@ -136,6 +140,8 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the object is null
 	 */
 	@Override
 	public void send(final Object o) {
@@ -145,7 +151,10 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
-	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
+	 *
+	 * The SuppressWarnings tag is used because of the type erasure of the generic type T. We ensure this at runtime.
+	 *
+	 * @throws IllegalArgumentException if the class is null
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -160,7 +169,10 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
+	 *
+	 * @throws IllegalArgumentException if the class or the object is null
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -176,6 +188,8 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the HeartBeat is null
 	 */
 	@Override
 	public void addHeartBeat(final HeartBeat<Session> heartBeat) {
@@ -186,6 +200,8 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the HeartBeat is null
 	 */
 	@Override
 	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {

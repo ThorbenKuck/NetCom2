@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 /**
- * Latches for the Receiving of an specific Object
+ * Listens for the Receiving of a specific Object.
  *
  * @version 1.0
  * @since 1.0
