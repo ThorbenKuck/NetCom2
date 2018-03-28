@@ -1,16 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.interfaces.Loggable;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.interfaces.Launch;
+import com.github.thorbenkuck.netcom2.network.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 /*
 &lt; for < and &gt; for > .
@@ -56,11 +54,11 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistrat
  * If however, the ServerStart is not yet launched, the ClientStart.launch method will fail and throw
  * an StartFailedException.
  *
- * @version 1.0
+ * @version 1.1
  * @see com.github.thorbenkuck.netcom2.network.server.ServerStart
  * @since 1.0
  */
-public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
+public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 
 	/**
 	 * Creates a new ClientStart.
@@ -75,17 +73,6 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	static ClientStart at(final String address, final int port) {
 		return new ClientStartImpl(address, port);
 	}
-
-	/**
-	 * Provides the internal cache of the ClientStart.
-	 * <p>
-	 * The Cache is used, to hold registered Objects and may be updated manually.
-	 * Also, you may add manual observers.
-	 *
-	 * @return an instance of the Cache
-	 * @see Sender
-	 */
-	Cache cache();
 
 	/**
 	 * This Method-Call will create a new Connection, identified by the provided <code>key</code>.
@@ -183,22 +170,6 @@ public interface ClientStart extends Launch, Loggable, RemoteObjectAccess {
 	 * @see EncryptionAdapter
 	 */
 	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
-
-	/**
-	 * Returns the internally maintained {@link CommunicationRegistration}.
-	 * <p>
-	 * This CommunicationRegistration will never be null. It cannot change the instance ever.
-	 * <p>
-	 * This means, it is not necessary to maintain any CommunicationRegistration instance anywhere else. You may change
-	 * the CommunicationRegistration of course based on the methods provided by the interface, since the CommunicationRegistration
-	 * is not immutable.
-	 * <p>
-	 * In fact, this method is the main point for defining communication protocols.
-	 *
-	 * @return the internally maintained CommunicationRegistration.
-	 * @see CommunicationRegistration
-	 */
-	CommunicationRegistration getCommunicationRegistration();
 
 	/**
 	 * This Method is a shortcut for: {@link Cache#reset()}
