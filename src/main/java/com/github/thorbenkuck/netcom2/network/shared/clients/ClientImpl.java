@@ -457,33 +457,11 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @deprecated since more than one adapter is allowed, this method is wrongly named
-	 */
-	@Override
-	@Deprecated
-	public void setFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
-		addFallBackSerializationAdapter(fallBackSerializationAdapter);
-	}
-
-	/**
-	 * {@inheritDoc}
 	 */
 	@Override
 	public void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
 		NetCom2Utils.parameterNotNull(fallBackDeSerializationAdapter);
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @deprecated since more than one adapter is allowed, this method is wrongly named
-	 */
-	@Override
-	@Deprecated
-	public void setFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
-		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
 	/**

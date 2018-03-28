@@ -369,28 +369,11 @@ public interface Client extends Mutex {
 	void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
 
 	/**
-	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
-	 * @see #addFallBackSerializationAdapter(List)
-	 * @deprecated use {@link #addFallBackSerializationAdapter(List)}
-	 */
-	@Deprecated
-	void setFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
-
-	/**
 	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
 	 *
 	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
 	 */
 	void addFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
-
-	/**
-	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
-	 * @see #addFallBackDeSerializationAdapter(List)
-	 * @deprecated use {@link #addFallBackDeSerializationAdapter(List)}
-	 */
-	@Deprecated
-	void setFallBackDeSerializationAdapter(
 			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
 
 	/**
