@@ -5,10 +5,10 @@ import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactoryHook;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import org.junit.Ignore;
 
+@Ignore
 public class TCPClientTest {
 
 	public TCPClientTest() {
@@ -37,7 +37,6 @@ public class TCPClientTest {
 	}
 
 	public static void main(String[] args) {
-		ConnectionFactory.setConnectionFactoryHook(ConnectionFactoryHook.tcp());
 		NetComLogging.setLogging(Logging.trace());
 		new TCPClientTest();
 	}
