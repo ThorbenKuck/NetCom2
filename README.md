@@ -1,6 +1,6 @@
 # NetCom2
 
-NetCom2 is a framework, highly modular designed to function as a universal and asynchronous Client-Server-Communication-Interface.
+NetCom2 is a highly modular framework designed to function as a universal and asynchronous Client-Server-Communication-Interface.
 It is designed to function as an over-network EventBus.
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
@@ -8,34 +8,9 @@ It is designed to function as an over-network EventBus.
 [![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/NetCom2/badge.svg)](https://snyk.io/test/github/thorbenkuck/NetCom2) 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
 
-## Near future releases:
-
-__Version 1.0 will be released on the 30th of march.__
-
-Once Version 1.0 is released, it will be published on [Twitter](https://twitter.com/ThorbenKu) and potentially on [Google+](https://plus.google.com/u/0/+ThorbenKuck).
-
-Preparations are mildly needed. Since all Versions 0.x are beta-versions, you will need to look close, whether or not, you import the correct class/interface. No other major-breaks, apart from logical package-relocations, have been introduced. All interfaces are still the same, some have just changed their location.
-
-**All methods, annotated with <code>@Deprecated</code> have been removed! No Exceptions!**
-
-Apart from relocations, this Version fixes some bugs, that no one had discovered yet.
-
-The APIs had been worked out and tested in 450 Tests.
-
-#### What comes next?
-
-First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
-
-Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
-Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
-If you are having any other trouble with NetCom2, please also turn to StackOverflow.
-          
-----
-
 ## About this framework
 
-This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Tho easy to use, you can acomplish many thing using this.
+This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
 
 #### The target source is java 1.8.    
 #### The current version is compatible with java 1.9 (ONLY TESTED ROUGHLY!)
@@ -59,7 +34,17 @@ int port = ...
 ServerStart serverStart = ServerStart.at(port);
 ```
 
-The Framework-Versions are to be red like this:
+## For whom this is
+
+If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have a decoupled, yet easy to read over network communication.
+
+But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-built cache and registration-mechanism, that makes it easier to send objects to specific clients who want those objects. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket that is being used.
+
+----
+
+## Versions
+
+The Framework-Versions are to be read like this:
 
 A.B.C.D
 
@@ -68,7 +53,7 @@ B is a non-breaking for normal use, potentially breaking for custom Instances, m
 C is a non-breaking, minor release (bug-fix)    
 D is a non-breaking, security release    
 
-Also there is a NIGHTLY branch, for the inpatient.
+Also there is a NIGHTLY branch, for the impatient.
 
 ### Current State
 
@@ -80,49 +65,33 @@ Also there is a NIGHTLY branch, for the inpatient.
  * Highly modular, yet easy to use.
  * Designed with functional programming in mind.
  * Decoupled logging API (<code>NetComLogging</code>).
-
-#### Current Development
-
-__We are currently looking for a good, free and reliable board for new Feature suggestions__
-
-Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
-Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
-
-## For whom this is
-
-If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have an decoupled, yet easy to read over network communication.
-
-But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-build cache and registration-mechanism, that makes it easier to send Object to specific clients, that want those object. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket, that is being used.
-
-----
+ 
+ ### Installation
+ 
+ Include this in your pom.xml (if you are using Maven)
+ 
+ ```
+ <dependency>
+   <groupId>com.github.thorbenkuck</groupId>
+   <artifactId>NetCom2</artifactId>
+   <version>1.0</version>
+ </dependency>
+ ```
+ 
+ Or this in your build.gradle (if you are using Gradle)
+ 
+ ```
+ dependencies {
+     compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0'
+ }
+ ```
 
 ## Getting started
 
-If you are german, you might be interested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
-If you cannot understand german, there is also a YouTube Tutorial-series in [english](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
+If you are German, you might be interested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
+If you cannot understand German, there is also a YouTube Tutorial-series in [English](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
 
-### Installation
-
-Include this in your pom.xml (if you are using Maven)
-
-```
-<dependency>
-  <groupId>com.github.thorbenkuck</groupId>
-  <artifactId>NetCom2</artifactId>
-  <version>1.0</version>
-</dependency>
-```
-
-Or this in you build.gradle (if you are using Gradle)
-
-```
-dependencies {
-    compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0'
-}
-```
-
-### Starting to code
+### Mini tutorial
 
 Getting started is easy. You should have basic knowledge about how a Client-Server-Architecture works. For that example, let's assume you have 3 Project: Client, Server and Shared, while Client and Server depend on Shared.
 
@@ -219,3 +188,22 @@ Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more infor
 If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
 
 ----
+#### Current Development
+
+__We are currently looking for a good, free and reliable board for new Feature suggestions__
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
+
+#### What comes next?
+
+First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
+If you are having any other trouble with NetCom2, please also turn to StackOverflow.
+          
+----
+
