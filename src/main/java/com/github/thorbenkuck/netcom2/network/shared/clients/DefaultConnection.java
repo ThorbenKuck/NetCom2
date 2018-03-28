@@ -12,7 +12,12 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
  */
 @Synchronized
 public final class DefaultConnection {
+
 	private DefaultConnection() {
+		illegalAccess();
+	}
+
+	private static void illegalAccess() {
 		throw new IllegalStateException("Cannot instantiated");
 	}
 }
