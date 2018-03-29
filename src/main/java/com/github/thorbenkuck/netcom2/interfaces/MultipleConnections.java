@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * To successfully use this method, the sessions have to be kept and controlled by the inherited Class. The {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}
  * is such a Class.
  * <p>
- * You may create a new Connection by stating the following:
+ * You may access a new Connection by stating the following:
  * <p>
  * <pre>{@code
  * ServerStart serverStart = ...
@@ -18,7 +18,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * serverStart.createNewConnection(session, connectionKey);
  * }</pre>
  * <p>
- * This however is a bad approach design wise. In most situations, it is recommended to create the new Connection through
+ * This however is a bad approach design wise. In most situations, it is recommended to access the new Connection through
  * the use of the {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client} class.
  * <p>
  * A better way to approach this, would be to encapsulate the Session within an custom <code>User</code> object and to

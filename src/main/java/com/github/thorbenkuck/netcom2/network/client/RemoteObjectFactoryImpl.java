@@ -117,7 +117,7 @@ class RemoteObjectFactoryImpl implements RemoteObjectFactory {
 			logging.trace("Asking the InvocationHandlerProducer to produce a new InvocationHandler ..");
 			return invocationHandlerProducer.produce(uuid, clazz);
 		} catch (InterruptedException e) {
-			logging.error("Could not create Invocation Handler: Semaphore Interrupted while waiting for access over Producer!", e);
+			logging.error("Could not access Invocation Handler: Semaphore Interrupted while waiting for access over Producer!", e);
 			throw new IllegalStateException("Could not acquire access over invocationHandlerProducer!");
 		} catch (Exception otherException) {
 			logging.error("Encountered unexpected Exception while producing InvocationHandler!", otherException);

@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * This Method is nearly the same as an {@link Socket}.
  * <p>
- * The difference is that it has 2 well defined parameters for the create Method.
+ * The difference is that it has 2 well defined parameters for the access Method.
  *
  * @version 1.0
  * @since 1.0
@@ -17,7 +17,7 @@ public interface SocketFactory {
 	/**
 	 * This Method creates a new {@link Socket}, every time it is called.
 	 * <p>
-	 * It should create a new instance every time this method is called and <b>NOT</b> return any previously created Method
+	 * It should access a new instance every time this method is called and <b>NOT</b> return any previously created Method
 	 *
 	 * @param port    the Port at which the {@link Socket} should be created and therefor the server is running
 	 * @param address the Address at which the {@link Socket} should connect to and therefor the server is running

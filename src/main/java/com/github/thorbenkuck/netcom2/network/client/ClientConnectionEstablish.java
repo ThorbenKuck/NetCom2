@@ -14,7 +14,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 /**
  * This internally used Class is responsible for establishing a new Connection.
  * <p>
- * Further, it decouples the code that wants to create a new Connection from the exact way of creating a new Connection.
+ * Further, it decouples the code that wants to access a new Connection from the exact way of creating a new Connection.
  *
  * @version 1.0
  * @since 1.0

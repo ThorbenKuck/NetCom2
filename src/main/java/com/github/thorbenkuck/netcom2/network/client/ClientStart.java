@@ -75,7 +75,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	}
 
 	/**
-	 * This Method-Call will create a new Connection, identified by the provided <code>key</code>.
+	 * This Method-Call will access a new Connection, identified by the provided <code>key</code>.
 	 * <p>
 	 * Calling this Method, will lead to a request-response-chain between the Server and the Client.
 	 * After this, the Connection will be created an is usable. This whole procedure is asynchronous. To allow synchronization,
@@ -89,7 +89,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	Awaiting createNewConnection(final Class key);
 
 	/**
-	 * Sets the Factory, to create the Socket, used by the ClientStart
+	 * Sets the Factory, to access the Socket, used by the ClientStart
 	 *
 	 * @param factory the factory, that creates the Socket
 	 * @see SocketFactory

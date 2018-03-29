@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
  * The client has multiple methods, that are required for the internal Mechanisms, so that the default behaviour is working.
  * Especially Connections, Serialization, Encryption, Primed and FalseIDs are core elements for the internal Mechanisms.
  * <p>
- * It is highly discouraged to create custom Client-Objects.
+ * It is highly discouraged to access custom Client-Objects.
  * <p>
  * The Client is created, once a Socket connects and maintained within the {@link com.github.thorbenkuck.netcom2.network.server.ClientList}
  * <p>
@@ -223,8 +223,8 @@ public interface Client extends Mutex {
 	/**
 	 * Creates an new Connection based upon an Class.
 	 * <p>
-	 * A call on the ServerStart will result in an Request to create a new Connection on the ClientStart.
-	 * A call on the ClientStart will result in an Request to ask to create a new Connection on the ServerStart which is
+	 * A call on the ServerStart will result in an Request to access a new Connection on the ClientStart.
+	 * A call on the ClientStart will result in an Request to ask to access a new Connection on the ServerStart which is
 	 * functionally equal to this call on the ServerStart
 	 * <p>
 	 * Once the Request ist send from the ServerStart to the ClientStart, a new physical connection is going to be established.
@@ -483,7 +483,7 @@ public interface Client extends Mutex {
 	 * you might screw up the internal Mechanisms"
 	 * <p>
 	 * Also note that you do not have to call this method, if you use the {@link #createNewConnection(Class)} method. Upon calling
-	 * the {@link #createNewConnection(Class)} the internal Mechanisms will sooner or later call this method to create an
+	 * the {@link #createNewConnection(Class)} the internal Mechanisms will sooner or later call this method to access an
 	 * Awaiting to synchronize Threads, waiting for this Connection.
 	 * <p>
 	 * Do not cast this return value to an {@link com.github.thorbenkuck.netcom2.network.shared.Synchronize}! The instance
@@ -527,10 +527,10 @@ public interface Client extends Mutex {
 	/**
 	 * Adds an faulty ID, that this Client is falsely associated with.
 	 * <p>
-	 * It is recommended to not use this Method. This Method is required, by the internal Mechanism to create and establish
+	 * It is recommended to not use this Method. This Method is required, by the internal Mechanism to access and establish
 	 * new Connections.
 	 * <p>
-	 * Since the establishment of a new Connection means the establishment of a new Socket, a new Client is falsely create
+	 * Since the establishment of a new Connection means the establishment of a new Socket, a new Client is falsely access
 	 * for each new Connection. Those Clients need to be deleted at from the {@link com.github.thorbenkuck.netcom2.network.server.ClientList},
 	 * these {@link ClientID} added this way, are used to find those false Clients.
 	 * <p>

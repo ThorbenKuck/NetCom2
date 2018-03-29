@@ -29,7 +29,7 @@ public interface Connector<T, S> {
 	 * The call of this method, results in the creation of the {@link S} parameter, based upon the {@link T}
 	 * parameter
 	 * <p>
-	 * Unlike the {@link #establishConnection(Object)} method, this method will create a new Connection identified with
+	 * Unlike the {@link #establishConnection(Object)} method, this method will access a new Connection identified with
 	 * the provided key.
 	 *
 	 * @param key the Class, which should identify the newly created Connection

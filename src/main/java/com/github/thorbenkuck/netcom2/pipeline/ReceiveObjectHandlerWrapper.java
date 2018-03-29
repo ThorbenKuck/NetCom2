@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This class uses reflection to create wrappers of OnReceiveTriple.
+ * This class uses reflection to access wrappers of OnReceiveTriple.
  * <p>
  * This class is meant for NetCom2 internal use only.
  *

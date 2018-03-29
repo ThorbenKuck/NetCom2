@@ -29,7 +29,7 @@ import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 /**
- * This Abstract Connection makes it easier for you, to create a custom Connection
+ * This Abstract Connection makes it easier for you, to access a custom Connection
  *
  * @version 1.0
  * @since 1.0

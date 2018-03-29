@@ -135,7 +135,7 @@ public class NetCom2Utils {
 	/**
 	 * This Method is a short form for {@link Wrapper#wrap(OnReceiveSingle)} and uses an static instance of <code>Wrapper</code>
 	 * <p>
-	 * This means you do not need to create <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
+	 * This means you do not need to access <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
 	 *
 	 * @param onReceiveSingle the {@link OnReceiveSingle} that should be wrapped
 	 * @param <T>             the generic Type of the OnReceiveSingle
@@ -152,7 +152,7 @@ public class NetCom2Utils {
 	/**
 	 * This Method is a short form for {@link Wrapper#wrap(OnReceive)} and uses an static instance of <code>Wrapper</code>
 	 * <p>
-	 * This means you do not need to create <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
+	 * This means you do not need to access <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
 	 *
 	 * @param onReceive the {@link OnReceive} that should be wrapped
 	 * @param <T>       the generic Type of the OnReceive

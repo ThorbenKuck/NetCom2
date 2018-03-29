@@ -31,8 +31,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * For most people, an instantiation should not be required or needed. This is handled internally whenever a new Connection is established.
  * <p>
- * If you want, you can create custom {@link Client} implementations. An AbstractClient does not yet exist.
- * This Client might be used, to create custom parts.
+ * If you want, you can access custom {@link Client} implementations. An AbstractClient does not yet exist.
+ * This Client might be used, to access custom parts.
  * <p>
  * {@inheritDoc}
  *
@@ -68,7 +68,7 @@ class ClientImpl implements Client {
 	 * Internally default Serializations will be set as well es the default Encryption.
 	 * <p>
 	 * Note: No hard side-affects will happen. But please also note, that the Method {@link #setup()} is called, to
-	 * create the Session, depending on the implementation
+	 * access the Session, depending on the implementation
 	 *
 	 * @param communicationRegistration the CommunicationRegistration which is used for the internal Connections
 	 */

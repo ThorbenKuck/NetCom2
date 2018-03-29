@@ -60,7 +60,7 @@ public interface RemoteObjectAccess {
 	 * By changing this {@link InvocationHandlerProducer}, you can provide a custom {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler}
 	 * to be used internally
 	 *
-	 * @param invocationHandlerProducer the {@link InvocationHandlerProducer} that should create the {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler}
+	 * @param invocationHandlerProducer the {@link InvocationHandlerProducer} that should access the {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler}
 	 * @see InvocationHandlerProducer
 	 */
 	@Experimental

@@ -17,7 +17,7 @@ import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize
  *     private final ExecutorService threadPool = Executors.newCachedThreadPool()
  *
  *     public Awaiting doSomethingAndAwaitFinished() {
- *         Synchronize synchronize = Synchronize.create();
+ *         Synchronize synchronize = Synchronize.access();
  *         threadPool.submit(() -> {
  *             // some work.
  *             synchronize.goOn();

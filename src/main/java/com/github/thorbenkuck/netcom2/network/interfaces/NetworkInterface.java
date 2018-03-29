@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.network.client.Sender;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.modules.netpack.NetworkPackage;
 
 /**
  * This Interface is used, to show that something is the entry point for a Network Communication.
@@ -53,5 +54,22 @@ public interface NetworkInterface extends Launch, Loggable {
 	 * @see CommunicationRegistration
 	 */
 	CommunicationRegistration getCommunicationRegistration();
+
+	/**
+	 * This is a visitor Pattern like method for applying {@link NetworkPackage}.
+	 * <p>
+	 * Those packages define multiple things, for example:
+	 * <p>
+	 * <ul>
+	 * <li>{@link ConnectionFactory}</li>
+	 * <li>{@link ClientFactory}</li>
+	 * <li>{@link com.github.thorbenkuck.netcom2.interfaces.SocketFactory} / {@link com.github.thorbenkuck.netcom2.interfaces.Factory ServerSocketFactory}</li>
+	 * </ul>
+	 * <p>
+	 * Calling this method will delegate multiple attributes. This means, you could do all the thing by hand.
+	 *
+	 * @param networkPackage the networkPackage to apply
+	 */
+	void apply(NetworkPackage networkPackage);
 
 }

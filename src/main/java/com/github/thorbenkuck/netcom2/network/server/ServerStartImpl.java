@@ -15,6 +15,7 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.modules.netpack.NetworkPackage;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * This Class is the main point for creating the Server-side of an over-network Communication
  * <p>
- * You create this Class the following way:
+ * You access this Class the following way:
  * <p>
  * <pre>
  *     {@code
@@ -63,6 +65,7 @@ class ServerStartImpl implements ServerStart {
 	@APILevel
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
+	private final AtomicReference<ServerConnectorCore> coreReference = new AtomicReference<>(new DefaultServerConnectorCore());
 	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
 	private ConnectionFactory connectionFactory = ConnectionFactory.udp();
 	private Logging logging = Logging.unified();
@@ -150,7 +153,7 @@ class ServerStartImpl implements ServerStart {
 
 		Client client = null;
 		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlers) {
-			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to create Client ..");
+			logging.trace("Asking ClientConnectedHandler " + clientConnectedHandler + " to access Client ..");
 			Client newClient = clientConnectedHandler.create(socket);
 			if (newClient != null) {
 				logging.trace("ClientConnectedHandler " + clientConnectedHandler +
@@ -249,21 +252,19 @@ class ServerStartImpl implements ServerStart {
 		}
 		logging.debug("Accepting next Client.");
 		final ServerSocket serverSocket = serverConnector.getServerSocket();
+		ServerConnectorCore core = coreReference.get();
+		final Socket socket = core.apply(serverSocket);
 		try {
-			logging.info("Awaiting new Connection ..");
-			final Socket socket = serverSocket.accept();
-			logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
-			logging.trace("Handling new Connection ..");
-			try {
-				threadPoolLock.lock();
-				threadPool.execute(() -> handle(socket));
-			} finally {
-				threadPoolLock.unlock();
-			}
-		} catch (IOException e) {
-			logging.error("Connection establishment failed! Aborting!");
-			throw new ClientConnectionFailedException(e);
+			threadPoolLock.lock();
+			threadPool.execute(() -> handle(socket));
+		} finally {
+			threadPoolLock.unlock();
 		}
+	}
+
+	@Override
+	public void setConnectorCore(ServerConnectorCore connectorCore) {
+		coreReference.set(connectorCore);
 	}
 
 	/**
@@ -359,6 +360,14 @@ class ServerStartImpl implements ServerStart {
 	@Override
 	public final CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void apply(NetworkPackage networkPackage) {
+		// TODO
 	}
 
 	/**
@@ -467,7 +476,7 @@ class ServerStartImpl implements ServerStart {
 	@Asynchronous
 	@Override
 	public Awaiting createNewConnection(final Session session, final Class key) {
-		logging.debug("Trying to create Connection " + key + " for Session " + session);
+		logging.debug("Trying to access Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
 		final Optional<Client> clientOptional = clientList.getClient(session);
 		if (!clientOptional.isPresent()) {

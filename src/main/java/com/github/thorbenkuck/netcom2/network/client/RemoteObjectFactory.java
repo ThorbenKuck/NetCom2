@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 /**
- * Implementations will create RemoteObjects.
+ * Implementations will access RemoteObjects.
  * <p>
  * Those RemoteObjects are proxies. There should be NO reason to check for that.
  */
@@ -97,7 +97,7 @@ public interface RemoteObjectFactory {
 	/**
 	 * This method will produce an Proxy for the RemoteObject.
 	 * <p>
-	 * In contrast to the other create Methods, this will result in an Proxy with no fallback.
+	 * In contrast to the other access Methods, this will result in an Proxy with no fallback.
 	 * <p>
 	 * This means, if the requested Object is not registered at the Server-side, calling any method of the Proxy
 	 * will result in an {@link com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException}.

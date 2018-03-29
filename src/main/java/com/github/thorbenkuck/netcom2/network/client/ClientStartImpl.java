@@ -13,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.modules.netpack.NetworkPackage;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * This Class is the main point for creating the Client-side of an over-network Communication
  * <p>
- * You create this Class the following way:
+ * You access this Class the following way:
  * <p>
  * <pre>
  *     {@code
@@ -284,6 +285,15 @@ class ClientStartImpl implements ClientStart {
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
 		return communicationRegistration;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void apply(NetworkPackage networkPackage) {
+
+		// TODO
 	}
 
 	/**

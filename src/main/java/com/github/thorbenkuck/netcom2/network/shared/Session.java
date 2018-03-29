@@ -18,12 +18,12 @@ import java.util.Properties;
  * On the {@link com.github.thorbenkuck.netcom2.network.server.ServerStart} side, this object is maintained within an {@link Client}
  * and shared across all Connection between each of the Connections of the Client.
  * <p>
- * If you wanted to, you could create an custom Session-Class and provide it to an Client using {@link Client#setSession(Session)}.
+ * If you wanted to, you could access an custom Session-Class and provide it to an Client using {@link Client#setSession(Session)}.
  * Note that especially the behaviour of the methods {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()}
  * should NOT be changed to maintain the Behaviour of the internal Mechanisms. Otherwise you might break the core Mechanisms between
  * Client-Server-Communication or Connection establishment.
  * <p>
- * Otherwise you can feel free to create an custom Session.
+ * Otherwise you can feel free to access an custom Session.
  *
  * @version 1.0
  * @see Client
@@ -163,7 +163,7 @@ public interface Session extends Mutex, Serializable {
 	/**
 	 * Adds and holds an {@link HeartBeat}, which handles any Session.
 	 * <p>
-	 * Note that this method does not create an HeartBeat, it accepts any Instance of an HeartBeat and starts it asynchronous.
+	 * Note that this method does not access an HeartBeat, it accepts any Instance of an HeartBeat and starts it asynchronous.
 	 * Other than maintaining and running said HearBeat, this method and the Session in total does nothing else with an HeartBeat!
 	 *
 	 * @param heartBeat the HeartBeat that should be added to this Session

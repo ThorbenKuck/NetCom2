@@ -27,7 +27,7 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 * <p>
 	 * This is the only way currently of creating a ServerStart.
 	 * <p>
-	 * You may however feel free to create your own.
+	 * You may however feel free to access your own.
 	 *
 	 * @param port the port, the Server shut letch onto
 	 * @return a new Instance of the ServerStart
@@ -72,6 +72,8 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 */
 	void acceptNextClient() throws ClientConnectionFailedException;
 
+	void setConnectorCore(ServerConnectorCore connectorCore);
+
 	/**
 	 * Returns the current port of the ServerStart.
 	 *
@@ -92,7 +94,7 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	/**
 	 * Adds an {@link ClientConnectedHandler}, that should handle a newly created Client.
 	 * <p>
-	 * Those ClientConnectedHandlers will be asked 2 times. First to create the Client-Object and second to handle this Object.
+	 * Those ClientConnectedHandlers will be asked 2 times. First to access the Client-Object and second to handle this Object.
 	 *
 	 * @param clientConnectedHandler the Client ConnectedHandler that should be usd
 	 */
@@ -139,7 +141,7 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 * <p>
 	 * This may be used, if you need to get a certain Client or apply something to all Clients.
 	 * <p>
-	 * If you however want to access certain Clients, it is recommended, to create a custom UserObject and set the UserObject,
+	 * If you however want to access certain Clients, it is recommended, to access a custom UserObject and set the UserObject,
 	 * aggregating the Session of the Client inside of an custom {@link ClientConnectedHandler}. The Client is an real representation
 	 * of the Connected PC. Therefor you can do real, irreversible damage at runtime, resulting in an fatal, unrecoverable
 	 * error.

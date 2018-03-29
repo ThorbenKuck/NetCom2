@@ -5,7 +5,7 @@ package com.github.thorbenkuck.netcom2.network.shared;
  * <p>
  * Calling the {@link Awaiting#synchronize()} method, will block the current Thread, until the parallel operation is finished.
  * <p>
- * The object, that creates this element will, in some form or another create a thread, that does stuff or at least have
+ * The object, that creates this element will, in some form or another access a thread, that does stuff or at least have
  * a Thread finish something asynchronously. As soon, as the procedure that should be finished is finished, the
  * implementation of this interface will let the synchronize method continue and thereby release all waiting Threads.
  *

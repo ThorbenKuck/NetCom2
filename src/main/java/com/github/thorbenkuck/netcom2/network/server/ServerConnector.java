@@ -49,13 +49,13 @@ class ServerConnector implements Connector<Factory<Integer, ServerSocket>, Serve
 		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Establishing ServerConnection to: " + port);
 		if (this.serverSocket == null) {
-			logging.trace("Trying to create new ServerSocket ..");
+			logging.trace("Trying to access new ServerSocket ..");
 			this.serverSocket = factory.create(port);
 		} else {
 			logging.trace("Connection already established! Returning already established Connection ..");
 		}
 		if (serverSocket == null) {
-			throw new StartFailedException("Cannot create ServerSocket!");
+			throw new StartFailedException("Cannot access ServerSocket!");
 		}
 		logging.trace("ServerSocket appears to be okay ..");
 		return this.serverSocket;

@@ -15,7 +15,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * This ConnectionImplementation attempts to create an TCP Connection. It attempts.. Sryl, can someone please do this?
+ * This ConnectionImplementation attempts to access an TCP Connection. It attempts.. Sryl, can someone please do this?
  *
  * @version 1.0
  * @since 1.0

@@ -19,7 +19,7 @@ import java.net.Socket;
 class DefaultClientSocketFactory implements SocketFactory {
 
 	/**
-	 * This SocketFactory will create a {@link Socket}
+	 * This SocketFactory will access a {@link Socket}
 	 * {@inheritDoc}
 	 *
 	 * @throws IllegalArgumentException if the address is null

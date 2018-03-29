@@ -35,7 +35,7 @@ public class RemoteAccessBlockRegistration {
 	/**
 	 * This Method will fetch an existing Semaphore out of the internal Mapping, identified by the UUID
 	 * <p>
-	 * If the Semaphore does not exist, it will create on.
+	 * If the Semaphore does not exist, it will access on.
 	 *
 	 * @param uuid the Identifier of the Semaphore
 	 * @return the identified Semaphore

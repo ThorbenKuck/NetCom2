@@ -78,7 +78,7 @@ class NewConnectionResponseHandler implements OnReceiveSingle<NewConnectionReque
 				client.notifyAboutPreparedConnection(key);
 			}
 		} catch (IOException e) {
-			logging.fatal("Could not create Connection!", e);
+			logging.fatal("Could not access Connection!", e);
 			throw new ConnectionCreationFailedException(e);
 		} catch (InterruptedException e) {
 			logging.fatal("Encountered Exception while synchronizing!", e);

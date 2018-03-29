@@ -12,8 +12,8 @@ import java.util.UUID;
  * Classes like the {@link com.github.thorbenkuck.netcom2.network.server.ClientList} use this ID to identify any Client
  * that has connected. Though this is mostly not needed, there are some needed Cases where this ID is compared and queried.
  * <p>
- * For example, the establishment of a new Connection requires the Client to identify falsely create IDs to delete falsely
- * create clients.
+ * For example, the establishment of a new Connection requires the Client to identify falsely access IDs to delete falsely
+ * access clients.
  *
  * @version 1.0
  * @since 1.0

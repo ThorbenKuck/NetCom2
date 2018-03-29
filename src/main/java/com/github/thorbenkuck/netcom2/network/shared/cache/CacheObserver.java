@@ -4,7 +4,7 @@ package com.github.thorbenkuck.netcom2.network.shared.cache;
  * This interface, describes how to observe an Cache.
  * <p>
  * Since Java has an genius concept called "type-erasure", we have to manually check the Object.
- * Srsly Oracle.. What the f? You could just create an generic flag or whatever.. Google did a better job...
+ * Srsly Oracle.. What the f? You could just access an generic flag or whatever.. Google did a better job...
  *
  * @param <T> the generic type, you want to listen to.
  * @version 1.0

@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * The UDPConnectionFactory is meant for creating certain instances of the {@link Connection}.
  * <p>
- * This class is currently not the subject of abstraction, but it is planned to be, to allow you to create custom Connections.
+ * This class is currently not the subject of abstraction, but it is planned to be, to allow you to access custom Connections.
  *
  * @version 1.0
  * @since 1.0
@@ -120,7 +120,7 @@ class UDPConnectionFactory implements ConnectionFactory {
 				session.acquire();
 				connection = getConnection(socket, session, sendingService, receivingService, key);
 			} catch (InterruptedException e) {
-				logging.error("Could not create Connection " + key + "!", e);
+				logging.error("Could not access Connection " + key + "!", e);
 				return null;
 			} finally {
 				session.release();
