@@ -6,15 +6,18 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 
-public class NioServerSocketFactory implements Factory<Integer, ServerSocket> {
+public class NIOServerSocketFactory implements Factory<Integer, ServerSocket> {
 
 	private final Logging logging = Logging.unified();
 	private final NIOChannelCache channelCache;
+	private final Selectors selectors;
 
-	public NioServerSocketFactory(NIOChannelCache channelCache) {
+	public NIOServerSocketFactory(NIOChannelCache channelCache, Selectors selectors) {
 		this.channelCache = channelCache;
+		this.selectors = selectors;
 	}
 
 	/**
@@ -31,6 +34,7 @@ public class NioServerSocketFactory implements Factory<Integer, ServerSocket> {
 			InetSocketAddress address = new InetSocketAddress("localhost", integer);
 			serverSocketChannel.bind(address);
 			serverSocketChannel.configureBlocking(false);
+			serverSocketChannel.register(selectors.getSelector(), SelectionKey.OP_ACCEPT);
 			ServerSocket serverSocket = serverSocketChannel.socket();
 			channelCache.addServerSocket(serverSocket, serverSocketChannel);
 			return serverSocket;

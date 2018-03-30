@@ -292,8 +292,9 @@ class ClientStartImpl implements ClientStart {
 	 */
 	@Override
 	public void apply(NetworkPackage networkPackage) {
-
-		// TODO
+		networkPackage.connectionFactory().ifPresent(this::setConnectionFactory);
+		networkPackage.socketFactory().ifPresent(this::setSocketFactory);
+		networkPackage.apply(this);
 	}
 
 	/**

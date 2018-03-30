@@ -2,42 +2,51 @@ package com.github.thorbenkuck.netcom2.network.shared.modules.nio;
 
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.pipe.PipelineCondition;
+import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public abstract class AbstractNIOConnection implements Connection {
+public class NIOConnection implements Connection {
 
 	private final SocketChannel socketChannel;
+	private final ObjectHandler objectHandler;
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = Pipeline.unifiedCreation();
+	private Session session;
 	private Class<?> key;
 	private Logging logging = Logging.unified();
 
-	public AbstractNIOConnection(final SocketChannel socketChannel, final Class<?> key, final Session session) {
+	public NIOConnection(final SocketChannel socketChannel, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
 		this.socketChannel = socketChannel;
+		this.objectHandler = objectHandler;
+		this.key = key;
+		this.session = session;
 	}
-
-	abstract void beforeSend(Object o);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void close() throws IOException {
-
+		socketChannel.close();
 	}
 
 	/**
@@ -61,7 +70,25 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void write(Object object) {
-
+		NetCom2Utils.runOnNetComThread(() -> {
+			String toSend;
+			try {
+				logging.debug("Send of " + object + " initialized.");
+				logging.trace("Serializing ...");
+				toSend = objectHandler.serialize(object);
+			} catch (SerializationFailedException e) {
+				throw new SendFailedException(e);
+			}
+			logging.trace("Buffering serialized Object ...");
+			ByteBuffer buffer = ByteBuffer.wrap(toSend.getBytes());
+			try {
+				logging.trace("Writing buffer to SocketChannel ...");
+				socketChannel.write(buffer);
+			} catch (IOException e) {
+				throw new SendFailedException(e);
+			}
+			logging.debug(object + " send");
+		});
 	}
 
 	/**
@@ -69,7 +96,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void addObjectSendListener(Callback<Object> callback) {
-
+		// TODO
 	}
 
 	/**
@@ -77,7 +104,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void addObjectReceivedListener(Callback<Object> callback) {
-
+		// TODO
 	}
 
 	/**
@@ -85,7 +112,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void setThreadPool(ExecutorService executorService) {
-
+		throw new UnsupportedOperationException("TO BE REMOVED!");
 	}
 
 	/**
@@ -93,7 +120,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public Awaiting startListening() {
-		return null;
+		return Synchronize.empty();
 	}
 
 	/**
@@ -101,7 +128,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
-		return null;
+		return disconnectedPipeline.addFirst(consumer);
 	}
 
 	/**
@@ -109,7 +136,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		return null;
+		return socketChannel.socket().getInputStream();
 	}
 
 	/**
@@ -117,7 +144,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public OutputStream getOutputStream() throws IOException {
-		return null;
+		return socketChannel.socket().getOutputStream();
 	}
 
 	/**
@@ -125,7 +152,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public BlockingQueue<Object> getSendInterface() {
-		return null;
+		return new LinkedBlockingQueue<>();
 	}
 
 	/**
@@ -133,7 +160,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public Session getSession() {
-		return null;
+		return session;
 	}
 
 	/**
@@ -141,7 +168,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void setSession(Session session) {
-
+		this.session = session;
 	}
 
 	/**
@@ -149,7 +176,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public String getFormattedAddress() {
-		return null;
+		return getInetAddress().toString();
 	}
 
 	/**
@@ -165,7 +192,11 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public InetAddress getInetAddress() {
-		return null;
+		try {
+			return ((InetSocketAddress) socketChannel.getRemoteAddress()).getAddress();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -173,7 +204,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public boolean isActive() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -181,7 +212,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public Class<?> getKey() {
-		return null;
+		return key;
 	}
 
 	/**
@@ -189,7 +220,7 @@ public abstract class AbstractNIOConnection implements Connection {
 	 */
 	@Override
 	public void setKey(Class<?> connectionKey) {
-
+		this.key = connectionKey;
 	}
 
 	/**

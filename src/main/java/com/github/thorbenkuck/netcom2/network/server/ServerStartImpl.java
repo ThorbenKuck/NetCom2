@@ -241,6 +241,10 @@ class ServerStartImpl implements ServerStart {
 		disconnect();
 	}
 
+	private void consumeInThread(Socket socket) {
+		NetCom2Utils.runOnNetComThread(() -> handle(socket));
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -253,13 +257,7 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Accepting next Client.");
 		final ServerSocket serverSocket = serverConnector.getServerSocket();
 		ServerConnectorCore core = coreReference.get();
-		final Socket socket = core.apply(serverSocket);
-		try {
-			threadPoolLock.lock();
-			threadPool.execute(() -> handle(socket));
-		} finally {
-			threadPoolLock.unlock();
-		}
+		core.apply(serverSocket, this::consumeInThread);
 	}
 
 	@Override
@@ -367,7 +365,10 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void apply(NetworkPackage networkPackage) {
-		// TODO
+		networkPackage.clientConnectedHandler().ifPresent(this::addClientConnectedHandler);
+		networkPackage.connectionFactory().ifPresent(this::setConnectionFactory);
+		networkPackage.serverSocketFactory().ifPresent(this::setServerSocketFactory);
+		networkPackage.apply(this);
 	}
 
 	/**

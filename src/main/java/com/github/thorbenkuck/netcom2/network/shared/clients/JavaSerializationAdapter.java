@@ -40,6 +40,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 			oos = new ObjectOutputStream(baos);
 			logging.trace("Writing object..");
 			oos.writeObject(o);
+			oos.flush();
 			logging.trace("Done!");
 		} catch (final IOException e) {
 			throw new SerializationFailedException(e);

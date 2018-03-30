@@ -15,7 +15,9 @@ public interface ConnectionFactory {
 	 * @param client the base {@link Client}.
 	 * @return a new {@link Connection} instance.
 	 */
-	Connection create(Socket socket, Client client);
+	default Connection create(Socket socket, Client client) {
+		return create(socket, client, DefaultConnection.class);
+	}
 
 	/**
 	 * Creates a new {@link Connection}, with a custom identifier.

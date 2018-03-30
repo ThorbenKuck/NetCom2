@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.function.Consumer;
 
 class DefaultServerConnectorCore implements ServerConnectorCore {
 
@@ -18,7 +19,7 @@ class DefaultServerConnectorCore implements ServerConnectorCore {
 	 * @return the function result
 	 */
 	@Override
-	public Socket apply(final ServerSocket serverSocket) throws ClientConnectionFailedException {
+	public void apply(final ServerSocket serverSocket, final Consumer<Socket> consumer) throws ClientConnectionFailedException {
 		logging.info("Awaiting new Connection ..");
 		final Socket socket;
 		try {
@@ -29,6 +30,6 @@ class DefaultServerConnectorCore implements ServerConnectorCore {
 		}
 		logging.debug("New connection established! " + socket.getInetAddress() + ":" + socket.getPort());
 		logging.trace("Handling new Connection ..");
-		return socket;
+		consumer.accept(socket);
 	}
 }
