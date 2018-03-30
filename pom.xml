@@ -1,9 +1,8 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
     <artifactId>NetCom2</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>1-.0</version>
     <packaging>jar</packaging>
     <name>NetCom2</name>
     <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
@@ -20,7 +19,7 @@
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
         <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
         <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-        <tag>NetCom2-0.4.1.0</tag>
+        <tag>NetCom2-1-.0</tag>
     </scm>
 
     <developers>
