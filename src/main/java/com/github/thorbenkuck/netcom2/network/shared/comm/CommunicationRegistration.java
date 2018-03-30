@@ -23,7 +23,7 @@ import java.util.Map;
  * ReceivePipeline pipeline = registration.register(MyObject.class);
  * </code>
  * <p>
- * Those Pipelines handle received Objects. You may fluidly register any of the following Interfaces:
+ * Those {@link ReceivePipeline pipelines} handle received Objects. You may freely register any of the following Interfaces:
  * <p>
  * <ul>
  * <li>{@link OnReceiveSingle onReceiveSingle}</li>
@@ -31,10 +31,14 @@ import java.util.Map;
  * <li>{@link OnReceiveTriple onReceiveTriple}</li>
  * </ul>
  * <p>
- * Its instantiation is limited to internal Developers.
+ * All of those are a subtype of the {@link ReceiveFamily}.
+ * <p>
+ * The instantiation of this CommunicationRegistration is limited to internal Developers.
  *
+ * @version 1.0
  * @see #trigger(Class, Connection, Session, Object)
  * @see ReceivePipeline
+ * @since 1.0
  */
 @Synchronized
 public interface CommunicationRegistration extends Mutex {
@@ -52,12 +56,12 @@ public interface CommunicationRegistration extends Mutex {
 	}
 
 	/**
-	 * Registers and internally sets/maintains a ReceivePipeline to handle a given Object of the provided Class.
+	 * Sets/maintains a ReceivePipeline to handle a given Object of the provided Class.
 	 * <p>
 	 * Because of type-erasure, the type check has to be done at runtime.
 	 * You will never get an {@link ReceivePipeline receivePipeline} of another type
 	 *
-	 * @param clazz the Class of Object, that should be handled
+	 * @param clazz the Class of the Object, that should be handled.
 	 * @param <T>   the Type of the Object, identified by the provided Class
 	 * @return either a new or an already established instance of the {@link ReceivePipeline}
 	 */
@@ -75,23 +79,23 @@ public interface CommunicationRegistration extends Mutex {
 	void unRegister(final Class clazz);
 
 	/**
-	 * Determines whether or not an ReceivePipeline is registered to handle Objects of the same Type as <code>clazz</code>
+	 * Determines whether or not a {@link ReceivePipeline} is registered to handle Objects of the same Type as <code>clazz</code>
 	 *
-	 * @param clazz the Class, that defines the type of the ReceivePipeline
-	 * @return true if any ReceivePipeline is set, false otherwise
+	 * @param clazz the Class, that defines the type of the {@link ReceivePipeline}
+	 * @return true if any {@link ReceivePipeline} is set, false otherwise
 	 */
 	boolean isRegistered(final Class clazz);
 
 	/**
-	 * This Method is used, to trigger an Object by its declared class.
+	 * This method is used to trigger a {@link ReceivePipeline}, with the provided arguments.
 	 * <p>
 	 * All it does, is to call {@link #trigger(Class, Connection, Session, Object)}, with the direct Class of the provided
 	 * Object
 	 *
-	 * @param connection the Connection over which the Object was received
-	 * @param session    the Session, identifying the other end of the Connection
+	 * @param connection the {@link Connection} over which the Object was received
+	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
 	 * @param object     the Object that was received
-	 * @param <T>        the Type of the OnReceivePipeline
+	 * @param <T>        the Type of the {@link ReceivePipeline}
 	 * @throws CommunicationNotSpecifiedException if no ReceivePipeline is set for the provided class and no
 	 *                                            DefaultCommunicationHandler is set
 	 * @see #trigger(Class, Connection, Session, Object)
@@ -100,80 +104,85 @@ public interface CommunicationRegistration extends Mutex {
 	<T> void trigger(final Connection connection, final Session session, final Object object) throws CommunicationNotSpecifiedException;
 
 	/**
-	 * This Method takes an Object and runs it through an {@link ReceivePipeline} of the Type that is defined by the provided Class.
+	 * This method takes a Object and runs it through a {@link ReceivePipeline} of the Type that is defined by the provided Class.
 	 * <p>
-	 * This Method provides the possibility to define other Class-Types than the Object is of. This is due to inheritance.
+	 * This method provides the possibility to define other Class-Types than the Object is of. This is due to inheritance.
 	 * If you want to run an Object through this CommunicationRegistration, but you want it to be handled by an
-	 * {@link ReceivePipeline receivePipeline}, that only handles the super type or an declared/inherited interface, you may
+	 * {@link ReceivePipeline}, that only handles the super type or an declared/inherited interface, you may
 	 * do that.
 	 * <p>
-	 * By calling this Method, you basically running the provided Object through the internally maintained {@link ReceivePipeline}. The other provided
-	 * parameters (<code>connection</code>, <code>session</code>) will be needed regardless of the internally set handlers.
-	 * This is because the ReceivePipeline does not know whether any set Handler needs those parameters or not.
+	 * By calling this Method, you  are basically running the provided Object through the internally maintained {@link ReceivePipeline}.
+	 * The other provided parameters (<code>connection</code>, <code>session</code>) will be needed regardless of the
+	 * internally set handlers. This is because the ReceivePipeline does not know whether any set Handler needs those
+	 * parameters or not. It only knows {@link OnReceiveTriple}
 	 * <p>
-	 * To ensure scalability, this Method extracts the actual run of the ReceivePipeline into another Thread.
-	 * Therefor this Method does not rethrow thrown Errors and RuntimeExceptions, thrown by the ReceiveHandler
+	 * To ensure scalability, this Method extracts the actual run of the {@link ReceivePipeline} into another Thread.
+	 * Therefor this method does not rethrow thrown Errors, Exceptions and RuntimeExceptions, thrown by the ReceiveHandler.
 	 * <p>
-	 * If no ReceivePipeline was ever registered to this CommunicationRegistration, it will throw an {@link CommunicationNotSpecifiedException}.
-	 * This behaviour can be overridden by providing an DefaultCommunicationHandler with {@link #addDefaultCommunicationHandler(OnReceive)}
+	 * If no {@link ReceivePipeline} was ever registered to this CommunicationRegistration, it will throw an
+	 * {@link CommunicationNotSpecifiedException}. his behaviour can be overridden by providing an DefaultCommunicationHandler
+	 * with {@link #addDefaultCommunicationHandler(OnReceive)}
 	 *
 	 * @param clazz      the Class, defining the Type of the {@link ReceivePipeline}
-	 * @param connection the Connection, over which the Object has been received
-	 * @param session    the Session, identifying the other end of the Connection
-	 * @param o          the Object, that was received over the Connection
-	 * @param <T>        the Type of the ReceivePipeline
-	 * @throws CommunicationNotSpecifiedException if no ReceivePipeline is set for the provided type
+	 * @param connection the {@link Connection}, over which the Object has been received
+	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
+	 * @param o          the Object, that was received over the {@link Connection}
+	 * @param <T>        the Type of the {@link ReceivePipeline}
+	 * @throws CommunicationNotSpecifiedException if no {@link ReceivePipeline} is set for the provided type
 	 *                                            and no DefaultCommunicationHandler has been set.
+	 * @see OnReceiveTriple
+	 * @see com.github.thorbenkuck.netcom2.pipeline.Wrapper
 	 */
 	@Asynchronous
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	<T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException;
 
 	/**
 	 * Sets an {@link OnReceiveSingle} as the default handling routine for any Object that is not registered specifically
 	 *
-	 * @param defaultCommunicationHandler the {@link OnReceiveSingle} that should be run, if no Registration was found for
-	 *                                    any provided Object
+	 * @param defaultCommunicationHandler the {@link OnReceiveSingle} that should be run, if no registration was found for
+	 *                                    a specific provided Object
 	 */
 	void addDefaultCommunicationHandler(final OnReceiveSingle<Object> defaultCommunicationHandler);
 
 	/**
 	 * Sets an {@link OnReceive} as the default handling routine for any Object that is not registered specifically
 	 *
-	 * @param defaultCommunicationHandler the {@link OnReceive} that should be run, if no Registration was found for
-	 *                                    any provided Object
+	 * @param defaultCommunicationHandler the {@link OnReceive} that should be run, if no registration was found for
+	 *                                    a specific provided Object
 	 */
 	void addDefaultCommunicationHandler(final OnReceive<Object> defaultCommunicationHandler);
 
 	/**
 	 * Sets an {@link OnReceiveTriple} as the default handling routine for any Object that is not registered specifically
 	 *
-	 * @param defaultCommunicationHandler the {@link OnReceiveTriple} that should be run, if no Registration was found for
-	 *                                    any provided Object
+	 * @param defaultCommunicationHandler the {@link OnReceiveTriple} that should be run, if no registration was found for
+	 *                                    a specific provided Object
 	 */
 	void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler);
 
 	/**
-	 * Clears all Registration
+	 * Clears all set registration.
 	 * <p>
-	 * This Call will ignore all {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy}.
+	 * This Call will ignore the set {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy}.
+	 * <p>
 	 * All internally set {@link ReceivePipeline} will be cleared.
 	 * Currently running Handlers will NOT be stopped.
 	 */
 	void clear();
 
 	/**
-	 * This call wil unregister all {@link ReceivePipeline} if the {@link ReceivePipeline#isEmpty()} call returns true
+	 * This call wil unregister all {@link ReceivePipeline} if the {@link ReceivePipeline#isEmpty()} call returns true.
 	 * <p>
-	 * The one Exception for this rule is, if an ReceivePipeline is sealed.
-	 * Any sealed ReceivePipeline will not be tested and therefor not removed, even if they are empty.
-	 * This ensures that critical empty Pipelines are not collected
+	 * The one exception for this rule is, if an {@link ReceivePipeline} is sealed.
+	 * Any sealed {@link ReceivePipeline} will not be tested and therefor not removed, even if they are empty.
+	 * This ensures that critical empty {@link ReceivePipeline} are not collected.
 	 */
 	void clearAllEmptyPipelines();
 
 	/**
-	 * This call will override any internally set Registrations and set all Registration to the provided CommunicationRegistration.
+	 * This call will override any internally set registrations and set all registration to the provided CommunicationRegistration.
 	 * <p>
 	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} and delete all
 	 * Registrations currently set.

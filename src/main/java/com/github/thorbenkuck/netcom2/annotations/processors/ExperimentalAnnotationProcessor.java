@@ -53,7 +53,7 @@ public class ExperimentalAnnotationProcessor extends AbstractProcessor {
 
 		for (Element e : roundEnvironment.getElementsAnnotatedWith(Experimental.class)) {
 			warn(e);
-			++ count;
+			++count;
 		}
 		System.out.println("Found " + count + " methods in experimental state.");
 

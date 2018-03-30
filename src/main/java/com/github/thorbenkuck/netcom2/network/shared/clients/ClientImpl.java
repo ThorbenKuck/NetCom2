@@ -3,14 +3,16 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.*;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -33,7 +35,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * This Client might be used, to create custom parts.
  * <p>
  * {@inheritDoc}
+ *
+ * @version 1.0
+ * @since 1.0
  */
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.ClientImplTest")
 class ClientImpl implements Client {
 
 	private final Pipeline<Client> disconnectedHandlers = Pipeline.unifiedCreation();
@@ -67,6 +74,7 @@ class ClientImpl implements Client {
 	 */
 	@APILevel
 	ClientImpl(final CommunicationRegistration communicationRegistration) {
+		NetCom2Utils.parameterNotNull(communicationRegistration);
 		logging.trace("Creating Client ..");
 		this.communicationRegistration = communicationRegistration;
 		logging.trace("Setting default SerializationAdapter and FallbackSerializationAdapter ..");
@@ -113,7 +121,7 @@ class ClientImpl implements Client {
 		if (connection == null) {
 			throw new SendFailedException("Connection does not exist!");
 		}
-		if (! connection.isActive()) {
+		if (!connection.isActive()) {
 			throw new SendFailedException("Connection is not yet Connected!");
 		}
 	}
@@ -125,6 +133,7 @@ class ClientImpl implements Client {
 	@Override
 	@Experimental
 	public void setThreadPool(final ExecutorService executorService) {
+		NetCom2Utils.parameterNotNull(executorService);
 		try {
 			threadPoolLock.lock();
 			updateConnectionThreadPools(executorService);
@@ -211,14 +220,12 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final void setSession(final Session session) {
-		if (session == null) {
-			throw new IllegalArgumentException("Session cant be null!");
-		}
 		if (this.session != null) {
 			logging.warn("Overriding existing ClientSession with " + session + "!");
 		} else {
 			logging.debug("Setting ClientSession to " + session + " ..");
 		}
+		NetCom2Utils.parameterNotNull(session);
 		this.session = session;
 		logging.trace("Updating Sessions of all known Connections ..");
 		for (Connection connection : connections.values()) {
@@ -242,6 +249,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
 		logging.trace("Added DisconnectedHandler " + disconnectedHandler);
+		NetCom2Utils.parameterNotNull(disconnectedHandler);
 		disconnectedHandlers.addFirst(disconnectedHandler::handle).withRequirement(client -> disconnectedHandler.active());
 	}
 
@@ -270,7 +278,9 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final ReceiveOrSendSynchronization send(final Connection connection, final Object object) {
-		NetCom2Utils.assertNotNull(object);
+		if (connection == null || object == null) {
+			throw new SendFailedException("Null is not allowed either as the Connection, nor as the object");
+		}
 		requireConnected(connection);
 
 		logging.debug("Trying to beforeSend " + object + " over Connection " + connection.getKey());
@@ -307,6 +317,7 @@ class ClientImpl implements Client {
 	@Override
 	public final Awaiting createNewConnection(final Class connectionKey) {
 		logging.debug("Requesting new Connection for key: " + connectionKey);
+		NetCom2Utils.parameterNotNull(connectionKey);
 		send(new NewConnectionRequest(connectionKey));
 		return prepareConnection(connectionKey);
 	}
@@ -328,6 +339,10 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public String getFormattedAddress() {
+		Optional<Connection> defaultConnection = getConnection(DefaultConnection.class);
+		if (defaultConnection.isPresent()) {
+			return defaultConnection.get().getFormattedAddress();
+		}
 		Connection anyConnection = getAnyConnection();
 		return anyConnection != null ? anyConnection.getFormattedAddress() : "NOT CONNECTED";
 	}
@@ -353,7 +368,7 @@ class ClientImpl implements Client {
 		NetCom2Utils.parameterNotNull(id);
 		try {
 			idLock.lock();
-			if (! ClientID.isEmpty(this.id)) {
+			if (!ClientID.isEmpty(this.id)) {
 				logging.warn("Overriding ClientID " + this.id + " with " + id + "! This may screw things up!");
 			}
 			this.id = id;
@@ -404,6 +419,7 @@ class ClientImpl implements Client {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @throws IllegalArgumentException if originalConnection is null
 	 */
 	@Override
@@ -434,8 +450,8 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addFallBackSerializationAdapter(
-			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+	public void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(fallBackSerializationAdapter);
 		this.fallBackSerialization.addAll(fallBackSerializationAdapter);
 	}
 
@@ -443,29 +459,9 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Deprecated
-	public void setFallBackSerializationAdapter(
-			final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter) {
-		addFallBackSerializationAdapter(fallBackSerializationAdapter);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void addFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+	public void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(fallBackDeSerializationAdapter);
 		this.fallBackDeSerialization.addAll(fallBackDeSerializationAdapter);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Deprecated
-	public void setFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter) {
-		addFallBackDeSerializationAdapter(fallBackDeSerializationAdapter);
 	}
 
 	/**
@@ -474,6 +470,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
 		logging.trace("Added FallBackSerialization " + serializationAdapter);
+		NetCom2Utils.parameterNotNull(serializationAdapter);
 		fallBackSerialization.add(serializationAdapter);
 	}
 
@@ -483,6 +480,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
 		logging.trace("Added FallDeBackSerialization " + deSerializationAdapter);
+		NetCom2Utils.parameterNotNull(deSerializationAdapter);
 		fallBackDeSerialization.add(deSerializationAdapter);
 	}
 
@@ -500,6 +498,7 @@ class ClientImpl implements Client {
 	@Override
 	public final void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
 		logging.debug("Setting MainSerializationAdapter to " + mainSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainSerializationAdapter);
 		this.mainSerializationAdapter = mainSerializationAdapter;
 	}
 
@@ -515,9 +514,9 @@ class ClientImpl implements Client {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final void setMainDeSerializationAdapter(
-			final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+	public final void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
 		logging.debug("Setting MainDeSerializationAdapter to " + mainDeSerializationAdapter);
+		NetCom2Utils.parameterNotNull(mainDeSerializationAdapter);
 		this.mainDeSerializationAdapter = mainDeSerializationAdapter;
 	}
 
@@ -550,6 +549,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		NetCom2Utils.parameterNotNull(decryptionAdapter);
 		this.decryptionAdapter = decryptionAdapter;
 	}
 
@@ -566,6 +566,7 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		NetCom2Utils.parameterNotNull(encryptionAdapter);
 		this.encryptionAdapter = encryptionAdapter;
 	}
 
@@ -575,6 +576,7 @@ class ClientImpl implements Client {
 	@Override
 	public Awaiting prepareConnection(final Class clazz) {
 		logging.debug("Preparing Connection for key: " + clazz);
+		NetCom2Utils.parameterNotNull(clazz);
 		try {
 			connectionLock.lock();
 			if (synchronizeMap.get(clazz) != null) {
@@ -611,6 +613,7 @@ class ClientImpl implements Client {
 	@Override
 	public void notifyAboutPreparedConnection(final Class clazz) {
 		logging.trace("Connection " + clazz + " is now prepared, trying to release all waiting Threads ..");
+		NetCom2Utils.parameterNotNull(clazz);
 		final Synchronize synchronize = synchronizeMap.get(clazz);
 		logging.debug("Saved Synchronize instance: " + synchronize);
 		if (synchronize == null) {
@@ -628,6 +631,7 @@ class ClientImpl implements Client {
 	@Override
 	public void addFalseID(final ClientID clientID) {
 		logging.debug("Marking ClientID" + clientID + " as false");
+		NetCom2Utils.parameterNotNull(clientID);
 		synchronized (falseIDs) {
 			falseIDs.add(clientID);
 		}
@@ -647,6 +651,7 @@ class ClientImpl implements Client {
 	@Override
 	public void removeFalseID(final ClientID clientID) {
 		logging.debug("Removing faulty ClientID " + clientID);
+		NetCom2Utils.parameterNotNull(clientID);
 		synchronized (falseIDs) {
 			logging.debug("State of false IDs before: " + falseIDs);
 			falseIDs.remove(clientID);
@@ -660,6 +665,7 @@ class ClientImpl implements Client {
 	@Override
 	public void removeFalseIDs(final List<ClientID> clientIDS) {
 		logging.debug("Removing all faulty ClientIDs " + clientIDS);
+		NetCom2Utils.parameterNotNull(clientIDS);
 		synchronized (falseIDs) {
 			logging.debug("State of false IDs before: " + falseIDs);
 			falseIDs.removeAll(clientIDS);
@@ -698,27 +704,19 @@ class ClientImpl implements Client {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientImpl)) return false;
+		if (!(o instanceof ClientImpl)) return false;
 
 		final ClientImpl client = (ClientImpl) o;
 
-		if (! disconnectedHandlers.equals(client.disconnectedHandlers)) return false;
-		if (! fallBackSerialization.equals(client.fallBackSerialization)) return false;
-		if (! fallBackDeSerialization.equals(client.fallBackDeSerialization)) return false;
-		if (! connections.equals(client.connections)) return false;
-		if (! falseIDs.equals(client.falseIDs)) return false;
-		if (! synchronizeMap.equals(client.synchronizeMap)) return false;
-		if (! connectionLock.equals(client.connectionLock)) return false;
-		if (! threadPoolLock.equals(client.threadPoolLock)) return false;
-		if (! idLock.equals(client.idLock)) return false;
-		if (! encryptionAdapter.equals(client.encryptionAdapter)) return false;
-		if (! decryptionAdapter.equals(client.decryptionAdapter)) return false;
-		if (! mainSerializationAdapter.equals(client.mainSerializationAdapter)) return false;
-		if (! mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter)) return false;
-		if (! logging.equals(client.logging)) return false;
-		if (! session.equals(client.session)) return false;
-		if (! communicationRegistration.equals(client.communicationRegistration)) return false;
-		return id.equals(client.id);
+		return disconnectedHandlers.equals(client.disconnectedHandlers) && fallBackSerialization.equals(client.fallBackSerialization)
+				&& fallBackDeSerialization.equals(client.fallBackDeSerialization) && connections.equals(client.connections)
+				&& falseIDs.equals(client.falseIDs) && synchronizeMap.equals(client.synchronizeMap)
+				&& connectionLock.equals(client.connectionLock) && threadPoolLock.equals(client.threadPoolLock)
+				&& idLock.equals(client.idLock) && encryptionAdapter.equals(client.encryptionAdapter)
+				&& decryptionAdapter.equals(client.decryptionAdapter) && mainSerializationAdapter.equals(client.mainSerializationAdapter)
+				&& mainDeSerializationAdapter.equals(client.mainDeSerializationAdapter) && logging.equals(client.logging)
+				&& session.equals(client.session) && communicationRegistration.equals(client.communicationRegistration)
+				&& id.equals(client.id);
 	}
 
 	/**
@@ -739,11 +737,17 @@ class ClientImpl implements Client {
 				'}';
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void acquire() throws InterruptedException {
 		semaphore.acquire();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void release() {
 		semaphore.release();

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.*;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
@@ -28,17 +29,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 
+@Testing(ClientStartImpl.class)
 public class ClientStartImplTest {
 
-	private final String ADDRESS = "localhost";
-	private final int PORT = 1;
+	private static final String ADDRESS = "localhost";
+	private static final int PORT = 1;
 	private Socket mockedSocket = mock(Socket.class);
 	private InputStream mockedInputStream = mock(InputStream.class);
 	private OutputStream mockedOutputStream = mock(OutputStream.class);
 	private SocketFactory mockedSocketFactory;
 
 	@Before
-	public void setup() throws Exception {
+	public void beforeEachTest() throws Exception {
 		mockedSocketFactory = ((port, address) -> mockedSocket);
 		when(mockedSocket.getInputStream()).thenReturn(mockedInputStream);
 		when(mockedSocket.getOutputStream()).thenReturn(mockedOutputStream);
@@ -61,7 +63,7 @@ public class ClientStartImplTest {
 		verify(clientStart.client).getConnection(eq(DefaultConnection.class));
 	}
 
-	@Test (expected = StartFailedException.class)
+	@Test(expected = StartFailedException.class)
 	public void launchNeg() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -84,17 +86,17 @@ public class ClientStartImplTest {
 		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
 			@Override
 			public void newEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void updatedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void deletedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 		};
 
@@ -125,7 +127,7 @@ public class ClientStartImplTest {
 		verify(clientStart.client).send(any(NewConnectionRequest.class));
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void createNewConnectionNeg() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -139,7 +141,7 @@ public class ClientStartImplTest {
 		fail();
 	}
 
-	@Test (expected = IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setSocketFactory() throws Exception {
 		// Arrange
 		ClientStart clientStart = new ClientStartImpl(ADDRESS, PORT);
@@ -173,18 +175,20 @@ public class ClientStartImplTest {
 		verify(clientStart.client).send(testSendObject);
 	}
 
-	@Test (expected = SendFailedException.class)
+	@Test(expected = SendFailedException.class)
 	public void sendNeg() throws Exception {
 		// Arrange
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
 		TestSendObject testSendObject = new TestSendObject();
+		clientStart.client = mock(Client.class);
+		when(clientStart.client.send(any())).thenThrow(new SendFailedException(""));
 
 		// Act
 		clientStart.send().objectToServer(testSendObject);
 
 		// Assert
-		verify(clientStart.client).send(testSendObject);
+		fail();
 	}
 
 	@Test
@@ -365,17 +369,17 @@ public class ClientStartImplTest {
 		CacheObserver<TestSendObject> observer = new AbstractCacheObserver<TestSendObject>(TestSendObject.class) {
 			@Override
 			public void newEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void updatedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 
 			@Override
 			public void deletedEntry(final TestSendObject testSendObject, final CacheObservable observable) {
-				success.set(! success.get());
+				success.set(!success.get());
 			}
 		};
 
@@ -438,11 +442,11 @@ public class ClientStartImplTest {
 		fail();
 	}
 
-	private class TestSendObject {
-	}
-
 	private interface RemoteTest {
 		void doSomething();
+	}
+
+	private class TestSendObject {
 	}
 
 }

@@ -2,13 +2,24 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles {@link UnRegisterRequest}, received over the network
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.UnRegisterRequestReceiveHandlerTest")
 class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 
 	private final Logging logging = Logging.unified();
@@ -25,6 +36,7 @@ class UnRegisterRequestReceiveHandler implements OnReceive<UnRegisterRequest> {
 	@Asynchronous
 	@Override
 	public void accept(final Session session, final UnRegisterRequest o) {
+		NetCom2Utils.parameterNotNull(session, o);
 		logging.debug("Trying to unregister session " + session + " from " + o.getCorrespondingClass());
 		distributorRegistration.removeRegistration(o.getCorrespondingClass(), session);
 		session.send(new UnRegisterResponse(o, true));

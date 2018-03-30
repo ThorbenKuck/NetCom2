@@ -1,24 +1,28 @@
 package com.github.thorbenkuck.netcom2.network.shared.heartbeat;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @APILevel
+@Synchronized
 class HeartBeatCore<T> implements Runnable {
 
 	private final Predicate<T> activePredicate;
 	private final Predicate<T> runningPredicate;
 	private final long delay;
+	private final Logging logging = Logging.unified();
 	private T t;
 	private Consumer<T> consumer;
 	private volatile boolean running = false;
 
 	@APILevel
 	HeartBeatCore(Predicate<T> activePredicate, Predicate<T> runningPredicate, long times, long delay,
-				  TimeUnit timeUnit) {
+	              TimeUnit timeUnit) {
 		this.activePredicate = activePredicate;
 		this.runningPredicate = runningPredicate;
 		this.delay = (long) (timeUnit.toMillis(delay) / (float) times);
@@ -35,7 +39,7 @@ class HeartBeatCore<T> implements Runnable {
 	}
 
 	private boolean running(T t) {
-		return (runningPredicate == null || ! runningPredicate.test(t)) && running;
+		return (runningPredicate == null || !runningPredicate.test(t)) && running;
 	}
 
 	private boolean active(T t) {
@@ -57,7 +61,7 @@ class HeartBeatCore<T> implements Runnable {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 				shutdown();
 			}
 		}

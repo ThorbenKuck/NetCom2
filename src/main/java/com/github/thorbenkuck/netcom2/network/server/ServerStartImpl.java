@@ -2,11 +2,10 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
-import com.github.thorbenkuck.netcom2.interfaces.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -14,6 +13,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +30,26 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-@Synchronized
+/**
+ * This Class is the main point for creating the Server-side of an over-network Communication
+ * <p>
+ * You create this Class the following way:
+ * <p>
+ * <pre>
+ *     {@code
+ * ServerStart serverStart = ServerStart.at(port);
+ *     }
+ * </pre>
+ * <p>
+ * However! You cannot access the type of this class directly! Always use the {@link ServerStart} interface, since NetCom2
+ * is designed as interface-driven!
+ * <p>
+ * This class, or even its signature may be subject to change!
+ *
+ * @version 1.0
+ * @since 1.0
+ */
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.server.ServerStartImplTest")
 class ServerStartImpl implements ServerStart {
 
 	@APILevel
@@ -44,6 +64,7 @@ class ServerStartImpl implements ServerStart {
 	private final Lock threadPoolLock = new ReentrantLock();
 	private final RemoteObjectRegistration remoteObjectRegistration = new RemoteObjectRegistrationImpl();
 	private ExecutorService threadPool = NetCom2Utils.getNetComExecutorService();
+	private ConnectionFactory connectionFactory = ConnectionFactory.udp();
 	private Logging logging = Logging.unified();
 	private ServerConnector serverConnector;
 	private Factory<Integer, ServerSocket> serverSocketFactory;
@@ -54,9 +75,24 @@ class ServerStartImpl implements ServerStart {
 		this.serverConnector = serverConnector;
 		logging.trace("Adding DefaultClientHandler ..");
 		addClientConnectedHandler(
-				new DefaultClientHandler(clientList, distributor, communicationRegistration, registration));
+				new DefaultClientHandler(clientList, communicationRegistration, registration, this::getConnectionFactory));
 		logging.trace("Setting DefaultServerSocketFactory ..");
 		setServerSocketFactory(new DefaultServerSocketFactory());
+	}
+
+	private ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		NetCom2Utils.parameterNotNull(connectionFactory);
+		synchronized (this) {
+			this.connectionFactory = connectionFactory;
+		}
 	}
 
 	/**
@@ -67,7 +103,7 @@ class ServerStartImpl implements ServerStart {
 	 * @see #acceptNextClient()
 	 */
 	private void handle(final Socket socket) {
-		if(!running) {
+		if (!running) {
 			return;
 		}
 		logging.debug("Handling new Socket: " + socket);
@@ -76,6 +112,17 @@ class ServerStartImpl implements ServerStart {
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlerList = new ArrayList<>(clientConnectedHandlers);
 		}
+		// This reverse has to be done
+		// because we want to ensure, that
+		// the DefaultClientHandler is
+		// called last. This is needed
+		// because else encryption and
+		// decryption adapters wont have
+		// any effect. This however does
+		// mean, that the Ping-Handshake
+		// will not have been done once
+		// a ClientConnectedHandler is called.
+		Collections.reverse(clientConnectedHandlerList);
 		final Client client = createClient(clientConnectedHandlerList, socket);
 
 		for (final ClientConnectedHandler clientConnectedHandler : clientConnectedHandlerList) {
@@ -86,13 +133,13 @@ class ServerStartImpl implements ServerStart {
 
 	/**
 	 * Creates a Client, based on the provided ClientConnectedHandlers.
-	 *
+	 * <p>
 	 * Utilizes all previously set ClientConnectedHandlers.
-	 *
+	 * <p>
 	 * If ANY ClientConnectedHandler creates a Client, it will be used as the new Client. Whenever a new Client is created,
 	 * it overrides the previously created Client.
 	 *
-	 * @param list the ClientConnectedHandlers
+	 * @param list   the ClientConnectedHandlers
 	 * @param socket the Socket, the Client just connected with
 	 * @return a new Instance of the Client Class
 	 */
@@ -117,10 +164,10 @@ class ServerStartImpl implements ServerStart {
 
 	/**
 	 * Calling this Method will Stop the Server and ALL running threads.
-	 *
+	 * <p>
 	 * Since calling this Method will result in an shutdown of the {@link NetCom2Utils} NetComThread, this will be unusable
 	 * in the future.
-	 *
+	 * <p>
 	 * This will result in all Queued Runnable of {@link NetCom2Utils#runLater(Runnable)} or {@link NetCom2Utils#runOnNetComThread(Runnable)}
 	 * to be shut down forcefully.
 	 */
@@ -157,7 +204,7 @@ class ServerStartImpl implements ServerStart {
 				startFailedException.addSuppressed(e1);
 			}
 			throw startFailedException;
-		} catch(StartFailedException startFailedException) {
+		} catch (StartFailedException startFailedException) {
 			throw startFailedException;
 		} catch (final Throwable throwable) {
 			logging.fatal("Failed to start Server, because of an unexpected Throwable", throwable);
@@ -170,6 +217,10 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
+		if (!running()) {
+			logging.warn("Server not running!");
+			return;
+		}
 		logging.debug("Starting to accept all next Clients ..");
 		try {
 			while (running()) {
@@ -191,16 +242,9 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setPort(final int port) {
-		serverConnector = new ServerConnector(port);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
+	@Asynchronous
 	public void acceptNextClient() throws ClientConnectionFailedException {
-		if (! running) {
+		if (!running) {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
@@ -226,7 +270,24 @@ class ServerStartImpl implements ServerStart {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public int getPort() {
+		return serverConnector.getPort();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setPort(final int port) {
+		serverConnector = new ServerConnector(port);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
+		NetCom2Utils.parameterNotNull(clientConnectedHandler);
 		logging.debug("Added ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.add(clientConnectedHandler);
@@ -238,6 +299,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler) {
+		NetCom2Utils.parameterNotNull(clientConnectedHandler);
 		logging.debug("Removing ClientConnectedHandler " + clientConnectedHandler);
 		synchronized (clientConnectedHandlers) {
 			clientConnectedHandlers.remove(clientConnectedHandler);
@@ -275,6 +337,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setServerSocketFactory(final Factory<Integer, ServerSocket> factory) {
+		NetCom2Utils.parameterNotNull(factory);
 		if (serverSocketFactory != null) {
 			logging.debug("Overriding existing Factory " + serverSocketFactory + " with " + factory);
 		}
@@ -303,6 +366,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setExecutorService(final ExecutorService executorService) {
+		NetCom2Utils.parameterNotNull(executorService);
 		try {
 			threadPoolLock.lock();
 			this.threadPool = executorService;
@@ -324,6 +388,14 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void softStop() {
+		// This is done, because
+		// if the ServerStart is
+		// not running, we do not
+		// need to go through the
+		// disconnect routine
+		if (!running()) {
+			return;
+		}
 		logging.debug("Stopping ..");
 		logging.trace("Notifying about stop ..");
 		running = false;
@@ -332,7 +404,7 @@ class ServerStartImpl implements ServerStart {
 			clientList.acquire();
 			clientList.close();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logging.catching(e);
 		} finally {
 			clientList.release();
 		}
@@ -343,7 +415,7 @@ class ServerStartImpl implements ServerStart {
 			try {
 				logging.trace("Awaiting termination of all Threads ..");
 				threadPool.awaitTermination(20, TimeUnit.SECONDS);
-				if(!threadPool.isShutdown()) {
+				if (!threadPool.isShutdown()) {
 					logging.trace("Detected some running Threads " + 20 + " seconds after ShutdownRequest! Forcefully shutting down the ThreadPool");
 					hardStop();
 				}
@@ -369,6 +441,7 @@ class ServerStartImpl implements ServerStart {
 	 */
 	@Override
 	public void setLogging(final Logging logging) {
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging.trace("Updating logging ..");
 		this.logging = logging;
 		this.logging.debug("Updated logging!");
@@ -397,7 +470,7 @@ class ServerStartImpl implements ServerStart {
 		logging.debug("Trying to create Connection " + key + " for Session " + session);
 		logging.trace("Getting Client from ClientList ..");
 		final Optional<Client> clientOptional = clientList.getClient(session);
-		if (! clientOptional.isPresent()) {
+		if (!clientOptional.isPresent()) {
 			logging.warn("Could not locate Client for Session: " + session);
 			return Synchronize.empty();
 		}

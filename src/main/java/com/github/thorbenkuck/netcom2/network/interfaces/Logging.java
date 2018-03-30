@@ -2,40 +2,91 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 
 import com.github.thorbenkuck.netcom2.logging.*;
 
+/**
+ * This interface is the core interface as entry for the Logging api.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface Logging {
 
+	/**
+	 * Creates the default logging-level.
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging getDefault() {
 		return error();
 	}
 
+	/**
+	 * Creates a logging-level, that does not log anything
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging disabled() {
 		return new DisabledLogging();
 	}
 
+	/**
+	 * Creates logging instance, that updates with the {@link NetComLogging#setLogging(Logging)} instance
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging unified() {
 		return new NetComLogging();
 	}
 
+	/**
+	 * Creates a logging-level of trace, but analyses the Stacktrace to find the caller of that method.
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging callerTrace() {
 		return new CallerReflectionLogging();
 	}
 
+	/**
+	 * Creates the trace logging-level (logs everything).
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging trace() {
 		return new TraceLogging();
 	}
 
+	/**
+	 * Creates the debug logging-level (does not log trace calls).
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging debug() {
 		return new DebugLogging();
 	}
 
+	/**
+	 * Creates the info logging-level (does not log trace and debug calls).
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging info() {
 		return new InfoLogging();
 	}
 
+	/**
+	 * Creates the debug logging-level (does not log trace, debug and info calls).
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging warn() {
 		return new WarnLogging();
 	}
 
+	/**
+	 * Creates the debug logging-level (does not log trace, debug, info and warn calls).
+	 *
+	 * @return an Logging instance
+	 */
 	static Logging error() {
 		return new ErrorLogging();
 	}

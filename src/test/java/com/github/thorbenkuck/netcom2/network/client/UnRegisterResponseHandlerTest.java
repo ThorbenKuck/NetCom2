@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.UnRegisterResponse;
@@ -7,10 +8,9 @@ import org.junit.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
+@Testing(UnRegisterResponseHandler.class)
 public class UnRegisterResponseHandlerTest {
 	@Test
 	public void accept() throws Exception {
@@ -48,5 +48,6 @@ public class UnRegisterResponseHandlerTest {
 		verify(cache, never()).removeCacheObserver(any());
 	}
 
-	private class CacheClass {}
+	private class CacheClass {
+	}
 }

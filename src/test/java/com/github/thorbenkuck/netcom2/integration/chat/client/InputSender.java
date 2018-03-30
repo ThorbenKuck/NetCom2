@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.integration.chat.client;
 
+import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 import com.github.thorbenkuck.netcom2.integration.chat.common.Message;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 
 import java.io.IOException;
 
@@ -19,11 +19,11 @@ public class InputSender {
 
 	private void parse(String input) {
 		// This is ugly, but only an example!
-		if (input.equals("logout")) {
+		if ("logout".equals(input)) {
 			sender.objectToServer(new Logout());
 			System.out.println("LoggingExample out ..");
 			running = false;
-		} else if (input.equals("help")) {
+		} else if ("help".equals(input)) {
 			printHelp();
 		} else {
 			sender.objectToServer(new Message(input, ChatRoomClient.getUser()));

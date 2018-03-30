@@ -1,11 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
-import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
@@ -17,22 +20,27 @@ import java.util.concurrent.Semaphore;
  * <p>
  * Note that only the Methods: {@link #triggerPrimation()}, {@link #primed()} and {@link #newPrimation()} are marked final,
  * so that the default behaviour of the internal Mechanisms is ensured.
+ *
+ * @version 1.0
+ * @since 1.0
  */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.SessionImplTest")
 class SessionImpl implements Session {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private final SendBridge sendBridge;
-	private final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
-	private final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
-	private final UUID uuid;
-	private final Logging logging = Logging.unified();
-	private final Synchronize synchronize = new DefaultSynchronize();
-	private final Semaphore semaphore = new Semaphore(1);
+	private transient final SendBridge sendBridge;
+	private transient final Map<Class<?>, Pipeline<?>> pipelines = new HashMap<>();
+	private transient final List<HeartBeat<Session>> heartBeats = new ArrayList<>();
+	private transient final UUID uuid;
+	private transient final Logging logging = Logging.unified();
+	private transient final Synchronize synchronize = new DefaultSynchronize();
+	private transient final Semaphore semaphore = new Semaphore(1);
+	private transient SessionUpdater sessionUpdater;
 	private volatile boolean identified = false;
 	private volatile String identifier = "";
 	private volatile Properties properties = new Properties();
-	private SessionUpdater sessionUpdater;
 
 	@APILevel
 	SessionImpl(final SendBridge sendBridge) {
@@ -45,7 +53,21 @@ class SessionImpl implements Session {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		return obj != null && obj.getClass().equals(SessionImpl.class) && ((SessionImpl) obj).uuid.equals(uuid);
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || !(obj instanceof SessionImpl)) {
+			return false;
+		}
+
+		SessionImpl that = (SessionImpl) obj;
+
+		return uuid.equals(that.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return uuid.hashCode();
 	}
 
 	/**
@@ -88,9 +110,12 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the identifier is null
 	 */
 	@Override
 	public void setIdentifier(final String identifier) {
+		NetCom2Utils.parameterNotNull(identifier);
 		this.identifier = identifier;
 	}
 
@@ -104,27 +129,37 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the properties is null
 	 */
 	@Override
 	public void setProperties(final Properties properties) {
+		NetCom2Utils.parameterNotNull(properties);
 		this.properties = properties;
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the object is null
 	 */
 	@Override
 	public void send(final Object o) {
+		NetCom2Utils.parameterNotNull(o);
 		sendBridge.send(o);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
+	 * <p>
+	 * The SuppressWarnings tag is used because of the type erasure of the generic type T. We ensure this at runtime.
+	 *
+	 * @throws IllegalArgumentException if the class is null
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Pipeline<T> eventOf(final Class<T> clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		pipelines.computeIfAbsent(clazz, k -> {
 			logging.trace("Adding new SessionEventPipeline for " + clazz);
 			return Pipeline.unifiedCreation();
@@ -134,11 +169,15 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 * <p>
 	 * The SuppressWarnings tag is used because of the type erasure of the generic type T
+	 *
+	 * @throws IllegalArgumentException if the class or the object is null
 	 */
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void triggerEvent(final Class<T> clazz, T t) {
+		NetCom2Utils.parameterNotNull(clazz, t);
 		final Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
 		if (pipeline != null) {
 			pipeline.run(t);
@@ -149,22 +188,30 @@ class SessionImpl implements Session {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the HeartBeat is null
 	 */
 	@Override
 	public void addHeartBeat(final HeartBeat<Session> heartBeat) {
+		NetCom2Utils.parameterNotNull(heartBeat);
 		heartBeats.add(heartBeat);
 		heartBeat.parallel().run(this);
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the HeartBeat is null
 	 */
 	@Override
 	public void removeHeartBeat(final HeartBeat<Session> heartBeat) {
-		final HeartBeat<Session> heartBeat1 = heartBeats.remove(heartBeats.indexOf(heartBeat));
-		if (heartBeat1 != null) {
-			heartBeat1.stop();
+		NetCom2Utils.parameterNotNull(heartBeat);
+		if (!heartBeats.contains(heartBeat)) {
+			logging.warn("The HeartBeat " + heartBeat + " was never set.");
+			return;
 		}
+		heartBeats.remove(heartBeat);
+		heartBeat.stop();
 	}
 
 	/**

@@ -1,12 +1,12 @@
 package com.github.thorbenkuck.netcom2.integration.chat.server;
 
+import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
+import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 import com.github.thorbenkuck.netcom2.integration.chat.common.Message;
 import com.github.thorbenkuck.netcom2.integration.chat.common.User;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Login;
-import com.github.thorbenkuck.netcom2.integration.chat.common.Logout;
 
 import java.time.LocalDateTime;
 
@@ -43,7 +43,7 @@ public class Instantiate {
 					session.send(user);
 					serverStart.distribute().toAllIdentified(new Message("User " + user.getUserName() + " connected!", systemUser));
 					session.setIdentified(true);
-				}).withRequirement(session -> ! session.isIdentified());
+				}).withRequirement(session -> !session.isIdentified());
 
 		communicationRegistration.register(Logout.class)
 				.addFirst((session, login) -> session.setIdentified(false))
@@ -60,9 +60,9 @@ public class Instantiate {
 
 		communicationRegistration.register(Message.class)
 				.addLast((session, message) -> {
-					System.out.println("Session is unidentified: " + ! session.isIdentified());
+					System.out.println("Session is unidentified: " + !session.isIdentified());
 					session.send(new Message("! You have to be logged in, to send a message !", new User()));
-				}).withRequirement(session -> ! session.isIdentified());
+				}).withRequirement(session -> !session.isIdentified());
 	}
 
 	public final void resolve() {

@@ -2,12 +2,23 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+/**
+ * This Class handles a {@link RegisterResponse}, received from the ServerStart
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
+@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.RegisterResponseHandlerTest")
 class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 
 	private final Logging logging = Logging.unified();
@@ -20,9 +31,13 @@ class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 		this.sender = sender;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Asynchronous
 	@Override
 	public void accept(final RegisterResponse o) {
+		NetCom2Utils.parameterNotNull(o);
 		if (o.isOkay()) {
 			try {
 				cache.acquire();
@@ -34,5 +49,31 @@ class RegisterResponseHandler implements OnReceiveSingle<RegisterResponse> {
 				cache.release();
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "RegisterResponseHandler{" +
+				"cache=" + cache +
+				", sender=" + sender +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof RegisterResponseHandler)) return false;
+
+		RegisterResponseHandler handler = (RegisterResponseHandler) o;
+
+		return logging.equals(handler.logging) && cache.equals(handler.cache) && sender.equals(handler.sender);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = logging.hashCode();
+		result = 31 * result + cache.hashCode();
+		result = 31 * result + sender.hashCode();
+		return result;
 	}
 }

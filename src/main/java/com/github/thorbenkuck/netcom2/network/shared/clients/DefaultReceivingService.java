@@ -2,11 +2,11 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -14,18 +14,26 @@ import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 
+/**
+ * {@inheritDoc}
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
-@Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.DefaultReceivingServiceTest")
 class DefaultReceivingService implements ReceivingService {
 
-	private final DecryptionAdapter decryptionAdapter;
 	@APILevel
-	private final List<Callback<Object>> callbacks = new ArrayList<>();
+	protected final List<Callback<Object>> callbacks = new ArrayList<>();
+	private final Supplier<DecryptionAdapter> decryptionAdapter;
 	private final Synchronize synchronize = new DefaultSynchronize(1);
 	private Runnable onDisconnect = () -> {
 	};
@@ -33,22 +41,37 @@ class DefaultReceivingService implements ReceivingService {
 	private Session session;
 	private Scanner in;
 	private CommunicationRegistration communicationRegistration;
-	private DeSerializationAdapter<String, Object> deSerializationAdapter;
-	private Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization;
+	private Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
+	private Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
 	private boolean running = false;
+	private boolean setup = false;
 	private Logging logging = Logging.unified();
 
 	@APILevel
 	DefaultReceivingService(final CommunicationRegistration communicationRegistration,
-							final DeSerializationAdapter<String, Object> deSerializationAdapter,
-							final Set<DeSerializationAdapter<String, Object>> fallBackDeSerialization,
-							final DecryptionAdapter decryptionAdapter) {
+	                        final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter,
+	                        final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization,
+	                        final Supplier<DecryptionAdapter> decryptionAdapter) {
 		this.communicationRegistration = communicationRegistration;
 		this.deSerializationAdapter = deSerializationAdapter;
 		this.fallBackDeSerialization = fallBackDeSerialization;
 		this.decryptionAdapter = decryptionAdapter;
 	}
 
+	/**
+	 * Handles an received String, with all needed steps.
+	 * <p>
+	 * This, in fact means the following:
+	 * <p>
+	 * <ul>
+	 * <li>decrypt the String</li>
+	 * <li>deserialize the String</li>
+	 * <li>triggers the {@link CommunicationRegistration} with the de serialized object</li>
+	 * <li>triggers all {@link Callback} instances with the de serialized object</li>
+	 * </ul>
+	 *
+	 * @param string the raw received Strings.
+	 */
 	@Asynchronous
 	private void handle(final String string) {
 		logging.trace("[ReceivingService] Handling " + string + " ..");
@@ -73,24 +96,44 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Triggers the DisconnectedRunnable
+	 */
 	private void onDisconnect() {
 		logging.info("[ReceivingService] Shutting down ReceivingService!");
 		onDisconnect.run();
 		running = false;
 	}
 
+	/**
+	 * Decrypts the provided String.
+	 *
+	 * @param s the encrypted String.
+	 * @return the decrypted String.
+	 */
 	private String decrypt(final String s) {
-		return decryptionAdapter.get(s);
+		return decryptionAdapter.get().get(s);
 	}
 
+	/**
+	 * Deserialize the provided String.
+	 * <p>
+	 * This will firstly ask the set MainSerializationAdapter.
+	 * <p>
+	 * Will ask all DeserializationAdapters if the main Adapter fails.
+	 *
+	 * @param string the received String.
+	 * @return the Object for that String.
+	 * @throws DeSerializationFailedException if no DeSerializationAdapter can handle the String
+	 */
 	private Object deserialize(final String string) throws DeSerializationFailedException {
-		final String toDeserialize = decryptionAdapter.get(string);
+		final String toDeserialize = decrypt(string);
 		final DeSerializationFailedException deSerializationFailedException;
 		try {
-			return deSerializationAdapter.get(toDeserialize);
+			return deSerializationAdapter.get().get(toDeserialize);
 		} catch (final DeSerializationFailedException ex) {
 			deSerializationFailedException = new DeSerializationFailedException(ex);
-			for (final DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization) {
+			for (final DeSerializationAdapter<String, Object> adapter : fallBackDeSerialization.get()) {
 				try {
 					return adapter.get(toDeserialize);
 				} catch (final DeSerializationFailedException e) {
@@ -101,13 +144,19 @@ class DefaultReceivingService implements ReceivingService {
 		throw new DeSerializationFailedException(deSerializationFailedException);
 	}
 
+	/**
+	 * Triggers the {@link CommunicationRegistration} with the needed Objects.
+	 *
+	 * @param object the receivedObject.
+	 * @see CommunicationRegistration#trigger(Connection, Session, Object)
+	 */
 	private void trigger(final Object object) {
 		try {
 			try {
 				communicationRegistration.acquire();
 				communicationRegistration.trigger(object.getClass(), connection, session, object);
 			} catch (final InterruptedException e) {
-				e.printStackTrace();
+				logging.catching(e);
 			} finally {
 				communicationRegistration.release();
 			}
@@ -116,6 +165,13 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Triggers Callbacks, listening to the receiving of any Object.
+	 * <p>
+	 * Afterwards, the Callbacks will be cleaned to free up resources.
+	 *
+	 * @param object the Object we received.
+	 */
 	private void callBack(final Object object) {
 		logging.debug("[ReceivingService] Accepting CallBacks(" + object + ")!");
 		runSynchronizedOverCallbacks(() -> {
@@ -131,6 +187,11 @@ class DefaultReceivingService implements ReceivingService {
 		cleanUpCallBacks();
 	}
 
+	/**
+	 * Runs a Runnable synchronized over the Callbacks.
+	 *
+	 * @param runnable the Runnable.
+	 */
 	private void runSynchronizedOverCallbacks(final Runnable runnable) {
 		logging.trace("[ReceivingService] Awaiting ThreadAccess over callbacks ..");
 		synchronized (callbacks) {
@@ -139,6 +200,11 @@ class DefaultReceivingService implements ReceivingService {
 		}
 	}
 
+	/**
+	 * Removes a {@link Callback}.
+	 *
+	 * @param toRemove the provided callback.
+	 */
 	@Asynchronous
 	private void removeCallback(final Callback<Object> toRemove) {
 		logging.trace("[ReceivingService] Preparing to remove Callback: " + toRemove);
@@ -150,8 +216,12 @@ class DefaultReceivingService implements ReceivingService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Asynchronous
 	@Override
 	public synchronized void run() {
+		if (!isSetup()) {
+			throw new SetupListenerException("[ReceivingService] has to be setup before running it!");
+		}
 		running = true;
 		logging.debug("[ReceivingService] Started ReceivingService for " + connection.getKey() + "@" + connection.getFormattedAddress());
 		synchronize.goOn();
@@ -209,9 +279,12 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the provided callback is null
 	 */
 	@Override
 	public void addReceivingCallback(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
 		logging.debug("[ReceivingService] Trying to add Callback " + callback);
 		runSynchronizedOverCallbacks(() -> callbacks.add(callback));
 		logging.trace("[ReceivingService] Added Callback: " + callback);
@@ -219,33 +292,43 @@ class DefaultReceivingService implements ReceivingService {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the connection or the session is null
 	 */
 	@Override
 	public void setup(final Connection connection, final Session session) {
+		NetCom2Utils.parameterNotNull(connection, session);
 		this.connection = connection;
 		this.session = session;
 		try {
 			synchronized (this) {
 				in = new Scanner(connection.getInputStream());
 			}
+			setup = true;
 		} catch (IOException e) {
-			throw new Error(e);
+			throw new SetupListenerException(e);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the session is null
 	 */
 	@Override
 	public void setSession(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
 		this.session = session;
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the runnable is null
 	 */
 	@Override
 	public void onDisconnect(final Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		this.onDisconnect = runnable;
 	}
 
@@ -257,4 +340,11 @@ class DefaultReceivingService implements ReceivingService {
 		return synchronize;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isSetup() {
+		return setup;
+	}
 }

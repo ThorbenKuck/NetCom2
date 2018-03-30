@@ -5,21 +5,39 @@ import java.lang.annotation.*;
 /**
  * Shows that a Class is thoroughly tested.
  * <p>
- * You might provide the String, which represents the unit Test. With that, it should be absolutely clear, which Test
+ * You may provide the String, which represents the unit Test. With that, it should be absolutely clear, which Test
  * is responsible for the correct functionality of the annotated class.
  * <p>
  * This is a String, because the Test-Class is not accessible at compile of the production-code.
  * <p>
- * Also, you might provide a boolean, whether or not the annotated Class is an unit-Test or not.
+ * Also, you may provide a boolean, whether or not the annotated Class is an unit-Test or not.
  * <p>
  * It is important to note that this classes RetentionPolicy is only Source. This means, it is not queried or
  * maintained at Runtime and therefore uninteresting for performance. It is only meant to show that the annotated Class
  * is tested. Further this annotation should not be relied upon by using developers.
+ * <p>
+ * If you have multiple Tests for the same Class, you may annotate the Class in the following way:
+ * <p>
+ * <pre><code>
+ * {@literal @}Tested(responsibleTest = "package.of.unit.test.TestOne"),
+ * {@literal @}Tested(responsibleTest = "package.of.unit.test.TestTwo"),
+ * {@literal @}Tested(responsibleTest = "package.of.integration.test.Test", unitTest = false)
+ * public class ModuleThatIsTested {
+ *     // ...
+ * }
+ * </code></pre>
+ * <p>
+ * This makes the code clean and readable. Please look at the {@link Tests} annotation, for further information.
+ *
+ * @version 1.0
+ * @see Tests
+ * @since 1.0
  */
 @APILevel
 @Documented
-@Target (ElementType.TYPE)
-@Retention (RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+@Repeatable(Tests.class)
 public @interface Tested {
 
 	/**
@@ -29,7 +47,7 @@ public @interface Tested {
 	 *
 	 * @return the fully qualified Name to the Test, responsible for the annotated Class
 	 */
-	String responsibleTest() default "Experimental";
+	String responsibleTest();
 
 	/**
 	 * Describes, whether or not, the Test, responsible for testing the annotated Class, is a unit-test or not.

@@ -3,15 +3,24 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
 
+/**
+ * The SendingService class is the entry-point for sending objects over the network.
+ * <p>
+ * This Runnable is meant to be run in a separate Thread and to be (sort of) forgotten about. It is used within a {@link Connection}.
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 public interface SendingService extends Runnable, SoftStoppable {
 
 	/**
-	 * Adds a Callback, that will be executed, if the object is send
+	 * Adds a Callback, that will be executed, if the object is sent
 	 *
 	 * @param callback the Callback, that should be held internally.
 	 */
@@ -28,6 +37,8 @@ public interface SendingService extends Runnable, SoftStoppable {
 
 	/**
 	 * Sets up this SendingService.
+	 * <p>
+	 * This means, internal dependencies will be resolved and this SendingService is ready to run.
 	 *
 	 * @param outputStream the OutputStream, this SendingService should write to.
 	 * @param toSendFrom   the BlockingQueue, that the Objects to send should be taken from
@@ -35,9 +46,9 @@ public interface SendingService extends Runnable, SoftStoppable {
 	void setup(final OutputStream outputStream, final BlockingQueue<Object> toSendFrom);
 
 	/**
-	 * Returns an Synchronization mechanism, that allows to wait until the SendingService is setup.
+	 * Returns a synchronization mechanism, that allows to wait until the SendingService is setup.
 	 * <p>
-	 * This mechanism stops to block if the SendingService is setup und running.
+	 * This mechanism stops blocking if the SendingService is setup und running.
 	 *
 	 * @return the Synchronization mechanism.
 	 */
@@ -49,4 +60,14 @@ public interface SendingService extends Runnable, SoftStoppable {
 	 * @param supplier the Supplier, that creates the ConnectionID
 	 */
 	void setConnectionIDSupplier(Supplier<String> supplier);
+
+	/**
+	 * This method returns whether or not this SendingService is setup or not.
+	 * <p>
+	 * If it is setup, it can successfully run. To set it up, call {@link #setup(OutputStream, BlockingQueue)}.
+	 *
+	 * @return true, if it was setup, else false
+	 * @see #setup(OutputStream, BlockingQueue)
+	 */
+	boolean isSetup();
 }

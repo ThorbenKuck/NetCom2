@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
@@ -10,18 +11,35 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
-import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.clients.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This Class is the main point for creating the Client-side of an over-network Communication
+ * <p>
+ * You create this Class the following way:
+ * <p>
+ * <pre>
+ *     {@code
+ * ClientStart clientStart = ClientStart.at(address, port);
+ *     }
+ * </pre>
+ * <p>
+ * However! You cannot access the type of this class directly! Always use the {@link ClientStart} interface, since NetCom2
+ * is designed as interface-driven!
+ * <p>
+ * This class, or even its signature may be subject to change!
+ *
+ * @version 1.0
+ * @since 1.0
+ */
 @APILevel
 @Synchronized
+@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.ClientStartImplTest")
 class ClientStartImpl implements ClientStart {
 
 	private final Cache cache = Cache.create();
@@ -29,17 +47,18 @@ class ClientStartImpl implements ClientStart {
 	private final CommunicationRegistration communicationRegistration = CommunicationRegistration.create();
 	@APILevel
 	private final ClientConnectionEstablish clientConnectionEstablish = new ClientConnectionEstablish();
+	@APILevel
+	Client client;
+	@APILevel
+	InternalSender sender;
 	private Logging logging = Logging.unified();
 	private SocketFactory socketFactory;
-	@APILevel Client client;
-	@APILevel InternalSender sender;
 	private RemoteObjectFactoryImpl remoteObjectFactoryImpl;
+
+	@APILevel
+	private ConnectionFactory connectionFactory = ConnectionFactory.udp();
 	@APILevel
 	private AtomicBoolean launched = new AtomicBoolean(false);
-
-	AtomicBoolean launched() {
-		return launched;
-	}
 
 	/**
 	 * The creation of the ClientStartImpl will:
@@ -52,7 +71,7 @@ class ClientStartImpl implements ClientStart {
 	 * <li>Lastly add the {@link DefaultClientDisconnectedHandler}</li>
 	 * </ul>
 	 * <p>
-	 * This is quit a lot, but needed. This should not be that workload intensive.
+	 * This is quite a lot, but needed. This should not be that workload intensive.
 	 *
 	 * @param address the address
 	 * @param port    the port
@@ -64,7 +83,7 @@ class ClientStartImpl implements ClientStart {
 		logging.trace("Creating Client ..");
 		client = Client.create(communicationRegistration);
 		logging.trace("Creating Client-Connector ..");
-		clientConnector = new ClientConnector(address, port, client);
+		clientConnector = new ClientConnector(this::getConnectionFactory, address, port, client);
 		logging.trace("Setting DefaultClientSocketFactory ..");
 		setSocketFactory(new DefaultClientSocketFactory());
 		logging.trace("Creating Sender ..");
@@ -73,14 +92,26 @@ class ClientStartImpl implements ClientStart {
 		remoteObjectFactoryImpl = new RemoteObjectFactoryImpl(sender);
 	}
 
+	/**
+	 * Returns the current instant of the ConnectionFactory
+	 *
+	 * @return the current ConnectionFactory
+	 */
+	private ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	/**
+	 * This method will throw an {@link IllegalStateException} if this ClientStart is not launched yet.
+	 */
 	private void requireRunning() {
-		if(!launched().get()) {
+		if (!launched().get()) {
 			throw new IllegalStateException("Launch required!");
 		}
 	}
 
 	/**
-	 * This Method is synchronized. Therefor only one Thread may launch the {@link ClientStart}!
+	 * This Method is synchronized. Therefore only one Thread may launch the {@link ClientStart}!
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -116,11 +147,12 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if provided key is null
+	 * @throws IllegalArgumentException if provided key is null
+	 * @throws IllegalStateException    if the ClientStart is not running
 	 */
 	@Override
 	public Awaiting createNewConnection(final Class key) {
-		NetCom2Utils.assertNotNull(key);
+		NetCom2Utils.parameterNotNull(key);
 		requireRunning();
 		logging.trace("Trying to establish new Connection ..");
 		return clientConnectionEstablish.newFor(key, client);
@@ -129,13 +161,15 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SocketFactory is null
+	 * @throws IllegalArgumentException if the SocketFactory is null
 	 */
 	@Override
-	public synchronized void setSocketFactory(final SocketFactory factory) {
-		NetCom2Utils.assertNotNull(factory);
+	public void setSocketFactory(final SocketFactory factory) {
+		NetCom2Utils.parameterNotNull(factory);
 		logging.debug("Set SocketFactory to: " + factory);
-		socketFactory = factory;
+		synchronized (this) {
+			socketFactory = factory;
+		}
 	}
 
 	/**
@@ -149,85 +183,99 @@ class ClientStartImpl implements ClientStart {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SerializationAdapter is null
+	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
-	public synchronized void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
-		NetCom2Utils.assertNotNull(serializationAdapter);
+	public void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter) {
+		NetCom2Utils.parameterNotNull(serializationAdapter);
 		logging.debug("Added fallback Serialization " + serializationAdapter);
-		client.addFallBackSerialization(serializationAdapter);
+		synchronized (this) {
+			client.addFallBackSerialization(serializationAdapter);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
-	public synchronized void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
-		NetCom2Utils.assertNotNull(deSerializationAdapter);
+	public void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(deSerializationAdapter);
 		logging.debug("Added fallback Serialization " + deSerializationAdapter);
-		client.addFallBackDeSerialization(deSerializationAdapter);
+		synchronized (this) {
+			client.addFallBackDeSerialization(deSerializationAdapter);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the SerializationAdapter is null
+	 * @throws IllegalArgumentException if the SerializationAdapter is null
 	 */
 	@Override
-	public synchronized void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
-		NetCom2Utils.assertNotNull(mainSerializationAdapter);
+	public void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(mainSerializationAdapter);
 		logging.debug("Set main Serialization " + mainSerializationAdapter);
-		client.setMainSerializationAdapter(mainSerializationAdapter);
+		synchronized (this) {
+			client.setMainSerializationAdapter(mainSerializationAdapter);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DeSerializationAdapter is null
+	 * @throws IllegalArgumentException if the DeSerializationAdapter is null
 	 */
 	@Override
-	public synchronized void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
-		NetCom2Utils.assertNotNull(mainDeSerializationAdapter);
+	public void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter) {
+		NetCom2Utils.parameterNotNull(mainDeSerializationAdapter);
 		logging.debug("Added main Serialization " + mainDeSerializationAdapter);
-		client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
+		synchronized (this) {
+			client.setMainDeSerializationAdapter(mainDeSerializationAdapter);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DisconnectedHandler is null
+	 * @throws IllegalArgumentException if the DisconnectedHandler is null
 	 */
 	@Override
-	public synchronized void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
-		NetCom2Utils.assertNotNull(disconnectedHandler);
+	public void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler) {
+		NetCom2Utils.parameterNotNull(disconnectedHandler);
 		logging.debug("Added disconnectedHandler " + disconnectedHandler);
-		client.addDisconnectedHandler(disconnectedHandler);
+		synchronized (this) {
+			client.addDisconnectedHandler(disconnectedHandler);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the DecryptionAdapter is null
+	 * @throws IllegalArgumentException if the DecryptionAdapter is null
 	 */
 	@Override
-	public synchronized void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
-		NetCom2Utils.assertNotNull(decryptionAdapter);
+	public void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		NetCom2Utils.parameterNotNull(decryptionAdapter);
 		logging.debug("Set DecryptionAdapter " + decryptionAdapter);
-		client.setDecryptionAdapter(decryptionAdapter);
+		synchronized (this) {
+			client.setDecryptionAdapter(decryptionAdapter);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the EncryptionAdapter is null
+	 * @throws IllegalArgumentException if the EncryptionAdapter is null
 	 */
 	@Override
-	public synchronized void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
-		NetCom2Utils.assertNotNull(encryptionAdapter);
+	public void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		NetCom2Utils.parameterNotNull(encryptionAdapter);
 		logging.debug("Set EncryptionAdapter " + encryptionAdapter);
-		client.setEncryptionAdapter(encryptionAdapter);
+		synchronized (this) {
+			client.setEncryptionAdapter(encryptionAdapter);
+		}
 	}
 
 	/**
@@ -249,12 +297,20 @@ class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	@Override
+	public RemoteObjectFactory getRemoteObjectFactory() {
+		return remoteObjectFactoryImpl;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
-	 * @throws NullPointerException if the logging is null
+	 * @throws IllegalArgumentException if the logging is null
 	 */
 	@Override
 	public synchronized void setLogging(final Logging logging) {
-		NetCom2Utils.assertNotNull(logging);
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging.debug("Overriding logging ..");
 		this.logging = logging;
 		logging.debug("Logging was updated!");
@@ -283,19 +339,15 @@ class ClientStartImpl implements ClientStart {
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (! (o instanceof ClientStartImpl)) return false;
+		if (!(o instanceof ClientStartImpl)) return false;
 
 		final ClientStartImpl that = (ClientStartImpl) o;
 
-		if (launched != that.launched) return false;
-		if (! cache.equals(that.cache)) return false;
-		if (! clientConnector.equals(that.clientConnector)) return false;
-		if (! communicationRegistration.equals(that.communicationRegistration)) return false;
-		if (! clientConnectionEstablish.equals(that.clientConnectionEstablish)) return false;
-		if (! logging.equals(that.logging)) return false;
-		if (! socketFactory.equals(that.socketFactory)) return false;
-		if (! client.equals(that.client)) return false;
-		return sender.equals(that.sender);
+		return launched == that.launched && cache.equals(that.cache) && clientConnector.equals(that.clientConnector)
+				&& communicationRegistration.equals(that.communicationRegistration)
+				&& clientConnectionEstablish.equals(that.clientConnectionEstablish)
+				&& logging.equals(that.logging) && socketFactory.equals(that.socketFactory)
+				&& client.equals(that.client) && sender.equals(that.sender);
 	}
 
 	/**
@@ -312,12 +364,7 @@ class ClientStartImpl implements ClientStart {
 	}
 
 	/**
-	 * Potentially deprecated in the future.
-	 *
-	 * Use {@link ClientStart#getRemoteObjectFactory()} instead
-	 *
 	 * {@inheritDoc}
-	 * @see RemoteObjectFactory
 	 */
 	@Override
 	public <T> T getRemoteObject(final Class<T> clazz) {
@@ -326,22 +373,38 @@ class ClientStartImpl implements ClientStart {
 
 	/**
 	 * {@inheritDoc}
-	 */
-	@Override
-	public RemoteObjectFactory getRemoteObjectFactory() {
-		return remoteObjectFactoryImpl;
-	}
-
-
-	/**
-	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the invocationHandlerProducer is null
 	 */
 	@Override
 	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
+		NetCom2Utils.parameterNotNull(invocationHandlerProducer);
 		try {
 			remoteObjectFactoryImpl.setInvocationHandlerProducer(invocationHandlerProducer);
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalArgumentException if the connectionFactory is null
+	 */
+	@Override
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		NetCom2Utils.parameterNotNull(connectionFactory);
+		synchronized (this) {
+			this.connectionFactory = connectionFactory;
+		}
+	}
+
+	/**
+	 * Returns the internal {@link AtomicBoolean}, which changes to true, once this ClientStart is launched.
+	 *
+	 * @return the AtomicBoolean instance.
+	 */
+	AtomicBoolean launched() {
+		return launched;
 	}
 }
