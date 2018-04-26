@@ -47,7 +47,10 @@ public class NetCom2Utils {
 	private static final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	private static final ThreadFactory THREAD_FACTORY = createNewDaemonThreadFactory();
 	private static final ThreadFactory NON_DAEMON_THREAD_FACTORY = createNewNonDaemonThreadFactory();
+	@APILevel
 	private static final ExecutorService queueExecutorService = Executors.newSingleThreadExecutor(THREAD_FACTORY);
+	@APILevel
+	private static final ExecutorService queuedElementsThreadPool = createNewNonDaemonExecutorService();
 	private static final ExecutorService NET_COM_THREAD = createNewCachedExecutorService();
 
 	static {
@@ -56,8 +59,14 @@ public class NetCom2Utils {
 			do {
 				try {
 					Runnable runnable = runnableQueue.take();
-					assertNotNull(runnable);
-					runnable.run();
+					if (runnable != null) {
+						// We extract this runnable into another Thread.
+						// By that, we emulate an "Selector", which
+						// takes Objects and handles those.
+						queuedElementsThreadPool.submit(runnable);
+					} else {
+						logging.warn("Found null element in NetComThread");
+					}
 				} catch (InterruptedException e) {
 					logging.catching(e);
 				}
@@ -259,7 +268,7 @@ public class NetCom2Utils {
 	 * @param runnable the runnable, that should be executed synchronized
 	 */
 	@Asynchronous
-	public static void runLaterSynchronized(final Runnable runnable) {
+	public static void runOnSelector(final Runnable runnable) {
 		parameterNotNull(runnable);
 		runLater(() -> {
 			try {
@@ -282,6 +291,7 @@ public class NetCom2Utils {
 	 * @param runnable the runnable, that should be executed synchronized
 	 */
 	@Asynchronous
+	@APILevel
 	public static void runLater(final Runnable runnable) {
 		parameterNotNull(runnable);
 		Thread currentThread = Thread.currentThread();
@@ -292,6 +302,7 @@ public class NetCom2Utils {
 				logging.trace(currentThread.getName() + "finished. Continue...");
 			} catch (InterruptedException e) {
 				logging.catching(e);
+				return;
 			}
 			runnable.run();
 		});
