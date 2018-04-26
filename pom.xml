@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
     <artifactId>NetCom2</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>NetCom2</name>
     <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
         <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
         <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-        <tag>NetCom2-0.4.1.0</tag>
+        <tag>NetCom2-1.0.1</tag>
     </scm>
 
     <developers>
