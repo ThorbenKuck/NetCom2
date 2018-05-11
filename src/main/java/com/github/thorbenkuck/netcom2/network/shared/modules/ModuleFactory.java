@@ -8,6 +8,6 @@ public interface ModuleFactory {
 
 	Module createUDP();
 
-	Module createNIO();
+	NIOFactory nio();
 
 }

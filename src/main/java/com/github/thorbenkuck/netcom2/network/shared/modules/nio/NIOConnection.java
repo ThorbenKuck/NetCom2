@@ -20,7 +20,10 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,20 +37,113 @@ final class NIOConnection implements Connection {
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = Pipeline.unifiedCreation();
 	private final Value<Boolean> running = Value.synchronize(false);
-	private Session session;
-	private Class<?> key;
+	private final Value<Session> session;
+	private final Value<Class<?>> key;
+	private final List<Callback<Object>> sendCallbacks = new ArrayList<>();
+	private final List<Callback<Object>> receiveCallbacks = new ArrayList<>();
 	private Logging logging = Logging.unified();
 
-	public NIOConnection(final SocketChannel socketChannel, Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
+	public NIOConnection(final SocketChannel socketChannel, final Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
 		this.socketChannel = socketChannel;
 		this.selector = selector;
 		this.objectHandler = objectHandler;
-		this.key = key;
-		this.session = session;
+		this.key = Value.synchronize(key);
+		this.session = Value.synchronize(session);
 	}
 
-	ObjectHandler getObjectHandler() {
+	private void callbackSend(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
+		logging.debug("[NIO] Accepting SendCallbacks(" + object + ")!");
+		logging.trace("[NIO] Calling all callbacks, that want to be called ..");
+		final List<Callback<Object>> temp;
+		synchronized (sendCallbacks) {
+			temp = new ArrayList<>(sendCallbacks);
+		}
+
+		temp.stream()
+				.filter(callBack -> callBack.isAcceptable(object))
+				.forEach(callBack -> {
+					logging.trace("[NIO] Calling " + callBack + " ..");
+					callBack.accept(object);
+				});
+
+		logging.trace("[NIO] Requesting to cleanup SendCallbacks");
+		cleanUpSendCallbacks();
+	}
+
+	/**
+	 * Clears up all Callbacks, that are removable
+	 */
+	private void cleanUpReceiveCallbacks() {
+		logging.debug("[NIO] ReceiveCallback cleanup requested!");
+		final List<Callback<Object>> removable = new ArrayList<>();
+		synchronized (receiveCallbacks) {
+			receiveCallbacks.stream()
+					.filter(Callback::isRemovable)
+					.forEachOrdered(callBack -> {
+						logging.debug("[NIO] Marking " + callBack + " as to be removed ..");
+						removable.add(callBack);
+					});
+		}
+
+		removable.forEach(callback -> removeCallback(callback, receiveCallbacks));
+
+		logging.debug("[NIO] ReceiveCallback cleanup done!");
+	}
+
+	private void cleanUpSendCallbacks() {
+		logging.debug("[NIO] SendCallback cleanup requested!");
+		final List<Callback<Object>> toRemove = new ArrayList<>();
+		synchronized (sendCallbacks) {
+			sendCallbacks.stream()
+					.filter(Callback::isRemovable)
+					.forEach(callBack -> {
+						logging.trace("[NIO] Marking Callback " + callBack + " as to be removed ..");
+						toRemove.add(callBack);
+					});
+		}
+
+		toRemove.forEach(callback -> removeCallback(callback, sendCallbacks));
+
+		logging.debug("[NIO] SendCallback cleanup done!");
+	}
+
+	private void removeCallback(final Callback<Object> toRemove, Collection<Callback<Object>> root) {
+		NetCom2Utils.parameterNotNull(toRemove, root);
+		logging.trace("[NIO] Preparing to remove Callback: " + toRemove);
+		toRemove.onRemove();
+		logging.debug("[NIO] Removing Callback " + toRemove);
+		root.remove(toRemove);
+	}
+
+	final ObjectHandler getObjectHandler() {
 		return objectHandler;
+	}
+
+	/**
+	 * Triggers all Callbacks, listening for sending Objects.
+	 * <p>
+	 * Afterwards, it will clean up to free up resources.
+	 *
+	 * @param object the Object that was send.
+	 */
+	final void callbackReceived(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
+		logging.debug("[NIO] Accepting ReceivedCallbacks(" + object + ")!");
+		logging.trace("[NIO] Calling all callbacks, that want to be called ..");
+		final List<Callback<Object>> temp;
+		synchronized (receiveCallbacks) {
+			temp = new ArrayList<>(receiveCallbacks);
+		}
+		temp.stream()
+				.filter(callBack -> callBack.isAcceptable(object))
+				.forEachOrdered(callBack -> {
+					logging.trace("[NIO] Calling " + callBack + " ..");
+					callBack.accept(object);
+				});
+
+		logging.trace("[NIO] Requesting to cleanup ReceiveCallbacks");
+		cleanUpReceiveCallbacks();
 	}
 
 	/**
@@ -65,27 +161,14 @@ final class NIOConnection implements Connection {
 	@Override
 	public void setup() {
 		running.set(true);
-//		NetCom2Utils.runOnNetComThread(() -> {
-//			while(running.get()) {
-//				Object object;
-//				try {
-//					object = toSend.take();
-//					if(object == null) {
-//						continue;
-//					}
-//					write(object);
-//				} catch (InterruptedException e) {
-//					logging.catching(e);
-//				}
-//			}
-//		});
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
+	public void removeOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		disconnectedPipeline.remove(consumer);
 	}
 
@@ -93,67 +176,82 @@ final class NIOConnection implements Connection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void write(Object object) {
+	public void write(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
 		if (!isActive()) {
 			throw new IllegalStateException("Connection is not active");
 		}
-		String toSend;
+		final String toSend;
 		try {
-			logging.debug("[NIO]: Send of " + object + " initialized.");
-			logging.trace("[NIO]: Serializing ...");
+			logging.debug("[NIO] Send of " + object + " initialized.");
+			logging.trace("[NIO] Serializing ...");
 			toSend = objectHandler.serialize(object);
-		} catch (SerializationFailedException e) {
+		} catch (final SerializationFailedException e) {
 			logging.catching(e);
 			return;
 		}
-		logging.trace("[NIO]: Buffering serialized Object ...");
-		byte[] message = toSend.getBytes();
-		logging.trace("[NIO]: Byte series: {" + message.length + "}" + Arrays.toString(message));
-		ByteBuffer buffer = ByteBuffer.wrap(message);
+		logging.trace("[NIO] Buffering serialized Object ...");
+		final byte[] message = toSend.getBytes();
+		logging.trace("[NIO] Byte series: {" + message.length + "}" + Arrays.toString(message));
+		final ByteBuffer buffer = ByteBuffer.wrap(message);
 		try {
-			logging.trace("[NIO]: Writing buffer to SocketChannel ...");
-			int wroteBytes = socketChannel.write(buffer);
-			logging.trace("[NIO]: Wrote " + wroteBytes + " bytes");
-		} catch (IOException e) {
+			logging.trace("[NIO] Writing buffer to SocketChannel ...");
+			final int wroteBytes = socketChannel.write(buffer);
+			logging.trace("[NIO] Wrote " + wroteBytes + " bytes");
+			callbackSend(object);
+		} catch (final IOException e) {
 			if (isActive()) {
 				logging.catching(e);
 				try {
 					close();
-				} catch (IOException e1) {
+				} catch (final IOException e1) {
 					logging.catching(e1);
 				}
 			}
 			return;
 		}
-		logging.debug("[NIO]: " + object + " send");
+		logging.debug("[NIO] " + object + " send");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addObjectSendListener(Callback<Object> callback) {
-		// TODO
+	public void addObjectSendListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
+		synchronized (sendCallbacks) {
+			sendCallbacks.add(callback);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addObjectReceivedListener(Callback<Object> callback) {
-		// TODO
+	public void addObjectReceivedListener(final Callback<Object> callback) {
+		NetCom2Utils.parameterNotNull(callback);
+		synchronized (receiveCallbacks) {
+			receiveCallbacks.add(callback);
+		}
 	}
 
 	/**
+	 * In NIO, there is no need for an ExecutorService within the NIOConnection.
+	 * <p>
 	 * {@inheritDoc}
+	 *
+	 * @throws UnsupportedOperationException this operation is not supported with NIO
 	 */
 	@Override
-	public void setThreadPool(ExecutorService executorService) {
+	public void setThreadPool(final ExecutorService executorService) {
 		throw new UnsupportedOperationException("NIOConnection#setThreadPool");
 	}
 
 	/**
+	 * The NIOConnection is created, only if the physical Connection already is established.
+	 * <p>
+	 * This means, the Connection is always listening.
+	 * <p>
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -165,7 +263,8 @@ final class NIOConnection implements Connection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PipelineCondition<Connection> addOnDisconnectedConsumer(Consumer<Connection> consumer) {
+	public PipelineCondition<Connection> addOnDisconnectedConsumer(final Consumer<Connection> consumer) {
+		NetCom2Utils.parameterNotNull(consumer);
 		return disconnectedPipeline.addFirst(consumer);
 	}
 
@@ -174,6 +273,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
+		logging.warn("[NIO] In nonblocking IO, this Method will invoke a IllegalBlockingModeException!");
 		return socketChannel.socket().getInputStream();
 	}
 
@@ -182,6 +282,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public OutputStream getOutputStream() throws IOException {
+		logging.warn("[NIO] In nonblocking IO, this Method will invoke a IllegalBlockingModeException!");
 		return socketChannel.socket().getOutputStream();
 	}
 
@@ -190,6 +291,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public BlockingQueue<Object> getSendInterface() {
+		logging.warn("[NIO] The SendInterface will have no effect in nonblocking IO!");
 		return toSend;
 	}
 
@@ -198,15 +300,16 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public Session getSession() {
-		return session;
+		return session.get();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSession(Session session) {
-		this.session = session;
+	public void setSession(final Session session) {
+		NetCom2Utils.parameterNotNull(session);
+		this.session.set(session);
 	}
 
 	/**
@@ -250,22 +353,24 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public Class<?> getKey() {
-		return key;
+		return key.get();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setKey(Class<?> connectionKey) {
-		this.key = connectionKey;
+	public void setKey(final Class<?> connectionKey) {
+		NetCom2Utils.parameterNotNull(connectionKey);
+		this.key.set(connectionKey);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setLogging(Logging logging) {
+	public void setLogging(final Logging logging) {
+		NetCom2Utils.parameterNotNull(logging);
 		this.logging = logging;
 	}
 }

@@ -25,12 +25,13 @@ public class NIOServer {
 
 	public void run() {
 		ModuleFactory.access()
-				.createNIO()
-				.applyTo(serverStart);
+				.nio()
+				.setBufferSize(1024)
+				.apply(serverStart);
 
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addFirst(Session::send);
+				.addFirst(this::handle);
 
 		try {
 			serverStart.launch();
@@ -38,6 +39,10 @@ public class NIOServer {
 		} catch (StartFailedException | ClientConnectionFailedException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private void handle(Session session, TestObject testObject) {
+		System.out.println(testObject.getHello());
+		session.send(testObject);
 	}
 }

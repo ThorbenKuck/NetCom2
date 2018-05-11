@@ -2,15 +2,15 @@ package com.github.thorbenkuck.netcom2.network.shared.modules.nio;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 
-final class NIOConfig {
+public final class NIOConfig {
 
-	private final Value<Integer> bufferSize = Value.emptySynchronized();
+	private final Value<Integer> bufferSize = Value.synchronize(256);
 
-	public int getBufferSize() {
+	public final int getBufferSize() {
 		return bufferSize.get();
 	}
 
-	public void setBufferSize(int to) {
+	public final void setInputBufferSize(final int to) {
 		bufferSize.set(to);
 	}
 

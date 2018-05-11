@@ -19,7 +19,7 @@ final class ServerListener implements Runnable {
 	private final Logging logging = Logging.unified();
 	private final Value<Boolean> running = Value.synchronize(false);
 
-	ServerListener(NIOChannelCache channelCache, Consumer<SocketChannel> callback) {
+	ServerListener(final NIOChannelCache channelCache, final Consumer<SocketChannel> callback) {
 		this.channelCache = channelCache;
 		this.callback = callback;
 	}
@@ -36,79 +36,85 @@ final class ServerListener implements Runnable {
 	 * @see Thread#run()
 	 */
 	@Override
-	public void run() {
+	public final void run() {
 		if (channelCache.getServer() == null) {
 			throw new IllegalStateException("No Server available! Cannot listen for new Clients!");
 		}
-		logging.trace("[NIO, ServerListener]: Found main ServerSocketChannel");
+		logging.trace("[NIO] Found main ServerSocketChannel");
 		final Selector selector = channelCache.getSelector();
-		logging.debug("[NIO, ServerListener]: ServerListener is ready to handle");
-		logging.trace("[NIO, ServerListener]: Setting running flag to true");
+		logging.debug("[NIO] ServerListener is ready to handle");
+		logging.trace("[NIO] Setting running flag to true");
 		running.set(true);
 		while (running.get()) {
 			try {
-				logging.trace("[NIO, ServerListener]: Reading next connected Selector");
+				logging.trace("[NIO] Reading next connected Selector");
 				read(selector);
-			} catch (IOException e) {
-				logging.catching(e);
+			} catch (final IOException e) {
+				logging.error("[NIO] Encountered IOException. Stopping ..", e);
 				running.set(false);
 			}
 		}
+		logging.debug("[NIO] Stopped.");
 	}
 
-	private void read(Selector selector) throws IOException {
-		logging.trace("[NIO, ServerListener]: Awaiting new Selector action (blocking)");
+	private void read(final Selector selector) throws IOException {
+		logging.trace("[NIO] Awaiting new Selector action (blocking)");
 		selector.select();
-		logging.trace("[NIO, ServerListener]: New action found in Selector");
-		Set<SelectionKey> selectedKeys = selector.selectedKeys();
-		Iterator<SelectionKey> iterator = selectedKeys.iterator();
+		logging.trace("[NIO] New action found in Selector");
+		final Set<SelectionKey> selectedKeys = selector.selectedKeys();
+		final Iterator<SelectionKey> iterator = selectedKeys.iterator();
 		while (iterator.hasNext()) {
-			SelectionKey key = iterator.next();
+			final SelectionKey key = iterator.next();
 
 			if (!key.isValid()) {
+				logging.trace("[NIO] Found invalid key. Continue ..");
 				iterator.remove();
 				continue;
 			}
 
+			SocketChannel socketChannel = (SocketChannel) key.channel();
+			logging.debug("[NIO] Selection at " + NIOUtils.toString(socketChannel));
+
 			if (key.isAcceptable()) {
-				logging.trace("[NIO, ServerListener]: New Connection found ..");
+				logging.trace("[NIO] New Connection found ..");
 				register(selector, channelCache.getServer());
 			} else if (key.isReadable()) {
 				if (((SocketChannel) key.channel()).isConnectionPending()) {
-					logging.debug("[NIO, ServerListener]: Connection is still pending .. ignoring read.");
+					logging.debug("[NIO] Connection is still pending .. ignoring read.");
 					iterator.remove();
 					continue;
 				} else if (!((SocketChannel) key.channel()).isConnected()) {
-					logging.debug("[NIO, ServerListener]: Found disconnected SocketChannel. Skipping ..");
+					logging.debug("[NIO] Found disconnected SocketChannel. Skipping ..");
 					iterator.remove();
 					continue;
 				}
-				logging.trace("[NIO, ServerListener]: New Reading found ..");
+				logging.trace("[NIO] New Reading found ..");
 				call((SocketChannel) key.channel());
 			} else {
-				logging.warn("[NIO, ServerListener]: Found wrong key .. Values: readable=" + key.isReadable() + " connectable=" + key.isConnectable() + " writable=" + key.isWritable());
+				logging.warn("[NIO] Found wrong key .. Values: readable=" + key.isReadable() + " connectable=" + key.isConnectable() + " writable=" + key.isWritable());
 			}
 			iterator.remove();
 		}
 	}
 
-	private void call(SocketChannel channel) {
+	private void call(final SocketChannel channel) {
 		try {
+			logging.trace("[NIO] Extracting readable SocketChannel into separate Thread for further processing");
 			channelCache.getReadable().put(channel);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		}
 	}
 
-	private void register(Selector selector, ServerSocketChannel serverSocketChannel) throws IOException {
-		logging.trace("[NIO, ServerListener]: Accepting new SocketChannel");
-		SocketChannel socketChannel = serverSocketChannel.accept();
-		logging.trace("[NIO, ServerListener]: Configuring SocketChannel as nonblocking");
+	private void register(final Selector selector, final ServerSocketChannel serverSocketChannel) throws IOException {
+		logging.trace("[NIO] Accepting new SocketChannel");
+		final SocketChannel socketChannel = serverSocketChannel.accept();
+		logging.trace("[NIO] Configuring SocketChannel as nonblocking");
 		socketChannel.configureBlocking(false);
-		logging.trace("[NIO, ServerListener]: Registering the new SocketChannel to the provided receivedSelector");
+		logging.trace("[NIO] Registering the new SocketChannel to the provided receivedSelector");
 		socketChannel.register(selector, SelectionKey.OP_READ);
 
-		logging.trace("[NIO, ServerListener]: Notifying Callback");
+		logging.trace("[NIO] Notifying Callback");
 		callback.accept(socketChannel);
 	}
 }

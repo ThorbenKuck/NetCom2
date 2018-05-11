@@ -11,7 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapte
 import java.util.Set;
 import java.util.function.Supplier;
 
-class ObjectHandler {
+final class ObjectHandler {
 
 	private final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapterSupplier;
 	private final Supplier<Set<SerializationAdapter<Object, String>>> fallbackSerializationAdapterSupplier;
@@ -21,11 +21,11 @@ class ObjectHandler {
 	private final Supplier<DecryptionAdapter> decryptionAdapterSupplier;
 	private final Logging logging = Logging.unified();
 
-	ObjectHandler(Supplier<SerializationAdapter<Object, String>> mainSerializationAdapterSupplier,
-	              Supplier<Set<SerializationAdapter<Object, String>>> fallbackSerializationAdapterSupplier,
-	              Supplier<DeSerializationAdapter<String, Object>> mainDeSerializationAdapterSupplier,
-	              Supplier<Set<DeSerializationAdapter<String, Object>>> fallbackDeSerializationAdapterSupplier,
-	              Supplier<EncryptionAdapter> encryptionAdapterSupplier, Supplier<DecryptionAdapter> decryptionAdapterSupplier) {
+	ObjectHandler(final Supplier<SerializationAdapter<Object, String>> mainSerializationAdapterSupplier,
+	              final Supplier<Set<SerializationAdapter<Object, String>>> fallbackSerializationAdapterSupplier,
+	              final Supplier<DeSerializationAdapter<String, Object>> mainDeSerializationAdapterSupplier,
+	              final Supplier<Set<DeSerializationAdapter<String, Object>>> fallbackDeSerializationAdapterSupplier,
+	              final Supplier<EncryptionAdapter> encryptionAdapterSupplier, final Supplier<DecryptionAdapter> decryptionAdapterSupplier) {
 		this.mainSerializationAdapterSupplier = mainSerializationAdapterSupplier;
 		this.fallbackSerializationAdapterSupplier = fallbackSerializationAdapterSupplier;
 		this.mainDeSerializationAdapterSupplier = mainDeSerializationAdapterSupplier;
@@ -34,34 +34,34 @@ class ObjectHandler {
 		this.decryptionAdapterSupplier = decryptionAdapterSupplier;
 	}
 
-	public String serialize(Object o) throws SerializationFailedException {
+	public final String serialize(final Object o) throws SerializationFailedException {
 		final SerializationFailedException serializationFailedException;
 		try {
 			return encrypt(mainSerializationAdapterSupplier.get().get(o));
-		} catch (SerializationFailedException ex) {
-			logging.trace("Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
+		} catch (final SerializationFailedException ex) {
+			logging.trace("[NIO] Failed to use mainSerializationAdapter for " + o + " .. Reaching for fallback ..");
 			serializationFailedException = new SerializationFailedException(ex);
 			for (final SerializationAdapter<Object, String> adapter : fallbackSerializationAdapterSupplier.get()) {
 				try {
-					logging.trace("Trying to use: " + adapter + " ..");
+					logging.trace("[NIO] Trying to use: " + adapter + " ..");
 					return encrypt(adapter.get(o));
-				} catch (SerializationFailedException e) {
-					logging.trace("Fallback serialization " + adapter + " failed .. Trying next one");
+				} catch (final SerializationFailedException e) {
+					logging.trace("[NIO] Fallback serialization " + adapter + " failed .. Trying next one");
 					serializationFailedException.addSuppressed(e);
 				}
 			}
 		}
-		logging.warn("No fallback serialization found! Failed to serialize " + o + "!");
+		logging.warn("[NIO] No fallback serialization found! Failed to serialize " + o + "!");
 		throw new SerializationFailedException(serializationFailedException);
 	}
 
-	public Object deserialize(String s) throws DeSerializationFailedException {
+	public final Object deserialize(final String s) throws DeSerializationFailedException {
 		final String toDeserialize = decrypt(s);
 		final DeSerializationFailedException deSerializationFailedException;
 		try {
 			return mainDeSerializationAdapterSupplier.get().get(toDeserialize);
 		} catch (final DeSerializationFailedException ex) {
-			logging.warn("MainSerializationAdapter failed.");
+			logging.warn("[NIO] MainSerializationAdapter failed.");
 			deSerializationFailedException = new DeSerializationFailedException(ex);
 			for (final DeSerializationAdapter<String, Object> adapter : fallbackDeSerializationAdapterSupplier.get()) {
 				try {
@@ -74,11 +74,11 @@ class ObjectHandler {
 		throw new DeSerializationFailedException(deSerializationFailedException);
 	}
 
-	private String decrypt(String s) {
+	private String decrypt(final String s) {
 		return decryptionAdapterSupplier.get().get(s);
 	}
 
-	private String encrypt(String s) {
+	private String encrypt(final String s) {
 		return encryptionAdapterSupplier.get().get(s);
 	}
 }

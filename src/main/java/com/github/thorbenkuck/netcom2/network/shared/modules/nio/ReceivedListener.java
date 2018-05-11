@@ -3,7 +3,6 @@ package com.github.thorbenkuck.netcom2.network.shared.modules.nio;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,17 +13,17 @@ import java.util.function.BiConsumer;
 final class ReceivedListener implements Runnable {
 
 	private final NIOConnectionCache connectionCache;
-	private final NIOChannelCache channelCache;
-	private final BiConsumer<Object, Connection> receivedCallback;
+	private final BiConsumer<Object, NIOConnection> receivedCallback;
 	private final BlockingQueue<SocketChannel> socketChannels;
+	private final NIOConfig nioConfig;
 	private final Logging logging = Logging.unified();
 	private final Value<Boolean> running = Value.synchronize(false);
 
-	public ReceivedListener(NIOChannelCache channelCache, NIOConnectionCache connectionCache, BiConsumer<Object, Connection> receivedCallback) {
+	ReceivedListener(final NIOChannelCache channelCache, final NIOConnectionCache connectionCache, final BiConsumer<Object, NIOConnection> receivedCallback, final NIOConfig nioConfig) {
 		this.connectionCache = connectionCache;
 		this.receivedCallback = receivedCallback;
 		socketChannels = channelCache.getReadable();
-		this.channelCache = channelCache;
+		this.nioConfig = nioConfig;
 	}
 
 	/**
@@ -52,35 +51,40 @@ final class ReceivedListener implements Runnable {
 	}
 
 	private void read() throws IOException {
-		logging.trace("[NIO, ReceivedListener]: Awaiting new SocketChannel to Read (blocking)");
+		logging.trace("[NIO] Awaiting new SocketChannel to Read (blocking)");
 		try {
-			SocketChannel socketChannel = socketChannels.take();
-			NIOUtils.print(socketChannel);
+			final SocketChannel socketChannel = socketChannels.take();
 			if (socketChannel.isConnected()) {
-				logging.trace("[NIO, ReceivedListener]: Found new SocketChannel. Reading ..");
-				handle(ByteBuffer.allocate(2), socketChannel);
-				logging.trace("[NIO, ReceivedListener]: Finalized selection");
+				logging.trace("[NIO] Found new SocketChannel. Reading ..");
+				handle(ByteBuffer.allocate(nioConfig.getBufferSize()), socketChannel);
+				logging.trace("[NIO] Finalized selection");
 			} else {
-				logging.trace("[NIO, ReceivedListener]: Skipping not connected SocketChannel");
+				logging.trace("[NIO] Skipping not connected SocketChannel");
 			}
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
 	}
 
-	private void handle(ByteBuffer buffer, SocketChannel socketChannel) throws IOException {
-		logging.trace("[NIO, ReceivedListener]: ");
+	private void handle(final ByteBuffer buffer, final SocketChannel socketChannel) throws IOException {
+		logging.trace("[NIO] Starting to read from " + NIOUtils.toString(socketChannel));
 		final StringBuilder result = new StringBuilder();
 		final NIOConnection connection = connectionCache.get(socketChannel);
 
-		logging.trace("[NIO, ReceivedListener]: Filling buffer ..");
-		if (!socketChannel.isConnected()) {
-			logging.trace("Skipping disconnected SocketChannel!");
+		logging.trace("[NIO] Filling buffer ..");
+		int read;
+		try {
+			read = socketChannel.read(buffer);
+		} catch (final IOException ignored) {
+			// We do not need to worry
+			// about this Exception.
+			// It will be thrown, if the
+			// Connection is closed.
+			logging.trace("[NIO] Disconnected. Ignoring buffer read.");
 			return;
 		}
-		int read = socketChannel.read(buffer);
 		if (read == -1) {
-			logging.debug("[NIO, ReceivedListener]: Disconnection detected!");
+			logging.debug("[NIO] Disconnection detected! Closing Connection ..");
 			disconnect(connection);
 			return;
 		}
@@ -88,25 +92,35 @@ final class ReceivedListener implements Runnable {
 			buffer.flip();
 			result.append(new String(buffer.array()).trim());
 			buffer.clear();
-			read = socketChannel.read(buffer);
+			try {
+				read = socketChannel.read(buffer);
+			} catch (final IOException ignored) {
+				logging.trace("[NIO] Disconnected. Ignoring buffer read.");
+				// We do not need to worry
+				// about this Exception.
+				// It will be thrown, if the
+				// Connection is closed.
+				return;
+			}
 		}
 
 		final String raw = result.toString();
-		logging.trace("[NIO, ReceivedListener]: Received " + raw);
+		logging.trace("[NIO] Received " + raw);
 		if (!raw.isEmpty()) {
-			logging.trace("[NIO, ReceivedListener]: Converting to Object ..");
+			logging.trace("[NIO] Converting to Object ..");
 			toObject(raw, connection);
 		} else {
-			logging.trace("[NIO, ReceivedListener]: Read empty input ... checking integrity of SocketChannel");
+			logging.trace("[NIO] Read empty input ... checking integrity of SocketChannel");
 			check(socketChannel, connection);
 		}
 	}
 
-	private void disconnect(NIOConnection connection) throws IOException {
+	private void disconnect(final NIOConnection connection) throws IOException {
+		logging.debug("[NIO] Disconnecting " + connection);
 		connection.close();
 	}
 
-	private void check(SocketChannel socketChannel, NIOConnection connection) throws IOException {
+	private void check(final SocketChannel socketChannel, final NIOConnection connection) throws IOException {
 		if (!socketChannel.isConnected()) {
 			disconnect(connection);
 		}
@@ -115,9 +129,9 @@ final class ReceivedListener implements Runnable {
 	private void toObject(final String rawData, final NIOConnection connection) {
 		final ObjectHandler objectHandler = connection.getObjectHandler();
 		try {
-			Object received = objectHandler.deserialize(rawData);
+			final Object received = objectHandler.deserialize(rawData);
 			receivedCallback.accept(received, connection);
-		} catch (DeSerializationFailedException e) {
+		} catch (final DeSerializationFailedException e) {
 			logging.catching(e);
 		}
 	}

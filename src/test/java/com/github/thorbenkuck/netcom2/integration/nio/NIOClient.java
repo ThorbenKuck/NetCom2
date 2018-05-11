@@ -23,8 +23,9 @@ public class NIOClient {
 
 	public void run() {
 		ModuleFactory.access()
-				.createNIO()
-				.applyTo(clientStart);
+				.nio()
+				.setBufferSize(1024)
+				.apply(clientStart);
 
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)

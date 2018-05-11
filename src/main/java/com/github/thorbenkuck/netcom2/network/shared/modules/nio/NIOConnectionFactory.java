@@ -10,13 +10,13 @@ import java.net.Socket;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-class NIOConnectionFactory implements ConnectionFactory {
+final class NIOConnectionFactory implements ConnectionFactory {
 
 	private final NIOChannelCache channelCache;
 	private final NIOConnectionCache connectionCache;
 	private final Logging logging = Logging.unified();
 
-	NIOConnectionFactory(NIOChannelCache channelCache, NIOConnectionCache connectionCache) {
+	NIOConnectionFactory(final NIOChannelCache channelCache, final NIOConnectionCache connectionCache) {
 		this.channelCache = channelCache;
 		this.connectionCache = connectionCache;
 	}
@@ -34,47 +34,60 @@ class NIOConnectionFactory implements ConnectionFactory {
 	 * @return a new {@link Connection} instance
 	 */
 	@Override
-	public Connection create(Socket socket, Client client, Class key) {
-		Session session = client.getSession();
-		NIOConnection connection;
+	public final Connection create(final Socket socket, final Client client, final Class key) {
+		logging.debug("[NIO] Starting to create a new NIOConnection");
+		final Session session = client.getSession();
+		logging.trace("[NIO] Using Session: " + session);
+		final NIOConnection connection;
 		synchronized (this) {
 			try {
+				logging.trace("[NIO] Acquiring Session");
 				session.acquire();
+				logging.trace("[NIO] Requesting Connection creation ..");
 				connection = getConnection(socket, channelCache.getSelector(), client, key);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			} catch (final InterruptedException e) {
+				logging.catching(e);
 				return null;
 			} finally {
+				logging.trace("[NIO] Releasing Session");
 				session.release();
 			}
+			logging.trace("[NIO] NIOConnection setup ..");
 			connection.setup();
 
 			try {
+				logging.trace("[NIO] Acquiring Client");
 				client.acquire();
+				logging.trace("[NIO] Storing Connection for acquired Client ..");
 				client.setConnection(key, connection);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			} catch (final InterruptedException e) {
+				logging.catching(e);
 				return null;
 			} finally {
+				logging.trace("[NIO] Releasing Client");
 				client.release();
 			}
 		}
 
+		logging.trace("[NIO] Storing Connection information ..");
 		connectionCache.add(channelCache.getSocketChannel(socket), connection);
 
-		logging.debug("[NIO]: Created NIOConnection");
+		logging.debug("[NIO] Created NIOConnection");
 
 		return connection;
 	}
 
-	private NIOConnection getConnection(Socket socket, Selector selector, Client client, Class key) {
-		SocketChannel channel = channelCache.getSocketChannel(socket);
+	private NIOConnection getConnection(final Socket socket, final Selector selector, final Client client, final Class key) {
+		logging.trace("[NIO] Fetching SocketChannel ..");
+		final SocketChannel channel = channelCache.getSocketChannel(socket);
 		if (channel == null) {
 			throw new IllegalStateException("Could not find the SocketChannel for: " + socket);
 		}
+		logging.trace("[NIO] Instantiating ObjectHandler as Throughput for Serialization and Encryption ..");
 		final ObjectHandler objectHandler = new ObjectHandler(client::getMainSerializationAdapter, client::getFallBackSerialization
 				, client::getMainDeSerializationAdapter, client::getFallBackDeSerialization
 				, client::getEncryptionAdapter, client::getDecryptionAdapter);
+		logging.trace("[NIO] Instantiating NIOConnection ..");
 		return new NIOConnection(channel, selector, key, client.getSession(), objectHandler);
 	}
 }
