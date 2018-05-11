@@ -11,7 +11,6 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.DataInputStream;
@@ -32,15 +31,15 @@ class DefaultReceivingService implements ReceivingService {
 	@APILevel
 	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<DecryptionAdapter> decryptionAdapter;
-	private final Synchronize synchronize = new DefaultSynchronize(1);
+	private final Synchronize synchronize = Synchronize.create();
+	private final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
+	private final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
 	private Runnable onDisconnect = () -> {
 	};
 	private Connection connection;
 	private Session session;
 	private DataInputStream in;
 	private CommunicationRegistration communicationRegistration;
-	private Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
-	private Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
 	private boolean running = false;
 	private boolean setup = false;
 	private Logging logging = Logging.unified();
@@ -79,6 +78,7 @@ class DefaultReceivingService implements ReceivingService {
 			String toHandle = decrypt(string);
 			logging.trace("[ReceivingService] Deserialize " + toHandle + " ..");
 			object = deserialize(toHandle);
+			logging.info("[ReceivingService] Received " + object);
 			logging.debug("[ReceivingService] Received: " + object + " at Connection " + connection.getKey() + "@" +
 					connection.getFormattedAddress());
 			NetCom2Utils.assertNotNull(object);
@@ -212,37 +212,54 @@ class DefaultReceivingService implements ReceivingService {
 	}
 
 	private int readNext(StringBuilder stringBuilder, Buffer buffer) throws IOException {
+		logging.trace("[ReceivingService] Waiting for available data (blocking)");
 		int read = in.read(buffer.array());
+		logging.trace("[ReceivingService] Read result: " + read);
 		if (read == -1) {
+			logging.trace("[ReceivingService] EOF reached! SoftStop initialized. Notifying ..");
 			softStop();
 			return -1;
 		}
+		logging.trace("[ReceivingService] Appending read data");
 		stringBuilder.append(new String(buffer.array()).trim());
+		logging.trace("[ReceivingService] Clearing Buffer");
 		buffer.clear();
 
 		return read;
 	}
 
 	private Optional<String> readBlocking() throws IOException {
+		logging.debug("[ReceivingService] Starting to read.");
+		logging.trace("[ReceivingService] Allocating Buffer ..");
 		final Buffer buffer = new Buffer(256);
+		logging.trace("[ReceivingService] Preparing StringBuilder as callback");
 		final StringBuilder stringBuilder = new StringBuilder();
 		// This call blocks. Therefor
 		// if we continue past this point
 		// we WILL have some sort of
 		// result. This might be -1, which
 		// means, EOF (disconnect.)
+		logging.trace("[ReceivingService] Reading from Socket ..");
 		if (readNext(stringBuilder, buffer) == -1) {
+			logging.trace("[ReceivingService] Read EOF. Disconnecting!");
 			return Optional.empty();
 		}
+		logging.trace("[ReceivingService] Reading successful. Attempting to check for more available data ..");
 		while (in.available() > 0) {
+			logging.trace("[ReceivingService] Found " + in.available() + " more bytes in InputStream.");
+			logging.trace("[ReceivingService] Adjusting Buffer size ..");
 			buffer.reallocate(in.available());
 			if (readNext(stringBuilder, buffer) == -1) {
+				logging.trace("[ReceivingService] Read EOF. Disconnecting!");
 				return Optional.empty();
 			}
+			logging.trace("[ReceivingService] Reading successful. Attempting to check for more available data ..");
 		}
+		logging.trace("[ReceivingService] Read all data. Tearing down buffer to free up memory ..");
 
 		buffer.teardown();
 
+		logging.trace("[ReceivingService] Reading done.");
 		return Optional.of(stringBuilder.toString());
 	}
 
@@ -260,17 +277,20 @@ class DefaultReceivingService implements ReceivingService {
 		synchronize.goOn();
 		while (running()) {
 			try {
+				logging.trace("[ReceivingService] Initializing reading of InputStream");
 				final Optional<String> rawDataOptional = readBlocking();
 				// First get, then execute!
 				// Not in one line, so that the
 				// get part is executed in this thread
+				logging.trace("[ReceivingService] Extracting raw data to be handled.");
 				rawDataOptional.ifPresent(string -> NetCom2Utils.runOnNetComThread(() -> handle(string)));
 
-			} catch (NoSuchElementException e) {
+			} catch (NoSuchElementException | IOException e) {
+				if (running()) {
+					logging.catching(e);
+				}
 				logging.info("[ReceivingService] Disconnection detected!");
 				softStop();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		onDisconnect();

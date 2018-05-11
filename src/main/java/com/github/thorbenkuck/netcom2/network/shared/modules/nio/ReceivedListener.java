@@ -105,7 +105,7 @@ final class ReceivedListener implements Runnable {
 		}
 
 		final String raw = result.toString();
-		logging.trace("[NIO] Received " + raw);
+		logging.trace("[NIO] Read raw data " + raw);
 		if (!raw.isEmpty()) {
 			logging.trace("[NIO] Converting to Object ..");
 			toObject(raw, connection);
@@ -130,6 +130,7 @@ final class ReceivedListener implements Runnable {
 		final ObjectHandler objectHandler = connection.getObjectHandler();
 		try {
 			final Object received = objectHandler.deserialize(rawData);
+			logging.info("[NIO] Received " + received);
 			receivedCallback.accept(received, connection);
 		} catch (final DeSerializationFailedException e) {
 			logging.catching(e);

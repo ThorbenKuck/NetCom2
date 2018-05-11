@@ -70,6 +70,7 @@ class DefaultSendingService implements SendingService {
 			logging.debug("[SendingService{" + connectionID.get() + "}] Sending " + o + " ..");
 			logging.trace("[SendingService{" + connectionID.get() + "}] Serializing " + o + " ..");
 			String toSend = serialize(o);
+			logging.info("[SendingService{" + connectionID.get() + "}] Send of " + o + "initialized.");
 			logging.trace("[SendingService{" + connectionID.get() + "}] Encrypting " + toSend + " ..");
 			toSend = encrypt(toSend);
 			logging.trace("[SendingService{" + connectionID.get() + "}] Writing: " + toSend + " ..");

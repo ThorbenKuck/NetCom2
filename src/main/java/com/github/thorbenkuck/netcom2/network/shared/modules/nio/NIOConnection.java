@@ -199,7 +199,7 @@ final class NIOConnection implements Connection {
 		}
 		final String toSend;
 		try {
-			logging.debug("[NIO] Send of " + object + " initialized.");
+			logging.info("[NIO] Send of " + object + " initialized.");
 			logging.trace("[NIO] Serializing ...");
 			toSend = objectHandler.serialize(object);
 		} catch (final SerializationFailedException e) {
@@ -289,7 +289,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		logging.warn("[NIO] In nonblocking IO, this Method will invoke a IllegalBlockingModeException!");
+		logging.warn("[NIO] In nonblocking IO, this Method will invoke an IllegalBlockingModeException!");
 		return socketChannel.socket().getInputStream();
 	}
 
@@ -298,7 +298,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public OutputStream getOutputStream() throws IOException {
-		logging.warn("[NIO] In nonblocking IO, this Method will invoke a IllegalBlockingModeException!");
+		logging.warn("[NIO] In nonblocking IO, this Method will invoke an IllegalBlockingModeException!");
 		return socketChannel.socket().getOutputStream();
 	}
 
