@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ServerStartTest {
 
@@ -60,7 +61,7 @@ public class ServerStartTest {
 			client.addDisconnectedHandler(client1 -> System.out.println("ABORT!" + client1 + " disconnected!"));
 			Session session = client.getSession();
 			session.eventOf(Login.class)
-					.addFirst(login -> System.out.println("Du bist doch schon eingeloggt, du eumel!"))
+					.addFirst((Consumer<Login>) login -> System.out.println("Du bist doch schon eingeloggt, du eumel!"))
 					.withRequirement(login -> session.isIdentified());
 
 			session.eventOf(Login.class)

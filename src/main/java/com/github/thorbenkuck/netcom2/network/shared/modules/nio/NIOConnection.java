@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.modules.nio;
 
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.pipe.PipelineCondition;
-import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
@@ -18,27 +18,36 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class NIOConnection implements Connection {
+final class NIOConnection implements Connection {
 
 	private final SocketChannel socketChannel;
+	private final Selector selector;
 	private final ObjectHandler objectHandler;
 	private final BlockingQueue<Object> toSend = new LinkedBlockingQueue<>();
 	private final Pipeline<Connection> disconnectedPipeline = Pipeline.unifiedCreation();
+	private final Value<Boolean> running = Value.synchronize(false);
 	private Session session;
 	private Class<?> key;
 	private Logging logging = Logging.unified();
 
-	public NIOConnection(final SocketChannel socketChannel, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
+	public NIOConnection(final SocketChannel socketChannel, Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
 		this.socketChannel = socketChannel;
+		this.selector = selector;
 		this.objectHandler = objectHandler;
 		this.key = key;
 		this.session = session;
+	}
+
+	ObjectHandler getObjectHandler() {
+		return objectHandler;
 	}
 
 	/**
@@ -46,6 +55,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public void close() throws IOException {
+		socketChannel.keyFor(selector).cancel();
 		socketChannel.close();
 	}
 
@@ -54,7 +64,21 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public void setup() {
-
+		running.set(true);
+//		NetCom2Utils.runOnNetComThread(() -> {
+//			while(running.get()) {
+//				Object object;
+//				try {
+//					object = toSend.take();
+//					if(object == null) {
+//						continue;
+//					}
+//					write(object);
+//				} catch (InterruptedException e) {
+//					logging.catching(e);
+//				}
+//			}
+//		});
 	}
 
 	/**
@@ -62,7 +86,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public void removeOnDisconnectedConsumer(Consumer<Connection> consumer) {
-
+		disconnectedPipeline.remove(consumer);
 	}
 
 	/**
@@ -70,25 +94,39 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public void write(Object object) {
-		NetCom2Utils.runOnNetComThread(() -> {
-			String toSend;
-			try {
-				logging.debug("Send of " + object + " initialized.");
-				logging.trace("Serializing ...");
-				toSend = objectHandler.serialize(object);
-			} catch (SerializationFailedException e) {
-				throw new SendFailedException(e);
+		NetCom2Utils.parameterNotNull(object);
+		if (!isActive()) {
+			throw new IllegalStateException("Connection is not active");
+		}
+		String toSend;
+		try {
+			logging.debug("[NIO]: Send of " + object + " initialized.");
+			logging.trace("[NIO]: Serializing ...");
+			toSend = objectHandler.serialize(object);
+		} catch (SerializationFailedException e) {
+			logging.catching(e);
+			return;
+		}
+		logging.trace("[NIO]: Buffering serialized Object ...");
+		byte[] message = toSend.getBytes();
+		logging.trace("[NIO]: Byte series: {" + message.length + "}" + Arrays.toString(message));
+		ByteBuffer buffer = ByteBuffer.wrap(message);
+		try {
+			logging.trace("[NIO]: Writing buffer to SocketChannel ...");
+			int wroteBytes = socketChannel.write(buffer);
+			logging.trace("[NIO]: Wrote " + wroteBytes + " bytes");
+		} catch (IOException e) {
+			if (isActive()) {
+				logging.catching(e);
+				try {
+					close();
+				} catch (IOException e1) {
+					logging.catching(e1);
+				}
 			}
-			logging.trace("Buffering serialized Object ...");
-			ByteBuffer buffer = ByteBuffer.wrap(toSend.getBytes());
-			try {
-				logging.trace("Writing buffer to SocketChannel ...");
-				socketChannel.write(buffer);
-			} catch (IOException e) {
-				throw new SendFailedException(e);
-			}
-			logging.debug(object + " send");
-		});
+			return;
+		}
+		logging.debug("[NIO]: " + object + " send");
 	}
 
 	/**
@@ -112,7 +150,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public void setThreadPool(ExecutorService executorService) {
-		throw new UnsupportedOperationException("TO BE REMOVED!");
+		throw new UnsupportedOperationException("NIOConnection#setThreadPool");
 	}
 
 	/**
@@ -152,7 +190,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public BlockingQueue<Object> getSendInterface() {
-		return new LinkedBlockingQueue<>();
+		return toSend;
 	}
 
 	/**
@@ -184,7 +222,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public int getPort() {
-		return 0;
+		return socketChannel.socket().getPort();
 	}
 
 	/**
@@ -204,7 +242,7 @@ public class NIOConnection implements Connection {
 	 */
 	@Override
 	public boolean isActive() {
-		return true;
+		return socketChannel.isConnected() && socketChannel.isOpen();
 	}
 
 	/**

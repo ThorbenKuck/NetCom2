@@ -7,14 +7,18 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ConnectionFactory;
 
 import java.net.Socket;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 
 class NIOConnectionFactory implements ConnectionFactory {
 
 	private final NIOChannelCache channelCache;
+	private final NIOConnectionCache connectionCache;
 	private final Logging logging = Logging.unified();
 
-	NIOConnectionFactory(NIOChannelCache channelCache) {
+	NIOConnectionFactory(NIOChannelCache channelCache, NIOConnectionCache connectionCache) {
 		this.channelCache = channelCache;
+		this.connectionCache = connectionCache;
 	}
 
 	/**
@@ -32,11 +36,11 @@ class NIOConnectionFactory implements ConnectionFactory {
 	@Override
 	public Connection create(Socket socket, Client client, Class key) {
 		Session session = client.getSession();
-		Connection connection;
+		NIOConnection connection;
 		synchronized (this) {
 			try {
 				session.acquire();
-				connection = getConnection(socket, client, key);
+				connection = getConnection(socket, channelCache.getSelector(), client, key);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				return null;
@@ -56,15 +60,21 @@ class NIOConnectionFactory implements ConnectionFactory {
 			}
 		}
 
-		logging.debug("Created NIOConnection");
+		connectionCache.add(channelCache.getSocketChannel(socket), connection);
+
+		logging.debug("[NIO]: Created NIOConnection");
 
 		return connection;
 	}
 
-	private Connection getConnection(Socket socket, Client client, Class key) {
+	private NIOConnection getConnection(Socket socket, Selector selector, Client client, Class key) {
+		SocketChannel channel = channelCache.getSocketChannel(socket);
+		if (channel == null) {
+			throw new IllegalStateException("Could not find the SocketChannel for: " + socket);
+		}
 		final ObjectHandler objectHandler = new ObjectHandler(client::getMainSerializationAdapter, client::getFallBackSerialization
 				, client::getMainDeSerializationAdapter, client::getFallBackDeSerialization
 				, client::getEncryptionAdapter, client::getDecryptionAdapter);
-		return new NIOConnection(channelCache.getSocketChannel(socket), key, client.getSession(), objectHandler);
+		return new NIOConnection(channel, selector, key, client.getSession(), objectHandler);
 	}
 }

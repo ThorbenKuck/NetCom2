@@ -255,9 +255,13 @@ class ServerStartImpl implements ServerStart {
 			throw new ClientConnectionFailedException("Cannot accept Clients, if not launched!");
 		}
 		logging.debug("Accepting next Client.");
+		logging.trace("Getting ServerSocket ..");
 		final ServerSocket serverSocket = serverConnector.getServerSocket();
+		logging.trace("Getting ServerConnectorCore ..");
 		ServerConnectorCore core = coreReference.get();
+		logging.trace("Applying ServerConnectorCore ..");
 		core.apply(serverSocket, this::consumeInThread);
+		logging.trace("ServerConnectorCore done.");
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.integration.nio;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
@@ -25,9 +26,22 @@ public class NIOClient {
 				.createNIO()
 				.applyTo(clientStart);
 
+		clientStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addFirst(testObject -> System.out.println(testObject.getHello()));
+
 		try {
 			clientStart.launch();
 		} catch (StartFailedException e) {
+			e.printStackTrace();
+		}
+
+		clientStart.send()
+				.objectToServer(new TestObject("This is NIO! BITCH!"));
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

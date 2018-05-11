@@ -180,7 +180,7 @@ class SessionImpl implements Session {
 		NetCom2Utils.parameterNotNull(clazz, t);
 		final Pipeline<T> pipeline = (Pipeline<T>) pipelines.get(clazz);
 		if (pipeline != null) {
-			pipeline.run(t);
+			pipeline.apply(t);
 		} else {
 			throw new IllegalArgumentException("No Event set for " + clazz);
 		}

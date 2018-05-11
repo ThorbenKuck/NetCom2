@@ -2,22 +2,28 @@ package com.github.thorbenkuck.netcom2.network.shared.modules.nio;
 
 import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 public class NIOServerSocketFactory implements Factory<Integer, ServerSocket> {
 
 	private final Logging logging = Logging.unified();
+	private final NIOConnectionCache connectionCache;
 	private final NIOChannelCache channelCache;
-	private final Selectors selectors;
+	private final Runnable connectedListener;
+	private final Runnable receivedListener;
 
-	public NIOServerSocketFactory(NIOChannelCache channelCache, Selectors selectors) {
+	public NIOServerSocketFactory(NIOConnectionCache connectionCache, NIOChannelCache channelCache, Runnable connectedListener, Runnable receivedListener) {
+		this.connectionCache = connectionCache;
 		this.channelCache = channelCache;
-		this.selectors = selectors;
+		this.connectedListener = connectedListener;
+		this.receivedListener = receivedListener;
 	}
 
 	/**
@@ -30,17 +36,37 @@ public class NIOServerSocketFactory implements Factory<Integer, ServerSocket> {
 	@Override
 	public ServerSocket create(Integer integer) {
 		try {
+			logging.trace("[NIO]: Establishing Connection");
+			logging.trace("[NIO]: Creating connectedSelector");
+			Selector connectedSelector = Selector.open();
+
+			logging.trace("[NIO]: Opening new ServerSocketChannel");
 			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-			InetSocketAddress address = new InetSocketAddress("localhost", integer);
-			serverSocketChannel.bind(address);
+			logging.trace("[NIO]: Configuring ServerSocketChannel as nonblocking");
 			serverSocketChannel.configureBlocking(false);
-			serverSocketChannel.register(selectors.getSelector(), SelectionKey.OP_ACCEPT);
-			ServerSocket serverSocket = serverSocketChannel.socket();
-			channelCache.addServerSocket(serverSocket, serverSocketChannel);
-			return serverSocket;
+			final InetSocketAddress socketAddress = new InetSocketAddress(integer);
+			logging.trace("[NIO]: binding SocketChannel to " + socketAddress);
+			serverSocketChannel.bind(socketAddress);
+			logging.debug("[NIO]: Successfully bound ServerSocketChannel to " + socketAddress);
+			logging.trace("[NIO]: Registering ServerSocketChannel to connectedSelector");
+			serverSocketChannel.register(connectedSelector, SelectionKey.OP_ACCEPT);
+
+			logging.trace("[NIO]: Storing information ..");
+			channelCache.setSelector(connectedSelector);
+			channelCache.setServer(serverSocketChannel);
+
+			logging.trace("[NIO]: Starting ConnectedListener");
+			NetCom2Utils.runOnNetComThread(connectedListener);
+			logging.trace("[NIO]: Starting ReceivedListener");
+			NetCom2Utils.runOnNetComThread(receivedListener);
+
+
+			return serverSocketChannel.socket();
 		} catch (IOException e) {
 			logging.catching(e);
-			return null;
 		}
+
+		logging.warn("[NIO]: Could not create the ServerSocketChannel!");
+		return null;
 	}
 }

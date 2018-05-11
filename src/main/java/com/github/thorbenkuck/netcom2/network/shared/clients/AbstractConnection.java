@@ -250,7 +250,7 @@ public abstract class AbstractConnection implements Connection, Mutex {
 		threadPool.submit(() -> {
 			try {
 				logging.trace("Awaiting Synchronization of ReceivingService");
-				receivingService.onDisconnect(() -> disconnectedPipeline.run(this));
+				receivingService.onDisconnect(() -> disconnectedPipeline.apply(this));
 				receivingService.started().synchronize();
 				logging.trace("Awaiting Synchronization of SendingService");
 				sendingService.setConnectionIDSupplier(this::toString);

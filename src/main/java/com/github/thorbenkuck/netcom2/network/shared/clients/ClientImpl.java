@@ -175,7 +175,7 @@ class ClientImpl implements Client {
 		logging.trace("Clearing connections ..");
 		connections.clear();
 		logging.trace("Filtering for active DisconnectedHandlers and calling them ..");
-		disconnectedHandlers.run(this);
+		disconnectedHandlers.apply(this);
 		logging.trace("Resetting ClientID ..");
 		id = ClientID.empty();
 		logging.trace("Resetting session ..");

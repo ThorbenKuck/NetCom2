@@ -2,9 +2,11 @@ package com.github.thorbenkuck.netcom2.integration.nio;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.modules.ModuleFactory;
 
 public class NIOServer {
@@ -25,6 +27,10 @@ public class NIOServer {
 		ModuleFactory.access()
 				.createNIO()
 				.applyTo(serverStart);
+
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addFirst(Session::send);
 
 		try {
 			serverStart.launch();
