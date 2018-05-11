@@ -242,6 +242,7 @@ class ServerStartImpl implements ServerStart {
 	}
 
 	private void consumeInThread(Socket socket) {
+		logging.info("New Socket " + socket + " connected.");
 		NetCom2Utils.runOnNetComThread(() -> handle(socket));
 	}
 

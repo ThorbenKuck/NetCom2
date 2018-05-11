@@ -88,6 +88,6 @@ final class NIOConnectionFactory implements ConnectionFactory {
 				, client::getMainDeSerializationAdapter, client::getFallBackDeSerialization
 				, client::getEncryptionAdapter, client::getDecryptionAdapter);
 		logging.trace("[NIO] Instantiating NIOConnection ..");
-		return new NIOConnection(channel, selector, key, client.getSession(), objectHandler);
+		return new NIOConnection(channel, selector, key, client.getSession(), objectHandler, client);
 	}
 }

@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -41,14 +42,16 @@ final class NIOConnection implements Connection {
 	private final Value<Class<?>> key;
 	private final List<Callback<Object>> sendCallbacks = new ArrayList<>();
 	private final List<Callback<Object>> receiveCallbacks = new ArrayList<>();
+	private final Client client;
 	private Logging logging = Logging.unified();
 
-	public NIOConnection(final SocketChannel socketChannel, final Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler) {
+	public NIOConnection(final SocketChannel socketChannel, final Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler, Client client) {
 		this.socketChannel = socketChannel;
 		this.selector = selector;
 		this.objectHandler = objectHandler;
 		this.key = Value.synchronize(key);
 		this.session = Value.synchronize(session);
+		this.client = client;
 	}
 
 	private void callbackSend(final Object object) {
@@ -151,8 +154,21 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public void close() throws IOException {
+		logging.info("[NIO] Closing this Connection!");
+		logging.trace("[NIO] Canceling selector keys ..");
 		socketChannel.keyFor(selector).cancel();
+		logging.trace("[NIO] Closing SocketChannel ..");
 		socketChannel.close();
+		logging.trace("[NIO] Running disconnectedPipeline ..");
+		disconnectedPipeline.apply(this);
+		logging.trace("[NIO] Setting running flag to false ..");
+		running.set(false);
+		logging.trace("[NIO] Removing from Client ..");
+		client.removeConnection(key.get());
+		if (client.countConnections() == 0) {
+			logging.debug("[NIO] No Connections left .. Disconnect of client initialized.");
+			client.disconnect();
+		}
 	}
 
 	/**

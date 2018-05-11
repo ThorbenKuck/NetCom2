@@ -210,6 +210,10 @@ public interface Client extends Mutex {
 	 */
 	ReceiveOrSendSynchronization send(final Connection connection, final Object object);
 
+	int countConnections();
+
+	void removeConnection(Class<?> clazz);
+
 	/**
 	 * Returns an respective Connection for a given ConnectionKey.
 	 * <p>

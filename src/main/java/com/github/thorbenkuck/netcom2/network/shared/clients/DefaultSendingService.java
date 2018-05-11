@@ -73,7 +73,7 @@ class DefaultSendingService implements SendingService {
 			logging.trace("[SendingService{" + connectionID.get() + "}] Encrypting " + toSend + " ..");
 			toSend = encrypt(toSend);
 			logging.trace("[SendingService{" + connectionID.get() + "}] Writing: " + toSend + " ..");
-			printWriter.println(toSend);
+			printWriter.println(toSend.toCharArray());
 			printWriter.flush();
 			logging.trace("[SendingService{" + connectionID.get() + "}] Successfully wrote " + toSend + "!");
 			logging.trace("[SendingService{" + connectionID.get() + "}] Accepting CallBacks ..");
@@ -209,7 +209,7 @@ class DefaultSendingService implements SendingService {
 					NetCom2Utils.runOnNetComThread(() -> send(o));
 				} else if (waitingTimeInSeconds < MAXIMUM_WAITING_TIME) {
 					++waitingTimeInSeconds;
-					logging.trace("[SendingService{\" + connectionID.get() + \"}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
+					logging.trace("[SendingService{" + connectionID.get() + "}] Increased waiting period to " + waitingTimeInSeconds + " Seconds");
 				}
 			} catch (InterruptedException e) {
 				if (running) {

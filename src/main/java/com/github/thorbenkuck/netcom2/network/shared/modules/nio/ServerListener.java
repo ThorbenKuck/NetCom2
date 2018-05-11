@@ -72,13 +72,12 @@ final class ServerListener implements Runnable {
 				continue;
 			}
 
-			SocketChannel socketChannel = (SocketChannel) key.channel();
-			logging.debug("[NIO] Selection at " + NIOUtils.toString(socketChannel));
-
 			if (key.isAcceptable()) {
 				logging.trace("[NIO] New Connection found ..");
 				register(selector, channelCache.getServer());
 			} else if (key.isReadable()) {
+				SocketChannel socketChannel = (SocketChannel) key.channel();
+				logging.debug("[NIO] Selection at " + NIOUtils.toString(socketChannel));
 				if (((SocketChannel) key.channel()).isConnectionPending()) {
 					logging.debug("[NIO] Connection is still pending .. ignoring read.");
 					iterator.remove();

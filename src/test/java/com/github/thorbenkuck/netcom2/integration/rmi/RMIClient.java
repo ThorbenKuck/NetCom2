@@ -2,7 +2,9 @@ package com.github.thorbenkuck.netcom2.integration.rmi;
 
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
+import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -16,6 +18,7 @@ public class RMIClient implements Runnable {
 	private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.trace());
 		RMIClient client = new RMIClient();
 		new Thread(() -> {
 			Scanner reader = new Scanner(System.in);  // Reading from System.in
@@ -51,6 +54,7 @@ public class RMIClient implements Runnable {
 
 	@Override
 	public void run() {
+
 		clientStart.addDisconnectedHandler(client -> scheduleReconnect());
 		try {
 			clientStart.launch();

@@ -303,12 +303,40 @@ class ClientImpl implements Client {
 		return new DefaultReceiveOrSendSync(sendExpectable, receivedExpectable, object.getClass());
 	}
 
+	@Override
+	public int countConnections() {
+		try {
+			connectionLock.lock();
+			return connections.size();
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeConnection(Class<?> clazz) {
+		try {
+			connectionLock.lock();
+			connections.remove(clazz);
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public final Optional<Connection> getConnection(final Class connectionKey) {
-		return Optional.ofNullable(connections.get(connectionKey));
+		try {
+			connectionLock.lock();
+			return Optional.ofNullable(connections.get(connectionKey));
+		} finally {
+			connectionLock.unlock();
+		}
 	}
 
 	/**
@@ -327,11 +355,18 @@ class ClientImpl implements Client {
 	 */
 	@Override
 	public final Connection getAnyConnection() {
-		if (connections.isEmpty()) {
+		final Map<Object, Connection> temp;
+		try {
+			connectionLock.lock();
+			temp = new HashMap<>(connections);
+		} finally {
+			connectionLock.unlock();
+		}
+		if (temp.isEmpty()) {
 			return null;
 		}
-		int random = ThreadLocalRandom.current().nextInt(connections.size());
-		return connections.values().toArray(new Connection[connections.size()])[random];
+		int random = ThreadLocalRandom.current().nextInt(temp.size());
+		return temp.values().toArray(new Connection[temp.size()])[random];
 	}
 
 	/**
