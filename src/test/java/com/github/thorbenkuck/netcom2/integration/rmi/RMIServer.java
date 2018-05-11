@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.modules.ModuleFactory;
 
 public class RMIServer implements Runnable {
 
@@ -17,6 +18,10 @@ public class RMIServer implements Runnable {
 
 	@Override
 	public void run() {
+		ModuleFactory.access()
+				.nio()
+				.setBufferSize(1024)
+				.apply(serverStart);
 
 		serverStart.remoteObjects().register(new RemoteTest(), RemoteTestInterface.class);
 		serverStart.remoteObjects().register(new PrimitiveRemoteTest(), PrimitiveRemoteTestInterface.class);

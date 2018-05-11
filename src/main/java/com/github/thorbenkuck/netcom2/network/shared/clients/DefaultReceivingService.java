@@ -9,14 +9,12 @@ import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService;
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.Callback;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
+import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.synchronization.DefaultSynchronize;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
@@ -39,7 +37,7 @@ class DefaultReceivingService implements ReceivingService {
 	};
 	private Connection connection;
 	private Session session;
-	private Scanner in;
+	private DataInputStream in;
 	private CommunicationRegistration communicationRegistration;
 	private Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
 	private Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
@@ -213,6 +211,41 @@ class DefaultReceivingService implements ReceivingService {
 		callbacks.remove(toRemove);
 	}
 
+	private int readNext(StringBuilder stringBuilder, Buffer buffer) throws IOException {
+		int read = in.read(buffer.array());
+		if (read == -1) {
+			softStop();
+			return -1;
+		}
+		stringBuilder.append(new String(buffer.array()).trim());
+		buffer.clear();
+
+		return read;
+	}
+
+	private Optional<String> readBlocking() throws IOException {
+		final Buffer buffer = new Buffer(256);
+		final StringBuilder stringBuilder = new StringBuilder();
+		// This call blocks. Therefor
+		// if we continue past this point
+		// we WILL have some sort of
+		// result. This might be -1, which
+		// means, EOF (disconnect.)
+		if (readNext(stringBuilder, buffer) == -1) {
+			return Optional.empty();
+		}
+		while (in.available() > 0) {
+			buffer.reallocate(in.available());
+			if (readNext(stringBuilder, buffer) == -1) {
+				return Optional.empty();
+			}
+		}
+
+		buffer.teardown();
+
+		return Optional.of(stringBuilder.toString());
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -227,14 +260,17 @@ class DefaultReceivingService implements ReceivingService {
 		synchronize.goOn();
 		while (running()) {
 			try {
-				final String string = in.nextLine();
+				final Optional<String> rawDataOptional = readBlocking();
 				// First get, then execute!
 				// Not in one line, so that the
 				// get part is executed in this thread
-				NetCom2Utils.runOnNetComThread(() -> handle(string));
+				rawDataOptional.ifPresent(string -> NetCom2Utils.runOnNetComThread(() -> handle(string)));
+
 			} catch (NoSuchElementException e) {
 				logging.info("[ReceivingService] Disconnection detected!");
 				softStop();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 		onDisconnect();
@@ -302,7 +338,7 @@ class DefaultReceivingService implements ReceivingService {
 		this.session = session;
 		try {
 			synchronized (this) {
-				in = new Scanner(connection.getInputStream());
+				in = new DataInputStream(connection.getInputStream());
 			}
 			setup = true;
 		} catch (IOException e) {

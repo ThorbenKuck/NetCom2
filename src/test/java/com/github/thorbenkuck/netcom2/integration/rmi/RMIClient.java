@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.modules.ModuleFactory;
 
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -54,6 +55,10 @@ public class RMIClient implements Runnable {
 
 	@Override
 	public void run() {
+		ModuleFactory.access()
+				.nio()
+				.setBufferSize(1024)
+				.apply(clientStart);
 
 		clientStart.addDisconnectedHandler(client -> scheduleReconnect());
 		try {

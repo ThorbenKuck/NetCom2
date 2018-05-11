@@ -110,7 +110,7 @@ final class ReceivedListener implements Runnable {
 			logging.trace("[NIO] Converting to Object ..");
 			toObject(raw, connection);
 		} else {
-			logging.trace("[NIO] Read empty input ... checking integrity of SocketChannel");
+			logging.trace("[NIO] Read empty input ... checking integrity of SocketChannel " + NIOUtils.toString(socketChannel));
 			check(socketChannel, connection);
 		}
 	}
