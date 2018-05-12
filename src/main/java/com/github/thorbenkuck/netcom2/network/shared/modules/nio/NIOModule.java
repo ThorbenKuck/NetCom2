@@ -27,8 +27,8 @@ public final class NIOModule implements Module {
 	private final NIOChannelCache channelCache = new NIOChannelCache();
 	private final NIOConnectionCache connectionCache = new NIOConnectionCache();
 	private final NIOConnectorCore connectorCore = new NIOConnectorCore(channelCache);
-	private final Runnable connectedListener = new ServerListener(channelCache, connectorCore::add);
-	private final Runnable clientListener = new ClientListener(channelCache);
+	private final Runnable connectedListener = new NIOServerListener(channelCache, connectorCore::add);
+	private final Runnable clientListener = new NIOClientListener(channelCache);
 	private final Runnable receivedListener;
 
 	public NIOModule() {

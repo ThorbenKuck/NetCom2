@@ -10,13 +10,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-final class ClientListener implements Runnable {
+final class NIOClientListener implements Runnable {
 
 	private final NIOChannelCache channelCache;
 	private final Logging logging = Logging.unified();
 	private final Value<Boolean> running = Value.synchronize(false);
 
-	public ClientListener(final NIOChannelCache channelCache) {
+	public NIOClientListener(final NIOChannelCache channelCache) {
 		this.channelCache = channelCache;
 	}
 

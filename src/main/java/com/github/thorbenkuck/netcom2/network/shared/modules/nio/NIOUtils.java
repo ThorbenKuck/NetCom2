@@ -16,7 +16,7 @@ final class NIOUtils {
 	static String toString(SocketChannel socketChannel) {
 		try {
 			return ("SocketChannel{" +
-					"remoteAddress" + socketChannel.getRemoteAddress() +
+					"remoteAddress=" + socketChannel.getRemoteAddress() + ", " +
 					"connected=" + socketChannel.isConnected() + ", " +
 					"connectionPending=" + socketChannel.isConnectionPending() + ", " +
 					"open=" + socketChannel.isOpen() + ", " +

@@ -12,14 +12,14 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Consumer;
 
-final class ServerListener implements Runnable {
+final class NIOServerListener implements Runnable {
 
 	private final NIOChannelCache channelCache;
 	private final Consumer<SocketChannel> callback;
 	private final Logging logging = Logging.unified();
 	private final Value<Boolean> running = Value.synchronize(false);
 
-	ServerListener(final NIOChannelCache channelCache, final Consumer<SocketChannel> callback) {
+	NIOServerListener(final NIOChannelCache channelCache, final Consumer<SocketChannel> callback) {
 		this.channelCache = channelCache;
 		this.callback = callback;
 	}

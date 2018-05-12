@@ -43,6 +43,7 @@ final class NIOConnection implements Connection {
 	private final List<Callback<Object>> sendCallbacks = new ArrayList<>();
 	private final List<Callback<Object>> receiveCallbacks = new ArrayList<>();
 	private final Client client;
+	private final Synchronize setupSynchronize = Synchronize.create();
 	private Logging logging = Logging.unified();
 
 	public NIOConnection(final SocketChannel socketChannel, final Selector selector, final Class<?> key, final Session session, final ObjectHandler objectHandler, Client client) {
@@ -177,6 +178,7 @@ final class NIOConnection implements Connection {
 	@Override
 	public void setup() {
 		running.set(true);
+		setupSynchronize.goOn();
 	}
 
 	/**
@@ -272,7 +274,7 @@ final class NIOConnection implements Connection {
 	 */
 	@Override
 	public Awaiting startListening() {
-		return Synchronize.empty();
+		return setupSynchronize;
 	}
 
 	/**
