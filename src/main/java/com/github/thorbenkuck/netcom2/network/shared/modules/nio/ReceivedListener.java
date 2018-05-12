@@ -59,7 +59,7 @@ final class ReceivedListener implements Runnable {
 				handle(ByteBuffer.allocate(nioConfig.getBufferSize()), socketChannel);
 				logging.trace("[NIO] Finalized selection");
 			} else {
-				logging.trace("[NIO] Skipping not connected SocketChannel");
+				logging.trace("[NIO] Skipping not connected SocketChannel " + NIOUtils.toString(socketChannel));
 			}
 		} catch (InterruptedException e) {
 			logging.catching(e);

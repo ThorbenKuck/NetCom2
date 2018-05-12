@@ -83,7 +83,7 @@ final class NIOServerListener implements Runnable {
 					iterator.remove();
 					continue;
 				} else if (!((SocketChannel) key.channel()).isConnected()) {
-					logging.debug("[NIO] Found disconnected SocketChannel. Skipping ..");
+					logging.debug("[NIO] Found disconnected SocketChannel. Skipping .. (" + NIOUtils.toString(socketChannel) + ")");
 					iterator.remove();
 					continue;
 				}

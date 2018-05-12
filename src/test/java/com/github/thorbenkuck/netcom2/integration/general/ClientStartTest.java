@@ -11,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.modules.ModuleFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +38,10 @@ public class ClientStartTest {
 	}
 
 	private void start() throws StartFailedException {
+		ModuleFactory.access()
+				.nio()
+				.setBufferSize(2048)
+				.apply(clientStart);
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
 		clientStart.addDisconnectedHandler(client -> {
