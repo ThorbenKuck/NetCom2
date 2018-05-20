@@ -23,6 +23,7 @@ import java.util.Base64;
 public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
 
 	private final Logging logging = Logging.unified();
+	private final Base64.Encoder encoder = Base64.getEncoder();
 
 	/**
 	 * {@inheritDoc}
@@ -58,7 +59,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				logging.catching(e);
 			}
 		}
-		final String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
+		final String toReturn = encoder.encodeToString(baos.toByteArray());
 		logging.trace("Encoded " + o + " to " + toReturn);
 		return toReturn;
 	}

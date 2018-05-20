@@ -211,7 +211,7 @@ class DefaultReceivingService implements ReceivingService {
 		callbacks.remove(toRemove);
 	}
 
-	private int readNext(StringBuilder stringBuilder, Buffer buffer) throws IOException {
+	private int readNext(DynamicBuffer callbackl, Buffer buffer) throws IOException {
 		logging.trace("[ReceivingService] Waiting for available data (blocking)");
 		int read = in.read(buffer.array());
 		logging.trace("[ReceivingService] Read result: " + read);
@@ -221,7 +221,7 @@ class DefaultReceivingService implements ReceivingService {
 			return -1;
 		}
 		logging.trace("[ReceivingService] Appending read data");
-		stringBuilder.append(new String(buffer.array()).trim());
+		callbackl.append(buffer.array());
 		logging.trace("[ReceivingService] Clearing Buffer");
 		buffer.clear();
 
@@ -233,14 +233,14 @@ class DefaultReceivingService implements ReceivingService {
 		logging.trace("[ReceivingService] Allocating Buffer ..");
 		final Buffer buffer = new Buffer(256);
 		logging.trace("[ReceivingService] Preparing StringBuilder as callback");
-		final StringBuilder stringBuilder = new StringBuilder();
+		final DynamicBuffer callback = new DynamicBuffer();
 		// This call blocks. Therefor
 		// if we continue past this point
 		// we WILL have some sort of
 		// result. This might be -1, which
 		// means, EOF (disconnect.)
 		logging.trace("[ReceivingService] Reading from Socket ..");
-		if (readNext(stringBuilder, buffer) == -1) {
+		if (readNext(callback, buffer) == -1) {
 			logging.trace("[ReceivingService] Read EOF. Disconnecting!");
 			return Optional.empty();
 		}
@@ -249,7 +249,7 @@ class DefaultReceivingService implements ReceivingService {
 			logging.trace("[ReceivingService] Found " + in.available() + " more bytes in InputStream.");
 			logging.trace("[ReceivingService] Adjusting Buffer size ..");
 			buffer.reallocate(in.available());
-			if (readNext(stringBuilder, buffer) == -1) {
+			if (readNext(callback, buffer) == -1) {
 				logging.trace("[ReceivingService] Read EOF. Disconnecting!");
 				return Optional.empty();
 			}
@@ -260,7 +260,7 @@ class DefaultReceivingService implements ReceivingService {
 		buffer.teardown();
 
 		logging.trace("[ReceivingService] Reading done.");
-		return Optional.of(stringBuilder.toString());
+		return Optional.of(new String(callback.array()));
 	}
 
 	/**

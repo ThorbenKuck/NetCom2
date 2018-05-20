@@ -22,6 +22,7 @@ import java.util.Base64;
 public class JavaDeSerializationAdapter implements DeSerializationAdapter<String, Object> {
 
 	private final Logging logging = Logging.unified();
+	private final Base64.Decoder decoder = Base64.getDecoder();
 
 	/**
 	 * {@inheritDoc}
@@ -32,7 +33,7 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 		final Object o;
 		try {
 			logging.trace("DeSerialization of " + s);
-			byte[] data = Base64.getDecoder().decode(s.getBytes());
+			byte[] data = decoder.decode(s.getBytes());
 			logging.trace("Decoded bytes " + Arrays.toString(data));
 			final ObjectInputStream ois = new ObjectInputStream(
 					new ByteArrayInputStream(data));

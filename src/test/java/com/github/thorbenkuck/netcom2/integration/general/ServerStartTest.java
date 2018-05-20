@@ -9,7 +9,6 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.modules.ModuleFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -55,10 +54,6 @@ public class ServerStartTest {
 
 	private static void create() {
 		serverStart = ServerStart.at(port);
-		ModuleFactory.access()
-				.nio()
-				.setBufferSize(2048)
-				.apply(serverStart);
 		serverStart.addClientConnectedHandler(client -> {
 			loggingHandler.handle(client);
 			client.addFallBackDeSerialization(new TestDeSerializer());
