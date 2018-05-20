@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
         <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
         <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-        <tag>NetCom2-0.4.1.0</tag>
+        <tag>NetCom2-1.0.1</tag>
     </scm>
 
     <developers>
