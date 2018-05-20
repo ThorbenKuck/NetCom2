@@ -36,10 +36,8 @@ class UDPConnectionFactory implements ConnectionFactory {
 	 * @return a {@link ReceivingService}, usable by a {@link Connection}.
 	 */
 	private ReceivingService getReceivingService(final Client client) {
-		final ReceivingService receivingService = new DefaultReceivingService(client.getCommunicationRegistration(),
+		return new DefaultReceivingService(client.getCommunicationRegistration(),
 				client::getMainDeSerializationAdapter, client::getFallBackDeSerialization, client::getDecryptionAdapter);
-		receivingService.onDisconnect(client::disconnect);
-		return receivingService;
 
 	}
 
@@ -119,6 +117,7 @@ class UDPConnectionFactory implements ConnectionFactory {
 			try {
 				session.acquire();
 				connection = getConnection(socket, session, sendingService, receivingService, key);
+				connection.addOnDisconnectedConsumer(current -> client.disconnect());
 			} catch (InterruptedException e) {
 				logging.error("Could not access Connection " + key + "!", e);
 				return null;
