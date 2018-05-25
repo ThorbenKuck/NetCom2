@@ -57,7 +57,7 @@ Also there is a NIGHTLY branch, for the impatient.
 
 ### Current State
 
-1.0.1.0 (release 30.03.2018)
+1.0.2.0 (release 30.03.2018)
  * Fixed Bug #101
  * Fixed Bug #98
  * First major release (end of beta).
