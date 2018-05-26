@@ -43,7 +43,7 @@ class ClientConnectionEstablish {
 		NetCom2Utils.parameterNotNull(key, client);
 		Awaiting awaiting = client.prepareConnection(key);
 		logging.debug("[" + key + "]: Awaiting response from Server to establish new Connection ..");
-		client.send(new NewConnectionRequest(key));
+		client.createNewConnection(key);
 		return awaiting;
 	}
 

@@ -59,7 +59,7 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				logging.catching(e);
 			}
 		}
-		final String toReturn = encoder.encodeToString(baos.toByteArray());
+		final String toReturn = encoder.encodeToString(baos.toByteArray()) + "__STOP_EOO__".trim();
 		logging.trace("Encoded " + o + " to " + toReturn);
 		return toReturn;
 	}

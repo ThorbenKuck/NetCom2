@@ -37,7 +37,7 @@ public final class NIOModule implements Module {
 
 	public NIOModule(final NIOConfig nioConfig) {
 		this.nioConfig = nioConfig;
-		receivedListener = new ReceivedListener(channelCache, connectionCache,
+		receivedListener = new NIOReceivedListener(channelCache, connectionCache,
 				(object, connection) -> run(networkInterfaceValue.get().getCommunicationRegistration(), connection, object), nioConfig);
 	}
 

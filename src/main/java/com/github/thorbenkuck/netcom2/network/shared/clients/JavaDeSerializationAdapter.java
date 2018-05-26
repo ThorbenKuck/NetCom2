@@ -8,6 +8,7 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -33,7 +34,7 @@ public class JavaDeSerializationAdapter implements DeSerializationAdapter<String
 		final Object o;
 		try {
 			logging.trace("DeSerialization of " + s);
-			byte[] data = decoder.decode(s.getBytes());
+			byte[] data = decoder.decode(s.trim().getBytes(StandardCharsets.UTF_8));
 			logging.trace("Decoded bytes " + Arrays.toString(data));
 			final ObjectInputStream ois = new ObjectInputStream(
 					new ByteArrayInputStream(data));

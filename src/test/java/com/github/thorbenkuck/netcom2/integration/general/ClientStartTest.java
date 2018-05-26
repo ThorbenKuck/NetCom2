@@ -53,9 +53,8 @@ public class ClientStartTest {
 		try {
 			System.out.println("#1 Awaiting receive of Class TestObjectThree after Login request...");
 			clientStart.send()
-					.objectToServer(new Login())
-			;
-			System.out.println("#2 Received TestObjectThree.class!");
+					.objectToServer(new Login());
+			System.out.println("#2 Send multiple Logins and TestObject");
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 1");
 			clientStart.send().objectToServer(new Login());
@@ -63,8 +62,9 @@ public class ClientStartTest {
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 3");
 			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
-			System.out.println("#3 Send multiple Logins and TestObject, creating new Connection");
+			System.out.println("#3 Initializing new Connection");
 			Awaiting callBack = clientStart.createNewConnection(TestObject.class);
+			System.out.println("#4 Emulating Parallel workload");
 			System.out.println("SomeStuff");
 			System.out.println("SomeMoreStuff");
 			System.out.println("Now wait for the new Connection..");
@@ -124,7 +124,7 @@ public class ClientStartTest {
 
 	@ReceiveHandler
 	public void handle(Connection connection, Session session, TestObject testObject) {
-		System.out.println("\n\n\n\n\n\nReceived " + testObject.getHello() + "\n\n\n\n\n\n\n");
+		System.out.println("\n\n\n\n\n\n[AUTO-INJECTED] Received " + testObject.getHello() + "\n\n\n\n\n\n\n");
 	}
 
 	private class TestObserver extends AbstractCacheObserver<TestObjectTwo> {

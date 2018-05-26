@@ -7,10 +7,11 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiConsumer;
 
-final class ReceivedListener implements Runnable {
+final class NIOReceivedListener implements Runnable {
 
 	private final NIOConnectionCache connectionCache;
 	private final BiConsumer<Object, NIOConnection> receivedCallback;
@@ -19,7 +20,8 @@ final class ReceivedListener implements Runnable {
 	private final Logging logging = Logging.unified();
 	private final Value<Boolean> running = Value.synchronize(false);
 
-	ReceivedListener(final NIOChannelCache channelCache, final NIOConnectionCache connectionCache, final BiConsumer<Object, NIOConnection> receivedCallback, final NIOConfig nioConfig) {
+	NIOReceivedListener(final NIOChannelCache channelCache, final NIOConnectionCache connectionCache,
+	                    final BiConsumer<Object, NIOConnection> receivedCallback, final NIOConfig nioConfig) {
 		this.connectionCache = connectionCache;
 		this.receivedCallback = receivedCallback;
 		socketChannels = channelCache.getReadable();
@@ -104,6 +106,8 @@ final class ReceivedListener implements Runnable {
 			}
 		}
 
+		buffer.clear();
+
 		final String raw = result.toString();
 		logging.trace("[NIO] Read raw data " + raw);
 		if (!raw.isEmpty()) {
@@ -127,10 +131,31 @@ final class ReceivedListener implements Runnable {
 	}
 
 	private void toObject(final String rawData, final NIOConnection connection) {
+		if (connection == null) {
+			System.out.println(connectionCache);
+			return;
+		}
 		final ObjectHandler objectHandler = connection.getObjectHandler();
+		String[] values = rawData.trim().split("__STOP_EOO__");
+		logging.debug("[NIO] Handling : " + Arrays.toString(values));
+		if (values.length == 0) {
+			throw new IllegalStateException("Received corrupted data! Missing __STOP_EOO__ in " + rawData);
+		}
+		Arrays.stream(values)
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.forEach(value -> {
+					singleLineToObject(value, connection, objectHandler);
+				});
+	}
+
+	private void singleLineToObject(final String value, final NIOConnection connection, final ObjectHandler objectHandler) {
+		if (value.isEmpty()) {
+			return;
+		}
 		try {
-			final Object received = objectHandler.deserialize(rawData);
-			logging.info("[NIO] Received " + received);
+			final Object received = objectHandler.deserialize(value);
+			logging.info("[NIO] Read " + received);
 			receivedCallback.accept(received, connection);
 		} catch (final DeSerializationFailedException e) {
 			logging.catching(e);

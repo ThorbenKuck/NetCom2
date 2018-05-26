@@ -31,6 +31,7 @@ class DefaultReceivingService implements ReceivingService {
 	@APILevel
 	protected final List<Callback<Object>> callbacks = new ArrayList<>();
 	private final Supplier<DecryptionAdapter> decryptionAdapter;
+	private final Queue<String> notHandledStrings = new LinkedList<>();
 	private final Synchronize synchronize = Synchronize.create();
 	private final Supplier<DeSerializationAdapter<String, Object>> deSerializationAdapter;
 	private final Supplier<Set<DeSerializationAdapter<String, Object>>> fallBackDeSerialization;
@@ -211,9 +212,9 @@ class DefaultReceivingService implements ReceivingService {
 		callbacks.remove(toRemove);
 	}
 
-	private int readNext(DynamicBuffer callbackl, Buffer buffer) throws IOException {
+	private int readNext(DynamicBuffer callback, Buffer buffer) throws IOException {
 		logging.trace("[ReceivingService] Waiting for available data (blocking)");
-		int read = in.read(buffer.array());
+		final int read = in.read(buffer.array());
 		logging.trace("[ReceivingService] Read result: " + read);
 		if (read == -1) {
 			logging.trace("[ReceivingService] EOF reached! SoftStop initialized. Notifying ..");
@@ -221,14 +222,47 @@ class DefaultReceivingService implements ReceivingService {
 			return -1;
 		}
 		logging.trace("[ReceivingService] Appending read data");
-		callbackl.append(buffer.array());
+		callback.append(buffer.array());
 		logging.trace("[ReceivingService] Clearing Buffer");
 		buffer.clear();
 
 		return read;
 	}
 
+	private String processReceived(String raw) {
+		logging.trace("[ReceivingService] Processing read data. Attempting to find end of object flag ..");
+		String[] values = raw.trim().split("__STOP_EOO__");
+		logging.trace("[ReceivingService] Read data split. Reading individual messages ..");
+		if (values.length == 0) {
+			throw new IllegalStateException("Received corrupted data! Missing __STOP_EOO__ in " + raw);
+		}
+		if (values.length == 1 || (values.length == 2 && values[1].isEmpty())) {
+			logging.trace("[ReceivingService] Received only one message. Continue now.");
+			return values[0];
+		}
+
+		logging.trace("[ReceivingService] Received multiple messages ..");
+		logging.debug("[ReceivingService] Received: " + Arrays.toString(values));
+		String value = values[0];
+
+		logging.trace("[ReceivingService] Storing message for later processing ..");
+		boolean first = true;
+		for (String s : values) {
+			if (first) {
+				first = false;
+				continue;
+			}
+			notHandledStrings.add(s);
+		}
+
+		return value;
+	}
+
 	private Optional<String> readBlocking() throws IOException {
+		if (!notHandledStrings.isEmpty()) {
+			logging.trace("[ReceivingService] Found stored Message. Processing now ..");
+			return Optional.of(notHandledStrings.poll());
+		}
 		logging.debug("[ReceivingService] Starting to read.");
 		logging.trace("[ReceivingService] Allocating Buffer ..");
 		final Buffer buffer = new Buffer(256);
@@ -255,12 +289,14 @@ class DefaultReceivingService implements ReceivingService {
 			}
 			logging.trace("[ReceivingService] Reading successful. Attempting to check for more available data ..");
 		}
-		logging.trace("[ReceivingService] Read all data. Tearing down buffer to free up memory ..");
+		logging.trace("[ReceivingService] Read all data. Tearing down buffers to free up memory ..");
 
 		buffer.teardown();
+		final String value = processReceived(new String(callback.array()));
+		callback.teardown();
 
 		logging.trace("[ReceivingService] Reading done.");
-		return Optional.of(new String(callback.array()));
+		return Optional.of(value);
 	}
 
 	/**

@@ -78,7 +78,8 @@ final class ObjectHandler {
 		return decryptionAdapterSupplier.get().get(s);
 	}
 
-	private String encrypt(final String s) {
+	private String encrypt(String s) {
+		s = s + "__STOP_EOO__";
 		return encryptionAdapterSupplier.get().get(s);
 	}
 }
