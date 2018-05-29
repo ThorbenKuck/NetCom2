@@ -189,6 +189,8 @@ Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more infor
 
 If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
 
+Also, you may be interrested in checking out the Java-Doc, which can be find [here](https://thorbenkuck.github.io/NetCom2/apidocs/)
+
 ----
 #### Current Development
 
@@ -201,11 +203,3 @@ Have Problems starting? Post your question on [StackOverflow](https://stackoverf
 #### What comes next?
 
 First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
-
-Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
-Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
-If you are having any other trouble with NetCom2, please also turn to StackOverflow.
-          
-----
-
