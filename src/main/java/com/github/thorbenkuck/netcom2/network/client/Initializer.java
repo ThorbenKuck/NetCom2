@@ -55,8 +55,12 @@ class Initializer {
 
 	/**
 	 * This Method registers all internal Objects, that are used for Communication between Client and Server.
+	 * <p>
+	 * This Method has to be called, before the Socket connection is established, so that the Ping, send from the Server
+	 * can be handled correctly.
 	 */
-	private synchronized void register() {
+	@APILevel
+	synchronized void register() {
 		registerCriticalSingle(Ping.class, new PingHandler(client));
 		registerCriticalSingle(RegisterResponse.class, new RegisterResponseHandler(cache, sender));
 		registerCriticalSingle(UnRegisterResponse.class, new UnRegisterResponseHandler(cache, sender));
@@ -87,9 +91,13 @@ class Initializer {
 	/**
 	 * This Method blocks, until the {@link ClientID} is received via the {@link Ping} from the Server.
 	 *
+	 * Note: Make sure, that {@link #register()} was called before calling this. Else the ClientStart wont know how to
+	 * handle the initial Communication from the ServerStart.
+	 *
 	 * @throws StartFailedException if the Client is interrupted before it is primed
 	 */
-	private void awaitHandshake() throws StartFailedException {
+	@APILevel
+	void awaitHandshake() throws StartFailedException {
 		logging.debug("Awaiting ping from Server ..");
 		try {
 			synchronized (client) {
@@ -257,7 +265,10 @@ class Initializer {
 	 *                              primed failed, an StartFailedException is thrown
 	 *                              to signal that	it could not verify the Handshake
 	 *                              between Server and Client
+	 * @deprecated This Method should not exist this way. It implies, that registration and synchronization may be done
+	 * directly after one another. This is not true. After registration the connection has to be established.
 	 */
+	@Deprecated
 	@APILevel
 	void init() throws StartFailedException {
 		logging.trace("Registering internal Components ..");

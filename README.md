@@ -57,7 +57,9 @@ Also there is a NIGHTLY branch, for the impatient.
 
 ### Current State
 
-1.0.0.0 (release 30.03.2018)
+1.0.2.0 (release 30.03.2018)
+ * Fixed Bug #101
+ * Fixed Bug #98
  * First major release (end of beta).
  * Pipeline based Communication protocols.
  * Advanced RMI API (multi language compatible).
@@ -74,7 +76,7 @@ Also there is a NIGHTLY branch, for the impatient.
  <dependency>
    <groupId>com.github.thorbenkuck</groupId>
    <artifactId>NetCom2</artifactId>
-   <version>1.0</version>
+   <version>1.0.2</version>
  </dependency>
  ```
  
@@ -82,7 +84,7 @@ Also there is a NIGHTLY branch, for the impatient.
  
  ```
  dependencies {
-     compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0'
+     compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0.2'
  }
  ```
 

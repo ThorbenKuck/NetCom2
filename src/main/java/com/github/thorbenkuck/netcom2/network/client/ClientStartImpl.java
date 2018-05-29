@@ -121,6 +121,9 @@ class ClientStartImpl implements ClientStart {
 			return;
 		}
 		logging.debug("Connecting to server ..");
+		final Initializer initializer = new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory,
+				remoteObjectFactoryImpl.getRemoteAccessBlockRegistration());
+		initializer.register();
 		synchronized (clientConnector) {
 			try {
 				logging.trace("Trying to establish Connection ..");
@@ -128,11 +131,10 @@ class ClientStartImpl implements ClientStart {
 			} catch (IOException e) {
 				throw new StartFailedException(e);
 			}
-			logging.trace("Initializing new Connection ..");
-			new Initializer(client, communicationRegistration, cache, sender, clientConnector, socketFactory,
-					remoteObjectFactoryImpl.getRemoteAccessBlockRegistration()).init();
-			launched.set(true);
 		}
+		logging.trace("Initializing new Connection ..");
+		initializer.awaitHandshake();
+		launched.set(true);
 		logging.info("Connected to server at " + client.getConnection(DefaultConnection.class));
 	}
 
