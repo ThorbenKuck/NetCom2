@@ -43,45 +43,120 @@
     </div>
 </nav>
 <body>
+<div id="feature-1-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reactive Core</h4>
+            </div>
+            <div class="modal-body">
+                <p>The basic communication using NetCom2 follows this pattern: Tell the respective
+                    CommunicationRegistration what to do,
+                    if a certain Object arrives, than go do something else</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="feature-2-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Default Communication Protocols</h4>
+            </div>
+            <div class="modal-body">
+                <p>Default Communication</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="feature-3-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">EventBus Usage</h4>
+            </div>
+            <div class="modal-body">
+                <p>Blabla .. register(Bla.class).to(Object); .. Blabla</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="feature-4-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Advanced RMI API</h4>
+            </div>
+            <div class="modal-body">
+                <p>Now THIS is REALLY cool you guys, like REALLY COOL!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container-fluid" style="margin-top: 20px;">
     <div class="container-fluid">
         <div class="card-columns">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Reactive core</h4>
-                </div>
+            <div class="card clickable border-dark mb-3" id="feature-1" data-toggle="modal"
+                 data-target="#feature-1-modal">
+                <h5 class="card-header">Reactive core</h5>
                 <div class="card-body">
-                    <div class="card-title">Using NetCom2 Reactive</div>
-                    <div class="card-text">NetCom2s main philosophy is, to define what you want before you actually do
-                        it.
+                    <h5 class="card-title text-right text-muted">Using NetCom2 Reactive</h5>
+                    <div class="card-text">NetCom2s main philosophy is, to define what you want before you actually
+                        do
+                        it. This Card handles basic communication
                     </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    I am the HEADER!
-                </div>
+            <script>
+
+            </script>
+            <div class="card clickable border-dark mb-3" id="feature-2" data-toggle="modal"
+                 data-target="#feature-2-modal">
+                <h5 class="card-header">Default Communication Protocols</h5>
                 <div class="card-body">
-                    <div class="card-title">I am the Title.</div>
-                    <div class="card-text">And i am just the text ...</div>
+                    <h5 class="card-title text-right text-muted">Define standards for reacting to Objects</h5>
+                    <div class="card-text">If you want, you can define a default communication protocol, that will
+                        be called
+                        if no other communication is specified for the received Object. Also, think about coupling a
+                        google.guava.EventBus here
+                    </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">
-
-                </div>
+            <div class="card clickable border-dark mb-3" id="feature-3" data-toggle="modal"
+                 data-target="#feature-3-modal">
+                <h5 class="card-header">EventBus Usage</h5>
                 <div class="card-body">
-                    <div class="card-title"></div>
-                    <div class="card-text"></div>
+                    <h5 class="card-title text-right text-muted">Did you know ..</h5>
+                    <div class="card-text">.. that NetCom2 also is an EventBus? You can couple Objects to handle
+                        certain communications.
+                    </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">
-
-                </div>
+            <div class="card clickable border-dark mb-3" id="feature-4" data-toggle="modal"
+                 data-target="#feature-4-modal">
+                <h5 class="card-header">Advanced RMI API</h5>
                 <div class="card-body">
-                    <div class="card-title"></div>
-                    <div class="card-text"></div>
+                    <h5 class="card-title text-right text-muted">RMI in its final form</h5>
+                    <div class="card-text">Using RMI outside of Java? Impossible you say? Not with this RMI API.
+                        Also, it
+                        is generic, allows you create fallbacks and uses NetCom2 internal dependencies
+                    </div>
                 </div>
             </div>
         </div>
