@@ -7,7 +7,6 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * creating this Exception is interrupted while creating the Connection
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.client.NewConnectionResponseHandler
  * @since 1.0
  */
 public class ConnectionCreationFailedException extends NetComRuntimeException {
