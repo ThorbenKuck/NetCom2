@@ -6,8 +6,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="stylesheets/style.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
             crossorigin="anonymous"></script>
@@ -17,8 +15,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
 </head>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -30,11 +26,11 @@
 
     <div class="collapse navbar-collapse" id="navbarColor01">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
-            </li>
             <li class="nav-item">
-                <a class="nav-link" href="features.html">Features</a>
+                <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="features.html">Features <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="getting_started.html">Getting Started</a>
@@ -47,16 +43,48 @@
     </div>
 </nav>
 <body>
-<div class="container" style="background-color: white; color: black;">
-    NetCom2 is a simple to use, yet highly modular framework, designed to get started quickly.<br>
-    With NetCom2, you will archive more by coding way less. 3 simple lines will be enough, to get a Client (or a Server)
-    create
-    and connected.
-    <pre><code class="java">
-public class Test {
-    private final String output;
-}
-        </code></pre>
+<div class="container-fluid" style="margin-top: 20px;">
+    <div class="container-fluid">
+        <div class="card-columns">
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">This Card has a title</div>
+                    <div class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere
+                        erat.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    I am the HEADER!
+                </div>
+                <div class="card-body">
+                    <div class="card-title">I am the Title.</div>
+                    <div class="card-text">And i am just the text ...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body">
+                    <div class="card-title"></div>
+                    <div class="card-text"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body">
+                    <div class="card-title"></div>
+                    <div class="card-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <footer class="fixed-bottom bg-danger text-center">
     <h2>This site is still in development!</h2>
