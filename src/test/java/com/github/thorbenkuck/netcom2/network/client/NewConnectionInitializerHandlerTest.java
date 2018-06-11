@@ -2,11 +2,11 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.TestUtils;
 import com.github.thorbenkuck.netcom2.annotations.Testing;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;

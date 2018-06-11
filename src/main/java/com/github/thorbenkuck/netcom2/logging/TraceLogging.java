@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 /**
  * This is an instance of Logging, that logs every step.

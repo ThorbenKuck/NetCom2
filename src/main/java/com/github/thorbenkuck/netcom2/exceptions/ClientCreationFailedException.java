@@ -1,5 +1,7 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+
 /**
  * This Exception is thrown, if the {@link com.github.thorbenkuck.netcom2.network.shared.clients.AbstractConnection#setup}
  * method encounters an Exception
@@ -15,7 +17,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.AbstractConnection#setup
  * @see com.github.thorbenkuck.netcom2.network.interfaces.SendingService#setup(java.io.OutputStream, java.util.concurrent.BlockingQueue)
- * @see com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService#setup(com.github.thorbenkuck.netcom2.network.shared.clients.Connection, com.github.thorbenkuck.netcom2.network.shared.Session)
+ * @see com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService#setup(com.github.thorbenkuck.netcom2.network.shared.clients.Connection, Session)
  * @since 1.0
  */
 public class ClientCreationFailedException extends NetComRuntimeException {

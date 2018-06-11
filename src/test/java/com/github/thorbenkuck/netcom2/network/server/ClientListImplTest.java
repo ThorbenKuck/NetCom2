@@ -1,9 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Testing;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.client.ClientID;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,16 +17,16 @@ import static com.github.thorbenkuck.netcom2.TestUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@Testing(ClientListImpl.class)
+@Testing(NativeClientList.class)
 public class ClientListImplTest {
 
 	@Test
 	public void addOnceOpen() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		Client clientToAdd = mock(Client.class);
 		ClientID clientID = ClientID.fromString(UUID_SEED_1);
-		when(clientToAdd.getID()).thenReturn(clientID);
+		when(clientToAdd.getId()).thenReturn(clientID);
 		List<Client> expectedStreamContents = Collections.singletonList(clientToAdd);
 
 		//Act
@@ -41,9 +41,9 @@ public class ClientListImplTest {
 	@Test
 	public void addTwiceOpen() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		Client clientToAdd = mock(Client.class);
-		when(clientToAdd.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(clientToAdd.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		List<Client> expectedStreamContents = Collections.singletonList(clientToAdd);
 
 		//Act
@@ -59,10 +59,10 @@ public class ClientListImplTest {
 	@Test
 	public void addOnceClosed() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		Client clientToAdd = mock(Client.class);
 		ClientID clientID = ClientID.fromString(UUID_SEED_1);
-		when(clientToAdd.getID()).thenReturn(clientID);
+		when(clientToAdd.getId()).thenReturn(clientID);
 		List<Client> expectedStreamContents = Collections.emptyList();
 
 		//Act
@@ -78,9 +78,9 @@ public class ClientListImplTest {
 	@Test
 	public void addTwiceClosed() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		Client clientToAdd = mock(Client.class);
-		when(clientToAdd.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(clientToAdd.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 
 		//Act
 		clients.close();
@@ -97,10 +97,10 @@ public class ClientListImplTest {
 	public void removeOpenFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client1.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
-		ClientListImpl clients = new ClientListImpl();
+		when(client2.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		NativeClientList clients = new NativeClientList();
 		List<Client> expectedStreamContents = Collections.singletonList(client1);
 
 		//Act
@@ -118,11 +118,11 @@ public class ClientListImplTest {
 	public void removeOpenNotFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client1.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		when(client2.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Client client3 = mock(Client.class);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
 
 		//Act
@@ -140,10 +140,10 @@ public class ClientListImplTest {
 	public void removeClosedFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client1.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
-		ClientListImpl clients = new ClientListImpl();
+		when(client2.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		NativeClientList clients = new NativeClientList();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
 
 		//Act
@@ -162,11 +162,11 @@ public class ClientListImplTest {
 	public void removeClosedNotFound() throws Exception {
 		//Arrange
 		Client client1 = mock(Client.class);
-		when(client1.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client1.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		when(client2.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Client client3 = mock(Client.class);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		List<Client> expectedStreamContents = Arrays.asList(client1, client2);
 
 		//Act
@@ -185,8 +185,8 @@ public class ClientListImplTest {
 	public void clearOpen() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
-		ClientListImpl clients = new ClientListImpl();
+		when(aClient.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(aClient);
@@ -202,8 +202,8 @@ public class ClientListImplTest {
 	public void clearClosed() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
-		ClientListImpl clients = new ClientListImpl();
+		when(aClient.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		NativeClientList clients = new NativeClientList();
 		List<Client> expectedStreamContents = Collections.singletonList(aClient);
 
 		//Act
@@ -223,7 +223,7 @@ public class ClientListImplTest {
 		Client client = mock(Client.class);
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -241,7 +241,7 @@ public class ClientListImplTest {
 		Session clientSession = mock(Session.class);
 		Session searchSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -257,12 +257,12 @@ public class ClientListImplTest {
 		Client client = mock(Client.class);
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
-		when(client.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client anotherClient = mock(Client.class);
 		Session searchSession = mock(Session.class);
-		when(anotherClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		when(anotherClient.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		when(anotherClient.getSession()).thenReturn(searchSession);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -281,7 +281,7 @@ public class ClientListImplTest {
 		Client client = mock(Client.class);
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.close();
@@ -297,8 +297,8 @@ public class ClientListImplTest {
 		//Arrange
 		Client client = mock(Client.class);
 		ClientID clientID = ClientID.fromString(UUID_SEED_1);
-		when(client.getID()).thenReturn(clientID);
-		ClientListImpl clients = new ClientListImpl();
+		when(client.getId()).thenReturn(clientID);
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -315,8 +315,8 @@ public class ClientListImplTest {
 		Client client = mock(Client.class);
 		ClientID clientID = ClientID.fromString(UUID_SEED_1);
 		ClientID searchID = ClientID.fromString(UUID_SEED_2);
-		when(client.getID()).thenReturn(clientID);
-		ClientListImpl clients = new ClientListImpl();
+		when(client.getId()).thenReturn(clientID);
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -331,11 +331,11 @@ public class ClientListImplTest {
 		//Arrange
 		Client client = mock(Client.class);
 		ClientID anID = ClientID.fromString(UUID_SEED_1);
-		when(client.getID()).thenReturn(anID);
+		when(client.getId()).thenReturn(anID);
 		Client anotherClient = mock(Client.class);
 		ClientID anotherID = ClientID.fromString(UUID_SEED_2);
-		when(anotherClient.getID()).thenReturn(anotherID);
-		ClientListImpl clients = new ClientListImpl();
+		when(anotherClient.getId()).thenReturn(anotherID);
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(client);
@@ -353,8 +353,8 @@ public class ClientListImplTest {
 		//Arrange
 		Client client = mock(Client.class);
 		ClientID clientID = ClientID.fromString(UUID_SEED_1);
-		when(client.getID()).thenReturn(clientID);
-		ClientListImpl clients = new ClientListImpl();
+		when(client.getId()).thenReturn(clientID);
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.close();
@@ -369,17 +369,17 @@ public class ClientListImplTest {
 	public void sessionStream() throws Exception {
 		//Arrange
 		Client client = mock(Client.class);
-		when(client.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(client.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Session clientSession = mock(Session.class);
 		when(client.getSession()).thenReturn(clientSession);
 		Client client2 = mock(Client.class);
-		when(client2.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		when(client2.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
 		Session session2 = mock(Session.class);
 		when(client2.getSession()).thenReturn(session2);
 		Client client3 = mock(Client.class);
-		when(client3.getID()).thenReturn(ClientID.fromString(UUID_SEED_3));
+		when(client3.getId()).thenReturn(ClientID.fromString(UUID_SEED_3));
 		when(client3.getSession()).thenReturn(null);
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 		List<Session> expectedSessions = Arrays.asList(clientSession, session2);
 
 		//Act
@@ -397,10 +397,10 @@ public class ClientListImplTest {
 	public void close() throws Exception {
 		//Arrange
 		Client aClient = mock(Client.class);
-		when(aClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_1));
+		when(aClient.getId()).thenReturn(ClientID.fromString(UUID_SEED_1));
 		Client anotherClient = mock(Client.class);
-		when(anotherClient.getID()).thenReturn(ClientID.fromString(UUID_SEED_2));
-		ClientListImpl clients = new ClientListImpl();
+		when(anotherClient.getId()).thenReturn(ClientID.fromString(UUID_SEED_2));
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.add(aClient);
@@ -416,7 +416,7 @@ public class ClientListImplTest {
 	@Test
 	public void open() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 		clients.open();
@@ -428,7 +428,7 @@ public class ClientListImplTest {
 	@Test
 	public void isOpen() throws Exception {
 		//Arrange
-		ClientListImpl clients = new ClientListImpl();
+		NativeClientList clients = new NativeClientList();
 
 		//Act
 

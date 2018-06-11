@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.utility;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -1,11 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.annotations.Tested;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.HashMap;
@@ -13,20 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-/**
- * This Class contains information about requests to the Server.
- * <p>
- * Important is, that any request sent, has a unique {@link UUID}. So any invocation handler will lead to the same result
- * <p>
- * If you have a {@link com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject}, the UUID will be
- * the same, so that the any call will wait, no matter what.
- *
- * @version 1.0
- * @since 1.0
- */
-@Synchronized
-@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.RemoteAccessBlockRegistrationTest")
-public class RemoteAccessBlockRegistration {
+class RemoteAccessBlockRegistration {
 
 	private final Map<UUID, Semaphore> semaphoreMap = new HashMap<>();
 	private final Map<UUID, RemoteAccessCommunicationResponse> responseMap = new HashMap<>();
@@ -35,7 +20,7 @@ public class RemoteAccessBlockRegistration {
 	/**
 	 * This Method will fetch an existing Semaphore out of the internal Mapping, identified by the UUID
 	 * <p>
-	 * If the Semaphore does not exist, it will access on.
+	 * If the Semaphore does not exist, it will create on.
 	 *
 	 * @param uuid the Identifier of the Semaphore
 	 * @return the identified Semaphore

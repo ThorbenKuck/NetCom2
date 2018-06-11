@@ -83,7 +83,7 @@
             <!--<version>1.5</version>-->
             <!--<executions>-->
             <!--<execution>-->
-            <!--<id>sign-artifacts</id>-->
+            <!--<id>sign-artifacts</getId>-->
             <!--<phase>verify</phase>-->
             <!--<goals>-->
             <!--<goal>sign</goal>-->

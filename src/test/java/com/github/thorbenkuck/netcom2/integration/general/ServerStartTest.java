@@ -7,8 +7,8 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.modules.Module;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -54,6 +54,7 @@ public class ServerStartTest {
 
 	private static void create() {
 		serverStart = ServerStart.at(port);
+		Module.nio(serverStart);
 		serverStart.addClientConnectedHandler(client -> {
 			loggingHandler.handle(client);
 			client.addFallBackDeSerialization(new TestDeSerializer());
@@ -69,46 +70,7 @@ public class ServerStartTest {
 						System.out.println("Okay, ich logge dich ein...");
 						session.setIdentified(true);
 					}).withRequirement(login -> !session.isIdentified());
-
-
-//			HeartBeat<Session> heartBeat = HeartBeatFactory.get().produce();
-//
-//			heartBeat.configure()
-//					.tickRate()
-//					.times(1)
-//					.in(1, TimeUnit.SECONDS)
-//					.and()
-//					.run()
-//					.setAction(currentSession -> currentSession.send(new Ping()));
-//
-//			session.addHeartBeat(heartBeat);
 		});
-//		serverStart.setServerSocketFactory(integer -> {
-//			String keystoreFileName = "keystore.jks";
-//			char[] password = "password".toCharArray();
-//			String alias = "test";
-//
-//
-//			try {
-//				FileInputStream fileInputStream = new FileInputStream(keystoreFileName);
-//				KeyStore keyStore = KeyStore.getInstance("JKS");
-//				keyStore.load(fileInputStream, password);
-//
-//				ServerSocketFactory sslServerSocketFactory = SSLServerSocketFactory.getDefault();
-//				return sslServerSocketFactory.createServerSocket(integer);
-//			} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-//				e.printStackTrace();
-//			}
-//
-//			System.out.println("No SSL for you!");
-//
-//			try {
-//				return new ServerSocket(integer);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				return null;
-//			}
-//		});
 	}
 
 	private static void schedule() {

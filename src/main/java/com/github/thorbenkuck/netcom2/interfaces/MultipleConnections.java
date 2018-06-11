@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 /**
  * This interface describes, that the inherited Class is capable of creating new Connections, based upon the Session.

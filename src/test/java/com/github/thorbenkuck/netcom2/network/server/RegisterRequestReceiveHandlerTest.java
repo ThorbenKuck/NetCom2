@@ -1,10 +1,10 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.Testing;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RegisterResponse;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 

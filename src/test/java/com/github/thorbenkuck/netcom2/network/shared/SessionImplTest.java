@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeat;
 import com.github.thorbenkuck.netcom2.network.shared.heartbeat.HeartBeatParallel;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import org.junit.Before;
 import org.junit.Test;
 

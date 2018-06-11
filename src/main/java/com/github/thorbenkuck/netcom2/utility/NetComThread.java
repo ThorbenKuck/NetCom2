@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.utility;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 /**
  * NetCom2 uses its own Threads such that developers can easily distinguish between NetCom2 Threads

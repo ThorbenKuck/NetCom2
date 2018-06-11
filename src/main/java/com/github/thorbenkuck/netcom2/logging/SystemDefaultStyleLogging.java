@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;

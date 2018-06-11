@@ -1,9 +1,5 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-
 /**
  * <p>This interface describes, that an implementation can be registered to anything.</p>
  * <p>
@@ -13,9 +9,9 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
  * <p>
  * Known Implementations are:
  * <ul>
- * <li>{@link OnReceiveSingle}</li>
- * <li>{@link OnReceive}</li>
- * <li>{@link OnReceiveTriple}</li>
+ * <li>{@link com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle}</li>
+ * <li>{@link com.github.thorbenkuck.netcom2.network.shared.OnReceive}</li>
+ * <li>{@link com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple}</li>
  * </ul>
  *
  * @version 1.0

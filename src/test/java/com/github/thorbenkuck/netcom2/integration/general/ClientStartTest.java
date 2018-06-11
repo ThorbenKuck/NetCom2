@@ -6,11 +6,11 @@ import com.github.thorbenkuck.netcom2.integration.*;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.modules.Module;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,6 +24,7 @@ public class ClientStartTest {
 	private int port = 44444;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.warn());
 		new ClientStartTest().run();
 	}
 
@@ -37,6 +38,7 @@ public class ClientStartTest {
 	}
 
 	private void start() throws StartFailedException {
+		Module.nio(clientStart);
 		clientStart.addFallBackDeSerialization(new TestDeSerializer());
 		clientStart.addFallBackSerialization(new TestSerializer());
 		clientStart.addDisconnectedHandler(client -> {
@@ -54,27 +56,33 @@ public class ClientStartTest {
 			System.out.println("#1 Awaiting receive of Class TestObjectThree after Login request...");
 			clientStart.send()
 					.objectToServer(new Login());
+			Thread.sleep(100);
 			System.out.println("#2 Send multiple Logins and TestObject");
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 1");
+			Thread.sleep(100);
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 2");
+			Thread.sleep(100);
 			clientStart.send().objectToServer(new Login());
 			System.out.println("Send login 3");
+			Thread.sleep(100);
 			clientStart.send().objectToServer(new TestObject("THIS SHOULD COME BACK!"));
 			System.out.println("#3 Initializing new Connection");
-			Awaiting callBack = clientStart.createNewConnection(TestObject.class);
-			System.out.println("#4 Emulating Parallel workload");
-			System.out.println("SomeStuff");
-			System.out.println("SomeMoreStuff");
-			System.out.println("Now wait for the new Connection..");
-			callBack.synchronize();
-			System.out.println("#5Connection established! YAY!");
-			System.out.println("Let's test the new Connection ..");
-			clientStart.send()
-					.objectToServer(new TestObject("Hello!"), TestObject.class)
-					.andWaitForReceiving(TestObject.class);
-			System.out.println("#6 Finished Test");
+			Thread.sleep(100);
+//			Awaiting callBack = clientStart.createNewConnection(TestObject.class);
+//			Thread.sleep(100);
+//			System.out.println("#4 Emulating Parallel workload");
+//			System.out.println("SomeStuff");
+//			System.out.println("SomeMoreStuff");
+//			System.out.println("Now wait for the new Connection..");
+//			callBack.synchronize();
+//			System.out.println("#5Connection established! YAY!");
+//			System.out.println("Let's test the new Connection ..");
+//			clientStart.send()
+//					.objectToServer(new TestObject("Hello!"), TestObject.class)
+//					.andWaitForReceiving(TestObject.class);
+//			System.out.println("#6 Finished Test");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

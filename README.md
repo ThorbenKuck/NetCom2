@@ -57,15 +57,22 @@ Also there is a NIGHTLY branch, for the impatient.
 
 ### Current State
 
-1.0.1.0 (release 30.03.2018)
- * Fixed Bug #98
- * First major release (end of beta).
- * Pipeline based Communication protocols.
- * Advanced RMI API (multi language compatible).
- * Asynchronous behaviour with extreme performance.
- * Highly modular, yet easy to use.
- * Designed with functional programming in mind.
- * Decoupled logging API (<code>NetComLogging</code>).
+2.0 (release 30.03.2018)
+ * Session lost its update and HeartBeat functions
+ * ClientStart and ServerStart where updated.
+   * Interface they use are now mostly located in network.shared
+ * The Logging interface has been relocated to the root.logging package
+   * This is more logical, but means, you have to adjust those imports.
+ * Synchronization for sending Objects has been removed completely!
+   * The reason is, that it is not needed most of the time, but always takes up resources.
+ * All Default implementations have been renamed to Native[InterfaceName]
+   * This should not effect anyone.
+ * The Connection has been greatly rewritten.
+ * The ServerStart no longer contains a Distributor.
+   * To use it, state: `Distributor distributor = Distributor.open(serverStart)`
+ * Keller has been integrated greatly
+ * Session events have been removed
+   * They accomplish the same behaviour as the CommunicationRegistration and are therefor not needed
  
  ### Installation
  

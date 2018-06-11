@@ -4,17 +4,6 @@ import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 
 import java.util.Optional;
 
-/**
- * The Cache is used to maintain and save instances of Objects.
- * <p>
- * This Cache is a low level cache and does not maintain its Object on and of itself. It is meant, to be controlled via
- * the generic {@link CacheObserver}.
- * <p>
- * If it is not clear, you cannot declare time-periods for objects to maintain those. It keeps all Objects indefinitely!
- *
- * @version 1.0
- * @since 1.0
- */
 public interface Cache extends Mutex {
 
 	/**
@@ -26,8 +15,8 @@ public interface Cache extends Mutex {
 	 *
 	 * @return a new Cache instance
 	 */
-	static Cache create() {
-		return new CacheImpl();
+	static Cache open() {
+		return new NativeCache();
 	}
 
 	/**

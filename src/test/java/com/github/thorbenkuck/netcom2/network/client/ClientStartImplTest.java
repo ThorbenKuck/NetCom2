@@ -5,13 +5,13 @@ import com.github.thorbenkuck.netcom2.exceptions.*;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
@@ -277,17 +277,18 @@ public class ClientStartImplTest {
 		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
 		clientStart.setSocketFactory(mockedSocketFactory);
 		clientStart.client = mock(Client.class);
-		DisconnectedHandler disconnectedHandler = new DisconnectedHandler() {
+		ClientDisconnectedHandler clientDisconnectedHandler = new ClientDisconnectedHandler() {
 			@Override
-			public void handle(final Client client) {
+			public void accept(Client client) {
+
 			}
 		};
 
 		// Act
-		clientStart.addDisconnectedHandler(disconnectedHandler);
+		clientStart.addDisconnectedHandler(clientDisconnectedHandler);
 
 		// Assert
-		verify(clientStart.client).addDisconnectedHandler(eq(disconnectedHandler));
+		verify(clientStart.client).addDisconnectedHandler(eq(clientDisconnectedHandler));
 	}
 
 	@Test
