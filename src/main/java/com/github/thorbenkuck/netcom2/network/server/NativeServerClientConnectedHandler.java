@@ -13,12 +13,13 @@ public class NativeServerClientConnectedHandler implements ClientConnectedHandle
 
 	private final ClientList clientList;
 	private final CommunicationRegistration communicationRegistration;
-	private Logging logging = Logging.unified();
+	private final Logging logging = Logging.unified();
 
 	@APILevel
 	NativeServerClientConnectedHandler(final ClientList clientList, final CommunicationRegistration communicationRegistration) {
 		this.clientList = clientList;
 		this.communicationRegistration = communicationRegistration;
+		logging.objectCreated(this);
 	}
 
 	/**

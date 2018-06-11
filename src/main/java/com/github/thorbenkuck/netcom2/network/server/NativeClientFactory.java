@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
@@ -10,9 +11,11 @@ class NativeClientFactory implements ClientFactory {
 
 	private final CommunicationRegistration communicationRegistration;
 	private final Pipeline<Client> clientPipeline = Pipeline.unifiedCreation();
+	private final Logging logging = Logging.unified();
 
-	public NativeClientFactory(CommunicationRegistration communicationRegistration) {
+	NativeClientFactory(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
+		logging.objectCreated(this);
 	}
 
 	private void apply(Client client) {

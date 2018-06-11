@@ -175,4 +175,17 @@ public interface Logging {
 	default void fatal(final Throwable throwable, String s) {
 		fatal(s, throwable);
 	}
+
+	default void objectCreated(Object object) {
+		Class<?> type = object.getClass();
+		if(type.getInterfaces().length == 1) {
+			objectCreated(type.getInterfaces()[0].getSimpleName() + " as " + type.getSimpleName());
+		} else {
+			objectCreated(type.getSimpleName());
+		}
+	}
+
+	default void objectCreated(String objectName) {
+		debug("Instantiated " + objectName);
+	}
 }

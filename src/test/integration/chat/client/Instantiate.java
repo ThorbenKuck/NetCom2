@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.integration.chat.client;
 import com.github.thorbenkuck.netcom2.integration.chat.common.Message;
 import com.github.thorbenkuck.netcom2.integration.chat.common.User;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 
 public class Instantiate {
 

@@ -2,29 +2,49 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.SelectorChannel;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+
+import static com.github.thorbenkuck.netcom2.network.shared.NIOUtils.convertForNIOLog;
+import static java.nio.channels.SelectionKey.OP_READ;
 
 class NativeNIOEventLoop implements EventLoop {
 
-	private final Selector selector;
+	private final SelectorChannel selectorChannel;
 	private final Value<Integer> workload = Value.synchronize(0);
-	private final NativeReadingRunnable readingRunnable;
 	private final Logging logging = Logging.unified();
 	private final Map<SocketChannel, Connection> connectionMap = new HashMap<>();
+	private final Consumer<Connection> SHUTDOWN_HOOK = new ConnectionShutdownHook();
+	private final Lock selectorLock = new ReentrantLock(true);
 
 	NativeNIOEventLoop() throws IOException {
-		selector = Selector.open();
-		readingRunnable = new NativeReadingRunnable(selector);
+		selectorChannel = SelectorChannel.open();
+		selectorChannel.register(this::handleRead, OP_READ);
+		logging.objectCreated(this);
+	}
+
+	private void handleRead(SelectionKey selectionKey) {
+		logging.debug("Received read event");
+		SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+		Connection connection = get(socketChannel);
+		try {
+			if(connection.isOpen()) {
+				connection.read();
+			}
+		} catch (IOException e) {
+			logging.error("Read from Connection failed", e);
+			logging.warn("Found potential faulty Connection");
+			// TODO check for faulty connection/cleanup
+		}
 	}
 
 	private void store(SocketChannel socketChannel, Connection connection) {
@@ -71,49 +91,82 @@ class NativeNIOEventLoop implements EventLoop {
 
 	@Override
 	public void register(Connection connection) {
+		logging.debug(convertForNIOLog("Registering new Connection"));
+		logging.trace(convertForNIOLog("Requiring NIOConnection type"));
 		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
-		synchronized (selector) {
-			if (!selector.isOpen()) {
+		logging.trace(convertForNIOLog("Accessing Selector .."));
+		try {
+			selectorLock.lock();
+			if (!selectorChannel.isRunning()) {
+				logging.debug(convertForNIOLog("Selector is closed. Ignoring request for registration."));
 				return;
 			}
-			try {
-				socketChannel.register(selector, SelectionKey.OP_READ);
-			} catch (ClosedChannelException e) {
-				throw new IllegalStateException(e);
-			}
+			logging.trace(convertForNIOLog("Registering SocketChannel to Selector for reading .."));
+			selectorChannel.wakeup();
+			selectorChannel.registerForReading(socketChannel);
+			logging.debug(convertForNIOLog("SocketChannel registered"));
+			logging.trace(convertForNIOLog("Storing association between SocketChannel and Connection"));
 			store(socketChannel, connection);
+			logging.trace(convertForNIOLog("Registering Connection shutdown hook"));
+			connection.addShutdownHook(SHUTDOWN_HOOK);
+			logging.trace(convertForNIOLog("Updating workload"));
 			incrementWorkload();
+		} finally {
+			selectorLock.unlock();
 		}
 	}
 
 	@Override
 	public void unregister(Connection connection) {
+		logging.debug(convertForNIOLog("Unregister provided Connection"));
+		logging.trace(convertForNIOLog("Requiring NIOConnection type"));
 		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
-		synchronized (selector) {
-			socketChannel.keyFor(selector).cancel();
+		logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+		try {
+			selectorLock.lock();
+			logging.trace(convertForNIOLog("Canceling keys .."));
+			selectorChannel.unregister(socketChannel);
+			logging.trace(convertForNIOLog("Clearing association"));
 			remove(socketChannel);
+			logging.trace(convertForNIOLog("Unregister Connection shutdown hook"));
+			connection.removeShutdownHook(SHUTDOWN_HOOK);
+			logging.trace(convertForNIOLog("Decrementing Workload"));
 			decrementWorkload();
+		} finally {
+			selectorLock.unlock();
+			logging.trace(convertForNIOLog("Released SelectorLock"));
 		}
 	}
 
 	@Override
 	public void start() {
-		NetCom2Utils.runOnNetComThread(readingRunnable);
+		logging.debug(convertForNIOLog("Starting NIOEventLoop"));
+		logging.trace(convertForNIOLog("Requesting selection extract into separate Thread"));
+		selectorChannel.start();
+		logging.debug(convertForNIOLog("NIOEventLoop started"));
 	}
 
 	@Override
 	public void shutdown() throws IOException {
-		synchronized (selector) {
-			readingRunnable.stop();
-			selector.wakeup();
-			selector.close();
+		try {
+			logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+			selectorLock.lock();
+			selectorChannel.close();
+		} finally {
+			selectorLock.unlock();
+			logging.trace(convertForNIOLog("Released SelectorLock"));
 		}
 	}
 
 	@Override
 	public boolean isRunning() {
-		synchronized (selector) {
-			return selector.isOpen();
+		try {
+			logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+			selectorLock.lock();
+			return selectorChannel.isRunning();
+		} finally {
+			selectorLock.unlock();
+			logging.trace(convertForNIOLog("Released SelectorLock"));
 		}
 	}
 
@@ -124,64 +177,10 @@ class NativeNIOEventLoop implements EventLoop {
 		}
 	}
 
-	private final class NativeReadingRunnable implements Runnable {
-
-		private final Selector selector;
-		private final Value<Boolean> running = Value.synchronize(false);
-
-		private NativeReadingRunnable(final Selector selector) {
-			this.selector = selector;
-		}
-
-		private void handleSelect(final Set<SelectionKey> keys) {
-			final Iterator<SelectionKey> iterator = keys.iterator();
-			while (iterator.hasNext()) {
-				final SelectionKey key = iterator.next();
-				if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
-					final SocketChannel socketChannel = (SocketChannel) key.channel();
-					final Connection connection = get(socketChannel);
-					connection.read();
-					iterator.remove();
-				}
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 * <p>
-		 * This Method is synchronized. This is done, to prevent multiple runs of the same runnable.
-		 */
+	private final class ConnectionShutdownHook implements Consumer<Connection> {
 		@Override
-		public synchronized void run() {
-			running.set(true);
-
-			while (isRunning()) {
-				try {
-					final int selected = selector.select();
-					// This check is done, to
-					// provide the function of
-					// gracefully shutting
-					// this runnable down
-					// without any Exception
-					if (isRunning() && selected != 0) {
-						handleSelect(selector.selectedKeys());
-					}
-				} catch (IOException e) {
-					if (isRunning()) {
-						logging.catching(e);
-					}
-				}
-			}
-
-			running.set(false);
-		}
-
-		boolean isRunning() {
-			return running.get() && selector.isOpen();
-		}
-
-		void stop() {
-			running.set(false);
+		public void accept(Connection connection) {
+			unregister(connection);
 		}
 	}
 }

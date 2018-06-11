@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.client.ClientID;
@@ -13,15 +14,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class NativeClientList implements ClientList {
+class NativeClientList implements ClientList {
 
-	private final List<Client> core = new ArrayList<>();
+	private final List<Client> core;
+	private final Value<Boolean> openValue;
+	private final Logging logging = Logging.unified();
 	// This constant ist not static
 	// because this constant is dependent
 	// on the NativeClientList it
-	// relates to.
+	// relates to. Even though, this
+	// Variable never changes and is
+	// stateless. This is the
+	// reason, why it is an constant
 	private final ClientDisconnectedHandler CLIENT_LIST_DISCONNECTED_HANDLER = new ClientListDisconnectedHandler();
-	private final Value<Boolean> openValue = Value.synchronize(false);
+
+	NativeClientList() {
+		core = new ArrayList<>();
+		openValue = Value.synchronize(false);
+		logging.objectCreated(this);
+	}
 
 	@Override
 	public void remove(Client client) {
@@ -98,13 +109,11 @@ public class NativeClientList implements ClientList {
 
 	@Override
 	public Stream<Session> sessionStream() {
-		return null;
+		return stream().map(Client::getSession);
 	}
 
 	/**
-	 * Returns an iterator over elements of type {@code T}.
-	 *
-	 * @return an Iterator.
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Iterator<Client> iterator() {

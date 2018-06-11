@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public interface Connection {
 
@@ -21,16 +22,21 @@ public interface Connection {
 
 	void hook(Client client);
 
-	void read();
+	void read() throws IOException;
 
 	Optional<Class<?>> getIdentifier();
 
 	void setIdentifier(Class<?> identifier);
 
-	Optional<Client> getHookedClient();
+	Optional<Client> hookedClient();
 
-	Optional<SocketAddress> getRemoteAddress();
+	Optional<SocketAddress> remoteAddress();
 
-	Optional<SocketAddress> getLocalAddress();
+	Optional<SocketAddress> localAddress();
 
+	void addShutdownHook(Consumer<Connection> connectionConsumer);
+
+	void removeShutdownHook(Consumer<Connection> connectionConsumer);
+
+	boolean isOpen();
 }

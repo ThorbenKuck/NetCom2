@@ -16,7 +16,7 @@ import java.net.InetSocketAddress;
 class NativeServerStart implements ServerStart {
 
 	private final Value<InetSocketAddress> addressValue = Value.emptySynchronized();
-	private final Value<Logging> loggingValue = Value.emptySynchronized();
+	private final Value<Logging> loggingValue = Value.synchronize(Logging.unified());
 	private final Value<Boolean> running = Value.synchronize(false);
 	private final ClientList clientList;
 	private final RemoteObjectRegistration remoteObjectRegistration;
@@ -34,6 +34,7 @@ class NativeServerStart implements ServerStart {
 		clientFactory = ClientFactory.open(communicationRegistration);
 		addClientConnectedHandler(clientList::add);
 		connectorCoreValue.set(ConnectorCore.nio(clientFactory));
+		loggingValue.get().objectCreated(this);
 	}
 
 	/**
@@ -60,25 +61,47 @@ class NativeServerStart implements ServerStart {
 
 	@Override
 	public void launch() throws StartFailedException {
-		ConnectorCore connectorCore = connectorCoreValue.get();
-		connectorCore.establishConnection(addressValue.get());
+		final Logging logging = loggingValue.get();
+		logging.debug("Launching the ServerStart ..");
+		logging.trace("Requesting connectorCore value ..");
+		final ConnectorCore connectorCore = connectorCoreValue.get();
+		final InetSocketAddress address = addressValue.get();
+		logging.trace("Requesting connection establishment for " + address);
+		connectorCore.establishConnection(address);
+
+		logging.trace("Updating running flag ..");
+		running.set(true);
+		logging.info("ServerStart launched at " + getPort());
 	}
 
 	@Override
 	public void acceptNextClient() throws ClientConnectionFailedException {
+		final Logging logging = loggingValue.get();
+		logging.debug("Accepting next client.");
+		logging.trace("Checking ConnectorCore value ..");
 		if (connectorCoreValue.isEmpty()) {
+			logging.error("No ConnectorCoreValue found!");
 			throw new ClientConnectionFailedException("Not launched!");
 		}
 
-		ConnectorCore connectorCore = connectorCoreValue.get();
+		logging.trace("Fetching ConnectorCore value ..");
+		final ConnectorCore connectorCore = connectorCoreValue.get();
+		logging.trace("Requesting next Client handling at ConnectorCore ..");
 		connectorCore.handleNext();
+		logging.debug("New Client handled");
 	}
 
 	@Override
 	public void acceptAllNextClients() throws ClientConnectionFailedException {
+		final Logging logging = loggingValue.get();
+		final Thread thread = Thread.currentThread();
+		logging.debug("Accepting all connecting Clients on " + thread + ". This Thread will be blocked.");
 		while (running()) {
+			logging.trace("Requesting acceptance of next Client.");
 			acceptNextClient();
+			logging.trace("Client acceptance finished.");
 		}
+		logging.trace("Stop detected. Releasing current Thread." + thread);
 	}
 
 	/**

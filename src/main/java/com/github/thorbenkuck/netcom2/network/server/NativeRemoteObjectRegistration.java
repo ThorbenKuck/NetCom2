@@ -40,7 +40,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 
 	@APILevel
 	NativeRemoteObjectRegistration() {
-		logging.debug("RemoteObjectRegistration established!");
+		logging.objectCreated(this);
 	}
 
 	/**

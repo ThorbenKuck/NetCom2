@@ -11,7 +11,6 @@ import java.net.InetSocketAddress;
 
 public interface ServerStart extends SoftStoppable, MultipleConnections, NetworkInterface {
 
-
 	static ServerStart at(int port) {
 		return at(new InetSocketAddress(port));
 	}
