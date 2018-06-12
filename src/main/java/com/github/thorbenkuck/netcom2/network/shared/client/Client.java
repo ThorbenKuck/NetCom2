@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.client;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.util.function.Consumer;
@@ -14,6 +15,8 @@ public interface Client {
 	}
 
 	void removeConnection(Connection connection);
+
+	void addConnection(Connection connection);
 
 	void disconnect();
 
@@ -29,9 +32,15 @@ public interface Client {
 
 	void triggerPrimed();
 
+	void receive(RawData rawData, Connection connection);
+
 	void addDisconnectedHandler(ClientDisconnectedHandler disconnectedHandler);
 
 	void removeDisconnectedHandler(ClientDisconnectedHandler disconnectedHandler);
 
 	void addPrimedCallback(Consumer<Client> clientConsumer);
+
+	ObjectHandler objectHandler();
+
+	void send(final Object object);
 }

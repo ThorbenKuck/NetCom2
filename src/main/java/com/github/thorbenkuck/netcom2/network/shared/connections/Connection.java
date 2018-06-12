@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 public interface Connection {
@@ -39,4 +40,6 @@ public interface Connection {
 	void removeShutdownHook(Consumer<Connection> connectionConsumer);
 
 	boolean isOpen();
+
+	Queue<RawData> drain();
 }

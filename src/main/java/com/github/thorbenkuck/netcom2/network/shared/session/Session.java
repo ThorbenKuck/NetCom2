@@ -112,7 +112,7 @@ public interface Session extends Mutex {
 	 * The Primation is an internal Mechanism, to check the State, whether or not the current Session is ready to be used.
 	 * As any new Client is created, it gets an new Instance of a Session, which by default is not primed. Than, after the
 	 * Handshake between the ClientStart and the ServerStart, the Client is going to be Primed by calling
-	 * {@link Client#triggerPrimation()}. This results in this Method being called.
+	 * {@link Client}. This results in this Method being called.
 	 * Internally, this method is further used whenever an new Connection is successfully established.
 	 * <p>
 	 * The use of this method is not forbidden, but discouraged since this might screw up the internal mechanisms

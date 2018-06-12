@@ -4,9 +4,13 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
+import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -15,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class NativeClient implements Client {
+class NativeClient implements Client {
 
 	private final CommunicationRegistration communicationRegistration;
 	private final Value<Session> sessionValue = Value.emptySynchronized();
@@ -26,8 +30,9 @@ public class NativeClient implements Client {
 	private final Value<Boolean> primed = Value.synchronize(false);
 	private final ClientID clientID;
 	private final Map<Class<?>, Connection> connectionMap = new HashMap<>();
+	private final ObjectHandler objectHandler = ObjectHandler.create();
 
-	public NativeClient(CommunicationRegistration communicationRegistration) {
+	NativeClient(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
 		clientID = ClientID.empty();
 	}
@@ -44,6 +49,14 @@ public class NativeClient implements Client {
 		if (empty) {
 			disconnect();
 		}
+	}
+
+	@Override
+	public void addConnection(Connection connection) {
+		// TODO make correct connection management
+		// Bad Thorben! BAAD!
+		Class<?> key = connection.getIdentifier().orElse(DefaultConnection.class);
+		connectionMap.put(key, connection);
 	}
 
 	@Override
@@ -118,6 +131,17 @@ public class NativeClient implements Client {
 	}
 
 	@Override
+	public void receive(RawData rawData, Connection connection) {
+		final String message = new String(rawData.access()).trim();
+//		final Object object = objectHandler.convert(message);
+		try {
+			communicationRegistration.trigger(connection, sessionValue.get(), message);
+		} catch (final CommunicationNotSpecifiedException e) {
+			logging.catching(e);
+		}
+	}
+
+	@Override
 	public void addDisconnectedHandler(ClientDisconnectedHandler disconnectedHandler) {
 		synchronized (disconnectedPipeline) {
 			disconnectedPipeline.add(disconnectedHandler);
@@ -134,5 +158,22 @@ public class NativeClient implements Client {
 	@Override
 	public void addPrimedCallback(Consumer<Client> clientConsumer) {
 		primedCallback.add(clientConsumer);
+	}
+
+	@Override
+	public ObjectHandler objectHandler() {
+		return objectHandler;
+	}
+
+	@Override
+	public void send(Object object) {
+		Connection connection;
+		synchronized (connectionMap) {
+			connection = connectionMap.get(DefaultConnection.class);
+		}
+		if (connection == null) {
+			throw new SendFailedException("Could not locate the DefaultConnection!");
+		}
+		connection.write(object);
 	}
 }

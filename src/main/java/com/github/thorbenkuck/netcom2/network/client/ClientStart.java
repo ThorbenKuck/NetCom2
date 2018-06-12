@@ -27,8 +27,12 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	 *
 	 * @return an instance of the {@link Sender} interface
 	 * @see Sender
+	 * @deprecated create your own class using {@link Sender#open(ClientStart)}
 	 */
-	Sender send();
+	@Deprecated
+	default Sender send() {
+		return Sender.open(this);
+	}
 
 	/**
 	 * Adds a {@link SerializationAdapter} as a fallback serialization instance to this ClientStart.
@@ -72,7 +76,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	 * Any Handler set, will be completely invoked if:
 	 * <p>
 	 * <ul>
-	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client#disconnect()}.</li>
+	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.client.Client#disconnect()}.</li>
 	 * <li>The internet-connection between the ServerStart and the ClientStart breaks.</li>
 	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
 	 * </ul>
@@ -81,21 +85,9 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	 */
 	void addDisconnectedHandler(final ClientDisconnectedHandler clientDisconnectedHandler);
 
-	/**
-	 * Sets an Adapter for decryption of received Strings.
-	 *
-	 * @param decryptionAdapter the DecryptionAdapter
-	 * @see DecryptionAdapter
-	 */
-	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
+	void addDecryptionAdapter(DecryptionAdapter decryptionAdapter);
 
-	/**
-	 * Sets an Adapter for encryption of Strings that should be send.
-	 *
-	 * @param encryptionAdapter the EncryptionAdapter
-	 * @see EncryptionAdapter
-	 */
-	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
+	void addEncryptionAdapter(EncryptionAdapter encryptionAdapter);
 
 	/**
 	 * This Method is a shortcut for: {@link Cache#reset()}
@@ -103,4 +95,90 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	 * @see Cache#reset()
 	 */
 	void clearCache();
+
+	/**
+	 * Sets an Adapter for decryption of received Strings.
+	 *
+	 * @param decryptionAdapter the DecryptionAdapter
+	 * @see DecryptionAdapter
+	 * @deprecated This Methods wording is false. The Encryption/Decryption process is utilized using a Pipeline.
+	 * Therefore multiple Adapter are possible. Use {@link #addDecryptionAdapter(DecryptionAdapter)}
+	 */
+	@Deprecated
+	default void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		addDecryptionAdapter(decryptionAdapter);
+	}
+
+	/**
+	 * Sets an Adapter for encryption of Strings that should be send.
+	 *
+	 * @param encryptionAdapter the EncryptionAdapter
+	 * @see EncryptionAdapter
+	 * @deprecated This Methods wording is false. The Encryption/Decryption process is utilized using a Pipeline.
+	 * Therefore multiple Adapter are possible. Use {@link #addEncryptionAdapter(EncryptionAdapter)}
+	 */
+	@Deprecated
+	default void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		addEncryptionAdapter(encryptionAdapter);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @deprecated create your own object using {@link RemoteObjectFactory#open(ClientStart)}
+	 */
+	@Deprecated
+	default RemoteObjectFactory getRemoteObjectFactory() {
+		return RemoteObjectFactory.open(this);
+	}
+
+	/**
+	 * @deprecated This Method is not supported anymore. Since the RemoteObjectFactory has been decoupled, this method has no effect anymore
+	 */
+	@Deprecated
+	default void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
+		throw new UnsupportedOperationException("Deprecated because of lost RemoteObjectFactory state!");
+	}
+
+	/**
+	 * Calling this Method is used to block the application from existing.
+	 * <p>
+	 * By Default, NetCom2 utilizes mostly daemon Threads. This means, you could prepare a ClientStart and launch it,
+	 * but the program exists right after the last statement.
+	 * <p>
+	 * To counter this, the ClientStart provides 2 functions, this and the function {@link #blockOnCurrentThread()}.
+	 * <p>
+	 * This Methods starts a new non-daemon Thread. This Thread will run, until an internal Synchronization mechanism is
+	 * finished.
+	 * <p>
+	 * This Thread may not be joined or interrupted, nor shut down forcefully.
+	 * <p>
+	 * You can shut it down, using {@link #softStop()}.
+	 * <p>
+	 * The Thread utilizes the method {@link #blockOnCurrentThread()} and allows you to use the current Thread for different
+	 * Tasks. On the other hand does this Method create a new Thread.
+	 *
+	 * @see #blockOnCurrentThread()
+	 * @see #softStop()
+	 */
+	void startBlockerThread();
+
+	/**
+	 * Calling this Method is used to block the application from existing.
+	 * <p>
+	 * By Default, NetCom2 utilizes mostly daemon Threads. This means, you could prepare a ClientStart and launch it,
+	 * but the program exists right after the last statement.
+	 * <p>
+	 * To counter this, the ClientStart provides 2 functions, this and the function {@link #startBlockerThread()}.
+	 * <p>
+	 * This Method synchronizes over an internally maintained {@link com.github.thorbenkuck.keller.sync.Synchronize} instance.
+	 * This means, calling this Method will result in a block of the current Thread until {@link #softStop()} is called
+	 * and all dependencies are shut down.
+	 * <p>
+	 * The absolute shutdown time is not known, but you may use this Method freely to synchronize your application.
+	 *
+	 * @see #startBlockerThread()
+	 * @see #softStop()
+	 */
+	void blockOnCurrentThread();
 }

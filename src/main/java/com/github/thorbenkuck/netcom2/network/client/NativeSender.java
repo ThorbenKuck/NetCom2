@@ -1,17 +1,19 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.interfaces.Module;
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 
-public interface Sender extends Module<ClientStart> {
+class NativeSender implements Sender {
 
-	static Sender open(ClientStart clientStart) {
-		NativeSender sender = new NativeSender();
-		sender.setup(clientStart);
+	private final Logging logging = Logging.unified();
+	private final Value<Client> clientValue = Value.emptySynchronized();
 
-		return sender;
+	NativeSender() {
+		logging.objectCreated(this);
 	}
 
 	/**
@@ -23,8 +25,12 @@ public interface Sender extends Module<ClientStart> {
 	 * It uses the {@link DefaultConnection}
 	 *
 	 * @param o the Object that should be send over the network.
+	 * @return a synchronization mechanism to allow procedural programming
 	 */
-	void objectToServer(Object o);
+	@Override
+	public void objectToServer(Object o) {
+		clientValue.get().send(o);
+	}
 
 	/**
 	 * Sends an Object over the network to the server.
@@ -36,8 +42,12 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param o          the Object that should be send over the network.
 	 * @param connection the Connection that should be used.
+	 * @return an synchronization mechanism to allow procedural programming
 	 */
-	void objectToServer(Object o, Connection connection);
+	@Override
+	public void objectToServer(Object o, Connection connection) {
+
+	}
 
 	/**
 	 * Sends an Object over the network to the server.
@@ -49,8 +59,12 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param o             the Object that should be send over the network.
 	 * @param connectionKey the identifier of the Connection that should be used
+	 * @return an synchronization mechanism to allow procedural programming
 	 */
-	void objectToServer(Object o, Class connectionKey);
+	@Override
+	public void objectToServer(Object o, Class connectionKey) {
+
+	}
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -61,10 +75,12 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param clazz    the class of the message, you want to register to
 	 * @param observer the callback object, that should be called, if an Object of the specified type arrives
-	 * @param <T>      the type of the message, you want to register to
 	 * @return a synchronization mechanism
 	 */
-	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer);
+	@Override
+	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
+
+	}
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -77,12 +93,13 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param clazz      the class of the message, you want to register to
 	 * @param observer   the callback object, that should be called, if an Object of the specified type arrives
-	 * @param <T>        the type of the message, you want to register to
 	 * @param connection the Connection that should be used.
 	 * @return a synchronization mechanism
 	 */
-	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                              Connection connection);
+	@Override
+	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
+
+	}
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -95,12 +112,13 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param clazz         the class of the message, you want to register to
 	 * @param observer      the callback object, that should be called, if an Object of the specified type arrives
-	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the key for the Connection that should be used.
 	 * @return a synchronization mechanism
 	 */
-	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                              Class connectionKey);
+	@Override
+	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
+
+	}
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -109,10 +127,12 @@ public interface Sender extends Module<ClientStart> {
 	 * that will allow te developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz the class of the message, you want to register to
-	 * @param <T>   the type of the message, you want to register to
 	 * @return a synchronization mechanism
 	 */
-	<T> void unRegistrationToServer(Class<T> clazz);
+	@Override
+	public <T> void unRegistrationToServer(Class<T> clazz) {
+
+	}
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -122,10 +142,12 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param clazz      the class of the message, you want to register to
 	 * @param connection the Connection that should be used
-	 * @param <T>        the type of the message, you want to register to
 	 * @return a synchronization mechanism
 	 */
-	<T> void unRegistrationToServer(Class<T> clazz, Connection connection);
+	@Override
+	public <T> void unRegistrationToServer(Class<T> clazz, Connection connection) {
+
+	}
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -134,11 +156,13 @@ public interface Sender extends Module<ClientStart> {
 	 * that will allow the developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz         the class of the message, you want to register to
-	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the class, identifying the Connection that should be used.
 	 * @return a synchronization mechanism
 	 */
-	<T> void unRegistrationToServer(Class<T> clazz, Class connectionKey);
+	@Override
+	public <T> void unRegistrationToServer(Class<T> clazz, Class connectionKey) {
+
+	}
 
 	/**
 	 * Resets the Sender to its original state.
@@ -151,5 +175,22 @@ public interface Sender extends Module<ClientStart> {
 	 * <p>
 	 * This method is called if the last Connection is disconnected.
 	 */
-	void reset();
+	@Override
+	public void reset() {
+
+	}
+
+	@Override
+	public synchronized void setup(ClientStart clientStart) {
+		if (!clientValue.isEmpty()) {
+			throw new IllegalStateException("Already setup!");
+		}
+
+		// This cast is ugly. Maybe
+		// We can somehow decouple
+		// the ClientStart and the
+		// Client whilst still exposing
+		// this? Dunno..
+		clientValue.set(((NativeClientStart) clientStart).getClient());
+	}
 }

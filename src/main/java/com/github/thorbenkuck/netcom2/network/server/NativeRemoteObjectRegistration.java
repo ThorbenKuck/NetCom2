@@ -244,6 +244,11 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 		}
 	}
 
+	@Override
+	public void setup(ServerStart serverStart) {
+		// TODO Setup
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

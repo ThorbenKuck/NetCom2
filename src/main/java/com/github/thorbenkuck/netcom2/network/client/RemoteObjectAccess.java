@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.annotations.Experimental;
 
+@Deprecated
 public interface RemoteObjectAccess {
 
 	/**

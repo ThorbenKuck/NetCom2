@@ -1,6 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-public interface RemoteObjectFactory {
+import com.github.thorbenkuck.netcom2.interfaces.Module;
+
+public interface RemoteObjectFactory extends Module<ClientStart> {
+
+	static RemoteObjectFactory open(ClientStart clientStart) {
+		NativeRemoteObjectFactory remoteObjectFactory = new NativeRemoteObjectFactory();
+		remoteObjectFactory.setup(clientStart);
+
+		return remoteObjectFactory;
+	}
 
 	/**
 	 * Sets the default Runnable fallback, if the requested Class is not registered.

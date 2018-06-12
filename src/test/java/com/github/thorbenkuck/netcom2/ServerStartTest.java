@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 public class ServerStartTest {
 
@@ -14,12 +15,17 @@ public class ServerStartTest {
 			new ServerStartTest().run();
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
-			throw e;
 		}
 	}
 
 	private void run() throws StartFailedException, ClientConnectionFailedException {
 		serverStart.addClientConnectedHandler(client -> System.out.println("Found connected client!"));
+		serverStart.getCommunicationRegistration()
+				.register(String.class)
+				.addFirst(Session::send);
+		serverStart.getCommunicationRegistration()
+				.register(String.class)
+				.addFirst(System.out::println);
 		serverStart.launch();
 		serverStart.acceptAllNextClients();
 	}

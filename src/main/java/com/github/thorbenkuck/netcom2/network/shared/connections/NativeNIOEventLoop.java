@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.SelectorChannel;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -10,6 +11,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -20,10 +24,11 @@ import static java.nio.channels.SelectionKey.OP_READ;
 class NativeNIOEventLoop implements EventLoop {
 
 	private final SelectorChannel selectorChannel;
-	private final Value<Integer> workload = Value.synchronize(0);
 	private final Logging logging = Logging.unified();
 	private final Map<SocketChannel, Connection> connectionMap = new HashMap<>();
 	private final Consumer<Connection> SHUTDOWN_HOOK = new ConnectionShutdownHook();
+	private final ObjectHandlerRunnable PARALLEL_OBJECT_HANDLER = new ObjectHandlerRunnable();
+	private final BlockingQueue<RawDataPackage> dataQueue = new LinkedBlockingQueue<>();
 	private final Lock selectorLock = new ReentrantLock(true);
 
 	NativeNIOEventLoop() throws IOException {
@@ -39,6 +44,12 @@ class NativeNIOEventLoop implements EventLoop {
 		try {
 			if(connection.isOpen()) {
 				connection.read();
+				// TODO vlt mit fallback Queue lösen anstelle von catching?
+				try {
+					dataQueue.put(new RawDataPackage(connection.drain(), connection));
+				} catch (InterruptedException e) {
+					logging.catching(e);
+				}
 			}
 		} catch (IOException e) {
 			logging.error("Read from Connection failed", e);
@@ -77,18 +88,6 @@ class NativeNIOEventLoop implements EventLoop {
 		return (NIOConnection) connection;
 	}
 
-	private void decrementWorkload() {
-		synchronized (workload) {
-			workload.set(workload.get() - 1);
-		}
-	}
-
-	private void incrementWorkload() {
-		synchronized (workload) {
-			workload.set(workload.get() + 1);
-		}
-	}
-
 	@Override
 	public void register(Connection connection) {
 		logging.debug(convertForNIOLog("Registering new Connection"));
@@ -109,8 +108,6 @@ class NativeNIOEventLoop implements EventLoop {
 			store(socketChannel, connection);
 			logging.trace(convertForNIOLog("Registering Connection shutdown hook"));
 			connection.addShutdownHook(SHUTDOWN_HOOK);
-			logging.trace(convertForNIOLog("Updating workload"));
-			incrementWorkload();
 		} finally {
 			selectorLock.unlock();
 		}
@@ -130,8 +127,6 @@ class NativeNIOEventLoop implements EventLoop {
 			remove(socketChannel);
 			logging.trace(convertForNIOLog("Unregister Connection shutdown hook"));
 			connection.removeShutdownHook(SHUTDOWN_HOOK);
-			logging.trace(convertForNIOLog("Decrementing Workload"));
-			decrementWorkload();
 		} finally {
 			selectorLock.unlock();
 			logging.trace(convertForNIOLog("Released SelectorLock"));
@@ -143,6 +138,7 @@ class NativeNIOEventLoop implements EventLoop {
 		logging.debug(convertForNIOLog("Starting NIOEventLoop"));
 		logging.trace(convertForNIOLog("Requesting selection extract into separate Thread"));
 		selectorChannel.start();
+		NetCom2Utils.runOnNetComThread(PARALLEL_OBJECT_HANDLER);
 		logging.debug(convertForNIOLog("NIOEventLoop started"));
 	}
 
@@ -172,8 +168,8 @@ class NativeNIOEventLoop implements EventLoop {
 
 	@Override
 	public int workload() {
-		synchronized (workload) {
-			return workload.get();
+		synchronized (connectionMap) {
+			return connectionMap.size();
 		}
 	}
 
@@ -181,6 +177,38 @@ class NativeNIOEventLoop implements EventLoop {
 		@Override
 		public void accept(Connection connection) {
 			unregister(connection);
+		}
+	}
+
+	private final class ObjectHandlerRunnable implements Runnable {
+
+		private final Value<Boolean> running = Value.synchronize(false);
+
+		@Override
+		public void run() {
+			running.set(true);
+			while (running.get()) {
+				try {
+					final RawDataPackage rawDataPackage = dataQueue.take();
+					final Connection connection = rawDataPackage.getConnection();
+					final Queue<RawData> rawData = rawDataPackage.getRawData();
+					if (rawData.size() != 0 && connection.isOpen()) {
+						if (!connection.hookedClient().isPresent()) {
+							logging.warn("Found faulty not-hooked Connection! Ignoring for now..");
+						} else {
+							final Client client = connection.hookedClient().get();
+							while (rawData.peek() != null) {
+								client.receive(rawData.poll(), connection);
+							}
+						}
+					}
+				} catch (InterruptedException e) {
+					if (!running.get()) {
+						logging.catching(e);
+					}
+				}
+			}
+			running.set(false);
 		}
 	}
 }

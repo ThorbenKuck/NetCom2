@@ -1,30 +1,40 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
 
+import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 
 public class NativeClientStart implements ClientStart {
 
-	private final SocketAddress address;
+	private final Value<SocketAddress> addressValue = Value.emptySynchronized();
+	private final Client client;
+	private final Value<Boolean> running = Value.synchronize(false);
+	private final CommunicationRegistration communicationRegistration;
+	private final Cache cache;
+	private final Value<Logging> loggingValue = Value.synchronize(Logging.unified());
+	private final Synchronize shutdownSynchronize = Synchronize.createDefault();
+	private final Value<Thread> parallelBlock = Value.emptySynchronized();
+	private final Value<EventLoop> eventLoopValue = Value.emptySynchronized();
 
 	public NativeClientStart(SocketAddress address) {
-		this.address = address;
-	}
-
-	/**
-	 * Used to send Objects to the ServerStart.
-	 *
-	 * @return an instance of the {@link Sender} interface
-	 * @see Sender
-	 */
-	@Override
-	public Sender send() {
-		return null;
+		this.addressValue.set(address);
+		communicationRegistration = CommunicationRegistration.open();
+		cache = Cache.open();
+		client = Client.create(communicationRegistration);
+		loggingValue.get().objectCreated(this);
 	}
 
 	/**
@@ -35,7 +45,7 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void addFallBackSerialization(SerializationAdapter serializationAdapter) {
-
+		client.objectHandler().addFallbackSerialization(serializationAdapter);
 	}
 
 	/**
@@ -46,7 +56,7 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void addFallBackDeSerialization(DeSerializationAdapter deSerializationAdapter) {
-
+		client.objectHandler().addFallbackDeserialization(deSerializationAdapter);
 	}
 
 	/**
@@ -59,7 +69,7 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void setMainSerializationAdapter(SerializationAdapter mainSerializationAdapter) {
-
+		client.objectHandler().setMainSerialization(mainSerializationAdapter);
 	}
 
 	/**
@@ -72,7 +82,7 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void setMainDeSerializationAdapter(DeSerializationAdapter mainDeSerializationAdapter) {
-
+		client.objectHandler().setMainDeserialization(mainDeSerializationAdapter);
 	}
 
 	/**
@@ -81,7 +91,7 @@ public class NativeClientStart implements ClientStart {
 	 * Any Handler set, will be completely invoked if:
 	 * <p>
 	 * <ul>
-	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client#disconnect()}.</li>
+	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.client.Client#disconnect()}.</li>
 	 * <li>The internet-connection between the ServerStart and the ClientStart breaks.</li>
 	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
 	 * </ul>
@@ -90,18 +100,12 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void addDisconnectedHandler(ClientDisconnectedHandler clientDisconnectedHandler) {
-
+		client.addDisconnectedHandler(clientDisconnectedHandler);
 	}
 
-	/**
-	 * Sets an Adapter for decryption of received Strings.
-	 *
-	 * @param decryptionAdapter the DecryptionAdapter
-	 * @see DecryptionAdapter
-	 */
 	@Override
-	public void setDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
-
+	public void addDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+		client.objectHandler().addDecryptionAdapter(decryptionAdapter);
 	}
 
 	/**
@@ -111,8 +115,8 @@ public class NativeClientStart implements ClientStart {
 	 * @see EncryptionAdapter
 	 */
 	@Override
-	public void setEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
-
+	public void addEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
+		client.objectHandler().addEncryptionAdapter(encryptionAdapter);
 	}
 
 	/**
@@ -122,22 +126,80 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void clearCache() {
-
+		cache.reset();
 	}
 
 	@Override
 	public Cache cache() {
-		return null;
+		return cache;
 	}
 
 	@Override
 	public CommunicationRegistration getCommunicationRegistration() {
-		return null;
+		return communicationRegistration;
 	}
 
 	@Override
 	public void launch() throws StartFailedException {
+		final EventLoop eventLoop;
+		try {
+			eventLoop = EventLoop.openNIO();
 
+		} catch (IOException e) {
+			throw new StartFailedException(e);
+		}
+
+		eventLoopValue.set(eventLoop);
+		final SocketChannel socketChannel;
+		try {
+			socketChannel = SocketChannel.open(addressValue.get());
+			socketChannel.configureBlocking(false);
+		} catch (IOException e) {
+			throw new StartFailedException(e);
+		}
+
+		Connection connection = Connection.nio(socketChannel);
+		connection.setIdentifier(DefaultConnection.class);
+		connection.hook(client);
+
+		try {
+			eventLoop.register(connection);
+		} catch (IOException e) {
+			throw new StartFailedException(e);
+		}
+
+		running.set(false);
+	}
+
+	private void createBlockingThread() {
+		synchronized (parallelBlock) {
+			if (!parallelBlock.isEmpty()) {
+				loggingValue.get().warn("Only one block till finished call is allowed!");
+				return;
+			}
+			final Thread thread = new Thread(this::blockOnCurrentThread);
+			thread.setDaemon(false);
+			thread.setName("NetCom2-Blocking-Thread");
+			parallelBlock.set(thread);
+		}
+	}
+
+	@Override
+	public void startBlockerThread() {
+		createBlockingThread();
+		final Thread thread = parallelBlock.get();
+		thread.start();
+	}
+
+	@Override
+	public void blockOnCurrentThread() {
+		while (running()) {
+			try {
+				shutdownSynchronize.synchronize();
+			} catch (InterruptedException e) {
+				loggingValue.get().catching(e);
+			}
+		}
 	}
 
 	/**
@@ -167,7 +229,7 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public void softStop() {
-
+		running.set(false);
 	}
 
 	/**
@@ -177,33 +239,11 @@ public class NativeClientStart implements ClientStart {
 	 */
 	@Override
 	public boolean running() {
-		return false;
+		return running.get();
 	}
 
-	/**
-	 * Returns the internally maintained {@link RemoteObjectFactory}.
-	 * <p>
-	 * This method will never return null.
-	 *
-	 * @return the internally maintained instance of a RemoteObjectFactory.
-	 */
-	@Override
-	public RemoteObjectFactory getRemoteObjectFactory() {
-		return null;
-	}
-
-	/**
-	 * This Method changes the {@link InvocationHandlerProducer} set internally.
-	 * <p>
-	 * The {@link InvocationHandlerProducer} creates a new Instance if {@link #getRemoteObject(Class)} is called.
-	 * By changing this {@link InvocationHandlerProducer}, you can provide a custom {@link RemoteObjectHandler}
-	 * to be used internally
-	 *
-	 * @param invocationHandlerProducer the {@link InvocationHandlerProducer} that should create the {@link RemoteObjectHandler}
-	 * @see InvocationHandlerProducer
-	 */
-	@Override
-	public void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
-
+	@APILevel
+	Client getClient() {
+		return client;
 	}
 }

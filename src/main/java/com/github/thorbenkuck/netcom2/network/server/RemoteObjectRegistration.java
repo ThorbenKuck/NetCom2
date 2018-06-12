@@ -1,13 +1,17 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
+import com.github.thorbenkuck.netcom2.interfaces.Module;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 
-public interface RemoteObjectRegistration {
+public interface RemoteObjectRegistration extends Module<ServerStart> {
 
-	static RemoteObjectRegistration open() {
-		return new NativeRemoteObjectRegistration();
+	static RemoteObjectRegistration open(ServerStart serverStart) {
+		NativeRemoteObjectRegistration remoteObjectRegistration = new NativeRemoteObjectRegistration();
+		remoteObjectRegistration.setup(serverStart);
+
+		return remoteObjectRegistration;
 	}
 
 	/**
@@ -107,7 +111,7 @@ public interface RemoteObjectRegistration {
 	void clear();
 
 	/**
-	 * This call executes an {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
+	 * This call executes a {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
 	 * a {@link RemoteAccessCommunicationResponse}.
 	 * <p>
 	 * This method will search internally for the set instance, according to the {@link RemoteAccessCommunicationRequest#clazz},

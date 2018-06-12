@@ -64,6 +64,11 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 */
 	ClientList clientList();
 
+	/**
+	 * Do not use this method anymore!
+	 *
+	 * @deprecated create your own instance using {@link Distributor#open(ServerStart)}
+	 */
 	@Deprecated
 	default Distributor distribute() {
 		return Distributor.open(this);
@@ -76,7 +81,12 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 *
 	 * @return a unified instance for the RemoteObjectRegistration
 	 * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory
+	 *
+	 * @deprecated create your own instance using {@link RemoteObjectRegistration#open(ServerStart)}
 	 */
+	@Deprecated
 	@Experimental
-	RemoteObjectRegistration remoteObjects();
+	default RemoteObjectRegistration remoteObjects() {
+		return RemoteObjectRegistration.open(this);
+	}
 }

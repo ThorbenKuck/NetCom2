@@ -59,6 +59,8 @@ Also there is a NIGHTLY branch, for the impatient.
 
 2.0 (release 30.03.2018)
  * Session lost its update and HeartBeat functions
+   * Update is a security risk. The Session should not be send through the Network
+   * Heartbeats make no sens connect to the Session
  * ClientStart and ServerStart where updated.
    * Interface they use are now mostly located in network.shared
  * The Logging interface has been relocated to the root.logging package
@@ -68,8 +70,21 @@ Also there is a NIGHTLY branch, for the impatient.
  * All Default implementations have been renamed to Native[InterfaceName]
    * This should not effect anyone.
  * The Connection has been greatly rewritten.
- * The ServerStart no longer contains a Distributor.
-   * To use it, state: `Distributor distributor = Distributor.open(serverStart)`
+   * TODO Describe differences
+ * The Client has been greatly rewritten.
+   * TODO Describe differences
+ * Some classes have been decoupled by default.
+   * All of the associated methods are still prevalent in the respective interfaces.
+   * They are deprecated and will be removed with the next major update
+   * The ServerStart no longer contains a Distributor.
+     * To use it, state: `Distributor distributor = Distributor.open(serverStart)`
+   * The ServerStart no longer contains a RemoteObjectRegistration
+     * To use it, state: `RemoteObjectRegistration registration = RemoteObjectRegistraion.open(ServerStart)`
+   * The ClientStart no longer contains a Sender
+     * To use it, state: `Sender sender = Sender.open(clientStart)`
+   * The ClientStart no longer contains a RemoteObjectFactory
+     * To use it, state: `RemoteObjectFactory factory = RemoteObjectFactor.open(clientStart)`
+     * Also, the Method `ClientStart#updateRemoteInvocationProducer` will throw an UnsupportedOperationException. This is due to the fact, that the ClientStart no longer contains a RemoteObjectFactory
  * Keller has been integrated greatly
  * Session events have been removed
    * They accomplish the same behaviour as the CommunicationRegistration and are therefor not needed

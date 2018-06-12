@@ -4,7 +4,9 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.client.Client;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
 
 import java.io.IOException;
@@ -81,6 +83,9 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		logging.debug(loggingPrefix() + "Registering newly connected SocketChannel");
 		logging.trace(loggingPrefix() + "Constructing connection for socketChannel ..");
 		final Connection connection = Connection.nio(socketChannel);
+		connection.setIdentifier(DefaultConnection.class);
+		final Client client = clientFactory.produce();
+		connection.hook(client);
 		logging.trace(loggingPrefix() + "Checking current EventLoop value ..");
 		if(currentEventLoopValue.isEmpty()) {
 			logging.trace(loggingPrefix() + "EventLoop value is empty. Requesting new EventLoopValue ..");

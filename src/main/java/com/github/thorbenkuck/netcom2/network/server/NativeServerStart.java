@@ -5,7 +5,6 @@ import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
@@ -19,16 +18,17 @@ class NativeServerStart implements ServerStart {
 	private final Value<Logging> loggingValue = Value.synchronize(Logging.unified());
 	private final Value<Boolean> running = Value.synchronize(false);
 	private final ClientList clientList;
-	private final RemoteObjectRegistration remoteObjectRegistration;
 	private final Cache cache;
 	private final CommunicationRegistration communicationRegistration;
 	private final ClientFactory clientFactory;
 	private final Value<ConnectorCore> connectorCoreValue = Value.emptySynchronized();
 
 	NativeServerStart(InetSocketAddress address) {
+		Logging logging = loggingValue.get();
+		logging.trace("Settings address value");
 		this.addressValue.set(address);
+		logging.trace("Creating ClientList");
 		clientList = ClientList.create();
-		remoteObjectRegistration = RemoteObjectRegistration.open();
 		cache = Cache.open();
 		communicationRegistration = CommunicationRegistration.open();
 		clientFactory = ClientFactory.open(communicationRegistration);
@@ -111,7 +111,7 @@ class NativeServerStart implements ServerStart {
 	 */
 	@Override
 	public void disconnect() {
-
+		// TODO
 	}
 
 	/**
@@ -132,19 +132,6 @@ class NativeServerStart implements ServerStart {
 	}
 
 	/**
-	 * Returns an internally maintained {@link RemoteObjectRegistration}.
-	 * <p>
-	 * This is used, whenever the Client requests a RemoteObject using the {@link RemoteObjectFactory}
-	 *
-	 * @return a unified instance for the RemoteObjectRegistration
-	 * @see RemoteObjectFactory
-	 */
-	@Override
-	public RemoteObjectRegistration remoteObjects() {
-		return remoteObjectRegistration;
-	}
-
-	/**
 	 * Instantiates the creation of the new Connection.
 	 * <p>
 	 * This call should be Asynchronous, so that the caller may do different things after calling this method.
@@ -158,6 +145,7 @@ class NativeServerStart implements ServerStart {
 	 */
 	@Override
 	public Awaiting createNewConnection(Session session, Class key) {
+		// TODO
 		return null;
 	}
 
