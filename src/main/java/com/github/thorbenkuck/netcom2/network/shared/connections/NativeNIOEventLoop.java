@@ -40,6 +40,7 @@ class NativeNIOEventLoop implements EventLoop {
 	private void handleRead(SelectionKey selectionKey) {
 		logging.debug("Received read event");
 		SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+		// TODO potential Race condition?
 		Connection connection = get(socketChannel);
 		try {
 			if(connection.isOpen()) {

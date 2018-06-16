@@ -92,13 +92,13 @@ public interface Session extends Mutex {
 	 * This Method utilizes an {@link com.github.thorbenkuck.netcom2.interfaces.SendBridge} to send the given Object to the
 	 * Server.
 	 * This Method does no Sanity-Checks, neither does it work asynchronously! Its return depends completely on the implementation
-	 * of the corresponding {@link Client} and the corresponding {@link com.github.thorbenkuck.netcom2.network.shared.clients.Connection}.
+	 * of the corresponding {@link Client} and the corresponding {@link com.github.thorbenkuck.netcom2.network.shared.connections.Connection}.
 	 * <p>
 	 * The mechanisms of Serialization, Encryption, s.o. therefor also depend on the corresponding {@link Client} and the
-	 * corresponding {@link com.github.thorbenkuck.netcom2.network.shared.clients.Connection}.
+	 * corresponding {@link com.github.thorbenkuck.netcom2.network.shared.connections.Connection}.
 	 * <p>
 	 * Since this Method is not offering an Parameter to choose the Connection, the chosen Connection will be the Clients
-	 * {@link com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection}, which is initialized at the first
+	 * {@link com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection}, which is initialized at the first
 	 * connect of the corresponding ClientStart.
 	 * <p>
 	 * This Method waits for the Primation of the corresponding Client and therefor of this Session.

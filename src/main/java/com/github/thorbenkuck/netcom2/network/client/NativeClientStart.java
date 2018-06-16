@@ -12,6 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHa
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -144,10 +145,12 @@ public class NativeClientStart implements ClientStart {
 		final EventLoop eventLoop;
 		try {
 			eventLoop = EventLoop.openNIO();
-
+			eventLoop.start();
 		} catch (IOException e) {
 			throw new StartFailedException(e);
 		}
+
+		client.setSession(Session.open(client));
 
 		eventLoopValue.set(eventLoop);
 		final SocketChannel socketChannel;

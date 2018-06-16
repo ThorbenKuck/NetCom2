@@ -19,7 +19,7 @@ public interface Connection {
 
 	void open() throws IOException;
 
-	void write(Object object);
+	void write(byte[] data);
 
 	void hook(Client client);
 

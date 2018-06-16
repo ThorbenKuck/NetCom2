@@ -158,4 +158,12 @@ public class NativeSession implements Session {
 	public void release() {
 		mutex.release();
 	}
+
+	@Override
+	public String toString() {
+		return "NativeSession{" +
+				"identifiedValue=" + identifiedValue.get() +
+				", identifierValue=" + identifierValue.get() +
+				'}';
+	}
 }

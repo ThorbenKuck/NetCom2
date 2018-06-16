@@ -38,11 +38,11 @@ public class NativeObjectHandler implements ObjectHandler {
 
 	@Override
 	public String convert(Object object) {
-		return null;
+		return object.getClass().equals(String.class) ? (String) object : null;
 	}
 
 	@Override
 	public Object convert(String string) {
-		return null;
+		return string;
 	}
 }

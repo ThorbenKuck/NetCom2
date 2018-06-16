@@ -132,6 +132,8 @@ class NativeClient implements Client {
 
 	@Override
 	public void receive(RawData rawData, Connection connection) {
+		logging.debug("Received " + rawData + " from " + connection);
+		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
 		final String message = new String(rawData.access()).trim();
 //		final Object object = objectHandler.convert(message);
 		try {
@@ -174,6 +176,14 @@ class NativeClient implements Client {
 		if (connection == null) {
 			throw new SendFailedException("Could not locate the DefaultConnection!");
 		}
-		connection.write(object);
+		String string = objectHandler.convert(object);
+		connection.write(string.getBytes());
+	}
+
+	@Override
+	public String toString() {
+		return "NativeClient{" +
+				"sessionValue=" + sessionValue.get() +
+				'}';
 	}
 }
