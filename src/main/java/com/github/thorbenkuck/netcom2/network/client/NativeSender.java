@@ -13,7 +13,7 @@ class NativeSender implements Sender {
 	private final Value<Client> clientValue = Value.emptySynchronized();
 
 	NativeSender() {
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	/**

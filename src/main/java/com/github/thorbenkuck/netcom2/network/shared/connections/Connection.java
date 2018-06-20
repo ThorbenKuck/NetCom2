@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
+import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.io.IOException;
@@ -14,6 +15,8 @@ public interface Connection {
 	static Connection nio(SocketChannel socketChannel) {
 		return new NIOConnection(socketChannel);
 	}
+
+	Awaiting finished();
 
 	void close() throws IOException;
 
@@ -44,4 +47,6 @@ public interface Connection {
 	boolean isOpen();
 
 	Queue<RawData> drain();
+
+	void finishSetup();
 }

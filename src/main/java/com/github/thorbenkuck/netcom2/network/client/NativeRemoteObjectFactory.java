@@ -27,7 +27,7 @@ public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 
 	@APILevel
 	NativeRemoteObjectFactory() {
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	/**

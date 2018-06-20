@@ -33,7 +33,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 
 	NativeNIOConnectorCore(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	private void createEventLoop() throws IOException {

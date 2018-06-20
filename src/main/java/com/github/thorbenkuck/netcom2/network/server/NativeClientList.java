@@ -31,7 +31,7 @@ class NativeClientList implements ClientList {
 	NativeClientList() {
 		core = new ArrayList<>();
 		openValue = Value.synchronize(false);
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	@Override

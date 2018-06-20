@@ -4,7 +4,7 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -24,7 +24,7 @@ class NativeSelectorChannel implements SelectorChannel {
 
 	NativeSelectorChannel(Selector selector) {
 		this.selector = selector;
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	private void add(RegistrationRequest registrationRequest) {
@@ -83,7 +83,7 @@ class NativeSelectorChannel implements SelectorChannel {
 
 	@Override
 	public void start() {
-		NetCom2Utils.runOnNetComThread(READ_RUNNABLE);
+		NetComThreadPool.submitCustomWorkerThread(READ_RUNNABLE);
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class NativeServerClientConnectedHandler implements ClientConnectedHandle
 	NativeServerClientConnectedHandler(final ClientList clientList, final CommunicationRegistration communicationRegistration) {
 		this.clientList = clientList;
 		this.communicationRegistration = communicationRegistration;
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	/**

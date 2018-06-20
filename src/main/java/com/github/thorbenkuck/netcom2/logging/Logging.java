@@ -176,16 +176,16 @@ public interface Logging {
 		fatal(s, throwable);
 	}
 
-	default void objectCreated(Object object) {
+	default void instantiated(Object object) {
 		Class<?> type = object.getClass();
 		if(type.getInterfaces().length == 1) {
-			objectCreated(type.getInterfaces()[0].getSimpleName() + " as " + type.getSimpleName());
+			instantiated(type.getInterfaces()[0].getSimpleName() + " as " + type.getSimpleName());
 		} else {
-			objectCreated(type.getSimpleName());
+			instantiated(type.getSimpleName());
 		}
 	}
 
-	default void objectCreated(String objectName) {
+	default void instantiated(String objectName) {
 		debug("Instantiated " + objectName);
 	}
 }

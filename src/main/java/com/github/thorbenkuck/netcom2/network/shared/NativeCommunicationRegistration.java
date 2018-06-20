@@ -9,19 +9,24 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
-public class NativeCommunicationRegistration implements CommunicationRegistration {
+class NativeCommunicationRegistration implements CommunicationRegistration {
 
 	@APILevel
 	protected final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
-	private final ExecutorService threadPool = NetCom2Utils.createNewCachedExecutorService();
 	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
+
+	NativeCommunicationRegistration() {
+		logging.trace("[CommunicationRegistration]: requesting one new WorkerTask");
+		NetComThreadPool.startWorkerTask();
+		logging.instantiated(this);
+	}
 
 	/**
 	 * Check, whether or not, the class is assignable by the Objects class.
@@ -57,7 +62,7 @@ public class NativeCommunicationRegistration implements CommunicationRegistratio
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
 		} else {
 			logging.trace("Running all set DefaultCommunicationHandler ..");
-			threadPool.submit(() -> runDefaultCommunicationHandler(connection, session, o));
+			NetComThreadPool.submitTask(() -> runDefaultCommunicationHandler(connection, session, o));
 		}
 	}
 
@@ -213,7 +218,7 @@ public class NativeCommunicationRegistration implements CommunicationRegistratio
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			threadPool.execute(() -> triggerExisting(clazz, connection, session, o));
+			NetComThreadPool.submitTask(() -> triggerExisting(clazz, connection, session, o));
 		}
 	}
 

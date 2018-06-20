@@ -15,7 +15,7 @@ class NativeClientFactory implements ClientFactory {
 
 	NativeClientFactory(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	private void apply(Client client) {

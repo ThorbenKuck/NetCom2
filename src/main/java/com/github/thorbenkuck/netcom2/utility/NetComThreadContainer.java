@@ -10,6 +10,7 @@ import java.util.function.Consumer;
  * @version 1.0
  * @since 1.0
  */
+@Deprecated
 public class NetComThreadContainer {
 
 	private final List<Thread> netComThreads = new ArrayList<>();

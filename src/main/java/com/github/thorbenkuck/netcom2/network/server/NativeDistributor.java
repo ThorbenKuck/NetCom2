@@ -7,7 +7,7 @@ class NativeDistributor implements Distributor {
 	private final Logging logging = Logging.unified();
 
 	NativeDistributor() {
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	@Override

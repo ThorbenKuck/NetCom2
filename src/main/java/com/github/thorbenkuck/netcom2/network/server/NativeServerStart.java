@@ -34,7 +34,7 @@ class NativeServerStart implements ServerStart {
 		clientFactory = ClientFactory.open(communicationRegistration);
 		addClientConnectedHandler(clientList::add);
 		connectorCoreValue.set(ConnectorCore.nio(clientFactory));
-		loggingValue.get().objectCreated(this);
+		loggingValue.get().instantiated(this);
 	}
 
 	/**
@@ -60,9 +60,14 @@ class NativeServerStart implements ServerStart {
 	}
 
 	@Override
-	public void launch() throws StartFailedException {
+	public synchronized void launch() throws StartFailedException {
+		if (running.get()) {
+			loggingValue.get().warn("ServerStart is already started! Cannot start an already started NetworkInterface!");
+		}
 		final Logging logging = loggingValue.get();
-		logging.debug("Launching the ServerStart ..");
+		logging.debug("Launching the ServerStart");
+		logging.trace("Registering internal Requests ..");
+		ServerDefaultCommunication.applyTo(this);
 		logging.trace("Requesting connectorCore value ..");
 		final ConnectorCore connectorCore = connectorCoreValue.get();
 		final InetSocketAddress address = addressValue.get();

@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
-import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -9,16 +8,11 @@ import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
-import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
-import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
 
-public class NativeClientStart implements ClientStart {
+class NativeClientStart implements ClientStart {
 
 	private final Value<SocketAddress> addressValue = Value.emptySynchronized();
 	private final Client client;
@@ -26,16 +20,16 @@ public class NativeClientStart implements ClientStart {
 	private final CommunicationRegistration communicationRegistration;
 	private final Cache cache;
 	private final Value<Logging> loggingValue = Value.synchronize(Logging.unified());
-	private final Synchronize shutdownSynchronize = Synchronize.createDefault();
-	private final Value<Thread> parallelBlock = Value.emptySynchronized();
-	private final Value<EventLoop> eventLoopValue = Value.emptySynchronized();
+	private final ClientCore clientCore;
 
-	public NativeClientStart(SocketAddress address) {
+	NativeClientStart(SocketAddress address) {
 		this.addressValue.set(address);
 		communicationRegistration = CommunicationRegistration.open();
 		cache = Cache.open();
 		client = Client.create(communicationRegistration);
-		loggingValue.get().objectCreated(this);
+		client.setSession(Session.open(client));
+		clientCore = ClientCore.nio();
+		loggingValue.get().instantiated(this);
 	}
 
 	/**
@@ -141,68 +135,30 @@ public class NativeClientStart implements ClientStart {
 	}
 
 	@Override
-	public void launch() throws StartFailedException {
-		final EventLoop eventLoop;
-		try {
-			eventLoop = EventLoop.openNIO();
-			eventLoop.start();
-		} catch (IOException e) {
-			throw new StartFailedException(e);
+	public synchronized void launch() throws StartFailedException {
+		if (running.get()) {
+			loggingValue.get().warn("ClientStart is already started! Cannot start an already started NetworkInterface!");
+		}
+		SocketAddress socketAddress = addressValue.get();
+		if (addressValue.isEmpty()) {
+			throw new StartFailedException("Could not find requested SocketAddress to start this ClientStart!");
 		}
 
-		client.setSession(Session.open(client));
-
-		eventLoopValue.set(eventLoop);
-		final SocketChannel socketChannel;
-		try {
-			socketChannel = SocketChannel.open(addressValue.get());
-			socketChannel.configureBlocking(false);
-		} catch (IOException e) {
-			throw new StartFailedException(e);
-		}
-
-		Connection connection = Connection.nio(socketChannel);
-		connection.setIdentifier(DefaultConnection.class);
-		connection.hook(client);
-
-		try {
-			eventLoop.register(connection);
-		} catch (IOException e) {
-			throw new StartFailedException(e);
-		}
-
-		running.set(false);
-	}
-
-	private void createBlockingThread() {
-		synchronized (parallelBlock) {
-			if (!parallelBlock.isEmpty()) {
-				loggingValue.get().warn("Only one block till finished call is allowed!");
-				return;
-			}
-			final Thread thread = new Thread(this::blockOnCurrentThread);
-			thread.setDaemon(false);
-			thread.setName("NetCom2-Blocking-Thread");
-			parallelBlock.set(thread);
-		}
+		ClientDefaultCommunication.applyTo(this);
+		clientCore.establishConnection(socketAddress, client);
+		running.set(true);
+		loggingValue.get().info("ClientStart started at " + socketAddress);
 	}
 
 	@Override
 	public void startBlockerThread() {
-		createBlockingThread();
-		final Thread thread = parallelBlock.get();
-		thread.start();
+		clientCore.startBlockerThread(this::running);
 	}
 
 	@Override
 	public void blockOnCurrentThread() {
-		while (running()) {
-			try {
-				shutdownSynchronize.synchronize();
-			} catch (InterruptedException e) {
-				loggingValue.get().catching(e);
-			}
-		}
+		loggingValue.get().trace("Requesting block on current Thread");
+		clientCore.blockOnCurrentThread(this::running);
 	}
 
 	/**
@@ -233,6 +189,7 @@ public class NativeClientStart implements ClientStart {
 	@Override
 	public void softStop() {
 		running.set(false);
+		clientCore.releaseBlocker();
 	}
 
 	/**

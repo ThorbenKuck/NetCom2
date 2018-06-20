@@ -32,36 +32,44 @@ public class ClientStartTest {
 //	}
 
 	private final ClientStart clientStart;
+	private final Sender sender;
+	private int id;
 
-	public ClientStartTest() {
+	public ClientStartTest() throws StartFailedException {
 		clientStart = ClientStart.at("localhost", 4444);
-	}
-
-	public static void main(String[] args) throws InterruptedException {
-		int checks = 0;
-//		while(checks++ < 1000) {
-			try {
-				new ClientStartTest().run();
-			} catch (StartFailedException e) {
-				e.printStackTrace(System.out);
-			}
-		Thread.sleep(1000);
-//		}
-	}
-
-	private void print(TestObject string) {
-		System.out.println("[" + Thread.currentThread() + "]: " + string);
-	}
-
-	public void run() throws StartFailedException {
-		NetComLogging.setLogging(Logging.warn());
+		NetComLogging.setLogging(Logging.trace());
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(this::print);
 		clientStart.launch();
-		Sender sender = Sender.open(clientStart);
-		for(int i = 0 ; i < 100 ; i++) {
-			sender.objectToServer(new TestObject("Hi"));
-		}
+		clientStart.blockOnCurrentThread();
+		sender = Sender.open(clientStart);
+	}
+
+	public static void main(String[] args) throws InterruptedException, StartFailedException {
+		int checks = 0;
+		ClientStartTest clientStartTest = new ClientStartTest();
+//		while(checks++ < 100) {
+//			try {
+//				clientStartTest.run(checks);
+//			} catch (StartFailedException e) {
+//				e.printStackTrace(System.out);
+//			}
+//			Thread.sleep(10);
+//		}
+//
+//		Thread.sleep(10000);
+	}
+
+	private void print(TestObject string) {
+		System.out.println(Thread.currentThread() + ": " + id + " okay");
+	}
+
+	public void run(int id) throws StartFailedException, InterruptedException {
+		this.id = id;
+		sender.objectToServer(new TestObject("Hi"));
+		sender.objectToServer(new Login());
+		sender.objectToServer(new TestObject("Hi"));
+		sender.objectToServer(new Logout());
 	}
 }

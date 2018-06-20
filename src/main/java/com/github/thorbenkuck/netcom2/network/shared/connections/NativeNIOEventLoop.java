@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.SelectorChannel;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -34,7 +35,7 @@ class NativeNIOEventLoop implements EventLoop {
 	NativeNIOEventLoop() throws IOException {
 		selectorChannel = SelectorChannel.open();
 		selectorChannel.register(this::handleRead, OP_READ);
-		logging.objectCreated(this);
+		logging.instantiated(this);
 	}
 
 	private void handleRead(SelectionKey selectionKey) {
@@ -45,11 +46,17 @@ class NativeNIOEventLoop implements EventLoop {
 		// The reason may be, that the Connection
 		// is not yet set, so a race condition
 		Connection connection = get(socketChannel);
+		if (connection == null) {
+			logging.fatal("Could not find Connection for SocketChannel!");
+		}
 		try {
+			logging.trace("Checking if Connection is open ..");
 			if(connection.isOpen()) {
+				logging.trace("Connection is open. Notifying Connection about new read ..");
 				connection.read();
 				// TODO vlt mit fallback Queue lösen anstelle von catching?
 				try {
+					logging.trace("Storing RawDataPackage");
 					dataQueue.put(new RawDataPackage(connection.drain(), connection));
 				} catch (InterruptedException e) {
 					logging.catching(e);
@@ -142,7 +149,7 @@ class NativeNIOEventLoop implements EventLoop {
 		logging.debug(convertForNIOLog("Starting NIOEventLoop"));
 		logging.trace(convertForNIOLog("Requesting selection extract into separate Thread"));
 		selectorChannel.start();
-		NetCom2Utils.runOnNetComThread(PARALLEL_OBJECT_HANDLER);
+		NetComThreadPool.submitCustomWorkerThread(PARALLEL_OBJECT_HANDLER);
 		logging.debug(convertForNIOLog("NIOEventLoop started"));
 	}
 

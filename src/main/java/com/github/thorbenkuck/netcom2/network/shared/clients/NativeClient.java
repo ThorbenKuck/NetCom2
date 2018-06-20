@@ -15,6 +15,7 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnecti
 import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,10 +56,15 @@ class NativeClient implements Client {
 
 	@Override
 	public void addConnection(Connection connection) {
-		// TODO make correct connection management
-		// Bad Thorben! BAAD!
-		Class<?> key = connection.getIdentifier().orElse(DefaultConnection.class);
+		Class<?> key = connection.getIdentifier().orElseThrow(() -> new IllegalArgumentException("The Connection needs to provide a ConnectionKey!"));
 		connectionMap.put(key, connection);
+	}
+
+	@Override
+	public void setConnection(Class<?> identifier, Connection connection) {
+		synchronized (connectionMap) {
+			connectionMap.put(identifier, connection);
+		}
 	}
 
 	@Override
@@ -122,6 +128,33 @@ class NativeClient implements Client {
 		return synchronize;
 	}
 
+	/**
+	 * Returns the {@link ClientID} for this Client
+	 * <p>
+	 * This Method will never Return null and is controlled by {@link #setID(ClientID)}
+	 *
+	 * @return the ClientID for this Client
+	 */
+	@Override
+	public ClientID getID() {
+		return clientID;
+	}
+
+	/**
+	 * Sets the {@link ClientID} for this client.
+	 * <p>
+	 * This might not be null and will throw an {@link IllegalArgumentException} if null is provided.
+	 * You can certainly call this method, but it is highly discouraged to do so. The idea of this method is, to manually
+	 * override the ClientID of false Clients, created via a new Connection creation.
+	 *
+	 * @param id the new ID for this client
+	 * @throws IllegalArgumentException if id == null
+	 */
+	@Override
+	public void setID(ClientID id) {
+		clientID.updateBy(id);
+	}
+
 	@Override
 	public synchronized void triggerPrimed() {
 		if (primed.get()) {
@@ -177,22 +210,54 @@ class NativeClient implements Client {
 	}
 
 	@Override
-	public void send(Object object) {
-		Connection connection;
-		synchronized (connectionMap) {
-			connection = connectionMap.get(DefaultConnection.class);
-		}
-		if (connection == null) {
-			throw new SendFailedException("Could not locate the DefaultConnection!");
-		}
+	public void send(Object object, Connection connection) {
+		logging.debug("Sending over the provided Connection");
+		logging.trace("Converting set Object to writable String");
 		String string;
 		try {
 			string = objectHandler.convert(object) + "\r\n";
+			logging.trace("Object was serialized, performing sanity check on serialized object ..");
+			if (string.isEmpty()) {
+				throw new SendFailedException("Serialization resulted in empty String!");
+			}
 		} catch (SerializationFailedException e) {
 			logging.warn("Could not serialize the requested Object!");
 			throw new SendFailedException(e);
 		}
-		connection.write(string.getBytes());
+		logging.trace("Extracting send as Task to the NetComThreadPool");
+		NetComThreadPool.submitPriorityTask(() -> {
+			try {
+				logging.debug("Awaiting finish of Connection");
+				connection.finished().synchronize();
+				logging.trace("Connection is set up, performing requested write");
+				connection.write(string.getBytes());
+			} catch (InterruptedException e) {
+				logging.catching(e);
+			}
+		});
+	}
+
+	@Override
+	public void send(Object object, Class<?> connectionKey) {
+		logging.debug("Sending over the Connection identified with " + connectionKey);
+		Connection connection;
+		logging.trace("Trying to get access over the ConnectionMap");
+		synchronized (connectionMap) {
+			logging.trace("Fetching connection " + connectionKey);
+			connection = connectionMap.get(DefaultConnection.class);
+		}
+		logging.trace("Performing sanity check on fetched Connection");
+		if (connection == null) {
+			logging.warn(connectionKey + " is not set!");
+			throw new SendFailedException("Could not locate the DefaultConnection!");
+		}
+		send(object, connection);
+	}
+
+	@Override
+	public void send(Object object) {
+		logging.debug("Initializing sending of " + object + " over the DefaultConnection");
+		send(object, DefaultConnection.class);
 	}
 
 	@Override

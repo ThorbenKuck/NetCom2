@@ -1,6 +1,9 @@
 package com.github.thorbenkuck.netcom2.utility;
 
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+
+import java.util.function.Consumer;
 
 /**
  * NetCom2 uses its own Threads such that developers can easily distinguish between NetCom2 Threads
@@ -12,13 +15,16 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 public class NetComThread extends Thread {
 
 
-	private NetComThreadContainer netComThreadContainer;
+	private final Value<Boolean> started = Value.synchronize(false);
+	private Consumer<NetComThread> finishedCallback;
+	private int count = -1;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public NetComThread() {
 		setup();
+		count = -1;
 	}
 
 	/**
@@ -27,46 +33,16 @@ public class NetComThread extends Thread {
 	public NetComThread(Runnable runnable) {
 		super(runnable);
 		setup();
+		count = -1;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public NetComThread(ThreadGroup group, Runnable target) {
-		super(group, target);
+	public NetComThread(Runnable runnable, int count) {
+		super(runnable);
 		setup();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public NetComThread(String name) {
-		super(name);
-		setup();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public NetComThread(ThreadGroup group, String name) {
-		super(group, name);
-		setup();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public NetComThread(Runnable target, String name) {
-		super(target, name);
-		setup();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public NetComThread(ThreadGroup group, Runnable target, String name) {
-		super(group, target, name);
-		setup();
+		this.count = count;
 	}
 
 	/**
@@ -91,6 +67,7 @@ public class NetComThread extends Thread {
 	 */
 	@Override
 	public void run() {
+		started.set(true);
 		super.run();
 		finished();
 	}
@@ -100,10 +77,10 @@ public class NetComThread extends Thread {
 	 * {@inheritDoc}
 	 */
 	public String toString() {
-		if (!getName().equals(getThreadGroup().getName())) {
-			return getName() + "[" + getThreadGroup().getName() + "#" + getId() + "]";
+		if (count >= 0) {
+			return getName() + "[priority=" + getPriority() + ", number=" + count + "]";
 		} else {
-			return getName();
+			return getName() + "[priority=" + getPriority() + "]";
 		}
 	}
 
@@ -112,32 +89,29 @@ public class NetComThread extends Thread {
 	 */
 	public void finished() {
 		synchronized (this) {
-			if (netComThreadContainer != null) {
-				netComThreadContainer.removeThread(this);
+			if (finishedCallback != null) {
+				finishedCallback.accept(this);
 			}
 		}
 	}
 
-	/**
-	 * Gets the internal thread container
-	 *
-	 * @return The thread container
-	 */
-	public NetComThreadContainer getNetComThreadContainer() {
+	public void setFinishedCallback(Consumer<NetComThread> callback) {
+		if (started.get()) {
+			return;
+		}
 		synchronized (this) {
-			return netComThreadContainer;
+			this.finishedCallback = callback;
 		}
 	}
 
-	/**
-	 * Sets the internal thread container to the specified one.
-	 *
-	 * @param netComThreadContainer The new thread container
-	 */
-	void setNetComThreadContainer(NetComThreadContainer netComThreadContainer) {
-		NetCom2Utils.parameterNotNull(netComThreadContainer);
-		synchronized (this) {
-			this.netComThreadContainer = netComThreadContainer;
+	public int getNumber() {
+		return count;
+	}
+
+	public void setNumber(int number) {
+		if (number < 0) {
+			throw new IllegalArgumentException("The formal Number of this Thread must be greater than -1!");
 		}
+		this.count = number;
 	}
 }

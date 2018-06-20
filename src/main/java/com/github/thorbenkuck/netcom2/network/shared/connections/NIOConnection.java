@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
+import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionDisconnectedException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -28,35 +30,14 @@ class NIOConnection implements Connection {
 	private final Queue<RawData> readDataQueue = new LinkedList<>();
 	private final Value<Integer> sendBufferSize = Value.synchronize(1024);
 	private final Value<Integer> readBufferSize = Value.synchronize(1024);
-	private final Value<ByteBuffer> sendBuffer = Value.emptySynchronized();
+	private final Value<ByteBuffer> sendBuffer = Value.synchronize(ByteBuffer.allocate(readBufferSize.get()));
 	private final ConnectionHandler connectionHandler = ConnectionHandler.create();
+	private final Synchronize setupSynchronize = Synchronize.createDefault();
 
 	NIOConnection(SocketChannel socketChannel) {
 		NetCom2Utils.assertNotNull(socketChannel);
 		this.socketChannel = socketChannel;
-		logging.objectCreated(this);
-	}
-
-	@Override
-	public void close() throws IOException {
-		logging.debug(convertForNIOLog("Closing Connection"));
-		logging.trace(convertForNIOLog("This methods only concern is, to shutdown the SocketChannel"));
-		logging.trace(convertForNIOLog("Closing underlying SocketChannel"));
-		socketChannel.close();
-		logging.trace(convertForNIOLog("Applying callback Pipeline"));
-		shutdownPipeline.apply(this);
-	}
-
-	@Override
-	public void open() throws IOException {
-		logging.debug(convertForNIOLog("Opening " + this));
-		logging.trace(convertForNIOLog("Updating open flag"));
-		open.set(true);
-		logging.trace(convertForNIOLog("Enforcing socketChannel finish connect"));
-		socketChannel.finishConnect();
-		logging.trace(convertForNIOLog("Preparing cached SendBuffer (ByteBuffer)"));
-		sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
-		logging.debug(convertForNIOLog("Connection is now considered open"));
+		logging.instantiated(this);
 	}
 
 	private void writeTo(ByteBuffer byteBuffer) {
@@ -87,7 +68,7 @@ class NIOConnection implements Connection {
 		logging.debug(convertForNIOLog("Initializing write using the cached ByteBuffer"));
 		logging.trace(convertForNIOLog("Acquiring access over the sendBuffer .."));
 		synchronized (sendBuffer) {
-			if(sendBuffer.isEmpty()) {
+			if (sendBuffer.isEmpty()) {
 				logging.warn(convertForNIOLog("SendBuffer has been cleared. Do not clear the SendBuffer!"));
 				logging.trace(convertForNIOLog("Instantiating new ByteBuffer .."));
 				sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
@@ -100,6 +81,56 @@ class NIOConnection implements Connection {
 			logging.trace(convertForNIOLog("Requesting write .."));
 			writeTo(buffer);
 		}
+	}
+
+	private byte[] doRead(ByteBuffer byteBuffer) throws IOException, ConnectionDisconnectedException {
+		logging.debug(convertForNIOLog("Initializing concrete read from SocketChannel"));
+		logging.trace(convertForNIOLog("Checking underlying Socket Channel"));
+		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
+			throw new ConnectionDisconnectedException("SocketChannel is closed");
+		}
+		int read = socketChannel.read(byteBuffer);
+		logging.trace("read " + read);
+
+		if (read < 0) {
+			logging.debug("Disconnection detected from SocketChannel");
+			throw new ConnectionDisconnectedException("Disconnect detected");
+		}
+		if (read == 0) {
+			logging.debug("Found empty read");
+			return new byte[0];
+		}
+
+		byteBuffer.clear();
+
+		return byteBuffer.array();
+	}
+
+	@Override
+	public Awaiting finished() {
+		return setupSynchronize;
+	}
+
+	@Override
+	public void close() throws IOException {
+		logging.debug(convertForNIOLog("Closing Connection"));
+		logging.trace(convertForNIOLog("This methods only concern is, to shutdown the SocketChannel"));
+		logging.trace(convertForNIOLog("Closing underlying SocketChannel"));
+		socketChannel.close();
+		logging.trace(convertForNIOLog("Applying callback Pipeline"));
+		shutdownPipeline.apply(this);
+	}
+
+	@Override
+	public void open() throws IOException {
+		logging.debug(convertForNIOLog("Opening " + this));
+		logging.trace(convertForNIOLog("Updating open flag"));
+		open.set(true);
+		logging.trace(convertForNIOLog("Enforcing socketChannel finish connect"));
+		socketChannel.finishConnect();
+		logging.trace(convertForNIOLog("Preparing cached SendBuffer (ByteBuffer)"));
+		sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
+		logging.debug(convertForNIOLog("Connection is now considered open"));
 	}
 
 	@Override
@@ -122,25 +153,12 @@ class NIOConnection implements Connection {
 		}
 	}
 
-	private byte[] doRead(ByteBuffer byteBuffer) throws IOException, ConnectionDisconnectedException {
-		logging.debug(convertForNIOLog("Initializing concrete read from SocketChannel"));
-		logging.trace(convertForNIOLog("Checking underlying Socket Channel"));
-		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
-			throw new ConnectionDisconnectedException("SocketChannel is closed");
-		}
-		int read = socketChannel.read(byteBuffer);
-		logging.trace("read " + Arrays.toString(byteBuffer.array()));
-		if (read < 0) {
-			throw new ConnectionDisconnectedException("Disconnect detected");
-		}
-
-		byteBuffer.clear();
-
-		return byteBuffer.array();
-	}
-
 	@Override
 	public void read() throws IOException {
+		if (identifierValue.isEmpty()) {
+			logging.debug("No ConnectionKey set yet. Stopping read.");
+			return;
+		}
 		logging.debug(convertForNIOLog("Starting to read from " + this));
 
 		try {
@@ -180,6 +198,7 @@ class NIOConnection implements Connection {
 
 	@Override
 	public void setIdentifier(Class<?> identifier) {
+		logging.debug("Updating identifier to: " + identifier);
 		identifierValue.set(identifier);
 	}
 
@@ -232,6 +251,13 @@ class NIOConnection implements Connection {
 		}
 
 		return readDataCopy;
+	}
+
+	@Override
+	public void finishSetup() {
+		logging.debug("Finishing the setup of " + this);
+		setupSynchronize.goOn();
+		logging.info(this + " is now usable!");
 	}
 
 	@Override
