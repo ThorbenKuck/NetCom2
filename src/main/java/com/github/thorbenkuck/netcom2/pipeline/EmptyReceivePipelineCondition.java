@@ -33,4 +33,14 @@ class EmptyReceivePipelineCondition<T> implements ReceivePipelineCondition<T> {
 	@Override
 	public void withRequirement(final Predicate<Session> userPredicate) {
 	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(BiPredicate<Session, T> userPredicate) {
+		return this;
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(Predicate<Session> userPredicate) {
+		return this;
+	}
 }

@@ -49,4 +49,18 @@ class ReceivePipelineConditionImpl<T> implements ReceivePipelineCondition<T> {
 		NetCom2Utils.parameterNotNull(userPredicate);
 		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
 	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(BiPredicate<Session, T> userPredicate) {
+		NetCom2Utils.parameterNotNull(userPredicate);
+		receiver.addTriPredicate(new OnReceivePredicateWrapper<>(userPredicate));
+		return this;
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(Predicate<Session> userPredicate) {
+		NetCom2Utils.parameterNotNull(userPredicate);
+		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
+		return this;
+	}
 }

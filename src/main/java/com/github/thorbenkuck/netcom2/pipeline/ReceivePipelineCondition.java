@@ -28,13 +28,25 @@ public interface ReceivePipelineCondition<T> {
 	 * Adds a BiPredicate to the underlying receive pipeline.
 	 *
 	 * @param userPredicate The bi predicate to add
+	 * @deprecated use {@link #require(BiPredicate)} for functional style chaining
 	 */
-	void withRequirement(final BiPredicate<Session, T> userPredicate);
+	@Deprecated
+	default void withRequirement(final BiPredicate<Session, T> userPredicate) {
+		require(userPredicate);
+	}
 
 	/**
 	 * Adds a predicate to the underlying receive pipeline.
 	 *
 	 * @param userPredicate The predicate
+	 * @deprecated use {@link #require(Predicate)} for functional style chaining
 	 */
-	void withRequirement(final Predicate<Session> userPredicate);
+	@Deprecated
+	default void withRequirement(final Predicate<Session> userPredicate) {
+		require(userPredicate);
+	}
+
+	ReceivePipelineCondition<T> require(final BiPredicate<Session, T> userPredicate);
+
+	ReceivePipelineCondition<T> require(final Predicate<Session> userPredicate);
 }
