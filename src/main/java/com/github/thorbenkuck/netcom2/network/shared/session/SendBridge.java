@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.session;
 
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 public interface SendBridge {
 

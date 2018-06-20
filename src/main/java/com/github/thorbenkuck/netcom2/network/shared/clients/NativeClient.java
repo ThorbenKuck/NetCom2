@@ -1,11 +1,13 @@
-package com.github.thorbenkuck.netcom2.network.shared.client;
+package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
+import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
@@ -135,9 +137,16 @@ class NativeClient implements Client {
 		logging.debug("Received " + rawData + " from " + connection);
 		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
 		final String message = new String(rawData.access()).trim();
-//		final Object object = objectHandler.convert(message);
+		final Object object;
 		try {
-			communicationRegistration.trigger(connection, sessionValue.get(), message);
+			object = objectHandler.convert(message);
+		} catch (DeSerializationFailedException e) {
+			logging.warn("Received a faulty message. Stopping receive routine!");
+			logging.catching(e);
+			return;
+		}
+		try {
+			communicationRegistration.trigger(connection, sessionValue.get(), object);
 		} catch (final CommunicationNotSpecifiedException e) {
 			logging.catching(e);
 		}
@@ -176,7 +185,13 @@ class NativeClient implements Client {
 		if (connection == null) {
 			throw new SendFailedException("Could not locate the DefaultConnection!");
 		}
-		String string = objectHandler.convert(object);
+		String string;
+		try {
+			string = objectHandler.convert(object) + "\r\n";
+		} catch (SerializationFailedException e) {
+			logging.warn("Could not serialize the requested Object!");
+			throw new SendFailedException(e);
+		}
 		connection.write(string.getBytes());
 	}
 

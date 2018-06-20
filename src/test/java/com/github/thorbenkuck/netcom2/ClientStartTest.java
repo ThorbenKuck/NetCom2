@@ -6,8 +6,6 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 
-import java.io.IOException;
-
 public class ClientStartTest {
 
 //	public ClientStartTest() throws InterruptedException {
@@ -48,27 +46,22 @@ public class ClientStartTest {
 				e.printStackTrace(System.out);
 			}
 		Thread.sleep(1000);
-
-			System.out.println();
-			System.out.println(new String(new byte[]{127}));
 //		}
 	}
 
-	private void print(String string) {
-		synchronized (System.out) {
-			System.out.println("[" + Thread.currentThread() + "]: " + string);
-		}
+	private void print(TestObject string) {
+		System.out.println("[" + Thread.currentThread() + "]: " + string);
 	}
 
 	public void run() throws StartFailedException {
-		NetComLogging.setLogging(Logging.trace());
+		NetComLogging.setLogging(Logging.warn());
 		clientStart.getCommunicationRegistration()
-				.register(String.class)
+				.register(TestObject.class)
 				.addFirst(this::print);
 		clientStart.launch();
 		Sender sender = Sender.open(clientStart);
 		for(int i = 0 ; i < 100 ; i++) {
-			sender.objectToServer("Hi\n\r");
+			sender.objectToServer(new TestObject("Hi"));
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 
 public interface ClientFactory {
 

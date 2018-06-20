@@ -10,8 +10,8 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;

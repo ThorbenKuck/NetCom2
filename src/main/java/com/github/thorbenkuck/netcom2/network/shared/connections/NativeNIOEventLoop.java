@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.SelectorChannel;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -41,6 +41,9 @@ class NativeNIOEventLoop implements EventLoop {
 		logging.debug("Received read event");
 		SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 		// TODO potential Race condition?
+		// This line produced a NullPointer
+		// The reason may be, that the Connection
+		// is not yet set, so a race condition
 		Connection connection = get(socketChannel);
 		try {
 			if(connection.isOpen()) {

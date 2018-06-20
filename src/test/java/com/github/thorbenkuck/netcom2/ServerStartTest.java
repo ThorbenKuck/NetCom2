@@ -10,7 +10,7 @@ import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 public class ServerStartTest {
 
 	public static void main(String[] args) throws Exception {
-		NetComLogging.setLogging(Logging.trace());
+		NetComLogging.setLogging(Logging.warn());
 		try {
 			new ServerStartTest().run();
 		} catch (Exception e) {
@@ -21,10 +21,10 @@ public class ServerStartTest {
 	private void run() throws StartFailedException, ClientConnectionFailedException {
 		serverStart.addClientConnectedHandler(client -> System.out.println("Found connected client!"));
 		serverStart.getCommunicationRegistration()
-				.register(String.class)
+				.register(TestObject.class)
 				.addFirst(Session::send);
 		serverStart.getCommunicationRegistration()
-				.register(String.class)
+				.register(TestObject.class)
 				.addFirst(System.out::println);
 		serverStart.launch();
 		serverStart.acceptAllNextClients();

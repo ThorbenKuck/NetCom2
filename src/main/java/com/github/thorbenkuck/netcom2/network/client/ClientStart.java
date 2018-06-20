@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -76,7 +76,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	 * Any Handler set, will be completely invoked if:
 	 * <p>
 	 * <ul>
-	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.client.Client#disconnect()}.</li>
+	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client#disconnect()}.</li>
 	 * <li>The internet-connection between the ServerStart and the ClientStart breaks.</li>
 	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
 	 * </ul>

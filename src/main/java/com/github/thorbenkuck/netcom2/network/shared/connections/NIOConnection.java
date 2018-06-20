@@ -5,18 +5,14 @@ import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionDisconnectedException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.NIOUtils;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.github.thorbenkuck.netcom2.network.shared.NIOUtils.convertForNIOLog;
@@ -33,6 +29,7 @@ class NIOConnection implements Connection {
 	private final Value<Integer> sendBufferSize = Value.synchronize(1024);
 	private final Value<Integer> readBufferSize = Value.synchronize(1024);
 	private final Value<ByteBuffer> sendBuffer = Value.emptySynchronized();
+	private final ConnectionHandler connectionHandler = ConnectionHandler.create();
 
 	NIOConnection(SocketChannel socketChannel) {
 		NetCom2Utils.assertNotNull(socketChannel);
@@ -87,52 +84,52 @@ class NIOConnection implements Connection {
 	}
 
 	private void writeCached(byte[] data) {
-		logging.debug(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-		logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+		logging.debug(convertForNIOLog("Initializing write using the cached ByteBuffer"));
+		logging.trace(convertForNIOLog("Acquiring access over the sendBuffer .."));
 		synchronized (sendBuffer) {
 			if(sendBuffer.isEmpty()) {
-				logging.warn(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-				logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+				logging.warn(convertForNIOLog("SendBuffer has been cleared. Do not clear the SendBuffer!"));
+				logging.trace(convertForNIOLog("Instantiating new ByteBuffer .."));
 				sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
 			}
 			ByteBuffer buffer = sendBuffer.get();
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-			logging.trace("Put " + Arrays.toString(data));
+			logging.trace(convertForNIOLog("Filling ByteBuffer .."));
 			buffer.put(data);
-			logging.trace("ByteBuffer value: (size=" + buffer.array().length + ") " + Arrays.toString(buffer.array()));
+			logging.trace(convertForNIOLog("ByteBuffer size=" + buffer.array().length) + ". Flipping buffer ..");
 			buffer.flip();
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+			logging.trace(convertForNIOLog("Requesting write .."));
 			writeTo(buffer);
 		}
 	}
 
 	@Override
+	public void write(String message) {
+		write((message + "\r\n").getBytes());
+	}
+
+	@Override
 	public void write(byte[] data) {
-		logging.debug(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+		logging.debug(convertForNIOLog("Starting to write"));
 		logging.trace("Performing sanity-checks on data ..");
-		logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+		logging.trace(convertForNIOLog("checking Data-length to determine th buffer to use"));
 		if (data.length > sendBufferSize.get()) {
 			logging.warn("Cannot use the cached ByteBuffer. The SendBufferSize is set to " + sendBufferSize.get() + " whilst the data-package consists of " + data.length + " entries.");
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+			logging.trace(convertForNIOLog("Wrapping data .."));
 			writeNewWrapped(data);
 		} else {
-			if (data.length > readBufferSize.get()) {
-				logging.warn(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-			}
-
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+			logging.trace(convertForNIOLog("Using cached ByteBuffer"));
 			writeCached(data);
 		}
 	}
 
-	private byte[] readNext(ByteBuffer byteBuffer) throws IOException, ConnectionDisconnectedException {
-		logging.debug(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-		logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+	private byte[] doRead(ByteBuffer byteBuffer) throws IOException, ConnectionDisconnectedException {
+		logging.debug(convertForNIOLog("Initializing concrete read from SocketChannel"));
+		logging.trace(convertForNIOLog("Checking underlying Socket Channel"));
 		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
 			throw new ConnectionDisconnectedException("SocketChannel is closed");
 		}
 		int read = socketChannel.read(byteBuffer);
-		logging.trace("read " + read);
+		logging.trace("read " + Arrays.toString(byteBuffer.array()));
 		if (read < 0) {
 			throw new ConnectionDisconnectedException("Disconnect detected");
 		}
@@ -144,20 +141,28 @@ class NIOConnection implements Connection {
 
 	@Override
 	public void read() throws IOException {
-		logging.debug(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+		logging.debug(convertForNIOLog("Starting to read from " + this));
 
 		try {
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+			logging.trace(convertForNIOLog("Creating ByteBuffer"));
 			final ByteBuffer byteBuffer = ByteBuffer.allocate(sendBufferSize.get());
 
-			byte[] result = readNext(byteBuffer);
+			byte[] result = doRead(byteBuffer);
+			connectionHandler.prepare(result);
 
-			logging.trace(convertForNIOLog("[a-zA-Z ,().!=:]*"));
-			synchronized (readDataQueue) {
-				readDataQueue.add(new RawData(result));
-			}
-		} catch (ConnectionDisconnectedException e) {
-			logging.debug(convertForNIOLog("[a-zA-Z ,().!=:]*"));
+			logging.trace(convertForNIOLog("fetching results from ConnectionHandler .."));
+			List<String> read = connectionHandler.takeNextContents();
+
+			read.stream()
+					.map(String::getBytes)
+					.forEach(s -> {
+						synchronized (readDataQueue) {
+							readDataQueue.add(new RawData(s));
+						}
+					});
+
+		} catch (final ConnectionDisconnectedException e) {
+			logging.debug(convertForNIOLog("Connection close detected!"));
 			close();
 		}
 	}
@@ -227,6 +232,22 @@ class NIOConnection implements Connection {
 		}
 
 		return readDataCopy;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder("NIOConnection{");
+		Optional<SocketAddress> remoteAddress = remoteAddress();
+		if (remoteAddress.isPresent()) {
+			stringBuilder.append("address=").append(remoteAddress.get());
+		} else {
+			stringBuilder.append("NOT_CONNECTED");
+		}
+
+		stringBuilder.append(", open=").append(open.get());
+		stringBuilder.append(", identifier=").append(identifierValue.get());
+
+		return stringBuilder.toString();
 	}
 
 	SocketChannel getSocketChannel() {

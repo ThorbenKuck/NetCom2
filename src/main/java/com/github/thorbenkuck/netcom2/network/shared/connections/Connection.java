@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -18,6 +18,8 @@ public interface Connection {
 	void close() throws IOException;
 
 	void open() throws IOException;
+
+	void write(String message);
 
 	void write(byte[] data);
 

@@ -7,8 +7,8 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
@@ -92,7 +92,7 @@ public class NativeClientStart implements ClientStart {
 	 * Any Handler set, will be completely invoked if:
 	 * <p>
 	 * <ul>
-	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.client.Client#disconnect()}.</li>
+	 * <li>The Server calls {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client#disconnect()}.</li>
 	 * <li>The internet-connection between the ServerStart and the ClientStart breaks.</li>
 	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
 	 * </ul>

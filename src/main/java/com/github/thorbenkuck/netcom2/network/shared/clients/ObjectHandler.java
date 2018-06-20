@@ -1,5 +1,7 @@
-package com.github.thorbenkuck.netcom2.network.shared.client;
+package com.github.thorbenkuck.netcom2.network.shared.clients;
 
+import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter;
@@ -23,8 +25,8 @@ public interface ObjectHandler {
 
 	void addDecryptionAdapter(DecryptionAdapter decryptionAdapter);
 
-	String convert(Object object);
+	String convert(Object object) throws SerializationFailedException;
 
-	Object convert(String string);
+	Object convert(String string) throws DeSerializationFailedException;
 
 }

@@ -2,9 +2,9 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientDisconnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientID;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 

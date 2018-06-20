@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 
 import java.net.InetSocketAddress;
 

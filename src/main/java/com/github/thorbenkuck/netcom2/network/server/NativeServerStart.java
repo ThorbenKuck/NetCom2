@@ -7,7 +7,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.net.InetSocketAddress;

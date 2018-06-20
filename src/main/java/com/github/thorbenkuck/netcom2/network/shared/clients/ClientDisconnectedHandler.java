@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared.client;
+package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import java.util.function.Consumer;
 

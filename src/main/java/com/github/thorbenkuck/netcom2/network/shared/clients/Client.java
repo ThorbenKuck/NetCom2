@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared.client;
+package com.github.thorbenkuck.netcom2.network.shared.clients;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;

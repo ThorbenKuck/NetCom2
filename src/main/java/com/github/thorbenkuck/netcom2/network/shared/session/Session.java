@@ -2,7 +2,7 @@ package com.github.thorbenkuck.netcom2.network.shared.session;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.util.Properties;
 

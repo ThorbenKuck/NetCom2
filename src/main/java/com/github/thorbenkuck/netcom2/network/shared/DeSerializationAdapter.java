@@ -1,6 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
-import java.util.function.Function;
+import com.github.thorbenkuck.netcom2.exceptions.DeSerializationFailedException;
 
-public interface DeSerializationAdapter extends Function<String, Object> {
+@FunctionalInterface
+public interface DeSerializationAdapter {
+
+	Object apply(String string) throws DeSerializationFailedException;
+
+	@Deprecated
+	default Object get(String string) throws DeSerializationFailedException {
+		return apply(string);
+	}
+
 }

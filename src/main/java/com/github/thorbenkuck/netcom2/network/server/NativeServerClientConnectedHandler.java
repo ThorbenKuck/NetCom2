@@ -5,8 +5,8 @@ import com.github.thorbenkuck.keller.annotations.Asynchronous;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.client.Client;
-import com.github.thorbenkuck.netcom2.network.shared.client.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 public class NativeServerClientConnectedHandler implements ClientConnectedHandler {
@@ -44,7 +44,7 @@ public class NativeServerClientConnectedHandler implements ClientConnectedHandle
 		NetCom2Utils.parameterNotNull(client);
 		logging.trace("Pinging Client ..");
 		final Awaiting awaiting = client.primed();
-//		client.send(new Ping(client.getID()));
+//		client.send(new Ping(clients.getID()));
 		logging.trace("Adding disconnect routine");
 		client.addDisconnectedHandler(this::clearClient);
 		try {
