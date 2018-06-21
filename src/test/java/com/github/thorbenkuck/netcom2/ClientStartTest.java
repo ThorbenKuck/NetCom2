@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 public class ClientStartTest {
 
@@ -37,28 +38,37 @@ public class ClientStartTest {
 
 	public ClientStartTest() throws StartFailedException {
 		clientStart = ClientStart.at("localhost", 4444);
-		NetComLogging.setLogging(Logging.trace());
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(this::print);
 		clientStart.launch();
-		clientStart.blockOnCurrentThread();
+		clientStart.startBlockerThread();
 		sender = Sender.open(clientStart);
 	}
 
 	public static void main(String[] args) throws InterruptedException, StartFailedException {
+		NetComLogging.setLogging(Logging.trace());
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
 		int checks = 0;
 		ClientStartTest clientStartTest = new ClientStartTest();
 //		while(checks++ < 100) {
-//			try {
-//				clientStartTest.run(checks);
-//			} catch (StartFailedException e) {
-//				e.printStackTrace(System.out);
-//			}
-//			Thread.sleep(10);
+		try {
+			clientStartTest.run(checks);
+		} catch (StartFailedException e) {
+			e.printStackTrace(System.out);
+		}
+		Thread.sleep(10);
 //		}
 //
-//		Thread.sleep(10000);
+		Thread.sleep(3000);
+		clientStartTest.stop();
+	}
+
+	private void stop() {
+		clientStart.softStop();
 	}
 
 	private void print(TestObject string) {

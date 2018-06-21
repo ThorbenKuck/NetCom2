@@ -6,11 +6,16 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 public class ServerStartTest {
 
 	public static void main(String[] args) throws Exception {
 		NetComLogging.setLogging(Logging.trace());
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
 		try {
 			new ServerStartTest().run();
 		} catch (Exception e) {

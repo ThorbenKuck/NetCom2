@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -24,7 +24,7 @@ import java.util.Queue;
 class PipelineReceiver<T> {
 
 	private final OnReceiveTriple<T> onReceive;
-	private final Queue<TriPredicate<Connection, Session, T>> predicates = new LinkedList<>();
+	private final Queue<TriPredicate<ConnectionContext, Session, T>> predicates = new LinkedList<>();
 
 	/**
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
@@ -83,7 +83,7 @@ class PipelineReceiver<T> {
 	 * @param triPredicate The TriPredicate to add
 	 */
 	@APILevel
-	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
+	final void addTriPredicate(final TriPredicate<ConnectionContext, Session, T> triPredicate) {
 		NetCom2Utils.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
@@ -99,9 +99,9 @@ class PipelineReceiver<T> {
 	 * @return false if one predicate returns false, true otherwise
 	 */
 	@APILevel
-	final boolean test(Connection connection, Session session, T t) {
+	final boolean test(ConnectionContext connection, Session session, T t) {
 		NetCom2Utils.parameterNotNull(connection, session, t);
-		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
+		final Queue<TriPredicate<ConnectionContext, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
 			if (!predicateTemp.remove().test(connection, session, t)) {
 				return false;

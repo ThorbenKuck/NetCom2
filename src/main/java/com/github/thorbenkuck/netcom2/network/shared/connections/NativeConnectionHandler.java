@@ -55,7 +55,6 @@ class NativeConnectionHandler implements ConnectionHandler {
 		logging.trace("Processing read data ..");
 		String value = new String(bytes);
 		logging.debug("Trying to process " + bytes.length + " bytes");
-		logging.trace(value);
 
 		if (value.endsWith("\r\n")) {
 			return processNaive(value);
@@ -65,7 +64,7 @@ class NativeConnectionHandler implements ConnectionHandler {
 	}
 
 	@Override
-	public List<String> takeNextContents() {
+	public List<String> takeContents() {
 		return processStored(connectionCache.take());
 	}
 }

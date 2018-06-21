@@ -29,12 +29,17 @@ class NativeServerStart implements ServerStart {
 		this.addressValue.set(address);
 		logging.trace("Creating ClientList");
 		clientList = ClientList.create();
+		logging.trace("Opening and storing Cache");
 		cache = Cache.open();
+		logging.trace("Opening and storing default CommunicationRegistration");
 		communicationRegistration = CommunicationRegistration.open();
+		logging.trace("Opening and storing default ClientFactory");
 		clientFactory = ClientFactory.open(communicationRegistration);
+		logging.trace("Adding default ClientConnectedHandler");
 		addClientConnectedHandler(clientList::add);
+		logging.trace("Setting default ConnectorCore(nio)");
 		connectorCoreValue.set(ConnectorCore.nio(clientFactory));
-		loggingValue.get().instantiated(this);
+		logging.instantiated(this);
 	}
 
 	/**

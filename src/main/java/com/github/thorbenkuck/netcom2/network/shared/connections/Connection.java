@@ -16,7 +16,7 @@ public interface Connection {
 		return new NIOConnection(socketChannel);
 	}
 
-	Awaiting finished();
+	Awaiting connected();
 
 	void close() throws IOException;
 
@@ -34,8 +34,6 @@ public interface Connection {
 
 	void setIdentifier(Class<?> identifier);
 
-	Optional<Client> hookedClient();
-
 	Optional<SocketAddress> remoteAddress();
 
 	Optional<SocketAddress> localAddress();
@@ -48,5 +46,11 @@ public interface Connection {
 
 	Queue<RawData> drain();
 
-	void finishSetup();
+	void finishConnect();
+
+	boolean isConnected();
+
+	boolean inSetup();
+
+	ConnectionContext context();
 }

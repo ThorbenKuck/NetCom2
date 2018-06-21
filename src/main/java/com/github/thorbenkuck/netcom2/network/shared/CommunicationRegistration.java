@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedExcept
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.util.List;
@@ -53,6 +54,9 @@ public interface CommunicationRegistration extends Mutex {
 	 * All it does, is to call {@link #trigger(Class, Connection, Session, Object)}, with the direct Class of the provided
 	 * Object
 	 *
+	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
+	 * method is a potential candidate for deprecated.
+	 *
 	 * @param connection the {@link Connection} over which the Object was received
 	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
 	 * @param object     the Object that was received
@@ -62,7 +66,9 @@ public interface CommunicationRegistration extends Mutex {
 	 * @see #trigger(Class, Connection, Session, Object)
 	 */
 	@Asynchronous
-	<T> void trigger(final Connection connection, final Session session, final Object object) throws CommunicationNotSpecifiedException;
+	default <T> void trigger(final Connection connection, final Session session, final Object object) throws CommunicationNotSpecifiedException {
+		trigger(connection.context(), session, object);
+	}
 
 	/**
 	 * This method takes a Object and runs it through a {@link ReceivePipeline} of the Type that is defined by the provided Class.
@@ -84,6 +90,9 @@ public interface CommunicationRegistration extends Mutex {
 	 * {@link CommunicationNotSpecifiedException}. his behaviour can be overridden by providing an DefaultCommunicationHandler
 	 * with {@link #addDefaultCommunicationHandler(OnReceive)}
 	 *
+	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
+	 * method is a potential candidate for deprecated.
+	 *
 	 * @param clazz      the Class, defining the Type of the {@link ReceivePipeline}
 	 * @param connection the {@link Connection}, over which the Object has been received
 	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
@@ -96,7 +105,15 @@ public interface CommunicationRegistration extends Mutex {
 	 */
 	@Asynchronous
 	@SuppressWarnings("unchecked")
-	<T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
+	default <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
+			throws CommunicationNotSpecifiedException {
+		trigger(clazz, connection.context(), session, o);
+	}
+
+	void trigger(ConnectionContext connection, Session session, Object object) throws CommunicationNotSpecifiedException;
+
+	@Asynchronous
+	<T> void trigger(Class<T> clazz, ConnectionContext connection, Session session, Object o)
 			throws CommunicationNotSpecifiedException;
 
 	/**

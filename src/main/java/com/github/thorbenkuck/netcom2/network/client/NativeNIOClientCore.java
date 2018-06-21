@@ -2,7 +2,6 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Synchronize;
-import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -94,8 +93,12 @@ class NativeNIOClientCore implements ClientCore {
 
 	@Override
 	public void establishConnection(SocketAddress socketAddress, Client client, Class<?> connectionKey) throws StartFailedException {
+		logging.debug("Starting to establish the " + connectionKey.getSimpleName() + " Connection");
+		logging.trace("Accessing this");
 		synchronized (this) {
+			logging.trace("Checking EventLoop");
 			if (eventLoopValue.isEmpty()) {
+				logging.trace("Could not locate a active EventLoop. Creating new ..");
 				try {
 					initialize();
 				} catch (IOException e) {
@@ -104,20 +107,29 @@ class NativeNIOClientCore implements ClientCore {
 			}
 		}
 
+		logging.trace("Fetching EventLoopValue");
 		EventLoop eventLoop = eventLoopValue.get();
+		logging.trace("Establishing SocketChannel");
 		SocketChannel socketChannel = establishSocketChannel(socketAddress);
+		logging.trace("Creating a new Connection");
 		Connection connection = createConnection(socketChannel, connectionKey, client);
 
+		logging.trace("Registering newly created Connection to the EventLoop");
 		try {
 			eventLoop.register(connection);
 		} catch (IOException e) {
 			throw new StartFailedException(e);
 		}
 
+		logging.trace("Sending a NewConnectionInitializer for the new Connection");
+		client.sendIgnoreConstraints(new NewConnectionInitializer(), connection);
+
+		logging.trace("Awaiting the connect Synchronize");
 		try {
-			connection.write(client.objectHandler().convert(new NewConnectionInitializer()));
-		} catch (SerializationFailedException e) {
-			throw new StartFailedException("Could not write initial Request to Server", e);
+			connection.connected().synchronize();
+			logging.info(connectionKey.getSimpleName() + " is now successfully connected");
+		} catch (InterruptedException e) {
+			logging.catching(e);
 		}
 	}
 }

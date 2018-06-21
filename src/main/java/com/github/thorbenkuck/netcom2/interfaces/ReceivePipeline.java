@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
@@ -372,7 +373,21 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * @param session    the {@link Session}, which is associated with the receiving of the T
 	 * @param t          the Object, which should be run through this ReceivePipeline
 	 */
-	void run(final Connection connection, final Session session, final T t);
+	@Deprecated
+	default void run(final Connection connection, final Session session, final T t) {
+		run(connection.context(), session, t);
+	}
+
+	/**
+	 * Runs a certain T through this ReceivePipeline.
+	 * <p>
+	 * It will check every {@link ReceivePipelineCondition}, to see whether or not the so registered OnReceive will be executed
+	 *
+	 * @param connection the {@link Connection}, which is associated with the receiving of the T
+	 * @param session    the {@link Session}, which is associated with the receiving of the T
+	 * @param t          the Object, which should be run through this ReceivePipeline
+	 */
+	void run(final ConnectionContext connection, final Session session, final T t);
 
 	/**
 	 * Closes this ReceivePipeline and stops all Additions to it.

@@ -10,6 +10,6 @@ public interface ConnectionHandler {
 
 	void prepare(byte[] read);
 
-	List<String> takeNextContents();
+	List<String> takeContents();
 
 }

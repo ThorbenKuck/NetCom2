@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedExcept
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
@@ -55,7 +56,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws CommunicationNotSpecifiedException if no defaultCommunicationHandler is set.
 	 */
 	@Asynchronous
-	private void handleNotRegistered(final Class<?> clazz, final Connection connection, final Session session,
+	private void handleNotRegistered(final Class<?> clazz, final ConnectionContext connection, final Session session,
 	                                 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
@@ -79,7 +80,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws ConcurrentModificationException if the {@link ReceivePipeline} cannot be found
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> void triggerExisting(final Class<T> clazz, final Connection connection, final Session session,
+	private <T> void triggerExisting(final Class<T> clazz, final ConnectionContext connection, final Session session,
 	                                 final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
@@ -107,7 +108,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @param session    the {@link Session}, associated with the {@link Connection}
 	 * @param o          the received Object
 	 */
-	private void runDefaultCommunicationHandler(final Connection connection, final Session session, final Object o) {
+	private void runDefaultCommunicationHandler(final ConnectionContext connection, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
@@ -130,7 +131,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @param o          the received Object
 	 * @param <T>        the Type of that {@link ReceivePipeline}.
 	 */
-	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final Connection connection,
+	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final ConnectionContext connection,
 	                                  final Session session, final T o) {
 		try {
 			logging.trace("Acquiring the pipeline ..");
@@ -196,7 +197,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
-	public void trigger(Connection connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+	public void trigger(ConnectionContext connection, Session session, Object object) throws CommunicationNotSpecifiedException {
 		NetCom2Utils.parameterNotNull(object);
 		trigger(object.getClass(), connection, session, object);
 	}
@@ -208,7 +209,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Asynchronous
 	@Override
-	public <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
+	public <T> void trigger(final Class<T> clazz, final ConnectionContext connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
 		NetCom2Utils.parameterNotNull(clazz, connection, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);

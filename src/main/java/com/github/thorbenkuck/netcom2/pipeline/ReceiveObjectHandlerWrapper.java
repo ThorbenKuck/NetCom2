@@ -6,7 +6,7 @@ import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -202,7 +202,7 @@ class ReceiveObjectHandlerWrapper {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void accept(final Connection connection, final Session session, final T t) {
+		public void accept(final ConnectionContext connection, final Session session, final T t) {
 			logging.debug("Trying to access " + t);
 			if (!t.getClass().equals(toExpect) || !t.getClass().isAssignableFrom(toExpect)) {
 				throw new HandlerInvocationException(

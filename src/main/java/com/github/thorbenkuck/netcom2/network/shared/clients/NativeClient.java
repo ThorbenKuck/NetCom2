@@ -165,24 +165,20 @@ class NativeClient implements Client {
 		primed.set(true);
 	}
 
-	@Override
-	public void receive(RawData rawData, Connection connection) {
-		logging.debug("Received " + rawData + " from " + connection);
-		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
-		final String message = new String(rawData.access()).trim();
-		final Object object;
+	private String convert(Object object) {
+		String string;
 		try {
-			object = objectHandler.convert(message);
-		} catch (DeSerializationFailedException e) {
-			logging.warn("Received a faulty message. Stopping receive routine!");
-			logging.catching(e);
-			return;
+			string = objectHandler.convert(object) + "\r\n";
+			logging.trace("Object was serialized, performing sanity check on serialized object ..");
+			if (string.isEmpty()) {
+				throw new SendFailedException("Serialization resulted in empty String!");
+			}
+		} catch (SerializationFailedException e) {
+			logging.warn("Could not serialize the requested Object!");
+			throw new SendFailedException(e);
 		}
-		try {
-			communicationRegistration.trigger(connection, sessionValue.get(), object);
-		} catch (final CommunicationNotSpecifiedException e) {
-			logging.catching(e);
-		}
+
+		return string;
 	}
 
 	@Override
@@ -210,25 +206,51 @@ class NativeClient implements Client {
 	}
 
 	@Override
+	public void receive(RawData rawData, Connection connection) {
+		logging.debug("Received " + rawData + " from " + connection);
+		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
+		final String message = new String(rawData.access()).trim();
+		final Object object;
+		try {
+			object = objectHandler.convert(message);
+		} catch (DeSerializationFailedException e) {
+			logging.warn("Received a faulty message. Stopping receive routine!");
+			logging.catching(e);
+			return;
+		}
+		try {
+			communicationRegistration.trigger(connection.context(), sessionValue.get(), object);
+		} catch (final CommunicationNotSpecifiedException e) {
+			logging.catching(e);
+		}
+	}
+
+	@Override
+	public void sendIgnoreConstraints(Object object, Connection connection) {
+		logging.debug("Sending over the provided Connection, without listening to Connection constraints.");
+		logging.trace("Converting set Object to writable String");
+		String string = convert(object);
+		logging.trace("Extracting send as Task to the NetComThreadPool");
+		NetComThreadPool.submitPriorityTask(() -> {
+			logging.trace("Performing requested write");
+			connection.write(string.getBytes());
+		});
+	}
+
+	@Override
 	public void send(Object object, Connection connection) {
 		logging.debug("Sending over the provided Connection");
 		logging.trace("Converting set Object to writable String");
-		String string;
-		try {
-			string = objectHandler.convert(object) + "\r\n";
-			logging.trace("Object was serialized, performing sanity check on serialized object ..");
-			if (string.isEmpty()) {
-				throw new SendFailedException("Serialization resulted in empty String!");
-			}
-		} catch (SerializationFailedException e) {
-			logging.warn("Could not serialize the requested Object!");
-			throw new SendFailedException(e);
-		}
+		String string = convert(object);
 		logging.trace("Extracting send as Task to the NetComThreadPool");
-		NetComThreadPool.submitPriorityTask(() -> {
+		NetComThreadPool.submitTask(() -> {
 			try {
-				logging.debug("Awaiting finish of Connection");
-				connection.finished().synchronize();
+				logging.trace("Checking connection to send to ..");
+				if (!connection.isConnected()) {
+					logging.debug("Awaiting finish of Connection");
+					connection.connected().synchronize();
+					logging.debug("Connection is now connected");
+				}
 				logging.trace("Connection is set up, performing requested write");
 				connection.write(string.getBytes());
 			} catch (InterruptedException e) {

@@ -1,19 +1,19 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionResponse;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 public class ClientDefaultCommunication {
+
+	private static final Logging logging = Logging.unified();
 
 	public static void applyTo(ClientStart clientStart) {
 		CommunicationRegistration communicationRegistration = clientStart.getCommunicationRegistration();
@@ -34,13 +34,12 @@ public class ClientDefaultCommunication {
 		 */
 		@Override
 		public void accept(Session session, NewConnectionRequest newConnectionRequest) {
-			// TODO open a new Connection through the ClientStart (old Design)
+			logging.info("Trying to establish a new Connection as " + newConnectionRequest.getIdentifier());
+			// TODO open a new Connection through the old Design
 		}
 	}
 
 	private static final class NewConnectionInitializerHandler implements OnReceiveTriple<NewConnectionInitializer> {
-
-		private final Logging logging = Logging.unified();
 
 		/**
 		 * Performs this operation on the given arguments.
@@ -49,20 +48,14 @@ public class ClientDefaultCommunication {
 		 * @param newConnectionInitializer the second input argument
 		 */
 		@Override
-		public void accept(Connection connection, Session session, NewConnectionInitializer newConnectionInitializer) {
-			Client client = connection.hookedClient().orElseThrow(() -> new IllegalStateException("Client not hooked to the Connection! Cannot initialize!"));
+		public void accept(ConnectionContext connectionContext, Session session, NewConnectionInitializer newConnectionInitializer) {
+			logging.debug("Initializing new Connection");
+			logging.trace("Storing new Connection");
+			connectionContext.store();
+			logging.trace("Constructing response");
 			NewConnectionResponse response = new NewConnectionResponse();
-			client.addConnection(connection);
 
-			// TODO Extract in common class
-			try {
-				connection.write(client.objectHandler().convert(response));
-			} catch (SerializationFailedException e) {
-				// TODO Maybe remove faulty connection or something.
-				logging.error("We could not serialize the Response to initialize the new Connection! This only happens, if you manually override the NewConnectionResponse serialization!", e);
-				logging.error("You are left with a faulty Connection: " + connection);
-				logging.error("This cannot be reversed!");
-			}
+			connectionContext.flush(response);
 		}
 	}
 
@@ -71,18 +64,22 @@ public class ClientDefaultCommunication {
 		/**
 		 * Performs this operation on the given arguments.
 		 *
-		 * @param connection the first input argument
+		 * @param connectionContext the first input argument
 		 * @param session    the second input argument
 		 * @param ping
 		 */
 		@Override
-		public void accept(Connection connection, Session session, Ping ping) {
-			Client client = connection.hookedClient().orElseThrow(() -> new IllegalStateException("No Client hooked to Connection!"));
-			if (client.getId() == null) {
-				client.setID(ping.getClientID());
+		public void accept(ConnectionContext connectionContext, Session session, Ping ping) {
+			logging.debug("Received Ping from Server");
+			logging.trace("Checking ClientID of ConnectionContext");
+			if (connectionContext.getClientID() == null) {
+				logging.trace("ClientID is null, updating based on received ClientID");
+				connectionContext.updateClientID(ping.getClientID());
 			}
-			connection.finishSetup();
-			client.send(ping, connection);
+			logging.trace("Sending ping over ConnectionContext");
+			connectionContext.send(ping);
+			logging.trace("Finishing Connect of ConnectionContext");
+			connectionContext.finishConnect();
 		}
 	}
 }

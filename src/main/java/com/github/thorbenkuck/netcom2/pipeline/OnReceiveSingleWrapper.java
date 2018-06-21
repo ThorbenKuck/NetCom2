@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -38,7 +38,7 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final void accept(final Connection connection, final Session session, final O o) {
+	public final void accept(final ConnectionContext connection, final Session session, final O o) {
 		NetCom2Utils.parameterNotNull(o);
 		onReceive.accept(o);
 	}

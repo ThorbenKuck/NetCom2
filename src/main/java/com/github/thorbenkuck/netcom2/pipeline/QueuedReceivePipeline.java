@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -61,7 +62,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 * @param s          The S
 	 * @param <S>        The type
 	 */
-	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
+	private <S> void run(PipelineReceiver<S> receiver, ConnectionContext connection, Session session, S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
 		if (onReceiveTriple == null) {
 			logging.warn("Found null OnReceive in PipelineReceiver " + receiver);
@@ -368,11 +369,16 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Runs a certain T through this ReceivePipeline.
+	 * <p>
+	 * It will check every {@link ReceivePipelineCondition}, to see whether or not the so registered OnReceive will be executed
+	 *
+	 * @param connection the {@link Connection}, which is associated with the receiving of the T
+	 * @param session    the {@link Session}, which is associated with the receiving of the T
+	 * @param t          the Object, which should be run through this ReceivePipeline
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void run(final Connection connection, final Session session, final T t) {
+	public void run(ConnectionContext connection, Session session, T t) {
 		NetCom2Utils.parameterNotNull(connection, session, t);
 		try {
 			synchronized (core) {

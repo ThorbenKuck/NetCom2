@@ -63,6 +63,8 @@ public interface Client {
 
 	ObjectHandler objectHandler();
 
+	void sendIgnoreConstraints(Object object, Connection connection);
+
 	void send(Object object, Connection connection);
 
 	void send(Object object, Class<?> connectionKey);

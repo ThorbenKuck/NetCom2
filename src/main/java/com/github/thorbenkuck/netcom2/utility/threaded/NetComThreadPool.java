@@ -19,44 +19,80 @@ public class NetComThreadPool {
 	private static final Logging logging = Logging.unified();
 	private static ExecutorService workerThreadPool = Executors.newCachedThreadPool(new NetComThreadFactory());
 
+	private static void checkForWorkerTask() {
+		if (countWorkerTasks() == 0) {
+			logging.debug("Requiring at least one WorkerTask. Starting one now.");
+			startWorkerTask();
+		}
+	}
+
 	public static void submitTask(Runnable runnable) {
+		logging.debug("Adding a new task to the tail of the workQueue");
+		logging.trace("Checking for WorkerTasks ..");
+		checkForWorkerTask();
+		logging.trace("Performing add");
 		taskQueue.addLast(runnable);
 	}
 
 	public static void submitPriorityTask(Runnable runnable) {
+		logging.debug("Adding a new task to the head of the workQueue");
+		logging.trace("Checking for WorkerTasks ..");
+		checkForWorkerTask();
+		logging.trace("Performing add");
 		taskQueue.addFirst(runnable);
 	}
 
 	public static void startWorkerTask() {
+		logging.trace("Creating new WorkerTask");
+		WorkerTask workerTask = new WorkerTask(taskQueue, NetComThreadPool::removeWorkerTask);
 		try {
-			WorkerTask workerTask = new WorkerTask(taskQueue, NetComThreadPool::removeWorkerTask);
 			logging.trace("Accessing WorkerThreadPool ..");
 			workerThreadPoolLock.lock();
-			logging.trace("");
+			logging.trace("Submitting new WorkerTask to the WorkerThreadPool");
 			workerThreadPool.submit(workerTask);
 		} finally {
 			workerThreadPoolLock.unlock();
 		}
+		logging.trace("Storing WorkerTask");
+		synchronized (workerTaskList) {
+			workerTaskList.add(workerTask);
+		}
+		logging.debug("There now are " + countWorkerTasks() + " WorkerTasks running.");
 	}
 
-	public static void submitCustomWorkerThread(Runnable runnable) {
+	public static void submitCustomWorkerTask(Runnable runnable) {
+		logging.debug("Request for custom WorkerTask received");
 		try {
+			logging.trace("Accessing WorkerThreadPool");
 			workerThreadPoolLock.lock();
+			logging.trace("Acquired access. Submitting custom WorkerTask");
 			workerThreadPool.submit(runnable);
+			logging.trace("Custom WorkerTask submitted.");
 		} finally {
 			workerThreadPoolLock.unlock();
 		}
 	}
 
 	private static void safeShutdown(ExecutorService executorService, long timeout, TimeUnit timeUnit) {
+		logging.debug("Shutting down ExecutorService");
 		try {
+			logging.trace("Requesting gracefully shutdown ..");
+			executorService.shutdown();
+			logging.trace("Awaiting termination for " + timeout + " " + timeUnit);
 			executorService.awaitTermination(timeout, timeUnit);
 		} catch (InterruptedException e) {
 			if (!executorService.isShutdown()) {
-				logging.warn("Interrupted while awaiting termination. Requesting instant shutdown, expect interrupted Exceptions");
+				logging.warn("Interrupted while awaiting termination. Requesting instant shutdown, expect Exceptions");
 				logging.catching(e);
 				executorService.shutdownNow();
+			} else {
+				return;
 			}
+		}
+		if (!executorService.isShutdown()) {
+			logging.warn("ExecutorService did not shutdown gracefully");
+			logging.trace("Requesting instant shutdown");
+			executorService.shutdownNow();
 		}
 	}
 
@@ -68,11 +104,10 @@ public class NetComThreadPool {
 		try {
 			workerThreadPoolLock.lock();
 			synchronized (workerTaskList) {
-				workerTaskList.forEach(WorkerTask::shutDown);
+				workerTaskList.forEach(WorkerTask::shutdown);
 			}
 			safeShutdown(workerThreadPool, timeout, timeUnit);
 			workerThreadPool = executorService;
-			workerThreadPool.shutdown();
 		} finally {
 			workerThreadPoolLock.unlock();
 		}
@@ -99,15 +134,23 @@ public class NetComThreadPool {
 		private Thread runningThread;
 
 		private WorkerTask(BlockingDeque<Runnable> taskQueue, Consumer<WorkerTask> shutdownConsumer) {
+			logging.trace("[WorkerTask]: Storing TasksQueue");
 			this.taskQueue = taskQueue;
+			logging.trace("[WorkerTask]: Storing shutdown hook");
 			this.shutdownConsumer = shutdownConsumer;
-			logging.instantiated("WorkerTask");
+			logging.instantiated(this);
 		}
 
-		private void shutDown() {
+		private void shutdown() {
+			logging.debug("[WorkerTask]: Shutting down");
+			logging.trace("[WorkerTask]: Checking for running flag");
 			if (!running.get()) {
+				logging.trace("[WorkerTask]: Updating running flag to shutdown");
 				running.set(false);
+				logging.trace("[WorkerTask]: Interrupting containing Thread to initiate the shutdown");
 				runningThread.interrupt();
+			} else {
+				logging.debug("[WorkerTask]: Already shut down. Ignoring request");
 			}
 		}
 
@@ -124,22 +167,35 @@ public class NetComThreadPool {
 		 */
 		@Override
 		public void run() {
+			logging.info("[WorkerTask]: WorkerTask has been initiated");
+			logging.trace("[WorkerTask]: Storing containing Thread for shutdown");
 			runningThread = Thread.currentThread();
+			logging.trace("[WorkerTask]: Entering while loop");
 			while (running.get() && !Thread.currentThread().isInterrupted()) {
 				try {
+					logging.trace("[WorkerTask]: Fetching next Task");
 					Runnable runnable = taskQueue.takeFirst();
-					runnable.run();
+					logging.trace("[WorkerTask]: Got new Task. Performing Task");
+					try {
+						runnable.run();
+						logging.trace("[WorkerTask]: Task finished successfully");
+					} catch (Throwable t) {
+						logging.error("[WorkerTask]: Could not complete Task! Encountered unexpected Throwable!", t);
+						logging.warn("[WorkerTask]: Trying to continue as if nothing happened.");
+					}
 				} catch (InterruptedException e) {
 					if (running.get()) {
-						logging.warn("Interrupted while waiting on Task queue. Shutting down this WorkerTask!");
+						logging.warn("[WorkerTask]: Interrupted while waiting on Task queue. Shutting down this WorkerTask!");
 						logging.catching(e);
-						shutDown();
+						shutdown();
 					}
 					Thread.currentThread().interrupt();
 				}
 			}
-
+			logging.debug("[WorkerTask]: Left while loop. Shutdown eminent.");
+			logging.trace("[WorkerTask]: Informing shutdown callback");
 			shutdownConsumer.accept(this);
+			logging.info("[WorkerTask]: Finished");
 		}
 	}
 }
