@@ -41,6 +41,11 @@ class NativeConnectionContext implements ConnectionContext {
 	public void finishConnect() {
 		logging.trace("Passing finishConnection to connection");
 		connection.finishConnect();
+		logging.trace("Checking ClientPrimedState");
+		if (!client.isPrimed()) {
+			logging.trace("Client is not primed. Triggering primed state of Client");
+			client.triggerPrimed();
+		}
 	}
 
 	@Override
@@ -91,7 +96,7 @@ class NativeConnectionContext implements ConnectionContext {
 
 	@Override
 	public ClientID getClientID() {
-		return client.getId();
+		return client.getID();
 	}
 
 	@Override

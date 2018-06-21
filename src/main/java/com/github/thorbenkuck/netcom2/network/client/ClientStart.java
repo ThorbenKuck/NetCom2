@@ -19,7 +19,11 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	}
 
 	static ClientStart at(SocketAddress socketAddress) {
-		return new NativeClientStart(socketAddress);
+		return as(socketAddress, ClientCore.nio());
+	}
+
+	static ClientStart as(SocketAddress socketAddress, ClientCore clientCore) {
+		return new NativeClientStart(socketAddress, clientCore);
 	}
 
 	/**

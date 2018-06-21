@@ -21,7 +21,7 @@ class NativeServerStart implements ServerStart {
 	private final Cache cache;
 	private final CommunicationRegistration communicationRegistration;
 	private final ClientFactory clientFactory;
-	private final Value<ConnectorCore> connectorCoreValue = Value.emptySynchronized();
+	private final ConnectorCore connectorCore;
 
 	NativeServerStart(InetSocketAddress address) {
 		Logging logging = loggingValue.get();
@@ -38,7 +38,7 @@ class NativeServerStart implements ServerStart {
 		logging.trace("Adding default ClientConnectedHandler");
 		addClientConnectedHandler(clientList::add);
 		logging.trace("Setting default ConnectorCore(nio)");
-		connectorCoreValue.set(ConnectorCore.nio(clientFactory));
+		connectorCore = ConnectorCore.nio(clientFactory);
 		logging.instantiated(this);
 	}
 
@@ -74,7 +74,6 @@ class NativeServerStart implements ServerStart {
 		logging.trace("Registering internal Requests ..");
 		ServerDefaultCommunication.applyTo(this);
 		logging.trace("Requesting connectorCore value ..");
-		final ConnectorCore connectorCore = connectorCoreValue.get();
 		final InetSocketAddress address = addressValue.get();
 		logging.trace("Requesting connection establishment for " + address);
 		connectorCore.establishConnection(address);
@@ -89,13 +88,6 @@ class NativeServerStart implements ServerStart {
 		final Logging logging = loggingValue.get();
 		logging.debug("Accepting next client.");
 		logging.trace("Checking ConnectorCore value ..");
-		if (connectorCoreValue.isEmpty()) {
-			logging.error("No ConnectorCoreValue found!");
-			throw new ClientConnectionFailedException("Not launched!");
-		}
-
-		logging.trace("Fetching ConnectorCore value ..");
-		final ConnectorCore connectorCore = connectorCoreValue.get();
 		logging.trace("Requesting next Client handling at ConnectorCore ..");
 		connectorCore.handleNext();
 		logging.debug("New Client handled");

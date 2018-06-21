@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
@@ -27,8 +28,13 @@ public class ServerStartTest {
 		System.out.println(Thread.currentThread() + ": " + testObject);
 	}
 
+	private void connected(Client client) {
+		System.out.println("Found connected client!");
+		client.addDisconnectedHandler(disconnected -> System.out.println("Client disconnected"));
+	}
+
 	private void run() throws StartFailedException, ClientConnectionFailedException {
-		serverStart.addClientConnectedHandler(client -> System.out.println("Found connected client!"));
+		serverStart.addClientConnectedHandler(this::connected);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(Session::send)

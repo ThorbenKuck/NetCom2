@@ -224,7 +224,7 @@ class NativeNIOEventLoop implements EventLoop {
 							}
 						}
 					} else {
-						logging.warn("");
+						logging.warn("Connection is not open!");
 					}
 				} catch (InterruptedException e) {
 					logging.trace("[ObjectHandlerRunnable]: ");

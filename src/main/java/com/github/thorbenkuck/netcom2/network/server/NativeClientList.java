@@ -93,7 +93,7 @@ class NativeClientList implements ClientList {
 
 	@Override
 	public Optional<Client> getClient(ClientID clientID) {
-		return stream().filter(current -> current.getId().equals(clientID))
+		return stream().filter(current -> current.getID().equals(clientID))
 				.findFirst();
 	}
 

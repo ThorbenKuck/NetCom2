@@ -22,13 +22,13 @@ class NativeClientStart implements ClientStart {
 	private final Value<Logging> loggingValue = Value.synchronize(Logging.unified());
 	private final ClientCore clientCore;
 
-	NativeClientStart(SocketAddress address) {
+	NativeClientStart(SocketAddress address, ClientCore clientCore) {
 		this.addressValue.set(address);
 		communicationRegistration = CommunicationRegistration.open();
 		cache = Cache.open();
 		client = Client.create(communicationRegistration);
 		client.setSession(Session.open(client));
-		clientCore = ClientCore.nio();
+		this.clientCore = clientCore;
 		loggingValue.get().instantiated(this);
 	}
 

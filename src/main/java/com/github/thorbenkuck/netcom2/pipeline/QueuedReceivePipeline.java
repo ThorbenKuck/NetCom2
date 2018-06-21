@@ -51,6 +51,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public QueuedReceivePipeline(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		this.clazz = clazz;
+		logging.instantiated(this);
 	}
 
 	/**

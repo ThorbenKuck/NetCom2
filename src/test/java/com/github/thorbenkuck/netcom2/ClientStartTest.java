@@ -1,8 +1,6 @@
 package com.github.thorbenkuck.netcom2;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
@@ -41,29 +39,29 @@ public class ClientStartTest {
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(this::print);
+		clientStart.addDisconnectedHandler(client -> System.out.println("Disconnected"));
 		clientStart.launch();
 		clientStart.startBlockerThread();
 		sender = Sender.open(clientStart);
 	}
 
 	public static void main(String[] args) throws InterruptedException, StartFailedException {
-		NetComLogging.setLogging(Logging.trace());
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
 		int checks = 0;
 		ClientStartTest clientStartTest = new ClientStartTest();
-//		while(checks++ < 100) {
-		try {
-			clientStartTest.run(checks);
-		} catch (StartFailedException e) {
-			e.printStackTrace(System.out);
+		while (checks++ < 100) {
+			try {
+				clientStartTest.run(checks);
+			} catch (StartFailedException e) {
+				e.printStackTrace(System.out);
+			}
+//			Thread.sleep(10);
 		}
-		Thread.sleep(10);
-//		}
 //
-		Thread.sleep(3000);
+//		Thread.sleep(3000);
 		clientStartTest.stop();
 	}
 

@@ -52,7 +52,15 @@ class NIOConnection implements Connection {
 			byteBuffer.clear();
 		} catch (IOException e) {
 			logging.error(convertForNIOLog("Encountered IOException while writing to SocketChannel!"));
-			throw new SendFailedException(e);
+			SendFailedException sendFailedException = new SendFailedException(e);
+			logging.trace("Closing " + this);
+			try {
+				close();
+			} catch (IOException e1) {
+				logging.error("Close failed!");
+				sendFailedException.addSuppressed(e1);
+			}
+			throw sendFailedException;
 		}
 	}
 
@@ -218,7 +226,6 @@ class NIOConnection implements Connection {
 		try {
 			return Optional.of(socketChannel.getRemoteAddress());
 		} catch (IOException e) {
-			logging.catching(e);
 			return Optional.empty();
 		}
 	}
@@ -228,7 +235,6 @@ class NIOConnection implements Connection {
 		try {
 			return Optional.of(socketChannel.getLocalAddress());
 		} catch (IOException e) {
-			logging.catching(e);
 			return Optional.empty();
 		}
 	}

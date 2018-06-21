@@ -7,6 +7,8 @@ import com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.SerializationAdapter;
 
+import java.util.Collection;
+
 public interface ObjectHandler {
 
 	static ObjectHandler create() {
@@ -15,7 +17,15 @@ public interface ObjectHandler {
 
 	void addFallbackSerialization(SerializationAdapter serializationAdapter);
 
+	default void addFallbackSerialization(Collection<SerializationAdapter> collection) {
+		collection.forEach(this::addFallbackSerialization);
+	}
+
 	void addFallbackDeserialization(DeSerializationAdapter deSerializationAdapter);
+
+	default void addFallbackDeserialization(Collection<DeSerializationAdapter> collection) {
+		collection.forEach(this::addFallbackDeserialization);
+	}
 
 	void setMainSerialization(SerializationAdapter serializationAdapter);
 

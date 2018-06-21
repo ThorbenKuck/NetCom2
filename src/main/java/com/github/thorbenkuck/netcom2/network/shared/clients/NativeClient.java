@@ -18,8 +18,10 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 class NativeClient implements Client {
@@ -27,7 +29,7 @@ class NativeClient implements Client {
 	private final CommunicationRegistration communicationRegistration;
 	private final Value<Session> sessionValue = Value.emptySynchronized();
 	private final Logging logging = Logging.unified();
-	private final Pipeline<Client> primedCallback = Pipeline.unifiedCreation();
+	private final Pipeline<Client> connectedCallback = Pipeline.unifiedCreation();
 	private final Pipeline<Client> disconnectedPipeline = Pipeline.unifiedCreation();
 	private final Synchronize synchronize = Synchronize.createDefault();
 	private final Value<Boolean> primed = Value.synchronize(false);
@@ -43,13 +45,20 @@ class NativeClient implements Client {
 	@Override
 	public void removeConnection(Connection connection) {
 		NetCom2Utils.parameterNotNull(connection);
+		logging.debug("Trying to remove " + connection);
 		final boolean empty;
+		logging.trace("Accessing ConnectionMap");
 		synchronized (connectionMap) {
+			logging.trace("Removing Connection from ConnectionMap");
 			connectionMap.remove(connection.getClass());
+			logging.trace("Fetching empty flag");
 			empty = connectionMap.isEmpty();
 		}
 
+		logging.trace("Checking for empty flag");
 		if (empty) {
+			logging.debug("No Connections left for Client, disconnecting");
+			logging.trace("Requesting disconnect");
 			disconnect();
 		}
 	}
@@ -57,13 +66,112 @@ class NativeClient implements Client {
 	@Override
 	public void addConnection(Connection connection) {
 		Class<?> key = connection.getIdentifier().orElseThrow(() -> new IllegalArgumentException("The Connection needs to provide a ConnectionKey!"));
-		connectionMap.put(key, connection);
+		setConnection(key, connection);
+	}
+
+	/**
+	 * Returns an respective Connection for a given ConnectionKey.
+	 * <p>
+	 * Since this Connection might not (yet) exist, it is wrapped in an Optional.
+	 *
+	 * @param connectionKey the Key for the Connection
+	 * @return the Optional.of(connection for connectionKey)
+	 */
+	@Override
+	public Optional<Connection> getConnection(Class connectionKey) {
+		synchronized (connectionMap) {
+			return Optional.of(connectionMap.get(connectionKey));
+		}
 	}
 
 	@Override
 	public void setConnection(Class<?> identifier, Connection connection) {
 		synchronized (connectionMap) {
 			connectionMap.put(identifier, connection);
+		}
+		connection.addShutdownHook(this::removeConnection);
+	}
+
+	/**
+	 * Searches for the set {@link Connection}s for the originalKey.
+	 *
+	 * @param originalKey a key, the chosen {@link Connection} is set to
+	 * @param newKey      the new key, which this {@link Connection} should be accessible through
+	 * @see #routeConnection(Connection, Class)
+	 */
+	@Override
+	public void routeConnection(Class originalKey, Class newKey) {
+		NetCom2Utils.parameterNotNull(originalKey);
+		logging.debug("Routing " + originalKey.getSimpleName() + " to " + newKey);
+		synchronized (connectionMap) {
+			if (connectionMap.get(originalKey) == null) {
+				logging.warn("No Connection set for " + originalKey);
+				return;
+			}
+			if (connectionMap.get(newKey) != null) {
+				logging.warn("Overriding the previous instance for " + newKey);
+			}
+			Connection connection = connectionMap.get(originalKey);
+			connectionMap.put(newKey, connection);
+		}
+	}
+
+	/**
+	 * This Method routs an given {@link Connection} to an new Key.
+	 * <p>
+	 * The Original {@link Connection} will not be unbound from its current bound. This means, that after calling this method,
+	 * the given {@link Connection} is accessible via both, its original Key and the newKey.
+	 * <p>
+	 * A {@link Connection} might be routed to any number of keys. So one {@link Connection} can be accessible by any number of calls.
+	 * <p>
+	 * Other than {@link #setConnection(Class, Connection)} a "null-route" is possible, to allow an sort of "fallback-route".
+	 * <p>
+	 * If you use:
+	 * <code>client.routConnection(OriginalKey.class, null);</code>
+	 * a warning will be logged via the {@link Logging} and the Connection is
+	 * used, whenever you state:
+	 * <code>client.send(new MessageObject(), null);</code>
+	 * <p>
+	 * This might be useful, if you calculate the Keys at runtime. However, it is discouraged to trigger a null-route
+	 * by stating null at compile time.
+	 * <p>
+	 * Implementing aspects: Implementing this Method should not lead to an duplication of this {@link Connection}. The route should
+	 * be implemented the same way, the original {@link Connection} setting was.
+	 * <p>
+	 * Further should this rout be accessible by "not complex calculations" (negative example: setting it inside the {@link Connection}
+	 * and than iterating over all {@link Connection}, comparing each set Key inside this {@link Connection} to find
+	 * each corresponding {@link Connection}).
+	 *
+	 * @param originalConnection the {@link Connection} that should be rerouted
+	 * @param newKey             the new key, under which the given {@link Connection} is accessible
+	 */
+	@Override
+	public void routeConnection(Connection originalConnection, Class newKey) {
+
+	}
+
+	/**
+	 * Returns the formatted address for this Client.
+	 * <p>
+	 * This is only used for printing and in the following form:
+	 * <p>
+	 * <code>inetAddress() + ":" + port</code>
+	 *
+	 * @return the formatted Address of this Client.
+	 */
+	@Override
+	public String getFormattedAddress() {
+		Optional<Connection> defaultConnectionOptional = getConnection(DefaultConnection.class);
+
+		if (!defaultConnectionOptional.isPresent()) {
+			return "NOT_CONNECTED";
+		} else {
+			Optional<SocketAddress> socketAddress = defaultConnectionOptional.get().remoteAddress();
+			if (socketAddress.isPresent()) {
+				return socketAddress.toString();
+			} else {
+				return "CONNECTION_PENDING";
+			}
 		}
 	}
 
@@ -76,27 +184,41 @@ class NativeClient implements Client {
 		// that we need, has to be acquired.
 		// We do not use a mutex, to not slow down
 		// other methods.
+		logging.info("Client disconnect requested");
+		logging.trace("Acquiring ConnectionMap");
 		synchronized (connectionMap) {
+			logging.trace("Acquiring DisconnectedPipeline");
 			synchronized (disconnectedPipeline) {
+				logging.trace("Acquiring SessionValue");
 				synchronized (sessionValue) {
+					logging.trace("Acquiring primed Synchronize");
 					synchronized (synchronize) {
+						logging.trace("Disconnecting all Connections");
 						for (Class<?> key : connectionMap.keySet()) {
+							logging.trace("Trying to disconnect " + key);
 							try {
-								connectionMap.get(key).close();
+								connectionMap.remove(key).close();
+								logging.trace(key + " removed and disconnected");
 							} catch (IOException e) {
-								logging.catching(e);
+								logging.error("Disconnect of " + key + " failed!", e);
 							}
 						}
 
+						logging.trace("Clearing left over artifacts");
 						connectionMap.clear();
 					}
+					logging.trace("Calling DisconnectedPipeline");
 					disconnectedPipeline.apply(this);
+					logging.trace("Clearing DisconnectedPipeline");
 					disconnectedPipeline.clear();
+					logging.trace("Clearing SessionValue");
 					sessionValue.clear();
+					logging.trace("Resetting Primed Synchronize");
 					synchronize.reset();
 				}
 			}
 		}
+		logging.info("Client has been disconnected");
 	}
 
 	@Override
@@ -119,13 +241,13 @@ class NativeClient implements Client {
 	}
 
 	@Override
-	public ClientID getId() {
-		return clientID;
+	public Awaiting primed() {
+		return synchronize;
 	}
 
 	@Override
-	public Awaiting primed() {
-		return synchronize;
+	public boolean isPrimed() {
+		return primed.get();
 	}
 
 	/**
@@ -161,7 +283,7 @@ class NativeClient implements Client {
 			return;
 		}
 		synchronize.goOn();
-		primedCallback.apply(this);
+		connectedCallback.apply(this);
 		primed.set(true);
 	}
 
@@ -197,7 +319,7 @@ class NativeClient implements Client {
 
 	@Override
 	public void addPrimedCallback(Consumer<Client> clientConsumer) {
-		primedCallback.add(clientConsumer);
+		connectedCallback.add(clientConsumer);
 	}
 
 	@Override
