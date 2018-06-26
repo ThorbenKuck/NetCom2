@@ -26,6 +26,8 @@ public interface Connection {
 
 	void write(byte[] data);
 
+	void read(Consumer<Queue<RawData>> callback) throws IOException;
+
 	void hook(Client client);
 
 	void read() throws IOException;

@@ -45,6 +45,7 @@ class NIOConnection implements Connection {
 		try {
 			logging.trace(convertForNIOLog("Starting to writeTo from ByteBuffer .."));
 			while (byteBuffer.hasRemaining()) {
+				// TODO Extract int Selector if read fails 3 times
 				logging.trace(convertForNIOLog("Found remaining bytes in ByteBuffer .."));
 				socketChannel.write(byteBuffer);
 			}
@@ -209,6 +210,12 @@ class NIOConnection implements Connection {
 			logging.debug(convertForNIOLog("Connection close detected!"));
 			close();
 		}
+	}
+
+	@Override
+	public void read(Consumer<Queue<RawData>> callback) throws IOException {
+		read();
+		callback.accept(drain());
 	}
 
 	@Override
