@@ -92,13 +92,19 @@ class NIOConnection implements Connection {
 		}
 	}
 
-	private byte[] doRead(ByteBuffer byteBuffer) throws IOException, ConnectionDisconnectedException {
+	private byte[] doRead(ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
 		logging.debug(convertForNIOLog("Initializing concrete read from SocketChannel"));
 		logging.trace(convertForNIOLog("Checking underlying Socket Channel"));
 		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
 			throw new ConnectionDisconnectedException("SocketChannel is closed");
 		}
-		int read = socketChannel.read(byteBuffer);
+		int read;
+		try {
+			read = socketChannel.read(byteBuffer);
+		} catch (IOException e) {
+			throw new ConnectionDisconnectedException("Connection is not open anymore!", e);
+		}
+
 		logging.trace("read " + read);
 
 		if (read < 0) {

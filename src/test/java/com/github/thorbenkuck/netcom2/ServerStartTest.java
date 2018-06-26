@@ -50,6 +50,7 @@ public class ServerStartTest {
 		serverStart.getCommunicationRegistration()
 				.register(Logout.class)
 				.addFirst((session, logout) -> session.setIdentified(false));
+
 		serverStart.launch();
 		serverStart.acceptAllNextClients();
 	}

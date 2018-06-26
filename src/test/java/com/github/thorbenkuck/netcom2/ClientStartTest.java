@@ -34,6 +34,22 @@ public class ClientStartTest {
 	private final Sender sender;
 	private int id;
 
+	public static void main(String[] args) throws InterruptedException, StartFailedException {
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerTask();
+		int checks = 0;
+		ClientStartTest clientStartTest = new ClientStartTest();
+		while (checks++ < 100) {
+			clientStartTest.run();
+//			Thread.sleep(10);
+		}
+//
+		Thread.sleep(3000);
+		clientStartTest.stop();
+	}
+
 	public ClientStartTest() throws StartFailedException {
 		clientStart = ClientStart.at("localhost", 4444);
 		clientStart.getCommunicationRegistration()
@@ -45,24 +61,8 @@ public class ClientStartTest {
 		sender = Sender.open(clientStart);
 	}
 
-	public static void main(String[] args) throws InterruptedException, StartFailedException {
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		int checks = 0;
-		ClientStartTest clientStartTest = new ClientStartTest();
-		while (checks++ < 100) {
-			try {
-				clientStartTest.run(checks);
-			} catch (StartFailedException e) {
-				e.printStackTrace(System.out);
-			}
-//			Thread.sleep(10);
-		}
-//
-//		Thread.sleep(3000);
-		clientStartTest.stop();
+	private synchronized int getId() {
+		return ++id;
 	}
 
 	private void stop() {
@@ -70,11 +70,10 @@ public class ClientStartTest {
 	}
 
 	private void print(TestObject string) {
-		System.out.println(Thread.currentThread() + ": " + id + " okay");
+		System.out.println(Thread.currentThread() + ": " + getId() + " okay");
 	}
 
-	public void run(int id) throws StartFailedException, InterruptedException {
-		this.id = id;
+	public void run() {
 		sender.objectToServer(new TestObject("Hi"));
 		sender.objectToServer(new Login());
 		sender.objectToServer(new TestObject("Hi"));

@@ -42,6 +42,22 @@ class NativeClient implements Client {
 		clientID = ClientID.empty();
 	}
 
+	private String convert(Object object) {
+		String string;
+		try {
+			string = objectHandler.convert(object) + "\r\n";
+			logging.trace("Object was serialized, performing sanity check on serialized object ..");
+			if (string.isEmpty()) {
+				throw new SendFailedException("Serialization resulted in empty String!");
+			}
+		} catch (SerializationFailedException e) {
+			logging.warn("Could not serialize the requested Object!");
+			throw new SendFailedException(e);
+		}
+
+		return string;
+	}
+
 	@Override
 	public void removeConnection(Connection connection) {
 		NetCom2Utils.parameterNotNull(connection);
@@ -49,8 +65,8 @@ class NativeClient implements Client {
 		final boolean empty;
 		logging.trace("Accessing ConnectionMap");
 		synchronized (connectionMap) {
-			logging.trace("Removing Connection from ConnectionMap");
-			connectionMap.remove(connection.getClass());
+			logging.trace("Removing Connection from ConnectionMap identified with " + connection.getIdentifier());
+			connectionMap.remove(connection.getIdentifier().orElseThrow(() -> new IllegalStateException("Connection has no identifier set!")));
 			logging.trace("Fetching empty flag");
 			empty = connectionMap.isEmpty();
 		}
@@ -65,27 +81,14 @@ class NativeClient implements Client {
 
 	@Override
 	public void addConnection(Connection connection) {
+		NetCom2Utils.parameterNotNull(connection);
 		Class<?> key = connection.getIdentifier().orElseThrow(() -> new IllegalArgumentException("The Connection needs to provide a ConnectionKey!"));
 		setConnection(key, connection);
 	}
 
-	/**
-	 * Returns an respective Connection for a given ConnectionKey.
-	 * <p>
-	 * Since this Connection might not (yet) exist, it is wrapped in an Optional.
-	 *
-	 * @param connectionKey the Key for the Connection
-	 * @return the Optional.of(connection for connectionKey)
-	 */
-	@Override
-	public Optional<Connection> getConnection(Class connectionKey) {
-		synchronized (connectionMap) {
-			return Optional.of(connectionMap.get(connectionKey));
-		}
-	}
-
 	@Override
 	public void setConnection(Class<?> identifier, Connection connection) {
+		NetCom2Utils.parameterNotNull(identifier, connection);
 		synchronized (connectionMap) {
 			connectionMap.put(identifier, connection);
 		}
@@ -147,31 +150,23 @@ class NativeClient implements Client {
 	 */
 	@Override
 	public void routeConnection(Connection originalConnection, Class newKey) {
-
+		NetCom2Utils.parameterNotNull(originalConnection);
+		routeConnection(originalConnection.getIdentifier().orElseThrow(() -> new IllegalArgumentException("The Connection needs to provide a connection Identifier!")), newKey);
 	}
 
 	/**
-	 * Returns the formatted address for this Client.
+	 * Returns an respective Connection for a given ConnectionKey.
 	 * <p>
-	 * This is only used for printing and in the following form:
-	 * <p>
-	 * <code>inetAddress() + ":" + port</code>
+	 * Since this Connection might not (yet) exist, it is wrapped in an Optional.
 	 *
-	 * @return the formatted Address of this Client.
+	 * @param connectionKey the Key for the Connection
+	 * @return the Optional.of(connection for connectionKey)
 	 */
 	@Override
-	public String getFormattedAddress() {
-		Optional<Connection> defaultConnectionOptional = getConnection(DefaultConnection.class);
-
-		if (!defaultConnectionOptional.isPresent()) {
-			return "NOT_CONNECTED";
-		} else {
-			Optional<SocketAddress> socketAddress = defaultConnectionOptional.get().remoteAddress();
-			if (socketAddress.isPresent()) {
-				return socketAddress.toString();
-			} else {
-				return "CONNECTION_PENDING";
-			}
+	public Optional<Connection> getConnection(Class connectionKey) {
+		NetCom2Utils.parameterNotNull(connectionKey);
+		synchronized (connectionMap) {
+			return Optional.of(connectionMap.get(connectionKey));
 		}
 	}
 
@@ -183,8 +178,10 @@ class NativeClient implements Client {
 		// client on disconnect. Everything
 		// that we need, has to be acquired.
 		// We do not use a mutex, to not slow down
-		// other methods.
+		// other methods. Also, other Method-calls
+		// will not work after this.
 		logging.info("Client disconnect requested");
+		logging.debug("This Client will now try to acquire nearly everything.");
 		logging.trace("Acquiring ConnectionMap");
 		synchronized (connectionMap) {
 			logging.trace("Acquiring DisconnectedPipeline");
@@ -250,6 +247,16 @@ class NativeClient implements Client {
 		return primed.get();
 	}
 
+	@Override
+	public synchronized void triggerPrimed() {
+		if (primed.get()) {
+			return;
+		}
+		synchronize.goOn();
+		connectedCallback.apply(this);
+		primed.set(true);
+	}
+
 	/**
 	 * Returns the {@link ClientID} for this Client
 	 * <p>
@@ -278,29 +285,23 @@ class NativeClient implements Client {
 	}
 
 	@Override
-	public synchronized void triggerPrimed() {
-		if (primed.get()) {
+	public void receive(RawData rawData, Connection connection) {
+		logging.debug("Received " + rawData + " from " + connection);
+		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
+		final String message = new String(rawData.access()).trim();
+		final Object object;
+		try {
+			object = objectHandler.convert(message);
+		} catch (DeSerializationFailedException e) {
+			logging.warn("Received a faulty message. Stopping receive routine!");
+			logging.catching(e);
 			return;
 		}
-		synchronize.goOn();
-		connectedCallback.apply(this);
-		primed.set(true);
-	}
-
-	private String convert(Object object) {
-		String string;
 		try {
-			string = objectHandler.convert(object) + "\r\n";
-			logging.trace("Object was serialized, performing sanity check on serialized object ..");
-			if (string.isEmpty()) {
-				throw new SendFailedException("Serialization resulted in empty String!");
-			}
-		} catch (SerializationFailedException e) {
-			logging.warn("Could not serialize the requested Object!");
-			throw new SendFailedException(e);
+			communicationRegistration.trigger(connection.context(), sessionValue.get(), object);
+		} catch (final CommunicationNotSpecifiedException e) {
+			logging.catching(e);
 		}
-
-		return string;
 	}
 
 	@Override
@@ -325,26 +326,6 @@ class NativeClient implements Client {
 	@Override
 	public ObjectHandler objectHandler() {
 		return objectHandler;
-	}
-
-	@Override
-	public void receive(RawData rawData, Connection connection) {
-		logging.debug("Received " + rawData + " from " + connection);
-		logging.trace("Notifying CommunicationRegistration with Session " + sessionValue.get());
-		final String message = new String(rawData.access()).trim();
-		final Object object;
-		try {
-			object = objectHandler.convert(message);
-		} catch (DeSerializationFailedException e) {
-			logging.warn("Received a faulty message. Stopping receive routine!");
-			logging.catching(e);
-			return;
-		}
-		try {
-			communicationRegistration.trigger(connection.context(), sessionValue.get(), object);
-		} catch (final CommunicationNotSpecifiedException e) {
-			logging.catching(e);
-		}
 	}
 
 	@Override
@@ -376,7 +357,7 @@ class NativeClient implements Client {
 				logging.trace("Connection is set up, performing requested write");
 				connection.write(string.getBytes());
 			} catch (InterruptedException e) {
-				logging.catching(e);
+				throw new SendFailedException(e);
 			}
 		});
 	}
@@ -402,6 +383,31 @@ class NativeClient implements Client {
 	public void send(Object object) {
 		logging.debug("Initializing sending of " + object + " over the DefaultConnection");
 		send(object, DefaultConnection.class);
+	}
+
+	/**
+	 * Returns the formatted address for this Client.
+	 * <p>
+	 * This is only used for printing and in the following form:
+	 * <p>
+	 * <code>inetAddress() + ":" + port</code>
+	 *
+	 * @return the formatted Address of this Client.
+	 */
+	@Override
+	public String getFormattedAddress() {
+		Optional<Connection> defaultConnectionOptional = getConnection(DefaultConnection.class);
+
+		if (!defaultConnectionOptional.isPresent()) {
+			return "NOT_CONNECTED";
+		} else {
+			Optional<SocketAddress> socketAddress = defaultConnectionOptional.get().remoteAddress();
+			if (socketAddress.isPresent()) {
+				return socketAddress.toString();
+			} else {
+				return "CONNECTION_PENDING";
+			}
+		}
 	}
 
 	@Override

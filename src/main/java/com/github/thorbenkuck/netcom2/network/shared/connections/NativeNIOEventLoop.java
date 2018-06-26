@@ -57,8 +57,8 @@ class NativeNIOEventLoop implements EventLoop {
 				} catch (InterruptedException e) {
 					logging.catching(e);
 				}
-			} else {
-				logging.debug("Connection cannot be drained!");
+			} else if (connection.isOpen()) {
+				logging.debug("Connection cannot be drained");
 			}
 		} catch (IOException e) {
 			logging.error("Read from Connection failed", e);
@@ -223,7 +223,7 @@ class NativeNIOEventLoop implements EventLoop {
 								connection.context().manualReceive(rawData.poll());
 							}
 						}
-					} else {
+					} else if (!connection.isOpen()) {
 						logging.warn("Connection is not open!");
 					}
 				} catch (InterruptedException e) {
