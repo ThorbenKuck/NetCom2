@@ -76,7 +76,7 @@ public class NetComThreadPool {
 	private static void safeShutdown(ExecutorService executorService, long timeout, TimeUnit timeUnit) {
 		logging.debug("Shutting down ExecutorService");
 		try {
-			logging.trace("Requesting gracefully shutdown ..");
+			logging.trace("Requesting graceful shutdown ..");
 			executorService.shutdown();
 			logging.trace("Awaiting termination for " + timeout + " " + timeUnit);
 			executorService.awaitTermination(timeout, timeUnit);
@@ -144,7 +144,7 @@ public class NetComThreadPool {
 		private void shutdown() {
 			logging.debug("[WorkerTask]: Shutting down");
 			logging.trace("[WorkerTask]: Checking for running flag");
-			if (!running.get()) {
+			if (running.get()) {
 				logging.trace("[WorkerTask]: Updating running flag to shutdown");
 				running.set(false);
 				logging.trace("[WorkerTask]: Interrupting containing Thread to initiate the shutdown");

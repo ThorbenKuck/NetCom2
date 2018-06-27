@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -28,6 +29,8 @@ public interface ClientList extends Iterable<Client> {
 	void clear();
 
 	boolean isEmpty();
+
+	Collection<Client> snapShot();
 
 	Optional<Client> getClient(Session session);
 

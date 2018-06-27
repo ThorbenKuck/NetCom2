@@ -4,4 +4,8 @@ public interface Module<T extends NetworkInterface> {
 
 	void setup(T t);
 
+	default void shutdown() {
+
+	}
+
 }

@@ -8,10 +8,7 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 class NativeClientList implements ClientList {
@@ -82,6 +79,13 @@ class NativeClientList implements ClientList {
 	public boolean isEmpty() {
 		synchronized (core) {
 			return core.isEmpty();
+		}
+	}
+
+	@Override
+	public Collection<Client> snapShot() {
+		synchronized (core) {
+			return new ArrayList<>(core);
 		}
 	}
 
