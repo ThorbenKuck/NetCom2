@@ -27,9 +27,7 @@ class NIOConnection implements Connection {
 	private final Logging logging = Logging.unified();
 	private final Pipeline<Connection> shutdownPipeline = Pipeline.unifiedCreation();
 	private final Queue<RawData> readDataQueue = new LinkedList<>();
-	private final Value<Integer> sendBufferSize = Value.synchronize(1024);
-	private final Value<Integer> readBufferSize = Value.synchronize(1024);
-	private final Value<ByteBuffer> sendBuffer = Value.synchronize(ByteBuffer.allocate(readBufferSize.get()));
+	private final NIOBuffer buffer = new NIOBuffer();
 	private final ConnectionHandler connectionHandler = ConnectionHandler.create();
 	private final Synchronize setupSynchronize = Synchronize.createDefault();
 	private final Value<Boolean> setupComplete = Value.synchronize(false);
@@ -45,12 +43,11 @@ class NIOConnection implements Connection {
 		try {
 			logging.trace(convertForNIOLog("Starting to writeTo from ByteBuffer .."));
 			while (byteBuffer.hasRemaining()) {
-				// TODO Extract int Selector if read fails 3 times
+				// TODO Extract into Selector if read fails 3 times
 				logging.trace(convertForNIOLog("Found remaining bytes in ByteBuffer .."));
 				socketChannel.write(byteBuffer);
 			}
-			logging.trace(convertForNIOLog("Clearing ByteBuffer .."));
-			byteBuffer.clear();
+			logging.trace(convertForNIOLog("Successfully performed write"));
 		} catch (IOException e) {
 			logging.error(convertForNIOLog("Encountered IOException while writing to SocketChannel!"));
 			SendFailedException sendFailedException = new SendFailedException(e);
@@ -66,31 +63,16 @@ class NIOConnection implements Connection {
 	}
 
 	private void writeNewWrapped(byte[] data) {
-		logging.debug(convertForNIOLog("Write using new ByteBuffer"));
-		logging.trace(convertForNIOLog("Creating ByteBuffer containing " + data.length + " bytes"));
-		ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-		logging.trace(convertForNIOLog("ByteBuffer value: (size=" + byteBuffer.array().length + ") " + Arrays.toString(byteBuffer.array())));
-		logging.trace(convertForNIOLog("Requesting writeTo with newly create ByteBuffer"));
-		writeTo(byteBuffer);
-	}
-
-	private void writeCached(byte[] data) {
-		logging.debug(convertForNIOLog("Initializing write using the cached ByteBuffer"));
-		logging.trace(convertForNIOLog("Acquiring access over the sendBuffer .."));
-		synchronized (sendBuffer) {
-			if (sendBuffer.isEmpty()) {
-				logging.warn(convertForNIOLog("SendBuffer has been cleared. Do not clear the SendBuffer!"));
-				logging.trace(convertForNIOLog("Instantiating new ByteBuffer .."));
-				sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
-			}
-			ByteBuffer buffer = sendBuffer.get();
-			logging.trace(convertForNIOLog("Filling ByteBuffer .."));
-			buffer.put(data);
-			logging.trace(convertForNIOLog("ByteBuffer size=" + buffer.array().length) + ". Flipping buffer ..");
-			buffer.flip();
-			logging.trace(convertForNIOLog("Requesting write .."));
-			writeTo(buffer);
+		logging.debug(convertForNIOLog("Write using possibly new ByteBuffer"));
+		logging.trace(convertForNIOLog("Requesting ByteBuffer containing " + data.length + " bytes"));
+		ByteBuffer byteBuffer = buffer.allocate(data);
+		logging.trace(convertForNIOLog("ByteBuffer value: (size=" + byteBuffer.capacity() + ") "));
+		logging.trace(convertForNIOLog("Checking ByteBuffer size if it fits the data"));
+		if (data.length > byteBuffer.capacity()) {
+			throw new IllegalStateException("[InternalError]: The requested ByteBuffer has an invalid size. Please submit this to github");
 		}
+		logging.trace(convertForNIOLog("Requesting writeTo with fetched ByteBuffer"));
+		writeTo(byteBuffer);
 	}
 
 	private byte[] doRead(ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
@@ -101,12 +83,12 @@ class NIOConnection implements Connection {
 		}
 		int read;
 		try {
+			logging.trace("Performing initial read");
 			read = socketChannel.read(byteBuffer);
 		} catch (IOException e) {
 			throw new ConnectionDisconnectedException("Connection is not open anymore!", e);
 		}
-
-		logging.trace("read " + read);
+		logging.trace("read " + Arrays.toString(byteBuffer.array()));
 
 		if (read < 0) {
 			logging.debug("Disconnection detected from SocketChannel");
@@ -117,9 +99,11 @@ class NIOConnection implements Connection {
 			return new byte[0];
 		}
 
+		byte[] result = byteBuffer.array();
+
 		byteBuffer.clear();
 
-		return byteBuffer.array();
+		return result;
 	}
 
 	@Override
@@ -146,8 +130,6 @@ class NIOConnection implements Connection {
 		open.set(true);
 		logging.trace(convertForNIOLog("Enforcing socketChannel finish connect"));
 		socketChannel.finishConnect();
-		logging.trace(convertForNIOLog("Preparing cached SendBuffer (ByteBuffer)"));
-		sendBuffer.set(ByteBuffer.allocate(sendBufferSize.get()));
 		logging.debug(convertForNIOLog("Connection is now considered open"));
 	}
 
@@ -159,16 +141,12 @@ class NIOConnection implements Connection {
 	@Override
 	public void write(byte[] data) {
 		logging.debug(convertForNIOLog("Starting to write"));
-		logging.trace("Performing sanity-checks on data ..");
-		logging.trace(convertForNIOLog("checking Data-length to determine th buffer to use"));
-		if (data.length > sendBufferSize.get()) {
-			logging.warn("Cannot use the cached ByteBuffer. The SendBufferSize is set to " + sendBufferSize.get() + " whilst the data-package consists of " + data.length + " entries.");
-			logging.trace(convertForNIOLog("Wrapping data .."));
-			writeNewWrapped(data);
-		} else {
-			logging.trace(convertForNIOLog("Using cached ByteBuffer"));
-			writeCached(data);
+		logging.trace(convertForNIOLog("Performing sanity-checks on data .."));
+		if (data == null) {
+			throw new SendFailedException("Can not send null data");
 		}
+		logging.trace(convertForNIOLog("Wrapping data .."));
+		writeNewWrapped(data);
 	}
 
 	@Override
@@ -181,10 +159,13 @@ class NIOConnection implements Connection {
 
 		try {
 			logging.trace(convertForNIOLog("Creating ByteBuffer"));
-			final ByteBuffer byteBuffer = ByteBuffer.allocate(sendBufferSize.get());
+			final ByteBuffer byteBuffer = buffer.allocate();
+			logging.trace(convertForNIOLog("ByteBuffer size=" + byteBuffer.capacity()));
 
 			logging.trace("Performing read operation");
 			byte[] result = doRead(byteBuffer);
+			logging.trace("Marking used ByteBuffer as reusable");
+			buffer.free(byteBuffer);
 			logging.trace("Passing read bytes to the ConnectionHandler, ignoring \\0");
 			// Maybe we construct
 			// a method for removing

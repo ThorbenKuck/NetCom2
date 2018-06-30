@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.utility.threaded;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.utility.NetComThreadFactory;
 
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class NetComThreadPool {
 		} catch (InterruptedException e) {
 			if (!executorService.isShutdown()) {
 				logging.warn("Interrupted while awaiting termination. Requesting instant shutdown, expect Exceptions");
-				logging.catching(e);
+				UnhandledExceptionContainer.catching(e);
 				executorService.shutdownNow();
 			} else {
 				return;
@@ -180,13 +181,14 @@ public class NetComThreadPool {
 						runnable.run();
 						logging.trace("[WorkerTask]: Task finished successfully");
 					} catch (Throwable t) {
-						logging.error("[WorkerTask]: Could not complete Task! Encountered unexpected Throwable!", t);
+						logging.error("[WorkerTask]: Could not complete Task! Encountered unexpected Throwable!");
+						UnhandledExceptionContainer.catching(t);
 						logging.warn("[WorkerTask]: Trying to continue as if nothing happened.");
 					}
 				} catch (InterruptedException e) {
 					if (running.get()) {
 						logging.warn("[WorkerTask]: Interrupted while waiting on Task queue. Shutting down this WorkerTask!");
-						logging.catching(e);
+						UnhandledExceptionContainer.catching(e);
 						shutdown();
 					}
 					Thread.currentThread().interrupt();

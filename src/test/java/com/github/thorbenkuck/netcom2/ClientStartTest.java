@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
@@ -34,7 +36,32 @@ public class ClientStartTest {
 	private final Sender sender;
 	private int id;
 
+	ClientStartTest() throws StartFailedException {
+		System.out.println("Creating ClientStart");
+		clientStart = ClientStart.at("localhost", 4444);
+		System.out.println("Registering Communication");
+		clientStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addFirst(this::print);
+		System.out.println("Adding disconnected Handler");
+		clientStart.addDisconnectedHandler(client -> System.out.println("Disconnected"));
+		System.out.print("Connecting .. ");
+		clientStart.launch();
+		System.out.println("OK");
+		clientStart.startBlockerThread();
+		System.out.println("Opening Sender");
+		sender = Sender.open(clientStart);
+		System.out.print("Logging in .. ");
+		sender.objectToServer(new Login());
+		System.out.println("OK\n\n\n\nClient ready.\n\n");
+	}
+
 	public static void main(String[] args) throws InterruptedException, StartFailedException {
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			e.printStackTrace(System.out);
+			System.exit(1);
+		});
+		NetComLogging.setLogging(Logging.info());
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
@@ -42,23 +69,17 @@ public class ClientStartTest {
 		int checks = 0;
 		ClientStartTest clientStartTest = new ClientStartTest();
 		while (checks++ < 100) {
-			clientStartTest.run();
-//			Thread.sleep(10);
+			try {
+				clientStartTest.run();
+			} catch (Throwable throwable) {
+				throwable.printStackTrace(System.out);
+				System.exit(1);
+			}
+			Thread.sleep(10);
 		}
 //
 		Thread.sleep(3000);
 		clientStartTest.stop();
-	}
-
-	public ClientStartTest() throws StartFailedException {
-		clientStart = ClientStart.at("localhost", 4444);
-		clientStart.getCommunicationRegistration()
-				.register(TestObject.class)
-				.addFirst(this::print);
-		clientStart.addDisconnectedHandler(client -> System.out.println("Disconnected"));
-		clientStart.launch();
-		clientStart.startBlockerThread();
-		sender = Sender.open(clientStart);
 	}
 
 	private synchronized int getId() {
@@ -75,8 +96,5 @@ public class ClientStartTest {
 
 	public void run() {
 		sender.objectToServer(new TestObject("Hi"));
-		sender.objectToServer(new Login());
-		sender.objectToServer(new TestObject("Hi"));
-		sender.objectToServer(new Logout());
 	}
 }

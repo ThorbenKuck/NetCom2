@@ -5,14 +5,28 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 public class ServerStartTest {
 
+	private static int encountered = 0;
+	private final ServerStart serverStart;
+
+	ServerStartTest() {
+		serverStart = ServerStart.at(4444);
+	}
+
 	public static void main(String[] args) throws Exception {
-		NetComLogging.setLogging(Logging.trace());
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Encountered " + encountered + " Exceptions!")));
+		NetComLogging.setLogging(Logging.info());
+		UnhandledExceptionContainer.addHandler(t -> {
+			synchronized (ServerStartTest.class) {
+				++encountered;
+			}
+		});
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
 		NetComThreadPool.startWorkerTask();
@@ -53,11 +67,5 @@ public class ServerStartTest {
 
 		serverStart.launch();
 		serverStart.acceptAllNextClients();
-	}
-
-	private final ServerStart serverStart;
-
-	ServerStartTest() {
-		serverStart = ServerStart.at(4444);
 	}
 }

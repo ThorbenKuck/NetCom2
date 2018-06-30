@@ -10,6 +10,7 @@ import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
@@ -294,13 +295,13 @@ class NativeClient implements Client {
 			object = objectHandler.convert(message);
 		} catch (DeSerializationFailedException e) {
 			logging.warn("Received a faulty message. Stopping receive routine!");
-			logging.catching(e);
+			UnhandledExceptionContainer.catching(e);
 			return;
 		}
 		try {
 			communicationRegistration.trigger(connection.context(), sessionValue.get(), object);
 		} catch (final CommunicationNotSpecifiedException e) {
-			logging.catching(e);
+			UnhandledExceptionContainer.catching(e);
 		}
 	}
 
