@@ -25,94 +25,149 @@ class NIOBuffer {
 		return ByteBuffer.allocate(amount);
 	}
 
+	private void clearByteBuffer(ByteBuffer byteBuffer) {
+		byteBuffer.clear();
+		byteBuffer.put(new byte[byteBuffer.capacity()]);
+		byteBuffer.clear();
+	}
+
 	private synchronized void checkOverflow() {
 		logging.debug("Checking amount of cached ByteBuffers ..");
-		while (priorityQueue.size() > priorityQueueLength.get()) {
-			logging.debug("Detected capacity overflow ..");
-			logging.trace("Clearing last ByteBuffer of PriorityQueue ..");
-			ByteBuffer byteBuffer = priorityQueue.removeLast();
-			logging.trace("Removing ByteBuffer fom cache ..");
-			cache.remove(byteBuffer.capacity());
-			logging.trace("Continue check ..");
+		synchronized (priorityQueue) {
+			while (priorityQueue.size() > priorityQueueLength.get()) {
+				logging.debug("Detected capacity overflow ..");
+				logging.trace("Clearing last ByteBuffer of PriorityQueue ..");
+				ByteBuffer byteBuffer = priorityQueue.removeLast();
+				logging.trace("Removing ByteBuffer fom cache ..");
+				synchronized (cache) {
+					cache.remove(byteBuffer.capacity());
+				}
+				logging.trace("Continue check ..");
+			}
 		}
 
-		logging.trace("Buffer is okay.");
+		logging.trace("Overflow state is okay.");
 	}
 
 	private void insertIntoPriorityQueue(ByteBuffer byteBuffer) {
 		logging.debug("Inserting ByteBuffer into the PriorityQueue");
 		logging.trace("Trying to remove ByteBuffer from PriorityQueue to prevent duplicates ..");
-		if (!priorityQueue.remove(byteBuffer)) {
-			logging.trace("Could not locate ByteBuffer in PriorityQueue");
-		} else {
-			logging.trace("ByteBuffer removed from Queue");
+		synchronized (priorityQueue) {
+			if (!priorityQueue.remove(byteBuffer)) {
+				logging.trace("Could not locate ByteBuffer in PriorityQueue");
+			} else {
+				logging.trace("ByteBuffer removed from Queue");
+			}
+			logging.trace("Adding provided ByteBuffer to head of PriorityQueue");
+			priorityQueue.addFirst(byteBuffer);
 		}
-		logging.trace("Adding provided ByteBuffer to head of PriorityQueue");
-		priorityQueue.addFirst(byteBuffer);
 		logging.trace("Requesting capacity check ..");
 		checkOverflow();
 	}
 
+	private void removeFromPriorityQueue(ByteBuffer byteBuffer) {
+		logging.debug("Inserting ByteBuffer into the PriorityQueue");
+		logging.trace("Trying to remove ByteBuffer from PriorityQueue to prevent duplicates ..");
+		synchronized (priorityQueue) {
+			if (!priorityQueue.remove(byteBuffer)) {
+				logging.trace("Could not locate ByteBuffer in PriorityQueue");
+			} else {
+				logging.trace("ByteBuffer removed from Queue");
+			}
+		}
+	}
+
 	private ByteBuffer getOrCreate(int amount) {
 		logging.debug("Fetching byteBuffer");
-		logging.trace("Trying to create not cached ByteBuffer");
 		ByteBuffer byteBuffer;
-		synchronized (cache) {
-			cache.computeIfAbsent(amount, this::create);
-			logging.trace("Fetching ByteBuffer");
-			byteBuffer = cache.get(amount);
+		logging.trace("Checking empty");
+		checkEmpty();
+		logging.trace("Fetching ByteBuffer");
+		synchronized (priorityQueue) {
+			synchronized (cache) {
+				byteBuffer = cache.remove(amount);
+			}
+			if (byteBuffer == null) {
+				logging.debug("No matching ByteBuffer found. Allocating new ByteBuffer");
+				return create(amount);
+			}
+			logging.trace("Requesting add of ByteBuffer");
+			removeFromPriorityQueue(byteBuffer);
+			logging.trace("Clearing ByteBuffer, just to be sure");
 		}
-		logging.trace("Requesting add of ByteBuffer");
-		insertIntoPriorityQueue(byteBuffer);
-		logging.trace("Clearing ByteBuffer, just to be sure");
-		byteBuffer.clear();
+		clearByteBuffer(byteBuffer);
 
 		return byteBuffer;
 	}
 
-	private synchronized void checkEmpty() {
+	private void checkEmpty() {
 		logging.debug("Checking if ByteBuffer is needed");
 		synchronized (priorityQueue) {
-			logging.trace("Acquired PriorityQueue");
-			if (priorityQueue.isEmpty()) {
-				logging.trace("PriorityQueue is empty. Creating new ByteBuffer with 1024 capacity");
-				priorityQueue.addFirst(create(1024));
+			synchronized (cache) {
+				logging.trace("Acquired PriorityQueue");
+				if (priorityQueue.isEmpty()) {
+					logging.trace("PriorityQueue is empty");
+					logging.debug("Requesting new ByteBuffer");
+					ByteBuffer buffer = create(1024);
+					logging.trace("Adding ByteBuffer to Cache");
+					cache.put(buffer.capacity(), buffer);
+					logging.trace("Adding ByteBuffer to PriorityQueue");
+					insertIntoPriorityQueue(buffer);
+				}
 			}
 		}
 	}
 
 	ByteBuffer allocate(byte[] data) {
-		return ByteBuffer.wrap(data);
+		ByteBuffer buffer = allocate(data.length);
+		buffer.put(data);
+		buffer.flip();
+
+		return buffer;
 	}
 
 	ByteBuffer allocate(int amount) {
-		return ByteBuffer.allocate(amount);
+		return getOrCreate(amount);
+	}
 
+	ByteBuffer allocate() {
+		ByteBuffer buffer;
+		synchronized (priorityQueue) {
+			checkEmpty();
+			logging.trace("Fetching first ByteBuffer and clearing it from PriorityQueue");
+			buffer = priorityQueue.removeFirst();
+			if (buffer == null) {
+				logging.debug("Received a faulty ByteBuffer. Trying again");
+				checkEmpty();
+				logging.trace("Fetching ..");
+				buffer = priorityQueue.removeFirst();
+			}
+			logging.trace("Clearing from cache..");
+
+			synchronized (cache) {
+				cache.remove(buffer.capacity());
+				logging.debug("PriorityQueue=" + priorityQueue);
+				logging.debug("Cache=" + cache);
+			}
+		}
+		clearByteBuffer(buffer);
+
+		return buffer;
 	}
 
 	void free(ByteBuffer byteBuffer) {
 		logging.debug("Freeing given ByteBuffer");
 		synchronized (priorityQueue) {
+			logging.trace("Acquired priorityQueue");
 			synchronized (cache) {
+				logging.trace("Acquired Cache");
+				logging.trace("Adding ByteBuffer to PriorityQueue");
 				priorityQueue.addFirst(byteBuffer);
+				logging.trace("Adding ByteBuffer to Cache");
 				cache.put(byteBuffer.capacity(), byteBuffer);
 			}
 		}
+		logging.trace("Requesting overflow check");
 		checkOverflow();
-	}
-
-	ByteBuffer allocate() {
-		// return ByteBuffer.allocate(1024);
-		ByteBuffer buffer;
-		checkEmpty();
-		synchronized (priorityQueue) {
-			synchronized (cache) {
-				buffer = priorityQueue.removeFirst();
-				cache.remove(buffer.capacity());
-			}
-		}
-		buffer.clear();
-
-		return buffer;
 	}
 }

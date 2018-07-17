@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.clients;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.network.shared.*;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
@@ -313,14 +314,14 @@ public interface Client {
 	 * Connection accepts the Object.
 	 * <p>
 	 * In the new Design, this method ultimately extracts a new Task into the {@link NetComThreadPool} using
-	 * {@link NetComThreadPool#submitTask(Runnable)}. If you experience to slow processing, call {@link NetComThreadPool#startWorkerTask()}
+	 * {@link NetComThreadPool#submitTask(Runnable)}. If you experience to slow processing, call {@link NetComThreadPool#startWorkerProcess()}
 	 * to start a new Worker.
 	 * <p>
 	 * Note: Previously, this method returned a ReceiveOrSendSynchronization. This is no longer the case.
 	 *
 	 * @param object the Object to be send over the Connection, must meet the Connection requirements to be send successfully
 	 * @see NetComThreadPool#submitTask(Runnable)
-	 * @see NetComThreadPool#startWorkerTask()
+	 * @see NetComThreadPool#startWorkerProcess()
 	 */
 	void send(final Object object);
 
@@ -334,6 +335,61 @@ public interface Client {
 	 * @return the formatted Address of this Client.
 	 */
 	String getFormattedAddress();
+
+	void overridePrepareConnection(Class clazz, Synchronize synchronize);
+
+	Synchronize accessPrepareConnection(Class clazz);
+
+	/**
+	 * Prepares a {@link Connection} to be established soon.
+	 * <p>
+	 * This method creates an internal {@link Awaiting}, to be used, to synchronize until the given {@link Connection} is established.
+	 * You can manually use this Method, to ensure any {@link Connection} you manually establish is set and ready to go.
+	 * <p>
+	 * If your Manual {@link Connection} is ready to go, the method {@link #notifyAboutPreparedConnection(Class)}. This will release
+	 * any Threads, waiting for the establishment of said {@link Connection}.
+	 * <p>
+	 * Please note, that this method should be called with care. If you prepare an Connection, that is already established
+	 * you might screw up the internal Mechanisms"
+	 * <p>
+	 * Also note that you do not have to call this method, if you use the {@link #createNewConnection(Class)} method. Upon calling
+	 * the {@link #createNewConnection(Class)} the internal Mechanisms will sooner or later call this method to create an
+	 * Awaiting to synchronize Threads, waiting for this Connection.
+	 * <p>
+	 * Do not cast this return value to an {@link Synchronize}! The instance
+	 * of the Awaiting is depending on the Implementation of the Client.
+	 *
+	 * @param clazz the key for the new {@link Connection}, that is going to be established
+	 * @return the {@link Awaiting} to synchronize and wait for the Connection to be established.
+	 */
+	Awaiting prepareConnection(final Class clazz);
+
+	/**
+	 * Creates an new Connection based upon an Class.
+	 * <p>
+	 * A call on the ServerStart will result in an Request to create a new Connection on the ClientStart.
+	 * A call on the ClientStart will result in an Request to ask to create a new Connection on the ServerStart which is
+	 * functionally equal to this call on the ServerStart
+	 * <p>
+	 * Once the Request ist send from the ServerStart to the ClientStart, a new physical connection is going to be established.
+	 * This whole Process is completely Asynchronous and can be synchronized using the returned {@link Awaiting#synchronize()}.
+	 * <p>
+	 * This results in an long Request-Response-Chain from ClientStart to ServerStart. On the end of this Chain, the returned Awaiting
+	 * is triggered to continue and the Connection is ready to be used.
+	 * <p>
+	 * The key is an Class, so that it is assured it can be send over the Network.
+	 *
+	 * @param connectionKey a Class as an key to identify the Connection.
+	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
+	 */
+	default Awaiting createNewConnection(final Class connectionKey) {
+		send(new NewConnectionRequest(connectionKey));
+		return prepareConnection(connectionKey);
+	}
+
+	void connectionPrepared(Class<?> identifier);
+
+	void invalidate();
 
 	/*
 	 * Following are old Methods, which are now deprecated.
@@ -445,30 +501,6 @@ public interface Client {
 	@Deprecated
 	default void send(final Connection connection, final Object object) {
 		send(object, connection);
-	}
-
-	/**
-	 * Creates an new Connection based upon an Class.
-	 * <p>
-	 * A call on the ServerStart will result in an Request to create a new Connection on the ClientStart.
-	 * A call on the ClientStart will result in an Request to ask to create a new Connection on the ServerStart which is
-	 * functionally equal to this call on the ServerStart
-	 * <p>
-	 * Once the Request ist send from the ServerStart to the ClientStart, a new physical connection is going to be established.
-	 * This whole Process is completely Asynchronous and can be synchronized using the returned {@link Awaiting#synchronize()}.
-	 * <p>
-	 * This results in an long Request-Response-Chain from ClientStart to ServerStart. On the end of this Chain, the returned Awaiting
-	 * is triggered to continue and the Connection is ready to be used.
-	 * <p>
-	 * The key is an Class, so that it is assured it can be send over the Network.
-	 * <p>
-	 * TODO Evaluate whether or not this method is needed or should be deprecated
-	 *
-	 * @param connectionKey a Class as an key to identify the Connection.
-	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
-	 */
-	default Awaiting createNewConnection(final Class connectionKey) {
-		return Synchronize.empty();
 	}
 
 	/**
@@ -646,34 +678,6 @@ public interface Client {
 	@Deprecated
 	default void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
 		objectHandler().addEncryptionAdapter(encryptionAdapter);
-	}
-
-	/**
-	 * Prepares a {@link Connection} to be established soon.
-	 * <p>
-	 * This method creates an internal {@link Awaiting}, to be used, to synchronize until the given {@link Connection} is established.
-	 * You can manually use this Method, to ensure any {@link Connection} you manually establish is set and ready to go.
-	 * <p>
-	 * If your Manual {@link Connection} is ready to go, the method {@link #notifyAboutPreparedConnection(Class)}. This will release
-	 * any Threads, waiting for the establishment of said {@link Connection}.
-	 * <p>
-	 * Please note, that this method should be called with care. If you prepare an Connection, that is already established
-	 * you might screw up the internal Mechanisms"
-	 * <p>
-	 * Also note that you do not have to call this method, if you use the {@link #createNewConnection(Class)} method. Upon calling
-	 * the {@link #createNewConnection(Class)} the internal Mechanisms will sooner or later call this method to create an
-	 * Awaiting to synchronize Threads, waiting for this Connection.
-	 * <p>
-	 * Do not cast this return value to an {@link Synchronize}! The instance
-	 * of the Awaiting is depending on the Implementation of the Client.
-	 *
-	 * @param clazz the key for the new {@link Connection}, that is going to be established
-	 * @return the {@link Awaiting} to synchronize and wait for the Connection to be established.
-	 * @deprecated Connection establishment is now blocking until the connection is done.
-	 */
-	@Deprecated
-	default Awaiting prepareConnection(final Class clazz) {
-		return Synchronize.empty();
 	}
 
 	/**

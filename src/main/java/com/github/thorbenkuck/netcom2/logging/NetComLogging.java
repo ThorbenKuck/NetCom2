@@ -53,7 +53,7 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final String s) {
+	public void trace(final Object s) {
 		NetComLogging.getLogging().trace(s);
 	}
 
@@ -61,7 +61,7 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
+	public void debug(final Object s) {
 		NetComLogging.getLogging().debug(s);
 	}
 
@@ -69,7 +69,7 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
+	public void info(final Object s) {
 		NetComLogging.getLogging().info(s);
 	}
 
@@ -77,7 +77,7 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
+	public void warn(final Object s) {
 		NetComLogging.getLogging().warn(s);
 	}
 
@@ -85,7 +85,7 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
+	public void error(final Object s) {
 		NetComLogging.getLogging().error(s);
 	}
 
@@ -93,24 +93,8 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-		NetComLogging.getLogging().error(s, throwable);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s) {
+	public void fatal(final Object s) {
 		NetComLogging.getLogging().fatal(s);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
-		NetComLogging.getLogging().fatal(s, throwable);
 	}
 
 	/**

@@ -11,12 +11,14 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 class NativeDistributor implements Distributor {
 
+	private static final List<Session> EMPTY_REGISTRATION_ENTRY = Collections.unmodifiableList(new ArrayList<>());
 	private final Logging logging = Logging.unified();
 	private final DistributorCacheObserver observer = new DistributorCacheObserver();
-	private final List<Session> emptyRegistrationEntry = Collections.unmodifiableList(new ArrayList<>());
 	private final Map<Class<?>, List<Session>> registrations = new HashMap<>();
 	private final CacheRegistrationHandler cacheRegistrationHandler = new CacheRegistrationHandler();
 	private final CacheUnRegistrationHandler cacheUnRegistrationHandler = new CacheUnRegistrationHandler();
@@ -62,19 +64,146 @@ class NativeDistributor implements Distributor {
 		}
 	}
 
-	public void toAll(Object object) {
-		clientList.snapShot()
-				.forEach(client -> client.send(object));
-	}
-
-	public void toAllRegistered(Class<?> type, Object object) {
+	private void toAllRegistered(Class<?> type, Object object) {
 		List<Session> targets;
 		synchronized (registrations) {
-			targets = new ArrayList<>(registrations.getOrDefault(type, emptyRegistrationEntry));
+			targets = new ArrayList<>(registrations.getOrDefault(type, EMPTY_REGISTRATION_ENTRY));
 		}
-		// TODO create response "Data" object
-		// TODO remove null for data object
+
 		targets.forEach(session -> session.send(object));
+	}
+
+	private Predicate<Session> combine(Predicate<Session>... predicates) {
+		return session -> {
+			for (Predicate<Session> predicate : predicates) {
+				if (!predicate.test(session)) {
+					return false;
+				}
+			}
+			return true;
+		};
+	}
+
+	/**
+	 * Sends the specified object to all clients satisfying <b>all</b> given predicates,
+	 * by using their DefaultConnection.
+	 *
+	 * @param o          The object to send
+	 * @param predicates The predicates to filter by
+	 */
+	@Override
+	public void toSpecific(Object o, Predicate<Session>... predicates) {
+		toSpecific(o, combine(predicates));
+	}
+
+	/**
+	 * Sends the specified object to all clients satisfying <b>all</b> given predicates,
+	 * by using their DefaultConnection.
+	 *
+	 * @param o         The object to send
+	 * @param predicate The predicates to filter by
+	 */
+	@Override
+	public void toSpecific(Object o, Predicate<Session> predicate) {
+		clientList.sessionStream()
+				.filter(predicate)
+				.forEach(session -> session.send(o));
+	}
+
+	@Override
+	public void toAll(Object object) {
+		clientList.sessionStream()
+				.forEach(session -> session.send(object));
+	}
+
+	@Override
+	public void toAllExcept(Object o, Predicate<Session> predicate) {
+		clientList.sessionStream()
+				.filter(session -> !predicate.test(session))
+				.forEach(session -> session.send(o));
+	}
+
+	/**
+	 * Sends the specified object to all clients that do <b>not satisfy any</b> of the given predicates.
+	 * The sending happens using the clients' DefaultConnection.
+	 *
+	 * @param o          The object to send
+	 * @param predicates The predicates to filter by
+	 */
+	@Override
+	public void toAllExcept(Object o, Predicate<Session>... predicates) {
+		toAllExcept(o, combine(predicates));
+	}
+
+	/**
+	 * Sends the given object to all clients that are identified.
+	 * The clients' DefaultConnection will be used.
+	 *
+	 * @param o The object to send
+	 */
+	@Override
+	public void toAllIdentified(Object o) {
+		toAllIdentified(o, (Predicate<Session>) null);
+	}
+
+	@Override
+	@Deprecated
+	public void toAllIdentified(Object o, Predicate<Session>... predicates) {
+		toAllIdentified(o, combine(predicates));
+	}
+
+	/**
+	 * Sends the given object to all clients that are identified <b>and</b> satisfy all predicates.
+	 * The clients' DefaultConnection will be used.
+	 *
+	 * @param o         The object to send
+	 * @param predicate The predicate to filter by. May be null (but really, you should not put null here.
+	 */
+	@Override
+	public void toAllIdentified(Object o, Predicate<Session> predicate) {
+		Predicate<Session> combinedTest = session -> {
+			if (!session.isIdentified()) {
+				return false;
+			}
+			if (predicate != null) {
+				return predicate.test(session);
+			}
+
+			return true;
+		};
+		List<Session> toSend = clientList.sessionStream()
+				.filter(combinedTest)
+				.collect(Collectors.toList());
+
+		toSend.forEach(session -> session.send(o));
+	}
+
+	/**
+	 * Sends the given object to all clients that are registered.
+	 * The clients' DefaultConnection will be used.
+	 *
+	 * @param o The object to send
+	 */
+	@Override
+	public void toRegistered(Object o) {
+		toAllRegistered(o.getClass(), o);
+	}
+
+	/**
+	 * Sends the given object to all clients that are registered <b>and</b> satisfy all predicates.
+	 * The clients' DefaultConnection will be used.
+	 *
+	 * @param o          The object to send
+	 * @param predicates The predicates to filter by
+	 * @deprecated This method should conflicts with the general idea of the Registration based communication. Normally,
+	 * the method {@link #toAllRegistered(Class, Object)} should be invoked, whenever a new, updated or deleted entry is
+	 * found in the cache. Using this Method, would imply that we would have to pre-query the list to send to. This
+	 * however should already have been done, by the request.
+	 */
+	@Override
+	@Deprecated
+	public void toRegistered(Object o, Predicate<Session>... predicates) {
+		logging.error("Distributor#toRegistererd(Object, Predicate<Session>) : This method is not used because of the conflicting use cases! See the Javadoc for more information");
 	}
 
 	@Override
@@ -86,7 +215,7 @@ class NativeDistributor implements Distributor {
 	}
 
 	@Override
-	public void shutdown() {
+	public void close() {
 		cache.removeGeneralObserver(observer);
 		try {
 			communicationRegistration.acquire();
@@ -138,6 +267,7 @@ class NativeDistributor implements Distributor {
 
 			if (!registered.contains(session)) {
 				register(session, cacheRegistration.getType());
+				session.send(cacheRegistration);
 			}
 		}
 	}
@@ -147,6 +277,7 @@ class NativeDistributor implements Distributor {
 		@Override
 		public void accept(Session session, CacheUnRegistration cacheUnRegistration) {
 			unRegister(session, cacheUnRegistration.getType());
+			session.send(cacheUnRegistration);
 		}
 	}
 }

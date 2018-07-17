@@ -10,7 +10,7 @@ public final class CacheUpdate implements Serializable {
 		this.type = type;
 	}
 
-	public Object getType() {
+	public Object getObject() {
 		return type;
 	}
 }

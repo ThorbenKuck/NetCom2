@@ -1,7 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.*;
@@ -30,6 +32,18 @@ class NativeClientStart implements ClientStart {
 		client.setSession(Session.open(client));
 		this.clientCore = clientCore;
 		loggingValue.get().instantiated(this);
+	}
+
+	@Override
+	public Awaiting newConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException {
+		try {
+			clientCore.establishConnection(addressValue.get(), client, identifier);
+		} catch (StartFailedException e) {
+			throw new ConnectionEstablishmentFailedException(e);
+		}
+		return client.getConnection(identifier)
+				.orElseThrow(() -> new ConnectionEstablishmentFailedException("Connection has not been set properly! Please submit this to github!"))
+				.connected();
 	}
 
 	/**

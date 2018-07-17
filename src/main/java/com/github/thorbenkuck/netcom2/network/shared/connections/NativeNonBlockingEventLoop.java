@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import static com.github.thorbenkuck.netcom2.network.shared.NIOUtils.convertForNIOLog;
 import static java.nio.channels.SelectionKey.OP_READ;
 
-class NativeNIOEventLoop implements EventLoop {
+class NativeNonBlockingEventLoop implements EventLoop {
 
 	private final SelectorChannel selectorChannel;
 	private final Logging logging = Logging.unified();
@@ -31,7 +31,7 @@ class NativeNIOEventLoop implements EventLoop {
 	private final BlockingQueue<RawDataPackage> dataQueue = new LinkedBlockingQueue<>();
 	private final Lock selectorLock = new ReentrantLock(true);
 
-	NativeNIOEventLoop() throws IOException {
+	NativeNonBlockingEventLoop() throws IOException {
 		selectorChannel = SelectorChannel.open();
 		selectorChannel.register(this::handleRead, OP_READ);
 		logging.instantiated(this);
@@ -146,7 +146,7 @@ class NativeNIOEventLoop implements EventLoop {
 		logging.debug(convertForNIOLog("Starting NIOEventLoop"));
 		logging.trace(convertForNIOLog("Requesting selection extract into separate Thread"));
 		selectorChannel.start();
-		NetComThreadPool.submitCustomWorkerTask(PARALLEL_OBJECT_HANDLER);
+		NetComThreadPool.submitCustomProcess(PARALLEL_OBJECT_HANDLER);
 		logging.debug(convertForNIOLog("NIOEventLoop started"));
 	}
 
@@ -156,9 +156,25 @@ class NativeNIOEventLoop implements EventLoop {
 			logging.trace(convertForNIOLog("Acquiring SelectorLock"));
 			selectorLock.lock();
 			selectorChannel.close();
+			PARALLEL_OBJECT_HANDLER.running.set(false);
 		} finally {
 			selectorLock.unlock();
 			logging.trace(convertForNIOLog("Released SelectorLock"));
+		}
+	}
+
+	@Override
+	public void shutdownNow() throws IOException {
+		shutdown();
+		synchronized (connectionMap) {
+			connectionMap.forEach((socketChannel, connection) -> {
+				try {
+					connection.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			connectionMap.clear();
 		}
 	}
 
@@ -217,24 +233,24 @@ class NativeNIOEventLoop implements EventLoop {
 						if (connection.context() == null) {
 							logging.warn("[ObjectHandlerRunnable]: Found faulty not-hooked Connection! Ignoring for now..");
 						} else {
-							logging.trace("[ObjectHandlerRunnable]: ");
-							logging.trace("[ObjectHandlerRunnable]: ");
+							logging.trace("[ObjectHandlerRunnable]: Notifying ConnectionContext about received data");
 							while (rawData.peek() != null) {
-								connection.context().manualReceive(rawData.poll());
+								connection.context().receive(rawData.poll());
 							}
 						}
-					} else if (!connection.isOpen()) {
-						logging.warn("Connection is not open!");
+					} else if (!connection.isOpen() && !connection.inSetup()) {
+						logging.warn("Connection is not open, nor in setup!");
 					}
 				} catch (InterruptedException e) {
-					logging.trace("[ObjectHandlerRunnable]: ");
+					logging.trace("[ObjectHandlerRunnable]: Interrupted while awaiting next DataPackage");
 					if (!running.get()) {
+						logging.warn("Was still running! Stopping now!");
+						running.set(false);
 						logging.catching(e);
 					}
 				}
 			}
-			logging.trace("[ObjectHandlerRunnable]: ");
-			running.set(false);
+			logging.trace("[ObjectHandlerRunnable]: Finished");
 		}
 	}
 }

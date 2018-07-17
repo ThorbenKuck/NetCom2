@@ -104,7 +104,7 @@ class NativeSelectorChannel implements SelectorChannel {
 
 	@Override
 	public void start() {
-		NetComThreadPool.submitCustomWorkerTask(READ_RUNNABLE);
+		NetComThreadPool.submitCustomProcess(READ_RUNNABLE);
 	}
 
 	@Override

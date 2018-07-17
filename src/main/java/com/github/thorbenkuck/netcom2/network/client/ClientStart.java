@@ -1,16 +1,23 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.DeSerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoverer;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.SocketException;
 
 public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftStoppable {
 
@@ -19,12 +26,49 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 	}
 
 	static ClientStart at(SocketAddress socketAddress) {
+		return nio(socketAddress);
+	}
+
+	static ClientStart nio(String hostname, int port) {
+		return nio(new InetSocketAddress(hostname, port));
+	}
+
+	static ClientStart nio(SocketAddress socketAddress) {
 		return as(socketAddress, ClientCore.nio());
+	}
+
+	static ClientStart tcp(String hostname, int port) {
+		return tcp(new InetSocketAddress(hostname, port));
+	}
+
+	static ClientStart tcp(SocketAddress socketAddress) {
+		return as(socketAddress, ClientCore.tcp());
+	}
+
+	static ClientStart findLocalServer(int hubPort) throws InterruptedException, SocketException {
+		Logging logging = Logging.unified();
+		logging.info("Attempting to find a Server through local area network ..");
+		logging.debug("Created ServiceDiscoverer");
+		ServiceDiscoverer discoverer = ServiceDiscoverer.open(hubPort);
+		Value<ClientStart> clientStart = Value.empty();
+		Synchronize synchronize = Synchronize.createDefault();
+		discoverer.onDiscover(serviceHubLocation -> {
+			clientStart.set(serviceHubLocation.toClientStart());
+			discoverer.close();
+			synchronize.goOn();
+		});
+		discoverer.findServiceHubs();
+
+		synchronize.synchronize();
+
+		return clientStart.get();
 	}
 
 	static ClientStart as(SocketAddress socketAddress, ClientCore clientCore) {
 		return new NativeClientStart(socketAddress, clientCore);
 	}
+
+	Awaiting newConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException;
 
 	/**
 	 * Used to send Objects to the ServerStart.

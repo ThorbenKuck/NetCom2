@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
@@ -46,6 +47,11 @@ class NativeConnectionContext implements ConnectionContext {
 			logging.trace("Client is not primed. Triggering primed state of Client");
 			client.triggerPrimed();
 		}
+		if (!client.getConnection(connection.getIdentifier().orElseThrow(() -> new IllegalStateException("No identifier set for Connection"))).isPresent()) {
+			logging.warn("It appears, that the Connection has not been stored beforehand. This should not have happened, except if you manually provided a Connection.");
+			client.addConnection(connection);
+		}
+		client.connectionPrepared(connection.getIdentifier().orElseThrow(() -> new IllegalStateException("No Connection has been prepared for the " + connection.getIdentifier())));
 	}
 
 	@Override
@@ -114,11 +120,49 @@ class NativeConnectionContext implements ConnectionContext {
 	public void store() {
 		logging.trace("Storing Connection in Client");
 		client.addConnection(connection);
+		client.prepareConnection(connection.getIdentifier().orElseThrow(() -> new IllegalStateException("Connection has no Identifier set!")));
 	}
 
 	@Override
-	public void manualReceive(RawData rawData) {
+	public void receive(RawData rawData) {
 		logging.trace("Notifying client about received RawData");
 		client.receive(rawData, connection);
+	}
+
+	@Override
+	public void setIdentifier(Class<?> identifier) {
+		logging.trace("Notifying Connection about the new Identifier");
+		connection.setIdentifier(identifier);
+	}
+
+	@Override
+	public void applyTo(Client newClient) {
+		logging.debug("Inserting associated Connection into the new Client");
+		logging.trace("Storing Connection into the new Client");
+		newClient.addConnection(connection);
+		logging.trace("Hooking the new Client to the associated Connection");
+		connection.hook(newClient);
+		logging.trace("Fetching Connection identifier");
+		Class<?> clazz = connection.getIdentifier().orElseThrow(() -> new IllegalStateException("No Connection set for " + connection));
+		logging.trace("Fetching Synchronize for this Connection");
+		Synchronize originalSynchronize = client.accessPrepareConnection(clazz);
+		logging.trace("Checking fetched Synchronize");
+		if (originalSynchronize != null) {
+			logging.debug("Synchronize is okay. Storing it into the new Client");
+			newClient.overridePrepareConnection(clazz, originalSynchronize);
+		}
+		logging.debug("Invalidating associated Client.");
+		client.invalidate();
+	}
+
+	@Override
+	public void kill() throws IOException {
+		client.invalidate();
+		connection.close();
+	}
+
+	@Override
+	public Client getClient() {
+		return client;
 	}
 }

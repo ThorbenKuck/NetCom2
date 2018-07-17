@@ -39,7 +39,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	private void createEventLoop() throws IOException {
 		logging.debug(loggingPrefix() + "Creating new EventLoop");
 		logging.trace(loggingPrefix() + "Opening new NIOEventLoop ..");
-		EventLoop eventLoop = EventLoop.openNIO();
+		EventLoop eventLoop = EventLoop.openNonBlocking();
 
 		logging.trace(loggingPrefix() + "Adding NIOEventLoop to all EventLoops ..");
 		synchronized (eventLoopList) {
@@ -83,6 +83,14 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		logging.debug(loggingPrefix() + "Registering newly connected SocketChannel");
 		logging.trace(loggingPrefix() + "Constructing connection for socketChannel ..");
 		final Connection connection = Connection.nio(socketChannel);
+		// Naively assume that this
+		// Connection will be the
+		// DefaultConnection. This
+		// is not right in some cases,
+		// but the initial communication-Chain
+		// will change this anyways.
+		// We simply cannot know, which connection
+		// identifier this Connection belongs to
 		connection.setIdentifier(DefaultConnection.class);
 		final Client client = clientFactory.produce();
 		connection.hook(client);
@@ -214,6 +222,19 @@ class NativeNIOConnectorCore implements ConnectorCore {
 			iterator.remove();
 		}
 		logging.debug(loggingPrefix() + "Queried all connected SocketChannels");
+	}
+
+	@Override
+	public void disconnect() throws IOException {
+		synchronized (eventLoopList) {
+			for (EventLoop eventLoop : eventLoopList) {
+				eventLoop.shutdownNow();
+			}
+			eventLoopList.clear();
+			currentEventLoopValue.clear();
+		}
+		selectorValue.get().close();
+		serverSocketChannelValue.get().close();
 	}
 
 	private String loggingPrefix() {

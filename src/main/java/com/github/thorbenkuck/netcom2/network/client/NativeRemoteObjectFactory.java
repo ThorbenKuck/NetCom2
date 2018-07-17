@@ -3,6 +3,9 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.Proxy;
@@ -13,22 +16,16 @@ import java.util.concurrent.Semaphore;
 
 public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 
-	@APILevel
-	final Map<Class<?>, JavaRemoteInformationInvocationHandler<?>> singletons = new HashMap<>();
-	@APILevel
-	final Map<Class<?>, Runnable> fallbackRunnableMap = new HashMap<>();
-	@APILevel
-	final Map<Class<?>, Object> fallbackInstances = new HashMap<>();
+	private final Map<Class<?>, JavaRemoteInformationInvocationHandler<?>> singletons = new HashMap<>();
+	private final Map<Class<?>, Runnable> fallbackRunnableMap = new HashMap<>();
+	private final Map<Class<?>, Object> fallbackInstances = new HashMap<>();
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
 	private final Semaphore invocationHandlerProducerMutex = new Semaphore(1);
 	private final Logging logging = Logging.unified();
 	private Runnable defaultFallback;
 	private InvocationHandlerProducer invocationHandlerProducer;
-
-	@APILevel
-	NativeRemoteObjectFactory() {
-		logging.instantiated(this);
-	}
+	private final RemoteResponseHandler remoteResponseHandler = new RemoteResponseHandler();
+	private CommunicationRegistration communicationRegistration;
 
 	/**
 	 * Produces a {@link JavaRemoteInformationInvocationHandler}.
@@ -290,8 +287,45 @@ public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 		}
 	}
 
+	@APILevel
+	NativeRemoteObjectFactory(Sender sender) {
+		invocationHandlerProducer = new JavaInvocationHandlerProducer(sender, remoteAccessBlockRegistration);
+		logging.instantiated(this);
+	}
+
 	@Override
 	public void setup(ClientStart clientStart) {
-		invocationHandlerProducer = new JavaInvocationHandlerProducer(Sender.open(clientStart), remoteAccessBlockRegistration);
+		communicationRegistration = clientStart.getCommunicationRegistration();
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
+					.addFirst(remoteResponseHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
+					.remove(remoteResponseHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
+	private final class RemoteResponseHandler implements OnReceiveSingle<RemoteAccessCommunicationResponse> {
+
+		@Override
+		public void accept(RemoteAccessCommunicationResponse remoteAccessCommunicationResponse) {
+			NetCom2Utils.parameterNotNull(remoteAccessCommunicationResponse);
+			remoteAccessBlockRegistration.release(remoteAccessCommunicationResponse);
+		}
 	}
 }

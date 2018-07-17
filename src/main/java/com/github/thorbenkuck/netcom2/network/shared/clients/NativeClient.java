@@ -37,6 +37,7 @@ class NativeClient implements Client {
 	private final ClientID clientID;
 	private final Map<Class<?>, Connection> connectionMap = new HashMap<>();
 	private final ObjectHandler objectHandler = ObjectHandler.create();
+	private final Map<Class<?>, Synchronize> prepared = new HashMap<>();
 
 	NativeClient(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
@@ -167,7 +168,7 @@ class NativeClient implements Client {
 	public Optional<Connection> getConnection(Class connectionKey) {
 		NetCom2Utils.parameterNotNull(connectionKey);
 		synchronized (connectionMap) {
-			return Optional.of(connectionMap.get(connectionKey));
+			return Optional.ofNullable(connectionMap.get(connectionKey));
 		}
 	}
 
@@ -249,13 +250,15 @@ class NativeClient implements Client {
 	}
 
 	@Override
-	public synchronized void triggerPrimed() {
-		if (primed.get()) {
-			return;
+	public void triggerPrimed() {
+		synchronized (primed) {
+			if (primed.get()) {
+				return;
+			}
+			primed.set(true);
 		}
 		synchronize.goOn();
 		connectedCallback.apply(this);
-		primed.set(true);
 	}
 
 	/**
@@ -335,9 +338,17 @@ class NativeClient implements Client {
 		logging.trace("Converting set Object to writable String");
 		String string = convert(object);
 		logging.trace("Extracting send as Task to the NetComThreadPool");
-		NetComThreadPool.submitPriorityTask(() -> {
-			logging.trace("Performing requested write");
-			connection.write(string.getBytes());
+		NetComThreadPool.submitPriorityTask(new Runnable() {
+			@Override
+			public void run() {
+				logging.trace("Performing requested write");
+				connection.write(string.getBytes());
+			}
+
+			@Override
+			public String toString() {
+				return "PriorityTask{Write=" + object + "}";
+			}
 		});
 	}
 
@@ -347,18 +358,26 @@ class NativeClient implements Client {
 		logging.trace("Converting set Object to writable String");
 		String string = convert(object);
 		logging.trace("Extracting send as Task to the NetComThreadPool");
-		NetComThreadPool.submitTask(() -> {
-			try {
-				logging.trace("Checking connection to send to ..");
-				if (!connection.isConnected()) {
-					logging.debug("Awaiting finish of Connection");
-					connection.connected().synchronize();
-					logging.debug("Connection is now connected");
+		NetComThreadPool.submitTask(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					logging.trace("Checking connection to send to ..");
+					if (!connection.isConnected()) {
+						logging.debug("Awaiting finish of Connection");
+						connection.connected().synchronize();
+						logging.debug("Connection is now connected");
+					}
+					logging.trace("Connection is set up, performing requested write");
+					connection.write(string.getBytes());
+				} catch (InterruptedException e) {
+					throw new SendFailedException(e);
 				}
-				logging.trace("Connection is set up, performing requested write");
-				connection.write(string.getBytes());
-			} catch (InterruptedException e) {
-				throw new SendFailedException(e);
+			}
+
+			@Override
+			public String toString() {
+				return "Task{Write=" + object + "}";
 			}
 		});
 	}
@@ -370,7 +389,7 @@ class NativeClient implements Client {
 		logging.trace("Trying to get access over the ConnectionMap");
 		synchronized (connectionMap) {
 			logging.trace("Fetching connection " + connectionKey);
-			connection = connectionMap.get(DefaultConnection.class);
+			connection = connectionMap.get(connectionKey);
 		}
 		logging.trace("Performing sanity check on fetched Connection");
 		if (connection == null) {
@@ -407,6 +426,70 @@ class NativeClient implements Client {
 				return socketAddress.toString();
 			} else {
 				return "CONNECTION_PENDING";
+			}
+		}
+	}
+
+	@Override
+	public void overridePrepareConnection(Class clazz, Synchronize synchronize) {
+		synchronized (prepared) {
+			// Safely release the Threads,
+			// waiting on the old Awaiting
+			// to not let them wait endless
+			prepared.getOrDefault(clazz, Synchronize.empty()).goOn();
+			prepared.put(clazz, synchronize);
+		}
+	}
+
+	@Override
+	public Synchronize accessPrepareConnection(Class clazz) {
+		synchronized (prepared) {
+			return prepared.get(clazz);
+		}
+	}
+
+	@Override
+	public Awaiting prepareConnection(Class clazz) {
+		logging.debug("Trying to prepare for " + clazz);
+		synchronized (prepared) {
+			prepared.computeIfAbsent(clazz, key -> Synchronize.createDefault());
+			return prepared.get(clazz);
+		}
+	}
+
+	@Override
+	public void connectionPrepared(Class<?> identifier) {
+		logging.debug("Releasing all Threads, waiting for the preparation of the Connection " + identifier);
+		synchronized (prepared) {
+			logging.trace("Fetching Synchronize");
+			Synchronize synchronize = prepared.remove(identifier);
+			logging.trace("Performing sanity-check in Synchronize");
+			if (synchronize != null) {
+				logging.trace("Found Synchronize .. Releasing waiting Threads ..");
+				synchronize.goOn();
+				logging.info("Released all waiting Threads for " + identifier);
+			} else {
+				logging.error("No Connection has been prepared for the Class " + identifier);
+			}
+		}
+	}
+
+	@Override
+	public void invalidate() {
+		synchronized (prepared) {
+			synchronized (connectionMap) {
+				synchronized (connectedCallback) {
+					synchronized (disconnectedPipeline) {
+						synchronized (sessionValue) {
+							prepared.clear();
+							connectedCallback.clear();
+							connectionMap.clear();
+							synchronize.reset();
+							disconnectedPipeline.clear();
+							sessionValue.clear();
+						}
+					}
+				}
 			}
 		}
 	}

@@ -47,5 +47,13 @@ public interface ConnectionContext {
 
 	void store();
 
-	void manualReceive(RawData rawData);
+	void receive(RawData rawData);
+
+	void setIdentifier(Class<?> identifier);
+
+	void applyTo(Client correctClient);
+
+	void kill() throws IOException;
+
+	Client getClient();
 }

@@ -6,8 +6,11 @@ import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 public interface ServerStart extends SoftStoppable, MultipleConnections, NetworkInterface {
 
@@ -16,14 +19,48 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	}
 
 	static ServerStart at(InetSocketAddress socketAddress) {
+		return nio(socketAddress);
+	}
+
+	static ServerStart raw(int port) {
+		return raw(new InetSocketAddress(port));
+	}
+
+	static ServerStart raw(InetSocketAddress socketAddress) {
 		return new NativeServerStart(socketAddress);
 	}
+
+	static ServerStart tcp(int port) {
+		return tcp(new InetSocketAddress(port));
+	}
+
+	static ServerStart tcp(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.tcp(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	static ServerStart nio(int port) {
+		return nio(new InetSocketAddress(port));
+	}
+
+	static ServerStart nio(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.nio(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	ClientFactory getClientFactory();
 
 	void acceptNextClient() throws ClientConnectionFailedException;
 
 	void acceptAllNextClients() throws ClientConnectionFailedException;
 
 	int getPort();
+
+	ServiceDiscoveryHub allowLocalAreaNetworkFind(int port) throws SocketException;
 
 	void setPort(int to);
 
@@ -48,7 +85,7 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 *
 	 * @see #softStop()
 	 */
-	void disconnect();
+	void disconnect() throws IOException;
 
 	/**
 	 * Returns the internally maintained ClientList.
@@ -89,4 +126,6 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	default RemoteObjectRegistration remoteObjects() {
 		return RemoteObjectRegistration.open(this);
 	}
+
+	void setConnectorCore(ConnectorCore connectorCore);
 }

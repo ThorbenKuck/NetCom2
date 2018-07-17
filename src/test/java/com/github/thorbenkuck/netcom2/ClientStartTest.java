@@ -9,32 +9,10 @@ import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 public class ClientStartTest {
 
-//	public ClientStartTest() throws InterruptedException {
-//		Thread thread = new Thread(() -> {
-//			final SocketChannel socketChannel;
-//			try {
-//				socketChannel = SocketChannel.open(new InetSocketAddress("localhost", 4444));
-//
-//				byte[] message = "Example String".getBytes();
-//				ByteBuffer buffer = ByteBuffer.wrap(message);
-//				socketChannel.write(buffer);
-//
-//				buffer.clear();
-//
-//				System.out.println("Writing done");
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		});
-//
-//		thread.start();
-//
-//		Thread.sleep(10000);
-//	}
-
 	private final ClientStart clientStart;
 	private final Sender sender;
 	private int id;
+	private static int received;
 
 	ClientStartTest() throws StartFailedException {
 		System.out.println("Creating ClientStart");
@@ -62,13 +40,13 @@ public class ClientStartTest {
 			System.exit(1);
 		});
 		NetComLogging.setLogging(Logging.info());
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerProcesses(4);
+		final int total = 100;
 		int checks = 0;
 		ClientStartTest clientStartTest = new ClientStartTest();
-		while (checks++ < 100) {
+
+//		clientStartTest.run();
+		while (checks++ < total) {
 			try {
 				clientStartTest.run();
 			} catch (Throwable throwable) {
@@ -80,6 +58,11 @@ public class ClientStartTest {
 //
 		Thread.sleep(3000);
 		clientStartTest.stop();
+		if (received != total) {
+			throw new IllegalStateException("Test was not Successful!\nExpected: " + total + "\nReceived:" + received);
+		}
+
+		System.out.println("\n---\nTEST SUCCESSFUL\n---");
 	}
 
 	private synchronized int getId() {
@@ -90,8 +73,13 @@ public class ClientStartTest {
 		clientStart.softStop();
 	}
 
+	private static synchronized void incrementTotalWorkload() {
+		++received;
+	}
+
 	private void print(TestObject string) {
 		System.out.println(Thread.currentThread() + ": " + getId() + " okay");
+		incrementTotalWorkload();
 	}
 
 	public void run() {

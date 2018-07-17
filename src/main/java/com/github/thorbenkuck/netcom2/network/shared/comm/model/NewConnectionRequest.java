@@ -14,4 +14,11 @@ public class NewConnectionRequest implements Serializable {
 	public Class<?> getIdentifier() {
 		return identifier;
 	}
+
+	@Override
+	public String toString() {
+		return "NewConnectionRequest{" +
+				"identifier=" + identifier +
+				'}';
+	}
 }

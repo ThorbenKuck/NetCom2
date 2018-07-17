@@ -4,6 +4,7 @@ import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
@@ -15,6 +16,14 @@ public interface Connection {
 	static Connection nio(SocketChannel socketChannel) {
 		return new NIOConnection(socketChannel);
 	}
+
+	static Connection tcp(Socket socket) {
+		return new TCPConnection(socket);
+	}
+//
+//	static Connection udp(DatagramSocket datagramSocket) {
+//		return new UDPConnection(datagramSocket);
+//	}
 
 	Awaiting connected();
 

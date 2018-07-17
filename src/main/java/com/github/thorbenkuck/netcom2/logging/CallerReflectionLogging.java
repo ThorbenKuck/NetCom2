@@ -34,7 +34,7 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final String s) {
+	public void trace(final Object s) {
 		style.trace(s);
 	}
 
@@ -42,7 +42,7 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
+	public void debug(final Object s) {
 		style.debug(s);
 	}
 
@@ -50,7 +50,7 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
+	public void info(final Object s) {
 		style.info(s);
 	}
 
@@ -58,7 +58,7 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
+	public void warn(final Object s) {
 		style.warn(s);
 	}
 
@@ -66,7 +66,7 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
+	public void error(final Object s) {
 		style.error(s);
 	}
 
@@ -74,26 +74,8 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-		error(s);
-		catching(throwable);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s) {
+	public void fatal(final Object s) {
 		style.fatal(s);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
-		fatal(s);
-		catching(throwable);
 	}
 
 	/**

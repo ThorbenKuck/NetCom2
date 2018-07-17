@@ -41,7 +41,8 @@ class NIOConnection implements Connection {
 
 	private void writeTo(ByteBuffer byteBuffer) {
 		try {
-			logging.trace(convertForNIOLog("Starting to writeTo from ByteBuffer .."));
+			logging.trace(convertForNIOLog("Starting to write to output from ByteBuffer .."));
+			logging.trace("ByteBuffer state: " + Arrays.toString(byteBuffer.array()));
 			while (byteBuffer.hasRemaining()) {
 				// TODO Extract into Selector if read fails 3 times
 				logging.trace(convertForNIOLog("Found remaining bytes in ByteBuffer .."));
@@ -73,6 +74,8 @@ class NIOConnection implements Connection {
 		}
 		logging.trace(convertForNIOLog("Requesting writeTo with fetched ByteBuffer"));
 		writeTo(byteBuffer);
+		logging.trace("Freeing used ByteBuffer ");
+		buffer.free(byteBuffer);
 	}
 
 	private byte[] doRead(ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
@@ -147,25 +150,24 @@ class NIOConnection implements Connection {
 		}
 		logging.trace(convertForNIOLog("Wrapping data .."));
 		writeNewWrapped(data);
+		logging.debug("Successfully wrote data to Connection");
 	}
 
 	@Override
 	public void read() throws IOException {
 		if (identifierValue.isEmpty()) {
-			logging.debug("No ConnectionKey set yet. Stopping read.");
+			logging.warn("No ConnectionKey set yet. Stopping read.");
 			return;
 		}
 		logging.debug(convertForNIOLog("Starting to read from " + this));
-
+		ByteBuffer byteBuffer = null;
 		try {
 			logging.trace(convertForNIOLog("Creating ByteBuffer"));
-			final ByteBuffer byteBuffer = buffer.allocate();
+			byteBuffer = buffer.allocate();
 			logging.trace(convertForNIOLog("ByteBuffer size=" + byteBuffer.capacity()));
 
 			logging.trace("Performing read operation");
 			byte[] result = doRead(byteBuffer);
-			logging.trace("Marking used ByteBuffer as reusable");
-			buffer.free(byteBuffer);
 			logging.trace("Passing read bytes to the ConnectionHandler, ignoring \\0");
 			// Maybe we construct
 			// a method for removing
@@ -190,6 +192,11 @@ class NIOConnection implements Connection {
 		} catch (final ConnectionDisconnectedException e) {
 			logging.debug(convertForNIOLog("Connection close detected!"));
 			close();
+		} finally {
+			if (byteBuffer != null) {
+				logging.trace("Marking used ByteBuffer as reusable");
+				buffer.free(byteBuffer);
+			}
 		}
 	}
 

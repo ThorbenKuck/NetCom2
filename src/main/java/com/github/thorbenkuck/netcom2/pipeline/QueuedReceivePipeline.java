@@ -17,7 +17,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 /**
@@ -34,6 +36,7 @@ import java.util.function.Consumer;
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();
+	private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 	private final Logging logging = Logging.unified();
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
@@ -265,7 +268,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
 		NetCom2Utils.parameterNotNull(onReceiveTriple);
-		return core.contains(new PipelineReceiver<>(onReceiveTriple));
+		synchronized (core) {
+			return core.contains(new PipelineReceiver<>(onReceiveTriple));
+		}
 	}
 
 	/**
@@ -352,6 +357,24 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		NetCom2Utils.parameterNotNull(pipelineService);
 		synchronized (core) {
 			core.remove(new PipelineReceiver<>(new OnReceiveWrapper<>(pipelineService)));
+			pipelineService.onUnRegistration();
+		}
+	}
+
+	@Override
+	public void remove(OnReceiveSingle<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		synchronized (core) {
+			core.remove(new PipelineReceiver<>(new OnReceiveSingleWrapper<>(pipelineService)));
+			pipelineService.onUnRegistration();
+		}
+	}
+
+	@Override
+	public void remove(OnReceiveTriple<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		synchronized (core) {
+			core.remove(new PipelineReceiver<>(pipelineService));
 			pipelineService.onUnRegistration();
 		}
 	}
@@ -483,7 +506,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void acquire() throws InterruptedException {
-		semaphore.acquire();
+		readWriteLock.readLock().lock();
 	}
 
 	/**
@@ -491,7 +514,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void release() {
-		semaphore.release();
+		readWriteLock.readLock().unlock();
 	}
 
 	/**

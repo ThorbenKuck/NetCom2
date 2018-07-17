@@ -8,7 +8,7 @@ public interface Logging {
 	 * @return an Logging instance
 	 */
 	static Logging getDefault() {
-		return error();
+		return warn();
 	}
 
 	/**
@@ -88,35 +88,45 @@ public interface Logging {
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void trace(final String s);
+	void trace(final Object s);
 
 	/**
 	 * Prints something at the second lowest logging depth.
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void debug(final String s);
+	void debug(final Object s);
 
 	/**
 	 * Prints something at the default logging depth.
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void info(final String s);
+	void info(final Object s);
 
 	/**
 	 * Prints something, that might produce errors.
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void warn(final String s);
+	void warn(final Object s);
+
+	/**
+	 * Prints something, that might produce errors.
+	 *
+	 * @param o the Object that should be logged.
+	 */
+	default void warn(final Object o, Throwable throwable) {
+		warn(o);
+		catching(throwable);
+	}
 
 	/**
 	 * Prints something, that failed but is recoverable.
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void error(final String s);
+	void error(final Object s);
 
 	/**
 	 * Prints something, that failed but is recoverable.
@@ -125,14 +135,17 @@ public interface Logging {
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void error(final String s, final Throwable throwable);
+	default void error(final Object s, final Throwable throwable) {
+		error(s);
+		catching(throwable);
+	}
 
 	/**
 	 * Prints something, that failed and is not recoverable.
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void fatal(final String s);
+	void fatal(final Object s);
 
 	/**
 	 * Prints something, that failed and is not recoverable.
@@ -141,7 +154,10 @@ public interface Logging {
 	 *
 	 * @param s the String that should be logged.
 	 */
-	void fatal(final String s, final Throwable throwable);
+	default void fatal(final Object s, final Throwable throwable) {
+		fatal(s);
+		catching(throwable);
+	}
 
 	/**
 	 * Prints a Throwable, that was encountered some how.
@@ -155,11 +171,11 @@ public interface Logging {
 	 * <p>
 	 * May be caused by a Throwable.
 	 * <p>
-	 * Inverse to {@link #error(String, Throwable)}
+	 * Inverse to {@link #error(Object, Throwable)}
 	 *
 	 * @param s the String that should be logged.
 	 */
-	default void error(final Throwable throwable, final String s) {
+	default void error(final Throwable throwable, final Object s) {
 		error(s, throwable);
 	}
 
@@ -168,11 +184,11 @@ public interface Logging {
 	 * <p>
 	 * May be caused by a Throwable.
 	 * <p>
-	 * Inverse to {@link #fatal(String, Throwable)}
+	 * Inverse to {@link #fatal(Object, Throwable)}
 	 *
 	 * @param s the String that should be logged.
 	 */
-	default void fatal(final Throwable throwable, String s) {
+	default void fatal(final Throwable throwable, Object s) {
 		fatal(s, throwable);
 	}
 

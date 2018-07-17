@@ -5,10 +5,14 @@ import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
+import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -37,34 +41,14 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 
 	private final Map<Class<?>, Object> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
+	private final RemoteRequestHandler remoteRequestHandler = new RemoteRequestHandler();
 
 	@APILevel
 	NativeRemoteObjectRegistration() {
 		logging.instantiated(this);
 	}
 
-	/**
-	 * Describes, whether or not, the provided class type may be overridden within the internal mapping.
-	 * <p>
-	 * It utilizes the {@link RegistrationOverrideProhibited} annotation to check, whether or not, the currently saved
-	 * instance may be overridden or not.
-	 *
-	 * @param clazz the class that should be checked
-	 * @return true, if no annotation is present or nothing is currently saved, else false.
-	 */
-	private boolean canBeOverridden(Class clazz) {
-		if (clazz.getAnnotation(RegistrationOverrideProhibited.class) != null) {
-			logging.trace("Found RegistrationOverrideProhibited Annotation, checking if instance is saved");
-			Object check;
-			synchronized (mapping) {
-				check = mapping.get(clazz);
-			}
-			if (check != null) {
-				return false;
-			}
-		}
-		return true;
-	}
+	private CommunicationRegistration communicationRegistration;
 
 	/**
 	 * Orders the provided arguments, to align to the method-signature
@@ -107,31 +91,24 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	}
 
 	/**
-	 * Calls the Method, that was given in an safe environment.
+	 * Describes, whether or not, the provided class type may be overridden within the internal mapping.
 	 * <p>
-	 * It returns the computed Object, of the method-call. May throw an Throwable, if the Object <code>callOn</code> throws
-	 * an throwable while executing the Method.
-	 * <p>
-	 * It does not check, whether or not the parameters are in the right order or of the right type.
+	 * It utilizes the {@link RegistrationOverrideProhibited} annotation to check, whether or not, the currently saved
+	 * instance may be overridden or not.
 	 *
-	 * @param method the Method that should be called
-	 * @param callOn the object that method should be called upon
-	 * @param args   the arguments, that are passed to the method-call
-	 * @return the computed Result of the Object
-	 * @throws Throwable any throwable the Object throws
+	 * @param clazz the class that should be checked
+	 * @return true, if no annotation is present or nothing is currently saved, else false.
 	 */
-	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
-		final boolean accessible = method.isAccessible();
-		logging.trace("updating accessibility of Method " + method.getName());
-		method.setAccessible(true);
-
-		try {
-			logging.trace("invoking Method " + method.getName() + " of " + callOn + " with parameters " + Arrays.toString(args));
-			return method.invoke(callOn, args);
-		} finally {
-			logging.trace("Setting accessibility back to original state(" + accessible + ")..");
-			method.setAccessible(accessible);
+	private boolean canBeOverridden(Class clazz) {
+		if (clazz.getAnnotation(RegistrationOverrideProhibited.class) != null) {
+			logging.trace("Found RegistrationOverrideProhibited Annotation, checking if instance is saved");
+			Object check;
+			synchronized (mapping) {
+				check = mapping.get(clazz);
+			}
+			return check == null;
 		}
+		return true;
 	}
 
 	/**
@@ -244,9 +221,60 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 		}
 	}
 
+	/**
+	 * Calls the Method, that we.printStackTrace();as given in an safe environment.
+	 * <p>
+	 * It returns the computed Object, of the method-call. May throw an Throwable, if the Object <code>callOn</code> throws
+	 * an throwable while executing the Method.
+	 * <p>
+	 * It does not check, whether or not the parameters are in the right order or of the right type.
+	 *
+	 * @param method the Method that should be called
+	 * @param callOn the object that method should be called upon
+	 * @param args   the arguments, that are passed to the method-call
+	 * @return the computed Result of the Object
+	 * @throws Throwable any throwable the Object throws
+	 */
+	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
+		final boolean accessible = method.isAccessible();
+		logging.trace("updating accessibility of Method " + method.getName());
+		method.setAccessible(true);
+
+		try {
+			logging.trace("invoking Method " + method.getName() + " of " + callOn + " with parameters " + Arrays.toString(args));
+			return method.invoke(callOn, args);
+		} finally {
+			logging.trace("Setting accessibility back to original state(" + accessible + ")..");
+			method.setAccessible(accessible);
+		}
+	}
+
 	@Override
 	public void setup(ServerStart serverStart) {
-		// TODO Setup
+		communicationRegistration = serverStart.getCommunicationRegistration();
+
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
+					.addFirst(remoteRequestHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
+					.remove(remoteRequestHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
 	}
 
 	/**
@@ -421,4 +449,16 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 		return generateResult(request.getUuid(), exception, methodCallResult, request.getClazz(), methodToCall);
 	}
 
+	private final class RemoteRequestHandler implements OnReceiveTriple<RemoteAccessCommunicationRequest> {
+
+		@Override
+		public void accept(ConnectionContext connectionContext, Session session, RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {
+			NetCom2Utils.parameterNotNull(connectionContext, remoteAccessCommunicationRequest);
+			try {
+				connectionContext.send(run(remoteAccessCommunicationRequest));
+			} catch (RemoteRequestException e) {
+				logging.error("Could not run RemoteObjectRequest", e);
+			}
+		}
+	}
 }

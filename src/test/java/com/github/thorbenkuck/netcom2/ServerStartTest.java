@@ -8,7 +8,6 @@ import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
-import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 public class ServerStartTest {
 
@@ -21,16 +20,12 @@ public class ServerStartTest {
 
 	public static void main(String[] args) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Encountered " + encountered + " Exceptions!")));
-		NetComLogging.setLogging(Logging.info());
+		NetComLogging.setLogging(Logging.trace());
 		UnhandledExceptionContainer.addHandler(t -> {
 			synchronized (ServerStartTest.class) {
 				++encountered;
 			}
 		});
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
-		NetComThreadPool.startWorkerTask();
 		try {
 			new ServerStartTest().run();
 		} catch (Exception e) {

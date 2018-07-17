@@ -358,6 +358,28 @@ public interface ReceivePipeline<T> extends Mutex {
 	void remove(final OnReceive<T> pipelineService);
 
 	/**
+	 * Removes a certain {@link OnReceive} from this ReceivePipeline.
+	 * <p>
+	 * This Method is very work intensive, since it has to search every single registered element and compare each of
+	 * the so registered {@link OnReceive}, {@link OnReceiveSingle} and {@link OnReceiveTriple}. It would be faster to
+	 * clear this ReceivePipeline and redeclare each other OnReceive-Handler
+	 *
+	 * @param pipelineService the {@link OnReceive} which was added to this ReceivePipeline and now should be removed
+	 */
+	void remove(final OnReceiveSingle<T> pipelineService);
+
+	/**
+	 * Removes a certain {@link OnReceive} from this ReceivePipeline.
+	 * <p>
+	 * This Method is very work intensive, since it has to search every single registered element and compare each of
+	 * the so registered {@link OnReceive}, {@link OnReceiveSingle} and {@link OnReceiveTriple}. It would be faster to
+	 * clear this ReceivePipeline and redeclare each other OnReceive-Handler
+	 *
+	 * @param pipelineService the {@link OnReceive} which was added to this ReceivePipeline and now should be removed
+	 */
+	void remove(final OnReceiveTriple<T> pipelineService);
+
+	/**
 	 * Removes all registered OnReceive-Family from this ReceivePipeline.
 	 * <p>
 	 * After this method is finished, {@link #isEmpty()} will return true

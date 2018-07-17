@@ -5,7 +5,11 @@ import com.github.thorbenkuck.netcom2.interfaces.Module;
 public interface RemoteObjectFactory extends Module<ClientStart> {
 
 	static RemoteObjectFactory open(ClientStart clientStart) {
-		NativeRemoteObjectFactory remoteObjectFactory = new NativeRemoteObjectFactory();
+		return open(clientStart, Sender.open(clientStart));
+	}
+
+	static RemoteObjectFactory open(ClientStart clientStart, Sender sender) {
+		NativeRemoteObjectFactory remoteObjectFactory = new NativeRemoteObjectFactory(sender);
 		remoteObjectFactory.setup(clientStart);
 
 		return remoteObjectFactory;

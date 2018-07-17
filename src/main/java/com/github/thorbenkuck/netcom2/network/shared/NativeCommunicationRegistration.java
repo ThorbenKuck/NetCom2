@@ -25,7 +25,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 
 	NativeCommunicationRegistration() {
 		logging.trace("[CommunicationRegistration]: requesting one new WorkerTask");
-		NetComThreadPool.startWorkerTask();
+		NetComThreadPool.startWorkerProcess();
 		logging.instantiated(this);
 	}
 
@@ -138,6 +138,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 			pipeline.acquire();
 			logging.trace("Running the elements through the Pipeline(#elements=" + pipeline.size() + ".");
 			pipeline.run(connection, session, o);
+			logging.debug("Successfully applied the ReceivePipeline");
 		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
@@ -219,7 +220,17 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
 			handleNotRegistered(clazz, connection, session, o);
 		} else {
-			NetComThreadPool.submitTask(() -> triggerExisting(clazz, connection, session, o));
+			NetComThreadPool.submitTask(new Runnable() {
+				@Override
+				public void run() {
+					triggerExisting(clazz, connection, session, o);
+				}
+
+				@Override
+				public String toString() {
+					return "CommRegistrationTask{TriggerExistingCommunication, clazz=" + clazz + "}";
+				}
+			});
 		}
 	}
 

@@ -4,8 +4,12 @@ import java.io.IOException;
 
 public interface EventLoop {
 
-	static EventLoop openNIO() throws IOException {
-		return new NativeNIOEventLoop();
+	static EventLoop openNonBlocking() throws IOException {
+		return new NativeNonBlockingEventLoop();
+	}
+
+	static EventLoop openBlocking() {
+		return new NativeBlockingEventLoop();
 	}
 
 	void register(Connection connection) throws IOException;
@@ -15,6 +19,8 @@ public interface EventLoop {
 	void start();
 
 	void shutdown() throws IOException;
+
+	void shutdownNow() throws IOException;
 
 	boolean isRunning();
 

@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-class UPDConnection implements Connection {
+class TCPConnection implements Connection {
 
 	private final Synchronize connectedSynchronize = Synchronize.createDefault();
 	private final Socket socket;
@@ -27,8 +28,12 @@ class UPDConnection implements Connection {
 	private final Value<Class<?>> identifierValue = Value.emptySynchronized();
 	private final ReadingWorker readingWorker;
 	private final Queue<RawData> received = new LinkedList<>();
+	private final Value<Boolean> inSetup = Value.synchronize(true);
+	private final Value<Consumer<Queue<RawData>>> callbackValue = Value.emptySynchronized();
+	private final Pipeline<Connection> shutdownPipeline = Pipeline.unifiedCreation();
+	private final Value<Boolean> reading = Value.synchronize(false);
 
-	UPDConnection(Socket socket) {
+	TCPConnection(Socket socket) {
 		this.socket = socket;
 		readingWorker = new ReadingWorker(socket, this::addRawData);
 	}
@@ -36,6 +41,15 @@ class UPDConnection implements Connection {
 	private void addRawData(RawData readData) {
 		synchronized (received) {
 			received.add(readData);
+			// Still synchronize. This
+			// works, because of Javas
+			// reentrant synchronize.
+			// It ensures, that only one
+			// Thread at a time, can
+			// inform the EventLoop
+			if (!callbackValue.isEmpty()) {
+				callbackValue.get().accept(drain());
+			}
 		}
 	}
 
@@ -49,12 +63,12 @@ class UPDConnection implements Connection {
 		connectedSynchronize.reset();
 		readingWorker.stop();
 		socket.close();
+		shutdownPipeline.apply(this);
 	}
 
 	@Override
 	public void open() throws IOException {
 		socket.setKeepAlive(true);
-		NetComThreadPool.submitCustomWorkerTask(readingWorker);
 	}
 
 	@Override
@@ -66,14 +80,10 @@ class UPDConnection implements Connection {
 	public void write(byte[] data) {
 		try {
 			socket.getOutputStream().write(data);
+			socket.getOutputStream().flush();
 		} catch (IOException e) {
 			throw new SendFailedException(e);
 		}
-	}
-
-	@Override
-	public void read(Consumer<Queue<RawData>> callback) throws IOException {
-
 	}
 
 	@Override
@@ -82,8 +92,20 @@ class UPDConnection implements Connection {
 	}
 
 	@Override
-	public void read() throws IOException {
+	public void read(Consumer<Queue<RawData>> callback) {
+		callbackValue.set(callback);
+		read();
+	}
 
+	@Override
+	public synchronized void read() {
+		if (reading.get()) {
+			logging.warn("This Connection is already reading asynchronously.");
+			return;
+		}
+		NetComThreadPool.submitCustomProcess(readingWorker);
+		logging.info("Read is handled asynchronously through this Connection. This method will exit immediately");
+		reading.set(true);
 	}
 
 	@Override
@@ -108,12 +130,16 @@ class UPDConnection implements Connection {
 
 	@Override
 	public void addShutdownHook(Consumer<Connection> connectionConsumer) {
-
+		synchronized (shutdownPipeline) {
+			shutdownPipeline.add(connectionConsumer);
+		}
 	}
 
 	@Override
 	public void removeShutdownHook(Consumer<Connection> connectionConsumer) {
-
+		synchronized (shutdownPipeline) {
+			shutdownPipeline.remove(connectionConsumer);
+		}
 	}
 
 	@Override
@@ -133,7 +159,8 @@ class UPDConnection implements Connection {
 
 	@Override
 	public void finishConnect() {
-
+		inSetup.set(false);
+		connectedSynchronize.goOn();
 	}
 
 	@Override
@@ -143,7 +170,7 @@ class UPDConnection implements Connection {
 
 	@Override
 	public boolean inSetup() {
-		return false;
+		return inSetup.get();
 	}
 
 	@Override
@@ -178,7 +205,6 @@ class UPDConnection implements Connection {
 			}
 			while (runningValue.get()) {
 				try {
-					// TODO read correctly from InputStream
 					String read = inputStream.readLine();
 					if (read == null) {
 						runningValue.set(false);

@@ -15,7 +15,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final String s) {
+	public void trace(final Object s) {
 	}
 
 	/**
@@ -23,7 +23,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
+	public void debug(final Object s) {
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
+	public void info(final Object s) {
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
+	public void warn(final Object s) {
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
+	public void error(final Object s) {
 	}
 
 	/**
@@ -55,23 +55,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-	}
-
-	/**
-	 * <b>This method call will be ignored!</b>
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s) {
-	}
-
-	/**
-	 * <b>This method call will be ignored!</b>
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
+	public void fatal(final Object s) {
 	}
 
 	/**

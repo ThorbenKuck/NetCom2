@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 class NativeClientFactory implements ClientFactory {
 
@@ -19,9 +20,22 @@ class NativeClientFactory implements ClientFactory {
 	}
 
 	private void apply(Client client) {
-		synchronized (clientPipeline) {
-			clientPipeline.apply(client);
-		}
+		NetComThreadPool.submitTask(new Runnable() {
+
+			@Override
+			public void run() {
+				logging.debug("Acquiring ClientConnectedPipeline");
+				synchronized (clientPipeline) {
+					logging.trace("Acquired ClientPipeline. Applying ConnectedClient");
+					clientPipeline.apply(client);
+				}
+			}
+
+			@Override
+			public String toString() {
+				return "Task{Apply connectedPipeline}";
+			}
+		});
 	}
 
 	@Override
@@ -36,7 +50,7 @@ class NativeClientFactory implements ClientFactory {
 	@Override
 	public void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
 		synchronized (clientPipeline) {
-			clientPipeline.add(clientConnectedHandler);
+			clientPipeline.addLast(clientConnectedHandler);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
-
 @Deprecated
 public interface RemoteObjectAccess {
 
@@ -30,7 +28,6 @@ public interface RemoteObjectAccess {
 	 * @return an callable instance of the type <code>T</code>
 	 * @see RemoteObjectFactory
 	 */
-	@Experimental
 	default <T> T getRemoteObject(Class<T> clazz) {
 		return getRemoteObjectFactory().create(clazz);
 	}
@@ -45,7 +42,6 @@ public interface RemoteObjectAccess {
 	 * @param invocationHandlerProducer the {@link InvocationHandlerProducer} that should create the {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler}
 	 * @see InvocationHandlerProducer
 	 */
-	@Experimental
 	void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer);
 
 }

@@ -12,6 +12,10 @@ public interface ClientCore {
 		return new NativeNIOClientCore();
 	}
 
+	static ClientCore tcp() {
+		return new NativeTCPClientCore();
+	}
+
 	void blockOnCurrentThread(Supplier<Boolean> running);
 
 	void startBlockerThread(Supplier<Boolean> running);

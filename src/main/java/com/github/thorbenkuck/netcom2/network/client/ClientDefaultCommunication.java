@@ -1,9 +1,11 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionResponse;
@@ -18,7 +20,7 @@ public class ClientDefaultCommunication {
 	public static void applyTo(ClientStart clientStart) {
 		CommunicationRegistration communicationRegistration = clientStart.getCommunicationRegistration();
 		communicationRegistration.register(NewConnectionRequest.class)
-				.addFirst(new NewConnectionRequestHandler());
+				.addFirst(new NewConnectionRequestHandler(clientStart));
 		communicationRegistration.register(NewConnectionInitializer.class)
 				.addFirst(new NewConnectionInitializerHandler());
 		communicationRegistration.register(Ping.class)
@@ -26,6 +28,13 @@ public class ClientDefaultCommunication {
 	}
 
 	private static final class NewConnectionRequestHandler implements OnReceive<NewConnectionRequest> {
+
+		private final ClientStart clientStart;
+
+		private NewConnectionRequestHandler(ClientStart clientStart) {
+			this.clientStart = clientStart;
+		}
+
 		/**
 		 * Performs this operation on the given arguments.
 		 *
@@ -35,7 +44,11 @@ public class ClientDefaultCommunication {
 		@Override
 		public void accept(Session session, NewConnectionRequest newConnectionRequest) {
 			logging.info("Trying to establish a new Connection as " + newConnectionRequest.getIdentifier());
-			// TODO open a new Connection through the old Design
+			try {
+				clientStart.newConnection(newConnectionRequest.getIdentifier());
+			} catch (ConnectionEstablishmentFailedException e) {
+				logging.error("Could not establish the new Connection!", e);
+			}
 		}
 	}
 
@@ -53,8 +66,13 @@ public class ClientDefaultCommunication {
 			logging.trace("Storing new Connection");
 			connectionContext.store();
 			logging.trace("Constructing response");
-			NewConnectionResponse response = new NewConnectionResponse();
-
+			ClientID currentID = connectionContext.getClientID();
+			NewConnectionResponse response;
+			if (currentID.isEmpty()) {
+				response = new NewConnectionResponse(null);
+			} else {
+				response = new NewConnectionResponse(currentID);
+			}
 			connectionContext.flush(response);
 		}
 	}
@@ -72,7 +90,7 @@ public class ClientDefaultCommunication {
 		public void accept(ConnectionContext connectionContext, Session session, Ping ping) {
 			logging.debug("Received Ping from Server");
 			logging.trace("Checking ClientID of ConnectionContext");
-			if (connectionContext.getClientID() == null) {
+			if (ClientID.isEmpty(connectionContext.getClientID())) {
 				logging.trace("ClientID is null, updating based on received ClientID");
 				connectionContext.updateClientID(ping.getClientID());
 			}

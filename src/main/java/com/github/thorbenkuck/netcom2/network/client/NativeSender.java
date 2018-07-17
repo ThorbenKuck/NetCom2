@@ -2,18 +2,55 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class NativeSender implements Sender {
 
 	private final Logging logging = Logging.unified();
 	private final Value<Client> clientValue = Value.emptySynchronized();
+	private final CacheUpdateHandler cacheUpdateHandler = new CacheUpdateHandler();
+	private final CacheAdditionHandler cacheAdditionHandler = new CacheAdditionHandler();
+	private final CacheRemoveHandler cacheRemoveHandler = new CacheRemoveHandler();
+	private final CacheRegistrationHandler cacheRegistrationHandler = new CacheRegistrationHandler();
+	private final CacheUnRegistrationHandler cacheUnRegistrationHandler = new CacheUnRegistrationHandler();
+	private final Map<Class<?>, CacheObserver<?>> observerLimbo = new HashMap<>();
+	private CommunicationRegistration communicationRegistration;
+	private Cache cache;
 
 	NativeSender() {
 		logging.instantiated(this);
+	}
+
+	private void handleRegistrations() {
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(CacheAddition.class)
+					.addFirst(cacheAdditionHandler);
+			communicationRegistration.register(CacheUpdate.class)
+					.addFirst(cacheUpdateHandler);
+			communicationRegistration.register(CacheRemove.class)
+					.addFirst(cacheRemoveHandler);
+			communicationRegistration.register(CacheRegistration.class)
+					.addFirst(cacheRegistrationHandler);
+			communicationRegistration.register(CacheUnRegistration.class)
+					.addFirst(cacheUnRegistrationHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
 	}
 
 	/**
@@ -25,11 +62,11 @@ class NativeSender implements Sender {
 	 * It uses the {@link DefaultConnection}
 	 *
 	 * @param o the Object that should be send over the network.
-	 * @return a synchronization mechanism to allow procedural programming
 	 */
 	@Override
 	public void objectToServer(Object o) {
-		clientValue.get().send(o);
+		clientValue.get()
+				.send(o);
 	}
 
 	/**
@@ -42,11 +79,11 @@ class NativeSender implements Sender {
 	 *
 	 * @param o          the Object that should be send over the network.
 	 * @param connection the Connection that should be used.
-	 * @return an synchronization mechanism to allow procedural programming
 	 */
 	@Override
 	public void objectToServer(Object o, Connection connection) {
-
+		clientValue.get()
+				.send(o, connection);
 	}
 
 	/**
@@ -59,11 +96,11 @@ class NativeSender implements Sender {
 	 *
 	 * @param o             the Object that should be send over the network.
 	 * @param connectionKey the identifier of the Connection that should be used
-	 * @return an synchronization mechanism to allow procedural programming
 	 */
 	@Override
 	public void objectToServer(Object o, Class connectionKey) {
-
+		clientValue.get()
+				.send(o, connectionKey);
 	}
 
 	/**
@@ -75,11 +112,13 @@ class NativeSender implements Sender {
 	 *
 	 * @param clazz    the class of the message, you want to register to
 	 * @param observer the callback object, that should be called, if an Object of the specified type arrives
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer) {
-
+		synchronized (observerLimbo) {
+			observerLimbo.put(clazz, observer);
+		}
+		objectToServer(new CacheRegistration(clazz));
 	}
 
 	/**
@@ -94,11 +133,13 @@ class NativeSender implements Sender {
 	 * @param clazz      the class of the message, you want to register to
 	 * @param observer   the callback object, that should be called, if an Object of the specified type arrives
 	 * @param connection the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer, Connection connection) {
-
+		synchronized (observerLimbo) {
+			observerLimbo.put(clazz, observer);
+		}
+		objectToServer(new CacheRegistration(clazz), connection);
 	}
 
 	/**
@@ -113,11 +154,13 @@ class NativeSender implements Sender {
 	 * @param clazz         the class of the message, you want to register to
 	 * @param observer      the callback object, that should be called, if an Object of the specified type arrives
 	 * @param connectionKey the key for the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer, Class connectionKey) {
-
+		synchronized (observerLimbo) {
+			observerLimbo.put(clazz, observer);
+		}
+		objectToServer(new CacheRegistration(clazz), connectionKey);
 	}
 
 	/**
@@ -127,11 +170,10 @@ class NativeSender implements Sender {
 	 * that will allow te developer to listen for a successful send or incoming messages.
 	 *
 	 * @param clazz the class of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void unRegistrationToServer(Class<T> clazz) {
-
+		objectToServer(new CacheUnRegistration(clazz));
 	}
 
 	/**
@@ -142,11 +184,10 @@ class NativeSender implements Sender {
 	 *
 	 * @param clazz      the class of the message, you want to register to
 	 * @param connection the Connection that should be used
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void unRegistrationToServer(Class<T> clazz, Connection connection) {
-
+		objectToServer(new CacheUnRegistration(clazz), connection);
 	}
 
 	/**
@@ -157,11 +198,10 @@ class NativeSender implements Sender {
 	 *
 	 * @param clazz         the class of the message, you want to register to
 	 * @param connectionKey the class, identifying the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	@Override
 	public <T> void unRegistrationToServer(Class<T> clazz, Class connectionKey) {
-
+		objectToServer(new CacheUnRegistration(clazz), connectionKey);
 	}
 
 	/**
@@ -177,7 +217,10 @@ class NativeSender implements Sender {
 	 */
 	@Override
 	public void reset() {
-
+		synchronized (observerLimbo) {
+			observerLimbo.forEach((key, value) -> cache.removeCacheObserver(value));
+			observerLimbo.clear();
+		}
 	}
 
 	@Override
@@ -192,5 +235,79 @@ class NativeSender implements Sender {
 		// Client whilst still exposing
 		// this? Dunno..
 		clientValue.set(((NativeClientStart) clientStart).getClient());
+		communicationRegistration = clientStart.getCommunicationRegistration();
+		cache = clientStart.cache();
+		handleRegistrations();
+	}
+
+	@Override
+	public void close() {
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(CacheUpdate.class)
+					.remove(cacheUpdateHandler);
+			communicationRegistration.register(CacheAddition.class)
+					.remove(cacheAdditionHandler);
+			communicationRegistration.register(CacheRemove.class)
+					.remove(cacheRemoveHandler);
+			communicationRegistration.register(CacheRegistration.class)
+					.remove(cacheRegistrationHandler);
+			communicationRegistration.register(CacheUnRegistration.class)
+					.remove(cacheUnRegistrationHandler);
+		} catch (InterruptedException e) {
+			logging.catching(e);
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
+	private final class CacheAdditionHandler implements OnReceiveSingle<CacheAddition> {
+
+		@Override
+		public void accept(CacheAddition cacheAddition) {
+			cache.addNew(cacheAddition.getObject());
+		}
+	}
+
+	private final class CacheUpdateHandler implements OnReceiveSingle<CacheUpdate> {
+
+		@Override
+		public void accept(CacheUpdate cacheUpdate) {
+			cache.update(cacheUpdate.getObject());
+		}
+	}
+
+	private final class CacheRemoveHandler implements OnReceiveSingle<CacheRemove> {
+
+		@Override
+		public void accept(CacheRemove cacheRemove) {
+			cache.remove(cacheRemove.getType());
+		}
+	}
+
+	private final class CacheRegistrationHandler implements OnReceive<CacheRegistration> {
+
+		@Override
+		public void accept(Session session, CacheRegistration cacheRegistration) {
+			CacheObserver<?> cacheObserver;
+			synchronized (observerLimbo) {
+				cacheObserver = observerLimbo.get(cacheRegistration.getType());
+			}
+			cache.addCacheObserver(cacheObserver);
+		}
+	}
+
+	private final class CacheUnRegistrationHandler implements OnReceiveSingle<CacheUnRegistration> {
+
+		@Override
+		public void accept(CacheUnRegistration cacheUnRegistration) {
+			synchronized (observerLimbo) {
+				CacheObserver<?> cacheObserver;
+				synchronized (observerLimbo) {
+					cacheObserver = observerLimbo.get(cacheUnRegistration.getType());
+				}
+				cache.removeCacheObserver(cacheObserver);
+			}
+		}
 	}
 }

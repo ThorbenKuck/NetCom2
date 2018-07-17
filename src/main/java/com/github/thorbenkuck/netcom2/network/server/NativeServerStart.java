@@ -4,13 +4,18 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.exceptions.UnknownClientException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 class NativeServerStart implements ServerStart {
 
@@ -21,7 +26,7 @@ class NativeServerStart implements ServerStart {
 	private final Cache cache;
 	private final CommunicationRegistration communicationRegistration;
 	private final ClientFactory clientFactory;
-	private final ConnectorCore connectorCore;
+	private final Value<ConnectorCore> connectorCoreValue = Value.emptySynchronized();
 
 	NativeServerStart(InetSocketAddress address) {
 		Logging logging = loggingValue.get();
@@ -36,9 +41,7 @@ class NativeServerStart implements ServerStart {
 		logging.trace("Opening and storing default ClientFactory");
 		clientFactory = ClientFactory.open(communicationRegistration);
 		logging.trace("Adding default ClientConnectedHandler");
-		addClientConnectedHandler(clientList::add);
-		logging.trace("Setting default ConnectorCore(nio)");
-		connectorCore = ConnectorCore.nio(clientFactory);
+		addClientConnectedHandler(new ClientListConnectedHandler());
 		logging.instantiated(this);
 	}
 
@@ -65,6 +68,11 @@ class NativeServerStart implements ServerStart {
 	}
 
 	@Override
+	public ClientFactory getClientFactory() {
+		return clientFactory;
+	}
+
+	@Override
 	public synchronized void launch() throws StartFailedException {
 		if (running.get()) {
 			loggingValue.get().warn("ServerStart is already started! Cannot start an already started NetworkInterface!");
@@ -76,7 +84,7 @@ class NativeServerStart implements ServerStart {
 		logging.trace("Requesting connectorCore value ..");
 		final InetSocketAddress address = addressValue.get();
 		logging.trace("Requesting connection establishment for " + address);
-		connectorCore.establishConnection(address);
+		connectorCoreValue.get().establishConnection(address);
 
 		logging.trace("Updating running flag ..");
 		running.set(true);
@@ -89,7 +97,7 @@ class NativeServerStart implements ServerStart {
 		logging.debug("Accepting next client.");
 		logging.trace("Checking ConnectorCore value ..");
 		logging.trace("Requesting next Client handling at ConnectorCore ..");
-		connectorCore.handleNext();
+		connectorCoreValue.get().handleNext();
 		logging.debug("New Client handled");
 	}
 
@@ -112,8 +120,9 @@ class NativeServerStart implements ServerStart {
 	 * @see #softStop()
 	 */
 	@Override
-	public void disconnect() {
-		// TODO
+	public void disconnect() throws IOException {
+		softStop();
+		connectorCoreValue.get().disconnect();
 	}
 
 	/**
@@ -147,8 +156,8 @@ class NativeServerStart implements ServerStart {
 	 */
 	@Override
 	public Awaiting createNewConnection(Session session, Class key) {
-		// TODO
-		return null;
+		Client client = clientList.getClient(session).orElseThrow(() -> new UnknownClientException("No Client found for " + session));
+		return client.createNewConnection(key);
 	}
 
 	@Override
@@ -216,6 +225,32 @@ class NativeServerStart implements ServerStart {
 		synchronized (addressValue) {
 			InetSocketAddress current = addressValue.get();
 			addressValue.set(new InetSocketAddress(current.getAddress(), to));
+		}
+	}
+
+	@Override
+	public ServiceDiscoveryHub allowLocalAreaNetworkFind(int port) throws SocketException {
+		ServiceDiscoveryHub hub = ServiceDiscoveryHub.create(port);
+		loggingValue.get().info("Instantiated new ServiceDiscoveryHub");
+		loggingValue.get().debug("This Instance will not be cached!");
+		loggingValue.get().trace("Connecting ServiceDiscoveryHub to this");
+		hub.connect(this);
+		loggingValue.get().trace("Listening for local area network find-attempts");
+		hub.listen();
+		return hub;
+	}
+
+	@Override
+	public void setConnectorCore(ConnectorCore connectorCore) {
+		connectorCoreValue.set(connectorCore);
+	}
+
+	private final class ClientListConnectedHandler implements ClientConnectedHandler {
+
+		@Override
+		public void accept(Client client) {
+			loggingValue.get().debug("Storing connected Client into the ClientList");
+			clientList.add(client);
 		}
 	}
 }
