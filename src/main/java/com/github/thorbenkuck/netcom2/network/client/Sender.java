@@ -62,7 +62,6 @@ public interface Sender extends Module<ClientStart> {
 	 * @param clazz    the class of the message, you want to register to
 	 * @param observer the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>      the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
 	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer);
 
@@ -79,7 +78,6 @@ public interface Sender extends Module<ClientStart> {
 	 * @param observer   the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>        the type of the message, you want to register to
 	 * @param connection the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
 	                              Connection connection);
@@ -97,7 +95,6 @@ public interface Sender extends Module<ClientStart> {
 	 * @param observer      the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the key for the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
 	                              Class connectionKey);
@@ -110,7 +107,6 @@ public interface Sender extends Module<ClientStart> {
 	 *
 	 * @param clazz the class of the message, you want to register to
 	 * @param <T>   the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
 	<T> void unRegistrationToServer(Class<T> clazz);
 
@@ -123,7 +119,6 @@ public interface Sender extends Module<ClientStart> {
 	 * @param clazz      the class of the message, you want to register to
 	 * @param connection the Connection that should be used
 	 * @param <T>        the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
 	<T> void unRegistrationToServer(Class<T> clazz, Connection connection);
 
@@ -136,7 +131,6 @@ public interface Sender extends Module<ClientStart> {
 	 * @param clazz         the class of the message, you want to register to
 	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the class, identifying the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
 	<T> void unRegistrationToServer(Class<T> clazz, Class connectionKey);
 

@@ -57,7 +57,7 @@ public interface ServiceDiscoveryHub {
 		return new NativeServiceDiscoveryHub(port, serverStart.getPort());
 	}
 
-	void addHeaderEntry(Consumer<NativeServiceDiscoveryHub.Header> headerConsumer);
+	void addHeaderEntry(Consumer<Header> headerConsumer);
 
 	void listenBlocking() throws SocketException, InterruptedException;
 

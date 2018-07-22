@@ -8,7 +8,6 @@ import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +28,13 @@ class NativeServiceDiscoverer implements ServiceDiscoverer {
 	NativeServiceDiscoverer(int port) {
 		this.port = port;
 		synchronized (headerMapping) {
-			headerMapping.put("STATUS", (s, r) -> s.equals("200"));
+			headerMapping.put("STATUS", (s, r) -> {
+				if (!s.equals("200")) {
+					logging.info(">>> Message: " + s + " " + r.header().get("MESSAGE"));
+					return false;
+				}
+				return true;
+			});
 			headerMapping.put("TARGET", (s, r) -> {
 				try {
 					logging.debug("Updating target port");
@@ -150,45 +155,32 @@ class NativeServiceDiscoverer implements ServiceDiscoverer {
 
 		private final Value<Boolean> running = Value.synchronize(true);
 
-		private ServiceHubLocation parseHeadEntries(String[] headerEntries, int port, InetAddress address) {
-
-			DiscoveryProcessingRequest request = new DiscoveryProcessingRequest();
+		private ServiceHubLocation parseHeadEntries(Header header, int port, InetAddress address) {
+			DiscoveryProcessingRequest request = new DiscoveryProcessingRequest(header);
 			request.setPort(port);
 			request.setAddress(address);
 
-			for (String string : headerEntries) {
-				if (!string.contains(":")) {
-					logging.warn(">>> Faulty Header Entry: " + string + " <IGNORING>");
-					continue;
-				}
-
-				String[] keyValue = string.split(":");
-				logging.debug(">>> " + Arrays.toString(keyValue));
-				if (keyValue.length != 2) {
-					logging.warn(">>> Faulty Header Entry: " + string + " <IGNORING>");
-					continue;
-				}
-
+			for (Header.Entry entry : header) {
 				BiFunction<String, DiscoveryProcessingRequest, Boolean> converter;
 				synchronized (headerMapping) {
-					converter = headerMapping.get(keyValue[0]);
+					converter = headerMapping.get(entry.key());
 				}
 
 				if (converter == null) {
-					logging.warn(">>> Unhandled Header-Entry: " + string);
+					logging.warn(">>> Unhandled Header-Entry: " + entry);
 					continue;
 				}
 
 				try {
-					boolean result = converter.apply(keyValue[1], request);
+					boolean result = converter.apply(entry.value(), request);
 					if (!result) {
-						logging.warn(">>> Header Entry marked as faulty: " + string + ". This implies no Location found.");
+						logging.warn(">>> Header Entry marked as faulty: " + entry + ". This implies no Location found.");
 						return null;
 					}
 				} catch (Throwable t) {
 					logging.error(">>> Function throw unexpected Throwable! Not tolerable, removing mapping for said header!", t);
 					synchronized (headerMapping) {
-						headerMapping.remove(string);
+						headerMapping.remove(entry.key());
 					}
 					logging.warn(">>> After unexpected Throwable, returning null because of faulty header.");
 					return null;
@@ -202,17 +194,16 @@ class NativeServiceDiscoverer implements ServiceDiscoverer {
 			String[] messageParts = message.split(";");
 			if (messageParts.length == 2) {
 				String originalRequest = messageParts[0];
-				String responseHeader = messageParts[1];
+				String rawResponseHeader = messageParts[1];
 				if (!originalRequest.equals(REQUEST_MESSAGE)) {
-					logging.warn(">>> Received faulty message ping.");
+					logging.warn(">>> Received faulty message ping: " + message);
 					return null;
 				}
 
+				Header header = new Header(rawResponseHeader);
+				logging.debug(">>> " + header);
 
-				String[] headerEntries = responseHeader.split(",");
-				logging.debug(">>> " + Arrays.toString(headerEntries));
-
-				return parseHeadEntries(headerEntries, port, address);
+				return parseHeadEntries(header, port, address);
 			}
 
 
@@ -263,9 +254,15 @@ class NativeServiceDiscoverer implements ServiceDiscoverer {
 
 	public final class DiscoveryProcessingRequest {
 
+		private final Header header;
 		private int port;
 		private InetAddress inetAddress;
 		private String hubName;
+		private boolean valid;
+
+		public DiscoveryProcessingRequest(Header header) {
+			this.header = header;
+		}
 
 		public void setPort(int port) {
 			NetCom2Utils.parameterNotNull(port);
@@ -280,6 +277,18 @@ class NativeServiceDiscoverer implements ServiceDiscoverer {
 		public void setHubName(String hubName) {
 			NetCom2Utils.parameterNotNull(hubName);
 			this.hubName = hubName;
+		}
+
+		public boolean isValid() {
+			return valid;
+		}
+
+		public void invalidate() {
+			valid = false;
+		}
+
+		public Header header() {
+			return header;
 		}
 
 		ServiceHubLocation toServiceHubLocation() {

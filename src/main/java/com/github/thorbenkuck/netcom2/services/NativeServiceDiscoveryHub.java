@@ -171,22 +171,4 @@ class NativeServiceDiscoveryHub implements ServiceDiscoveryHub {
 			running.set(false);
 		}
 	}
-
-	public final class Header {
-
-		private final StringBuilder stringBuilder = new StringBuilder();
-
-		public final void addEntry(String key, String value) {
-			if (!stringBuilder.toString().equals("")) {
-				stringBuilder.append(",");
-			}
-			stringBuilder.append(key).append(":").append(value);
-		}
-
-		@Override
-		public final String toString() {
-			return stringBuilder.toString();
-		}
-
-	}
 }

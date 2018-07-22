@@ -4,7 +4,7 @@ import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 

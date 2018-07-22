@@ -31,7 +31,7 @@ import com.github.thorbenkuck.netcom2.network.shared.session.Session;
  * use the ServerStart directly, but pass the MultipleConnections interface instead.
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.client.ClientStart#createNewConnection(Class)
+ * @see com.github.thorbenkuck.netcom2.network.client.ClientStart#newConnection(Class)
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#createNewConnection(Class)
  * @since 1.0
  */

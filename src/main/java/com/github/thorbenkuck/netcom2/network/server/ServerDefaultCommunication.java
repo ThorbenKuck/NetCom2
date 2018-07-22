@@ -2,10 +2,10 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionResponse;

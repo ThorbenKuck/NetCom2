@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.netcom2.exceptions.ClientCreationFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
@@ -10,7 +11,7 @@ public interface ClientFactory {
 		return new NativeClientFactory(communicationRegistration);
 	}
 
-	Client produce();
+	Client produce() throws ClientCreationFailedException;
 
 	void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
 

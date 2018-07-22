@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;

@@ -1,9 +1,9 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveSingle;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;

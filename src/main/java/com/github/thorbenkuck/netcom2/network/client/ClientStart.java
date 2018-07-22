@@ -70,6 +70,12 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 
 	Awaiting newConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException;
 
+	// Wrong wording
+	@Deprecated
+	default Awaiting createNewConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException {
+		return newConnection(identifier);
+	}
+
 	/**
 	 * Used to send Objects to the ServerStart.
 	 *

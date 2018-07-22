@@ -3,7 +3,8 @@ package com.github.thorbenkuck.netcom2.network.interfaces;
 /**
  * This interface abstracts away the implementing interface, to allow it to have a launch() method.
  * <p>
- * This launch method defines a {@link StartFailedException} to be thrown if anything goes wrong
+ * This launch method defines a {@link com.github.thorbenkuck.netcom2.exceptions.StartFailedException} to be thrown if
+ * anything goes wrong
  *
  * @version 1.0
  * @since 1.0

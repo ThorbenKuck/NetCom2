@@ -8,7 +8,7 @@ import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredExcept
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;

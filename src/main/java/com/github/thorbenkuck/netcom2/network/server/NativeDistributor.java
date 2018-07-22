@@ -3,10 +3,10 @@ package com.github.thorbenkuck.netcom2.network.server;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
-import com.github.thorbenkuck.netcom2.network.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
+import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 

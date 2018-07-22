@@ -24,14 +24,6 @@ public class NetComThreadPool {
 	private static final Logging logging = Logging.unified();
 	private static ExecutorService workerThreadPool = Executors.newCachedThreadPool(new NetComThreadFactory());
 
-	public static void setMaxWorkerProcesses(int to) {
-		maxWorkerProcesses.set(to);
-	}
-
-	public static void setAllowWorkerProcessOverflow(boolean to) {
-		allowOverflow.set(to);
-	}
-
 	private static void checkForWorkerTask() {
 		if (countWorkerTasks() == 0 || readyWorkerTaskCount.get() == 0) {
 			logging.debug("Requiring at least one more WorkerTask.");
@@ -50,6 +42,14 @@ public class NetComThreadPool {
 
 	private synchronized static void incrementReadyWorkerTasks() {
 		readyWorkerTaskCount.set(readyWorkerTaskCount.get() + 1);
+	}
+
+	public static void setMaxWorkerProcesses(int to) {
+		maxWorkerProcesses.set(to);
+	}
+
+	public static void setAllowWorkerProcessOverflow(boolean to) {
+		allowOverflow.set(to);
 	}
 
 	public static void submitTask(Runnable runnable) {
