@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.UUID;
@@ -11,10 +12,12 @@ public class JavaInvocationHandlerProducer implements InvocationHandlerProducer 
 	private final Sender sender;
 	@APILevel
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
+	private final Logging logging = Logging.unified();
 
 	public JavaInvocationHandlerProducer(final Sender sender, final RemoteAccessBlockRegistration remoteAccessBlockRegistration) {
 		this.sender = sender;
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
+		logging.instantiated(this);
 	}
 
 	/**

@@ -14,6 +14,10 @@ public class JavaSerializationAdapter implements SerializationAdapter {
 
 	private final Logging logging = Logging.unified();
 
+	JavaSerializationAdapter() {
+		logging.instantiated(this);
+	}
+
 	@Override
 	public String apply(final Object o) throws SerializationFailedException {
 		NetCom2Utils.parameterNotNull(o);

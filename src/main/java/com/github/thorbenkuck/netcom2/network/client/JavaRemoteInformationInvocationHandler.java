@@ -5,6 +5,7 @@ import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
 import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 
@@ -22,6 +23,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 	private final Class<?> clazz;
 	private final UUID uuid;
+	private final Logging logging = Logging.unified();
 	private Runnable fallbackRunnable;
 	private T fallbackInstance;
 
@@ -32,6 +34,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		this.clazz = clazz;
 		this.uuid = uuid;
+		logging.instantiated(this);
 	}
 
 	/**

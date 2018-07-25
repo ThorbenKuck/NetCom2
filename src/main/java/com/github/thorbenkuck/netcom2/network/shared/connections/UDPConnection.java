@@ -5,7 +5,6 @@ import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -33,6 +32,7 @@ class UDPConnection implements Connection {
 	UDPConnection(DatagramSocket datagramSocket) {
 		this.datagramSocket = datagramSocket;
 		readingWorker = new ReadingWorker(datagramSocket, this::addRawData);
+		logging.instantiated(this);
 	}
 
 	private void addRawData(RawData readData) {
@@ -82,7 +82,7 @@ class UDPConnection implements Connection {
 	}
 
 	@Override
-	public void hook(Client client) {
+	public void hook(ConnectionContext connectionContext) {
 
 	}
 

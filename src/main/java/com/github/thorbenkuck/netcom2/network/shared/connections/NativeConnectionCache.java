@@ -1,11 +1,17 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 public class NativeConnectionCache implements ConnectionCache {
 
 	private static final byte[] EMPTY_BYTES = new byte[0];
 	private final Value<byte[]> bytesValue = Value.synchronize(EMPTY_BYTES);
+	private final Logging logging = Logging.unified();
+
+	NativeConnectionCache() {
+		logging.instantiated(this);
+	}
 
 	private byte[] concatenate(byte[] a, byte[] b) {
 		int aLen = a.length;

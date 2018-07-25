@@ -49,6 +49,10 @@ public class NetComLogging implements Logging {
 		}
 	}
 
+	public NetComLogging() {
+		instantiated(this);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

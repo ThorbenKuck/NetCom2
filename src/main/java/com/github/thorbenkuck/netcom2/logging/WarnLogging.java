@@ -19,6 +19,7 @@ public class WarnLogging implements Logging {
 
 	public WarnLogging(final Logging base) {
 		this.style = base;
+		instantiated(this);
 	}
 
 	/**

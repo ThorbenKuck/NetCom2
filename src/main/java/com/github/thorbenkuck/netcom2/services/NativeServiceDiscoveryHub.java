@@ -12,7 +12,7 @@ import java.net.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-class NativeServiceDiscoveryHub implements ServiceDiscoveryHub {
+final class NativeServiceDiscoveryHub implements ServiceDiscoveryHub {
 
 	private final Value<Integer> port;
 	private final Value<Integer> targetPort;

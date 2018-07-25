@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionInitializer;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
 
@@ -22,6 +23,10 @@ class NativeTCPClientCore implements ClientCore {
 	private final Synchronize shutdownSynchronize = Synchronize.createDefault();
 	private final EventLoop eventLoop = EventLoop.openBlocking();
 	private final Value<Boolean> initialized = Value.synchronize(false);
+
+	NativeTCPClientCore() {
+		logging.instantiated(this);
+	}
 
 	private synchronized void init() {
 		if (initialized.get()) {
@@ -92,7 +97,7 @@ class NativeTCPClientCore implements ClientCore {
 
 		Connection connection = Connection.tcp(socket);
 		connection.setIdentifier(connectionKey);
-		connection.hook(client);
+		connection.hook(ConnectionContext.combine(client, connection));
 
 		client.prepareConnection(connectionKey);
 		client.setConnection(connectionKey, connection);

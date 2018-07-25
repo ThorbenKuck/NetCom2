@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -37,7 +36,7 @@ public interface Connection {
 
 	void read(Consumer<Queue<RawData>> callback) throws IOException;
 
-	void hook(Client client);
+	void hook(ConnectionContext connectionContext);
 
 	void read() throws IOException;
 

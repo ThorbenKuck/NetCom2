@@ -10,6 +10,7 @@ class NativeClientSendBridge implements SendBridge {
 
 	NativeClientSendBridge(Client client) {
 		this.client = client;
+		logging.instantiated(this);
 	}
 
 	@Override

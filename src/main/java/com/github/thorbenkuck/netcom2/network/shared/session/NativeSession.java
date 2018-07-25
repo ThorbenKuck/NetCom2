@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.session;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -15,9 +16,11 @@ public class NativeSession implements Session {
 	private final Value<Properties> propertiesValue = Value.synchronize(new Properties());
 	private final Synchronize synchronize = Synchronize.createDefault();
 	private final Semaphore mutex = new Semaphore(1);
+	private final Logging logging = Logging.unified();
 
 	public NativeSession(SendBridge sendBridge) {
 		this.sendBridge = sendBridge;
+		logging.instantiated(this);
 	}
 
 	/**

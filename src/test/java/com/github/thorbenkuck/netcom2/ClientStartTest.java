@@ -15,23 +15,15 @@ public class ClientStartTest {
 	private static int received;
 
 	ClientStartTest() throws StartFailedException {
-		System.out.println("Creating ClientStart");
 		clientStart = ClientStart.at("localhost", 4444);
-		System.out.println("Registering Communication");
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(this::print);
-		System.out.println("Adding disconnected Handler");
 		clientStart.addDisconnectedHandler(client -> System.out.println("Disconnected"));
-		System.out.print("Connecting .. ");
 		clientStart.launch();
-		System.out.println("OK");
 		clientStart.startBlockerThread();
-		System.out.println("Opening Sender");
 		sender = Sender.open(clientStart);
-		System.out.print("Logging in .. ");
 		sender.objectToServer(new Login());
-		System.out.println("OK\n\n\n\nClient ready.\n\n");
 	}
 
 	public static void main(String[] args) throws InterruptedException, StartFailedException {

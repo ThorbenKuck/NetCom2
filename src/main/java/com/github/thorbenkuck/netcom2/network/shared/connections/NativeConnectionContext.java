@@ -141,7 +141,7 @@ class NativeConnectionContext implements ConnectionContext {
 		logging.trace("Storing Connection into the new Client");
 		newClient.addConnection(connection);
 		logging.trace("Hooking the new Client to the associated Connection");
-		connection.hook(newClient);
+		connection.hook(ConnectionContext.combine(client, connection));
 		logging.trace("Fetching Connection identifier");
 		Class<?> clazz = connection.getIdentifier().orElseThrow(() -> new IllegalStateException("No Connection set for " + connection));
 		logging.trace("Fetching Synchronize for this Connection");

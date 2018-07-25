@@ -28,13 +28,13 @@ class NativeSelectorChannel implements SelectorChannel {
 	}
 
 	private void add(RegistrationRequest registrationRequest) {
-		logging.trace("[SelectorChannel]: Adding new RegistrationRequest");
-		logging.trace("[SelectorChannel]: Accessing requests");
+		logging.trace("Adding new RegistrationRequest");
+		logging.trace("Accessing requests");
 		synchronized (requests) {
-			logging.trace("[SelectorChannel]: Adding RegistrationRequest to RequestQueue");
+			logging.trace("Adding RegistrationRequest to RequestQueue");
 			requests.add(registrationRequest);
 		}
-		logging.debug("[SelectorChannel]: Waking underlying Selector");
+		logging.debug("Waking underlying Selector");
 		selector.wakeup();
 	}
 
@@ -70,31 +70,31 @@ class NativeSelectorChannel implements SelectorChannel {
 
 	@Override
 	public void close() throws IOException {
-		logging.debug("[SelectorChannel]: Closing");
-		logging.trace("[SelectorChannel]: Requesting stop of ReadRunnable");
+		logging.debug("Closing");
+		logging.trace("Requesting stop of ReadRunnable");
 		Awaiting shutdown = READ_RUNNABLE.stop();
-		logging.trace("[SelectorChannel]: Waking up underlying Selector");
+		logging.trace("Waking up underlying Selector");
 		selector.wakeup();
 		try {
-			logging.trace("[SelectorChannel]: Awaiting shutdown of ReadRunnable");
+			logging.trace("Awaiting shutdown of ReadRunnable");
 			shutdown.synchronize();
-			logging.debug("[SelectorChannel]: ReadRunnable shutdown finished");
+			logging.debug("ReadRunnable shutdown finished");
 		} catch (InterruptedException e) {
 			logging.catching(e);
 		}
-		logging.trace("[SelectorChannel]: Accessing RequestQueue");
+		logging.trace("Accessing RequestQueue");
 		synchronized (requests) {
-			logging.trace("[SelectorChannel]: Clearing RequestQueue");
+			logging.trace("Clearing RequestQueue");
 			requests.clear();
 		}
-		logging.trace("[SelectorChannel]: Accessing OperationCallbacks");
+		logging.trace("Accessing OperationCallbacks");
 		synchronized (operationCallback) {
-			logging.trace("[SelectorChannel]: Clearing OperationCallbacks");
+			logging.trace("Clearing OperationCallbacks");
 			operationCallback.clear();
 		}
-		logging.trace("[SelectorChannel]: Closing underlying Selector");
+		logging.trace("Closing underlying Selector");
 		selector.close();
-		logging.info("[SelectorChannel]: Closed");
+		logging.info("Closed");
 	}
 
 	@Override
@@ -134,36 +134,36 @@ class NativeSelectorChannel implements SelectorChannel {
 		// You hypocrites.. bullshit
 		@SuppressWarnings("MagicConstant")
 		private void handleRegistration(Queue<RegistrationRequest> copy) {
-			logging.debug("[ReadRunnable]: Handling new registrations");
+			logging.debug("Handling new registrations");
 			while(copy.peek() != null) {
-				logging.trace("[ReadRunnable]: Polling next Registration request");
+				logging.trace("Polling next Registration request");
 				final RegistrationRequest registrationRequest = copy.poll();
 				final SocketChannel socketChannel = registrationRequest.getSocketChannel();
 				try {
-					logging.trace("[ReadRunnable]: Checking connected SocketChannel");
+					logging.trace("Checking connected SocketChannel");
 					if(socketChannel.isOpen()) {
-						logging.trace("[ReadRunnable]: SocketChannel is open. Registering socketChannel ..");
+						logging.trace("SocketChannel is open. Registering socketChannel ..");
 						socketChannel.register(selector, registrationRequest.getOp());
 					}
 				} catch (ClosedChannelException e) {
-					logging.error("[ReadRunnable]: Channel was already closed!", e);
+					logging.error("Channel was already closed!", e);
 				}
 			}
 		}
 
 		private void handleSelect(Set<SelectionKey> selectionKeys) {
-			logging.debug("[ReadRunnable]: Handling select ..");
-			logging.trace("[ReadRunnable]: Fetching Iterator");
+			logging.debug("Handling select ..");
+			logging.trace("Fetching Iterator");
 			final Iterator<SelectionKey> iterator = selectionKeys.iterator();
-			logging.trace("[ReadRunnable]: Checking keys");
+			logging.trace("Checking keys");
 			while (iterator.hasNext()) {
-				logging.trace("[ReadRunnable]: Fetching next key");
+				logging.trace("Fetching next key");
 				final SelectionKey key = iterator.next();
-				logging.trace("[ReadRunnable]: Removing key from Iterator");
+				logging.trace("Removing key from Iterator");
 				iterator.remove();
 
 				if(!key.isValid()) {
-					logging.debug("[ReadRunnable]: Key is invalid! Continuing ..");
+					logging.debug("Key is invalid! Continuing ..");
 					continue;
 				}
 
@@ -174,7 +174,7 @@ class NativeSelectorChannel implements SelectorChannel {
 				// stupid constants int to boolean conversion..
 				// Maybe this is possible:
 				// int ops = key.readyOps() << SomeMagicConstant;
-				logging.trace("[ReadRunnable]: Fetching ops");
+				logging.trace("Fetching ops");
 				if(key.isAcceptable()) {
 					ops = SelectionKey.OP_ACCEPT;
 				} else if(key.isConnectable()) {
@@ -185,9 +185,9 @@ class NativeSelectorChannel implements SelectorChannel {
 					ops = SelectionKey.OP_WRITE;
 				}
 
-				logging.trace("[ReadRunnable]: Accessing OperationCallback");
+				logging.trace("Accessing OperationCallback");
 				synchronized (operationCallback) {
-					logging.trace("[ReadRunnable]: Accepting OperationCallback");
+					logging.trace("Accepting OperationCallback");
 					operationCallback.getOrDefault(ops, selected -> logging.warn("Unhandled key: " + selected)).accept(key);
 				}
 			}
@@ -195,38 +195,38 @@ class NativeSelectorChannel implements SelectorChannel {
 
 		@Override
 		public void run() {
-			logging.info(NIOUtils.convertForNIOLog("[ReadRunnable]: Starting"));
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Updating Running flag"));
+			logging.info("Starting");
+			logging.trace("Updating Running flag");
 			running.set(true);
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Resetting ShutdownSynchronize"));
+			logging.trace("Resetting ShutdownSynchronize");
 			shutdownSynchronize.reset();
 
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Entering while loop"));
+			logging.trace("Entering while loop");
 			while (isRunning()) {
 				try {
-					logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Awaiting Selector action .."));
+					logging.trace("Awaiting Selector action ..");
 					final int selected = selector.select();
 					// This check is done, to
 					// provide the function of
 					// gracefully shutting
 					// this runnable down
 					// without any Exception
-					logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Checking if still running"));
+					logging.trace("Checking if still running");
 					if (isRunning()) {
-						logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Still running. Checking request"));
+						logging.trace("Still running. Checking request");
 						if (!requests.isEmpty()) {
-							logging.debug(NIOUtils.convertForNIOLog("[ReadRunnable]: Found new registration requests"));
-							logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Copying results"));
+							logging.debug("Found new registration requests");
+							logging.trace("Copying results");
 							final Queue<RegistrationRequest> copy;
 							synchronized (requests) {
 								copy = new LinkedList<>(requests);
 							}
-							logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Handling registrations."));
+							logging.trace("Handling registrations.");
 							handleRegistration(copy);
 						}
-						logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Checking for selected Actions"));
+						logging.trace("Checking for selected Actions");
 						if (selected != 0) {
-							logging.debug(NIOUtils.convertForNIOLog("[ReadRunnable]: Found selected keys!"));
+							logging.debug("Found selected keys!");
 							handleSelect(selector.selectedKeys());
 						}
 					}
@@ -238,11 +238,11 @@ class NativeSelectorChannel implements SelectorChannel {
 				}
 			}
 
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Stopping"));
+			logging.trace("Stopping");
 			running.set(false);
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Releasing waiting Threads"));
+			logging.trace("Releasing waiting Threads");
 			shutdownSynchronize.goOn();
-			logging.trace(NIOUtils.convertForNIOLog("[ReadRunnable]: Finished"));
+			logging.trace("Finished");
 		}
 
 		public boolean isRunning() {
@@ -250,10 +250,10 @@ class NativeSelectorChannel implements SelectorChannel {
 		}
 
 		public Awaiting stop() {
-			logging.debug("[ReadRunnable]: Stopping");
-			logging.trace("[ReadRunnable]: Updating running flag");
+			logging.debug("Stopping");
+			logging.trace("Updating running flag");
 			running.set(false);
-			logging.trace("[ReadRunnable]: Returning Synchronize");
+			logging.trace("Returning Synchronize");
 			return shutdownSynchronize;
 		}
 	}

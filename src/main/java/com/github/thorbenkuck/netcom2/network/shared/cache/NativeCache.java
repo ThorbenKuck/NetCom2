@@ -14,6 +14,10 @@ public class NativeCache extends CacheObservable implements Cache {
 	private final Semaphore semaphore = new Semaphore(1);
 	private Logging logging = Logging.unified();
 
+	NativeCache() {
+		logging.instantiated(this);
+	}
+
 	/**
 	 * Notifies all Observers about an updated Entry.
 	 *

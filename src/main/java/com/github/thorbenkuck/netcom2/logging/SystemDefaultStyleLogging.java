@@ -29,6 +29,7 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	public SystemDefaultStyleLogging(final PrintStream printStream) {
 		out = printStream;
+		instantiated(this);
 	}
 
 	/**

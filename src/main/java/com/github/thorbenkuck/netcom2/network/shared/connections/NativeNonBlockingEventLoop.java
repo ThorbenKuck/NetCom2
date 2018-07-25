@@ -18,7 +18,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import static com.github.thorbenkuck.netcom2.network.shared.NIOUtils.convertForNIOLog;
 import static java.nio.channels.SelectionKey.OP_READ;
 
 class NativeNonBlockingEventLoop implements EventLoop {
@@ -99,22 +98,22 @@ class NativeNonBlockingEventLoop implements EventLoop {
 
 	@Override
 	public void register(Connection connection) {
-		logging.debug(convertForNIOLog("Registering new Connection"));
-		logging.trace(convertForNIOLog("Requiring NIOConnection type"));
+		logging.debug("Registering new Connection");
+		logging.trace("Requiring NIOConnection type");
 		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
-		logging.trace(convertForNIOLog("Accessing Selector .."));
+		logging.trace("Accessing Selector ..");
 		try {
 			selectorLock.lock();
 			if (!selectorChannel.isRunning()) {
-				logging.debug(convertForNIOLog("Selector is closed. Ignoring request for registration."));
+				logging.debug("Selector is closed. Ignoring request for registration.");
 				return;
 			}
-			logging.trace(convertForNIOLog("Storing association between SocketChannel and Connection"));
+			logging.trace("Storing association between SocketChannel and Connection");
 			store(socketChannel, connection);
-			logging.trace(convertForNIOLog("Registering SocketChannel to Selector for reading .."));
+			logging.trace("Registering SocketChannel to Selector for reading ..");
 			selectorChannel.registerForReading(socketChannel);
-			logging.debug(convertForNIOLog("SocketChannel registered"));
-			logging.trace(convertForNIOLog("Registering Connection shutdown hook"));
+			logging.debug("SocketChannel registered");
+			logging.trace("Registering Connection shutdown hook");
 			connection.addShutdownHook(SHUTDOWN_HOOK);
 		} finally {
 			selectorLock.unlock();
@@ -123,43 +122,43 @@ class NativeNonBlockingEventLoop implements EventLoop {
 
 	@Override
 	public void unregister(Connection connection) {
-		logging.debug(convertForNIOLog("Unregister provided Connection"));
-		logging.trace(convertForNIOLog("Requiring NIOConnection type"));
+		logging.debug("Unregister provided Connection");
+		logging.trace("Requiring NIOConnection type");
 		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
-		logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+		logging.trace("Acquiring SelectorLock");
 		try {
 			selectorLock.lock();
-			logging.trace(convertForNIOLog("Canceling keys .."));
+			logging.trace("Canceling keys ..");
 			selectorChannel.unregister(socketChannel);
-			logging.trace(convertForNIOLog("Clearing association"));
+			logging.trace("Clearing association");
 			remove(socketChannel);
-			logging.trace(convertForNIOLog("Unregister Connection shutdown hook"));
+			logging.trace("Unregister Connection shutdown hook");
 			connection.removeShutdownHook(SHUTDOWN_HOOK);
 		} finally {
 			selectorLock.unlock();
-			logging.trace(convertForNIOLog("Released SelectorLock"));
+			logging.trace("Released SelectorLock");
 		}
 	}
 
 	@Override
 	public void start() {
-		logging.debug(convertForNIOLog("Starting NIOEventLoop"));
-		logging.trace(convertForNIOLog("Requesting selection extract into separate Thread"));
+		logging.debug("Starting NIOEventLoop");
+		logging.trace("Requesting selection extract into separate Thread");
 		selectorChannel.start();
 		NetComThreadPool.submitCustomProcess(PARALLEL_OBJECT_HANDLER);
-		logging.debug(convertForNIOLog("NIOEventLoop started"));
+		logging.debug("NIOEventLoop started");
 	}
 
 	@Override
 	public void shutdown() throws IOException {
 		try {
-			logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+			logging.trace("Acquiring SelectorLock");
 			selectorLock.lock();
 			selectorChannel.close();
 			PARALLEL_OBJECT_HANDLER.running.set(false);
 		} finally {
 			selectorLock.unlock();
-			logging.trace(convertForNIOLog("Released SelectorLock"));
+			logging.trace("Released SelectorLock");
 		}
 	}
 
@@ -181,12 +180,12 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	@Override
 	public boolean isRunning() {
 		try {
-			logging.trace(convertForNIOLog("Acquiring SelectorLock"));
+			logging.trace("Acquiring SelectorLock");
 			selectorLock.lock();
 			return selectorChannel.isRunning();
 		} finally {
 			selectorLock.unlock();
-			logging.trace(convertForNIOLog("Released SelectorLock"));
+			logging.trace("Released SelectorLock");
 		}
 	}
 
@@ -214,26 +213,26 @@ class NativeNonBlockingEventLoop implements EventLoop {
 
 		@Override
 		public void run() {
-			logging.info("[ObjectHandlerRunnable]: Listening to new RawDataPackages");
-			logging.trace("[ObjectHandlerRunnable]: Setting running flag");
+			logging.info("Listening to new RawDataPackages");
+			logging.trace("Setting running flag");
 			running.set(true);
-			logging.trace("[ObjectHandlerRunnable]: entering while loop");
+			logging.trace("entering while loop");
 			while (running.get()) {
 				try {
-					logging.trace("[ObjectHandlerRunnable]: Awaiting new RawDataPackage");
+					logging.trace("Awaiting new RawDataPackage");
 					final RawDataPackage rawDataPackage = dataQueue.take();
-					logging.trace("[ObjectHandlerRunnable]: Found new RawDataPackage");
+					logging.trace("Found new RawDataPackage");
 					final Connection connection = rawDataPackage.getConnection();
-					logging.trace("[ObjectHandlerRunnable]: Fetching all RawData");
+					logging.trace("Fetching all RawData");
 					final Queue<RawData> rawData = rawDataPackage.getRawData();
-					logging.trace("[ObjectHandlerRunnable]: Checking amount of RawData");
+					logging.trace("Checking amount of RawData");
 					if (rawData.size() != 0 && (connection.isOpen() || connection.inSetup())) {
-						logging.debug("[ObjectHandlerRunnable]: RawData can be processed.");
-						logging.trace("[ObjectHandlerRunnable]: Checking context of set Connection");
+						logging.debug("RawData can be processed.");
+						logging.trace("Checking context of set Connection");
 						if (connection.context() == null) {
-							logging.warn("[ObjectHandlerRunnable]: Found faulty not-hooked Connection! Ignoring for now..");
+							logging.warn("Found faulty not-hooked Connection! Ignoring for now..");
 						} else {
-							logging.trace("[ObjectHandlerRunnable]: Notifying ConnectionContext about received data");
+							logging.trace("Notifying ConnectionContext about received data");
 							while (rawData.peek() != null) {
 								connection.context().receive(rawData.poll());
 							}
@@ -242,7 +241,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 						logging.warn("Connection is not open, nor in setup!");
 					}
 				} catch (InterruptedException e) {
-					logging.trace("[ObjectHandlerRunnable]: Interrupted while awaiting next DataPackage");
+					logging.trace("Interrupted while awaiting next DataPackage");
 					if (!running.get()) {
 						logging.warn("Was still running! Stopping now!");
 						running.set(false);
@@ -250,7 +249,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 					}
 				}
 			}
-			logging.trace("[ObjectHandlerRunnable]: Finished");
+			logging.trace("Finished");
 		}
 	}
 }

@@ -42,6 +42,7 @@ class NativeClient implements Client {
 	NativeClient(CommunicationRegistration communicationRegistration) {
 		this.communicationRegistration = communicationRegistration;
 		clientID = ClientID.empty();
+		logging.instantiated(this);
 	}
 
 	private String convert(Object object) {

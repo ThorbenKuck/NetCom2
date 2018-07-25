@@ -10,6 +10,11 @@ import com.github.thorbenkuck.netcom2.annotations.Synchronized;
  */
 @Synchronized
 public class DisabledLogging implements Logging {
+
+	public DisabledLogging() {
+		instantiated(this);
+	}
+
 	/**
 	 * <b>This method call will be ignored!</b>
 	 * {@inheritDoc}

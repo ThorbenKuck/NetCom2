@@ -19,6 +19,7 @@ public class InfoLogging implements Logging {
 
 	public InfoLogging(final Logging base) {
 		this.style = base;
+		instantiated(this);
 	}
 
 	/**

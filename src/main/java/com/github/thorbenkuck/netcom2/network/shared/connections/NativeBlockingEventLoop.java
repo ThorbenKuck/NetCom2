@@ -22,6 +22,10 @@ public class NativeBlockingEventLoop implements EventLoop {
 	private final RawDataPackageProcess process = new RawDataPackageProcess();
 	private final List<RawDataPackageProcess> separateProcesses = new ArrayList<>();
 
+	NativeBlockingEventLoop() {
+		logging.instantiated(this);
+	}
+
 	private void prepareRawData(Queue<RawData> rawDataQueue, Connection connection) {
 		RawDataPackage rawDataPackage = new RawDataPackage(rawDataQueue, connection);
 		dataQueue.add(rawDataPackage);

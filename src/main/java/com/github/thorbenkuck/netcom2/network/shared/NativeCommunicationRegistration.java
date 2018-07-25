@@ -27,7 +27,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 
 	NativeCommunicationRegistration() {
-		logging.trace("[CommunicationRegistration]: requesting one new WorkerTask");
+		logging.trace("Requesting one new WorkerTask");
 		NetComThreadPool.startWorkerProcess();
 		logging.instantiated(this);
 	}

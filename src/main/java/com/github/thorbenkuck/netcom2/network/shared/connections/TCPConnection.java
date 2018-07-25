@@ -6,7 +6,6 @@ import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.BufferedReader;
@@ -36,6 +35,7 @@ class TCPConnection implements Connection {
 	TCPConnection(Socket socket) {
 		this.socket = socket;
 		readingWorker = new ReadingWorker(socket, this::addRawData);
+		logging.instantiated(this);
 	}
 
 	private void addRawData(RawData readData) {
@@ -87,8 +87,8 @@ class TCPConnection implements Connection {
 	}
 
 	@Override
-	public void hook(Client client) {
-		contextValue.set(ConnectionContext.combine(client, this));
+	public void hook(ConnectionContext connectionContext) {
+		contextValue.set(connectionContext);
 	}
 
 	@Override

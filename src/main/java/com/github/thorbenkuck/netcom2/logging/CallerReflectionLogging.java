@@ -28,6 +28,7 @@ public class CallerReflectionLogging implements Logging {
 		NetCom2Utils.assertNotNull(base);
 		this.style = base;
 		warn("This Logging-Mechanism is very workload-intensive!");
+		instantiated(this);
 	}
 
 	/**

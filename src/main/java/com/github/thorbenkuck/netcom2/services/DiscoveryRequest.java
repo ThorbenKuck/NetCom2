@@ -1,15 +1,17 @@
 package com.github.thorbenkuck.netcom2.services;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class DiscoveryRequest {
+public final class DiscoveryRequest {
 
 	private final DatagramPacket address;
 	private final DatagramSocket socket;
 	private final Value<Boolean> valid = Value.of(true);
+	private final Logging logging = Logging.unified();
 
 	DiscoveryRequest(DatagramPacket address, DatagramSocket socket) {
 		this.address = address;

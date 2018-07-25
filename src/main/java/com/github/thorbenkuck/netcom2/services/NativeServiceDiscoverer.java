@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-class NativeServiceDiscoverer implements ServiceDiscoverer {
+final class NativeServiceDiscoverer implements ServiceDiscoverer {
 
 	private static final String REQUEST_MESSAGE = "NET_COM_SERVICE_DISCOVER_REQUEST";
 	private final ServiceFinderProcess process = new ServiceFinderProcess();

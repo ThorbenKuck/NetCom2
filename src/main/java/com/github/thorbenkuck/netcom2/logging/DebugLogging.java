@@ -19,6 +19,7 @@ public class DebugLogging implements Logging {
 
 	public DebugLogging(final Logging base) {
 		this.style = base;
+		instantiated(this);
 	}
 
 	/**

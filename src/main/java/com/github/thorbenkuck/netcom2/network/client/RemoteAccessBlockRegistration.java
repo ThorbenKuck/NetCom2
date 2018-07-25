@@ -17,6 +17,10 @@ class RemoteAccessBlockRegistration {
 	private final Map<UUID, RemoteAccessCommunicationResponse> responseMap = new HashMap<>();
 	private final Logging logging = Logging.unified();
 
+	RemoteAccessBlockRegistration() {
+		logging.instantiated(this);
+	}
+
 	/**
 	 * This Method will fetch an existing Semaphore out of the internal Mapping, identified by the UUID
 	 * <p>

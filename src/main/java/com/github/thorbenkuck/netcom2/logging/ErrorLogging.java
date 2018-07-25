@@ -19,6 +19,7 @@ public class ErrorLogging implements Logging {
 
 	public ErrorLogging(final Logging base) {
 		this.style = base;
+		instantiated(this);
 	}
 
 	/**

@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Header implements Iterable<Header.Entry> {
+public final class Header implements Iterable<Header.Entry> {
 
+	private static final String KEY_VALUE_SEPARATOR = ":";
+	private static final String ENTRY_SEPARATOR = ",";
 	private final List<Entry> entries = new ArrayList<>();
 	private final List<String> takenKeys = new ArrayList<>();
-	private String keyValueSeparator = ":";
-	private String entrySeparator = ",";
 
-	public Header() {
+	Header() {
 	}
 
-	public Header(String rawHeader) {
-		String[] newEntries = rawHeader.split(entrySeparator);
+	Header(String rawHeader) {
+		String[] newEntries = rawHeader.split(ENTRY_SEPARATOR);
 		for (String string : newEntries) {
 			addEntry(new Entry(string));
 		}
@@ -71,16 +71,16 @@ public class Header implements Iterable<Header.Entry> {
 		private final String key;
 		private final String value;
 
-		public Entry(String key, String value) {
+		Entry(String key, String value) {
 			this.key = key;
 			this.value = value;
 		}
 
-		public Entry(String keyValue) {
-			if (!keyValue.contains(keyValueSeparator)) {
+		Entry(String keyValue) {
+			if (!keyValue.contains(KEY_VALUE_SEPARATOR)) {
 				throw new IllegalArgumentException("Incorrect format " + keyValue);
 			}
-			String[] split = keyValue.split(keyValueSeparator);
+			String[] split = keyValue.split(KEY_VALUE_SEPARATOR);
 			if (split.length != 2) {
 				throw new IllegalArgumentException("Incorrect format " + keyValue);
 			}

@@ -13,6 +13,10 @@ public class JavaDeserializationAdapter implements DeSerializationAdapter {
 
 	private final Logging logging = Logging.unified();
 
+	JavaDeserializationAdapter() {
+		logging.instantiated(this);
+	}
+
 	@Override
 	public Object apply(String string) throws DeSerializationFailedException {
 		final Object o;

@@ -7,7 +7,6 @@ import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionDisconnectedException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.IOException;
@@ -16,8 +15,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.function.Consumer;
-
-import static com.github.thorbenkuck.netcom2.network.shared.NIOUtils.convertForNIOLog;
 
 class NIOConnection implements Connection {
 
@@ -41,16 +38,16 @@ class NIOConnection implements Connection {
 
 	private void writeTo(ByteBuffer byteBuffer) {
 		try {
-			logging.trace(convertForNIOLog("Starting to write to output from ByteBuffer .."));
+			logging.trace("Starting to write to output from ByteBuffer ..");
 			logging.trace("ByteBuffer state: " + Arrays.toString(byteBuffer.array()));
 			while (byteBuffer.hasRemaining()) {
 				// TODO Extract into Selector if read fails 3 times
-				logging.trace(convertForNIOLog("Found remaining bytes in ByteBuffer .."));
+				logging.trace("Found remaining bytes in ByteBuffer ..");
 				socketChannel.write(byteBuffer);
 			}
-			logging.trace(convertForNIOLog("Successfully performed write"));
+			logging.trace("Successfully performed write");
 		} catch (IOException e) {
-			logging.error(convertForNIOLog("Encountered IOException while writing to SocketChannel!"));
+			logging.error("Encountered IOException while writing to SocketChannel!");
 			SendFailedException sendFailedException = new SendFailedException(e);
 			logging.trace("Closing " + this);
 			try {
@@ -64,23 +61,23 @@ class NIOConnection implements Connection {
 	}
 
 	private void writeNewWrapped(byte[] data) {
-		logging.debug(convertForNIOLog("Write using possibly new ByteBuffer"));
-		logging.trace(convertForNIOLog("Requesting ByteBuffer containing " + data.length + " bytes"));
+		logging.debug("Write using possibly new ByteBuffer");
+		logging.trace("Requesting ByteBuffer containing " + data.length + " bytes");
 		ByteBuffer byteBuffer = buffer.allocate(data);
-		logging.trace(convertForNIOLog("ByteBuffer value: (size=" + byteBuffer.capacity() + ") "));
-		logging.trace(convertForNIOLog("Checking ByteBuffer size if it fits the data"));
+		logging.trace("ByteBuffer value: (size=" + byteBuffer.capacity() + ") ");
+		logging.trace("Checking ByteBuffer size if it fits the data");
 		if (data.length > byteBuffer.capacity()) {
 			throw new IllegalStateException("[InternalError]: The requested ByteBuffer has an invalid size. Please submit this to github");
 		}
-		logging.trace(convertForNIOLog("Requesting writeTo with fetched ByteBuffer"));
+		logging.trace("Requesting writeTo with fetched ByteBuffer");
 		writeTo(byteBuffer);
 		logging.trace("Freeing used ByteBuffer ");
 		buffer.free(byteBuffer);
 	}
 
 	private byte[] doRead(ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
-		logging.debug(convertForNIOLog("Initializing concrete read from SocketChannel"));
-		logging.trace(convertForNIOLog("Checking underlying Socket Channel"));
+		logging.debug("Initializing concrete read from SocketChannel");
+		logging.trace("Checking underlying Socket Channel");
 		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
 			throw new ConnectionDisconnectedException("SocketChannel is closed");
 		}
@@ -116,24 +113,24 @@ class NIOConnection implements Connection {
 
 	@Override
 	public void close() throws IOException {
-		logging.debug(convertForNIOLog("Closing Connection"));
-		logging.trace(convertForNIOLog("This methods only concern is, to shutdown the SocketChannel"));
-		logging.trace(convertForNIOLog("Closing underlying SocketChannel"));
+		logging.debug("Closing Connection");
+		logging.trace("This methods only concern is, to shutdown the SocketChannel");
+		logging.trace("Closing underlying SocketChannel");
 		socketChannel.close();
-		logging.trace(convertForNIOLog("Applying callback Pipeline"));
+		logging.trace("Applying callback Pipeline");
 		shutdownPipeline.apply(this);
-		logging.trace(convertForNIOLog("Updating open flag"));
+		logging.trace("Updating open flag");
 		open.set(false);
 	}
 
 	@Override
 	public void open() throws IOException {
-		logging.debug(convertForNIOLog("Opening " + this));
-		logging.trace(convertForNIOLog("Updating open flag"));
+		logging.debug("Opening " + this);
+		logging.trace("Updating open flag");
 		open.set(true);
-		logging.trace(convertForNIOLog("Enforcing socketChannel finish connect"));
+		logging.trace("Enforcing socketChannel finish connect");
 		socketChannel.finishConnect();
-		logging.debug(convertForNIOLog("Connection is now considered open"));
+		logging.debug("Connection is now considered open");
 	}
 
 	@Override
@@ -143,14 +140,25 @@ class NIOConnection implements Connection {
 
 	@Override
 	public void write(byte[] data) {
-		logging.debug(convertForNIOLog("Starting to write"));
-		logging.trace(convertForNIOLog("Performing sanity-checks on data .."));
+		logging.debug("Starting to write");
+		logging.trace("Performing sanity-checks on data ..");
 		if (data == null) {
 			throw new SendFailedException("Can not send null data");
 		}
-		logging.trace(convertForNIOLog("Wrapping data .."));
+		logging.trace("Wrapping data ..");
 		writeNewWrapped(data);
 		logging.debug("Successfully wrote data to Connection");
+	}
+
+	@Override
+	public void hook(ConnectionContext context) {
+		connectionContextValue.set(context);
+	}
+
+	@Override
+	public void read(Consumer<Queue<RawData>> callback) throws IOException {
+		read();
+		callback.accept(drain());
 	}
 
 	@Override
@@ -159,12 +167,12 @@ class NIOConnection implements Connection {
 			logging.warn("No ConnectionKey set yet. Stopping read.");
 			return;
 		}
-		logging.debug(convertForNIOLog("Starting to read from " + this));
+		logging.debug("Starting to read from " + this);
 		ByteBuffer byteBuffer = null;
 		try {
-			logging.trace(convertForNIOLog("Creating ByteBuffer"));
+			logging.trace("Creating ByteBuffer");
 			byteBuffer = buffer.allocate();
-			logging.trace(convertForNIOLog("ByteBuffer size=" + byteBuffer.capacity()));
+			logging.trace("ByteBuffer size=" + byteBuffer.capacity());
 
 			logging.trace("Performing read operation");
 			byte[] result = doRead(byteBuffer);
@@ -175,7 +183,7 @@ class NIOConnection implements Connection {
 			// converting to String
 			connectionHandler.prepare(new String(result).replaceAll("\0", "").getBytes());
 
-			logging.trace(convertForNIOLog("fetching results from ConnectionHandler .."));
+			logging.trace("fetching results from ConnectionHandler ..");
 			logging.trace("Fetching read data");
 			List<String> read = connectionHandler.takeContents();
 			logging.trace("Found " + read.size() + " new received lines");
@@ -190,7 +198,7 @@ class NIOConnection implements Connection {
 					});
 
 		} catch (final ConnectionDisconnectedException e) {
-			logging.debug(convertForNIOLog("Connection close detected!"));
+			logging.debug("Connection close detected!");
 			close();
 		} finally {
 			if (byteBuffer != null) {
@@ -198,17 +206,6 @@ class NIOConnection implements Connection {
 				buffer.free(byteBuffer);
 			}
 		}
-	}
-
-	@Override
-	public void read(Consumer<Queue<RawData>> callback) throws IOException {
-		read();
-		callback.accept(drain());
-	}
-
-	@Override
-	public void hook(Client client) {
-		connectionContextValue.set(ConnectionContext.combine(client, this));
 	}
 
 	@Override

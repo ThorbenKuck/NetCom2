@@ -19,6 +19,7 @@ public class TraceLogging implements Logging {
 
 	public TraceLogging(final Logging base) {
 		this.style = base;
+		instantiated(this);
 	}
 
 	/**

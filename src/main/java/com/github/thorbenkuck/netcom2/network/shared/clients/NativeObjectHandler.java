@@ -23,6 +23,10 @@ class NativeObjectHandler implements ObjectHandler {
 	private final Pipeline<String> encryptionPipeline = Pipeline.unifiedCreation();
 	private final Logging logging = Logging.unified();
 
+	NativeObjectHandler() {
+		logging.instantiated(this);
+	}
+
 	@Override
 	public void addFallbackSerialization(SerializationAdapter serializationAdapter) {
 		synchronized (fallbackSerializationList) {

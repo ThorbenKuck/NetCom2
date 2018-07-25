@@ -11,6 +11,10 @@ class NativeConnectionHandler implements ConnectionHandler {
 	private final ConnectionCache connectionCache = ConnectionCache.create();
 	private final Logging logging = Logging.unified();
 
+	NativeConnectionHandler() {
+		logging.instantiated(this);
+	}
+
 	@Override
 	public void prepare(byte[] read) {
 		logging.trace("Storing " + read.length);
