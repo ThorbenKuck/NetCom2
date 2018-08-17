@@ -28,26 +28,26 @@ final class NativeServiceDiscoverer implements ServiceDiscoverer {
 	NativeServiceDiscoverer(int port) {
 		this.port = port;
 		synchronized (headerMapping) {
-			headerMapping.put("STATUS", (s, r) -> {
-				if (!s.equals("200")) {
-					logging.info(">>> Message: " + s + " " + r.header().get("MESSAGE"));
+			headerMapping.put("STATUS", (string, request) -> {
+				if (!string.equals("200")) {
+					logging.info(">>> Message: " + string + " " + request.header().get("MESSAGE"));
 					return false;
 				}
 				return true;
 			});
-			headerMapping.put("TARGET", (s, r) -> {
+			headerMapping.put("TARGET", (string, request) -> {
 				try {
 					logging.debug("Updating target port");
-					r.setPort(Integer.parseInt(s));
+					request.setPort(Integer.parseInt(string));
 					return true;
 				} catch (NumberFormatException e) {
 					logging.catching(e);
 					return false;
 				}
 			});
-			headerMapping.put("SERVER_NAME", (s, r) -> {
+			headerMapping.put("SERVER_NAME", (string, request) -> {
 				logging.debug("Setting ServerName");
-				r.setHubName(s);
+				request.setHubName(string);
 				return true;
 			});
 		}

@@ -38,7 +38,7 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final void accept(final ConnectionContext connection, final Session session, final O o) {
+	public final void accept(final ConnectionContext connectionContext, final Session session, final O o) {
 		NetCom2Utils.parameterNotNull(o);
 		onReceive.accept(o);
 	}

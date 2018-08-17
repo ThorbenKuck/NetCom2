@@ -86,30 +86,30 @@ public interface Logging {
 	/**
 	 * Prints something at the lowest logging depth.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void trace(final Object s);
+	void trace(final Object o);
 
 	/**
 	 * Prints something at the second lowest logging depth.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void debug(final Object s);
+	void debug(final Object o);
 
 	/**
 	 * Prints something at the default logging depth.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void info(final Object s);
+	void info(final Object o);
 
 	/**
 	 * Prints something, that might produce errors.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void warn(final Object s);
+	void warn(final Object o);
 
 	/**
 	 * Prints something, that might produce errors.
@@ -124,38 +124,38 @@ public interface Logging {
 	/**
 	 * Prints something, that failed but is recoverable.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void error(final Object s);
+	void error(final Object o);
 
 	/**
 	 * Prints something, that failed but is recoverable.
 	 * <p>
 	 * May be caused by a Throwable
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	default void error(final Object s, final Throwable throwable) {
-		error(s);
+	default void error(final Object o, final Throwable throwable) {
+		error(o);
 		catching(throwable);
 	}
 
 	/**
 	 * Prints something, that failed and is not recoverable.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	void fatal(final Object s);
+	void fatal(final Object o);
 
 	/**
 	 * Prints something, that failed and is not recoverable.
 	 * <p>
 	 * May be caused by a Throwable.
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	default void fatal(final Object s, final Throwable throwable) {
-		fatal(s);
+	default void fatal(final Object o, final Throwable throwable) {
+		fatal(o);
 		catching(throwable);
 	}
 
@@ -173,10 +173,10 @@ public interface Logging {
 	 * <p>
 	 * Inverse to {@link #error(Object, Throwable)}
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	default void error(final Throwable throwable, final Object s) {
-		error(s, throwable);
+	default void error(final Throwable throwable, final Object o) {
+		error(o, throwable);
 	}
 
 	/**
@@ -186,10 +186,10 @@ public interface Logging {
 	 * <p>
 	 * Inverse to {@link #fatal(Object, Throwable)}
 	 *
-	 * @param s the String that should be logged.
+	 * @param o the String that should be logged.
 	 */
-	default void fatal(final Throwable throwable, Object s) {
-		fatal(s, throwable);
+	default void fatal(final Throwable throwable, Object o) {
+		fatal(o, throwable);
 	}
 
 	default void instantiated(Object object) {

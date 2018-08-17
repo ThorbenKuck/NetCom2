@@ -35,48 +35,48 @@ public class CallerReflectionLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final Object s) {
-		style.trace(s);
+	public void trace(final Object o) {
+		style.trace(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final Object s) {
-		style.debug(s);
+	public void debug(final Object o) {
+		style.debug(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final Object s) {
-		style.info(s);
+	public void info(final Object o) {
+		style.info(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final Object s) {
-		style.warn(s);
+	public void warn(final Object o) {
+		style.warn(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final Object s) {
-		style.error(s);
+	public void error(final Object o) {
+		style.error(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final Object s) {
-		style.fatal(s);
+	public void fatal(final Object o) {
+		style.fatal(o);
 	}
 
 	/**

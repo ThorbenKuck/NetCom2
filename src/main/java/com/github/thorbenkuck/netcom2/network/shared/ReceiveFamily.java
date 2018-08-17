@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
-import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 
 public interface ReceiveFamily {
@@ -14,7 +13,7 @@ public interface ReceiveFamily {
 	 * @param e the encountered Exception.
 	 */
 	default void exceptionEncountered(Exception e) {
-		Logging.unified().error(this + " encountered an Exception!", e);
+		UnhandledExceptionContainer.catching(e);
 	}
 
 	/**

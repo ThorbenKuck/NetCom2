@@ -63,13 +63,13 @@ public interface CommunicationRegistration extends Mutex {
 	 * @param connection the {@link Connection} over which the Object was received
 	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
 	 * @param object     the Object that was received
-	 * @param <T>        the Type of the {@link ReceivePipeline}
 	 * @throws CommunicationNotSpecifiedException if no ReceivePipeline is set for the provided class and no
 	 *                                            DefaultCommunicationHandler is set
 	 * @see #trigger(Class, Connection, Session, Object)
 	 */
 	@Asynchronous
-	default <T> void trigger(final Connection connection, final Session session, final Object object) throws CommunicationNotSpecifiedException {
+	@Deprecated
+	default void trigger(final Connection connection, final Session session, final Object object) throws CommunicationNotSpecifiedException {
 		trigger(connection.context(), session, object);
 	}
 
@@ -107,16 +107,17 @@ public interface CommunicationRegistration extends Mutex {
 	 * @see com.github.thorbenkuck.netcom2.pipeline.Wrapper
 	 */
 	@Asynchronous
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	default <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
 		trigger(clazz, connection.context(), session, o);
 	}
 
-	void trigger(ConnectionContext connection, Session session, Object object) throws CommunicationNotSpecifiedException;
+	void trigger(ConnectionContext connectionContext, Session session, Object object) throws CommunicationNotSpecifiedException;
 
 	@Asynchronous
-	<T> void trigger(Class<T> clazz, ConnectionContext connection, Session session, Object o)
+	<T> void trigger(Class<T> clazz, ConnectionContext connectionContext, Session session, Object o)
 			throws CommunicationNotSpecifiedException;
 
 	/**

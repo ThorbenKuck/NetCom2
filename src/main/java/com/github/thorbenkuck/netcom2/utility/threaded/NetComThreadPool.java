@@ -70,7 +70,7 @@ public class NetComThreadPool {
 
 	public static void startWorkerProcess(String taskName) {
 		if (maxWorkerProcesses.get() <= countWorkerTasks() && !allowOverflow.get()) {
-			logging.debug("Policy does not allow for any new WorkerProcess to be started!");
+			logging.warn("Policy does not allow for any new WorkerProcess to be started!");
 			return;
 		}
 		logging.trace("Creating new WorkerTask");

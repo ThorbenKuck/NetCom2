@@ -57,48 +57,48 @@ public class NetComLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final Object s) {
-		NetComLogging.getLogging().trace(s);
+	public void trace(final Object o) {
+		NetComLogging.getLogging().trace(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final Object s) {
-		NetComLogging.getLogging().debug(s);
+	public void debug(final Object o) {
+		NetComLogging.getLogging().debug(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final Object s) {
-		NetComLogging.getLogging().info(s);
+	public void info(final Object o) {
+		NetComLogging.getLogging().info(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final Object s) {
-		NetComLogging.getLogging().warn(s);
+	public void warn(final Object o) {
+		NetComLogging.getLogging().warn(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final Object s) {
-		NetComLogging.getLogging().error(s);
+	public void error(final Object o) {
+		NetComLogging.getLogging().error(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final Object s) {
-		NetComLogging.getLogging().fatal(s);
+	public void fatal(final Object o) {
+		NetComLogging.getLogging().fatal(o);
 	}
 
 	/**

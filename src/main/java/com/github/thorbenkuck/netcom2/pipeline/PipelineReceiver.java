@@ -93,17 +93,17 @@ class PipelineReceiver<T> {
 	 * <p>
 	 * This method is only meant for internal use.
 	 *
-	 * @param connection The connection to test with
+	 * @param connectionContext The connection to test with
 	 * @param session    The session to test with
 	 * @param t          The T to test with
 	 * @return false if one predicate returns false, true otherwise
 	 */
 	@APILevel
-	final boolean test(ConnectionContext connection, Session session, T t) {
-		NetCom2Utils.parameterNotNull(connection, session, t);
+	final boolean test(ConnectionContext connectionContext, Session session, T t) {
+		NetCom2Utils.parameterNotNull(connectionContext, session, t);
 		final Queue<TriPredicate<ConnectionContext, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
-			if (!predicateTemp.remove().test(connection, session, t)) {
+			if (!predicateTemp.remove().test(connectionContext, session, t)) {
 				return false;
 			}
 		}

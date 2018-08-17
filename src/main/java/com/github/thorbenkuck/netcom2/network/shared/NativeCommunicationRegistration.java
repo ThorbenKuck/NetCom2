@@ -53,20 +53,20 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
 	 *
 	 * @param clazz      the class of the received Object
-	 * @param connection the {@link Connection}, this Object was received over
+	 * @param connectionContext the {@link Connection}, this Object was received over
 	 * @param session    the {@link Session} of the received Object
 	 * @param o          the received Object
 	 * @throws CommunicationNotSpecifiedException if no defaultCommunicationHandler is set.
 	 */
 	@Asynchronous
-	private void handleNotRegistered(final Class<?> clazz, final ConnectionContext connection, final Session session,
-	                                 final Object o) throws CommunicationNotSpecifiedException {
+	private void handleNotRegistered(final Class<?> clazz, final ConnectionContext connectionContext, final Session session,
+									 final Object o) throws CommunicationNotSpecifiedException {
 		if (defaultCommunicationHandlers.isEmpty()) {
 			logging.trace("No DefaultCommunicationHandler set!");
 			throw new CommunicationNotSpecifiedException("Nothing registered for " + clazz);
 		} else {
 			logging.trace("Running all set DefaultCommunicationHandler ..");
-			NetComThreadPool.submitTask(() -> runDefaultCommunicationHandler(connection, session, o));
+			NetComThreadPool.submitTask(() -> runDefaultCommunicationHandler(connectionContext, session, o));
 		}
 	}
 
@@ -76,15 +76,15 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * If that {@link ReceivePipeline} is not existing, an ConcurrentModificationException will be thrown
 	 *
 	 * @param clazz      the class of the received Object
-	 * @param connection the {@link Connection}, this Object was received over
+	 * @param connectionContext the {@link Connection}, this Object was received over
 	 * @param session    the {@link Session} of the received Object
 	 * @param o          the received Object
 	 * @param <T>        The type of that {@link ReceivePipeline}
 	 * @throws ConcurrentModificationException if the {@link ReceivePipeline} cannot be found
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> void triggerExisting(final Class<T> clazz, final ConnectionContext connection, final Session session,
-	                                 final Object o) {
+	private <T> void triggerExisting(final Class<T> clazz, final ConnectionContext connectionContext, final Session session,
+									 final Object o) {
 		logging.trace(
 				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
 		try {
@@ -98,7 +98,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 			logging.trace("Casting given Object " + o + "  ..");
 			final T t = (T) o;
 			logging.trace("Now handling the communication ..");
-			handleRegistered(receivePipeline, connection, session, t);
+			handleRegistered(receivePipeline, connectionContext, session, t);
 		} catch (final Throwable throwable) {
 			logging.error("Encountered an Throwable while running CommunicationRegistration for " + clazz, throwable);
 		}
@@ -107,16 +107,16 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Runs the defaultCommunicationHandlers.
 	 *
-	 * @param connection the {@link ReceivePipeline}, the Object was received over
+	 * @param connectionContext the {@link ReceivePipeline}, the Object was received over
 	 * @param session    the {@link Session}, associated with the {@link Connection}
 	 * @param o          the received Object
 	 */
-	private void runDefaultCommunicationHandler(final ConnectionContext connection, final Session session, final Object o) {
+	private void runDefaultCommunicationHandler(final ConnectionContext connectionContext, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
 		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
 			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
 			try {
-				defaultCommunicationHandler.accept(connection, session, o);
+				defaultCommunicationHandler.execute(connectionContext, session, o);
 			} catch (final Throwable throwable) {
 				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler,
 						throwable);
@@ -129,18 +129,18 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * Handles an Object, that was received and is registered.
 	 *
 	 * @param pipeline   The {@link ReceivePipeline} registered for that Object
-	 * @param connection the {@link Connection}, the Object was received over
+	 * @param connectionContext the {@link Connection}, the Object was received over
 	 * @param session    the {@link Session}, associated with the {@link Connection}
 	 * @param o          the received Object
 	 * @param <T>        the Type of that {@link ReceivePipeline}.
 	 */
-	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final ConnectionContext connection,
-	                                  final Session session, final T o) {
+	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final ConnectionContext connectionContext,
+									  final Session session, final T o) {
 		try {
 			logging.trace("Acquiring the pipeline ..");
 			pipeline.acquire();
 			logging.trace("Running the elements through the Pipeline(#elements=" + pipeline.size() + ".");
-			pipeline.run(connection, session, o);
+			pipeline.run(connectionContext, session, o);
 			logging.debug("Successfully applied the ReceivePipeline");
 		} catch (final InterruptedException e) {
 			logging.catching(e);
@@ -201,9 +201,9 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws IllegalArgumentException if the provided Object is null
 	 */
 	@Override
-	public void trigger(ConnectionContext connection, Session session, Object object) throws CommunicationNotSpecifiedException {
+	public void trigger(ConnectionContext connectionContext, Session session, Object object) throws CommunicationNotSpecifiedException {
 		NetCom2Utils.parameterNotNull(object);
-		trigger(object.getClass(), connection, session, object);
+		trigger(object.getClass(), connectionContext, session, object);
 	}
 
 	/**
@@ -213,20 +213,20 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Asynchronous
 	@Override
-	public <T> void trigger(final Class<T> clazz, final ConnectionContext connection, final Session session, final Object o)
+	public <T> void trigger(final Class<T> clazz, final ConnectionContext connectionContext, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		NetCom2Utils.parameterNotNull(clazz, connection, session, o);
+		NetCom2Utils.parameterNotNull(clazz, connectionContext, session, o);
 		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
 		logging.trace("Trying to match " + clazz + " with " + o.getClass());
 		sanityCheck(clazz, o);
 		if (!isRegistered(clazz)) {
 			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
-			handleNotRegistered(clazz, connection, session, o);
+			handleNotRegistered(clazz, connectionContext, session, o);
 		} else {
 			NetComThreadPool.submitTask(new Runnable() {
 				@Override
 				public void run() {
-					triggerExisting(clazz, connection, session, o);
+					triggerExisting(clazz, connectionContext, session, o);
 				}
 
 				@Override

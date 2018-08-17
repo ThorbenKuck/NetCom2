@@ -202,14 +202,14 @@ class ReceiveObjectHandlerWrapper {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void accept(final ConnectionContext connection, final Session session, final T t) {
+		public void accept(final ConnectionContext connectionContext, final Session session, final T t) {
 			logging.debug("Trying to access " + t);
 			if (!t.getClass().equals(toExpect) || !t.getClass().isAssignableFrom(toExpect)) {
 				throw new HandlerInvocationException(
 						"Could not invoke method: " + toInvoke + " awaiting class " + toExpect);
 			}
 			logging.trace("applying ..");
-			invoke(getParametersInCorrectOder(connection, session, t));
+			invoke(getParametersInCorrectOder(connectionContext, session, t));
 
 		}
 	}

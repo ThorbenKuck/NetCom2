@@ -35,7 +35,7 @@ class OnReceivePredicateWrapper<T> implements TriPredicate<ConnectionContext, Se
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final boolean test(final ConnectionContext connection, final Session session, final T t) {
+	public final boolean test(final ConnectionContext connectionContext, final Session session, final T t) {
 		NetCom2Utils.parameterNotNull(session, t);
 		return biPredicate.test(session, t);
 	}

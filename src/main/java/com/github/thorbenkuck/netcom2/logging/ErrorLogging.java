@@ -27,7 +27,7 @@ public class ErrorLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final Object s) {
+	public void trace(final Object o) {
 
 	}
 
@@ -36,7 +36,7 @@ public class ErrorLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final Object s) {
+	public void debug(final Object o) {
 
 	}
 
@@ -45,7 +45,7 @@ public class ErrorLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final Object s) {
+	public void info(final Object o) {
 
 	}
 
@@ -54,7 +54,7 @@ public class ErrorLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final Object s) {
+	public void warn(final Object o) {
 
 	}
 
@@ -62,16 +62,16 @@ public class ErrorLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final Object s) {
-		style.error(s);
+	public void error(final Object o) {
+		style.error(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final Object s) {
-		style.fatal(s);
+	public void fatal(final Object o) {
+		style.fatal(o);
 	}
 
 	/**

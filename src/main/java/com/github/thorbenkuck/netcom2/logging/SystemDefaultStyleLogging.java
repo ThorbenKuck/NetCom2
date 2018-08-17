@@ -59,40 +59,40 @@ public class SystemDefaultStyleLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final Object s) {
-		println(convert("TRACE : ") + s);
+	public void trace(final Object o) {
+		println(convert("TRACE : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final Object s) {
-		println(convert("DEBUG : ") + s);
+	public void debug(final Object o) {
+		println(convert("DEBUG : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final Object s) {
-		println(convert("INFO : ") + s);
+	public void info(final Object o) {
+		println(convert("INFO : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final Object s) {
-		println(convert("WARN : ") + s);
+	public void warn(final Object o) {
+		println(convert("WARN : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final Object s) {
-		println(convert("ERROR : ") + s);
+	public void error(final Object o) {
+		println(convert("ERROR : ") + o);
 	}
 
 	/**
@@ -110,8 +110,8 @@ public class SystemDefaultStyleLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final Object s) {
-		println(convert("FATAL") + s);
+	public void fatal(final Object o) {
+		println(convert("FATAL") + o);
 	}
 
 	/**
