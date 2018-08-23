@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.keller.pipe.Pipeline;
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.interfaces.SendBridge;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;

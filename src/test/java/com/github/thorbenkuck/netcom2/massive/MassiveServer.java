@@ -3,12 +3,15 @@ package com.github.thorbenkuck.netcom2.massive;
 import com.github.thorbenkuck.netcom2.TestObject;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 public class MassiveServer {
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.trace());
 		ServerStart serverStart = ServerStart.at(7777);
 
 		serverStart.getCommunicationRegistration()

@@ -2,5 +2,11 @@ package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
 import java.io.Serializable;
 
-public class StillAliveResponse implements Serializable {
+public final class StillAliveResponse implements Serializable {
+	private static final long serialVersionUID = 4414647424220391756L;
+
+	@Override
+	public final String toString() {
+		return "StillAliveResponse{}";
+	}
 }

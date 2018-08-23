@@ -3,9 +3,11 @@ package com.github.thorbenkuck.netcom2.connections;
 import com.github.thorbenkuck.netcom2.TestObject;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.util.concurrent.Executors;
@@ -21,6 +23,7 @@ public class Server {
 		scheduledExecutorService.scheduleAtFixedRate(Server::diagnose, 1, 1, TimeUnit.SECONDS);
 		ServerStart serverStart = ServerStart.at(4569);
 		NetComThreadPool.startWorkerProcesses(10);
+		NetComLogging.setLogging(Logging.trace());
 
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)

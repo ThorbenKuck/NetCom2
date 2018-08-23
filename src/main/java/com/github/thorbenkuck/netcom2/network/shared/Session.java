@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared.session;
+package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
@@ -116,6 +116,7 @@ public interface Session extends Mutex {
 	 * Internally, this method is further used whenever an new Connection is successfully established.
 	 * <p>
 	 * The use of this method is not forbidden, but discouraged since this might screw up the internal mechanisms
+	 *
 	 * @deprecated misleading name
 	 */
 	@Deprecated

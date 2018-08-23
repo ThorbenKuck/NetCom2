@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectInvalidMethodException;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;

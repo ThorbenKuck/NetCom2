@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.netcom2.TestUtils;
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import org.junit.Test;
 
 import java.util.UUID;

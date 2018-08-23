@@ -20,7 +20,7 @@ public interface EventLoop {
 
 	void shutdown() throws IOException;
 
-	void shutdownNow() throws IOException;
+	void shutdownNow();
 
 	boolean isRunning();
 

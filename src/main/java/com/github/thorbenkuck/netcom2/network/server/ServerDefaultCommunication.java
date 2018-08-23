@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.network.server;
 
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
@@ -11,7 +12,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionReq
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionResponse;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class ServerDefaultCommunication {
 		 */
 		@Override
 		public void accept(Session session, NewConnectionRequest newConnectionRequest) {
-			logging.debug("Received NewConnectionRequest. Sending back ..");
+			logging.debug("Received NewConnectionRequest for " + newConnectionRequest.getIdentifier() + ". Sending back ..");
 			session.send(newConnectionRequest);
 			logging.info("NEW_CONNECTION > 0 > Sending NewConnectionRequest back to the client");
 		}

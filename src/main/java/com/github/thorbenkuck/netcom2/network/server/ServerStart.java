@@ -1,6 +1,5 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
@@ -8,7 +7,6 @@ import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
 import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -85,7 +83,7 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 *
 	 * @see #softStop()
 	 */
-	void disconnect() throws IOException;
+	void disconnect();
 
 	/**
 	 * Returns the internally maintained ClientList.
@@ -122,7 +120,6 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 * @deprecated create your own instance using {@link RemoteObjectRegistration#open(ServerStart)}
 	 */
 	@Deprecated
-	@Experimental
 	default RemoteObjectRegistration remoteObjects() {
 		return RemoteObjectRegistration.open(this);
 	}

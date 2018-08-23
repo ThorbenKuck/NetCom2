@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared.session;
+package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;

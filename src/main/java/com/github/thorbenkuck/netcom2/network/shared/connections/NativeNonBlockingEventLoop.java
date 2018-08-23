@@ -53,6 +53,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 				try {
 					logging.trace("Storing RawDataPackage");
 					dataQueue.put(new RawDataPackage(connection.drain(), connection));
+					logging.trace("Stored new RawDataPackage");
 				} catch (InterruptedException e) {
 					logging.catching(e);
 				}
@@ -150,12 +151,14 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void shutdown() throws IOException {
+	public void shutdown() {
 		try {
 			logging.trace("Acquiring SelectorLock");
 			selectorLock.lock();
 			selectorChannel.close();
 			PARALLEL_OBJECT_HANDLER.running.set(false);
+		} catch (IOException e) {
+			logging.catching(e);
 		} finally {
 			selectorLock.unlock();
 			logging.trace("Released SelectorLock");
@@ -163,7 +166,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void shutdownNow() throws IOException {
+	public void shutdownNow() {
 		shutdown();
 		synchronized (connectionMap) {
 			connectionMap.forEach((socketChannel, connection) -> {

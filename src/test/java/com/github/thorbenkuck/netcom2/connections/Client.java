@@ -3,16 +3,19 @@ package com.github.thorbenkuck.netcom2.connections;
 import com.github.thorbenkuck.netcom2.TestObject;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 public class Client {
 
 	private static int receivedCount = 0;
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.trace());
 		ClientStart clientStart = ClientStart.at("localhost", 4569);
 
 		clientStart.getCommunicationRegistration()

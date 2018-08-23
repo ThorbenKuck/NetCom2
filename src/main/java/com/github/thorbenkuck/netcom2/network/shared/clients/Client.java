@@ -7,7 +7,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionReq
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.util.*;

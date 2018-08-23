@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 /**
  * This Class is used to abstract away the Send-mechanism.

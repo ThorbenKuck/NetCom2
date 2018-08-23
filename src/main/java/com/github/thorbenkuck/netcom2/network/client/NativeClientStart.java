@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -10,7 +10,6 @@ import com.github.thorbenkuck.netcom2.network.shared.*;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.net.SocketAddress;
 

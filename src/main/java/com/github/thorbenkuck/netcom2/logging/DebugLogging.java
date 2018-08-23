@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 
 /**
  * This implementation of {@link Logging} ignores the trace method

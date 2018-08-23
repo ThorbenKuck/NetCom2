@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * <p>
  * For that, you should use this annotation and show, which Class you are testing.
  */
+@Deprecated
 @APILevel
 @Documented
 @Target(ElementType.TYPE)

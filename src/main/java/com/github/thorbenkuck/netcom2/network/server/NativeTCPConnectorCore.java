@@ -140,7 +140,7 @@ class NativeTCPConnectorCore implements ConnectorCore {
 	}
 
 	@Override
-	public void disconnect() throws IOException {
+	public void disconnect() {
 		synchronized (eventLoopList) {
 			for (EventLoop eventLoop : eventLoopList) {
 				eventLoop.shutdownNow();
@@ -149,6 +149,10 @@ class NativeTCPConnectorCore implements ConnectorCore {
 			eventLoopList.clear();
 			currentEventLoopValue.clear();
 		}
-		serverSocketValue.get().close();
+		try {
+			serverSocketValue.get().close();
+		} catch (IOException e) {
+			logging.catching(e);
+		}
 	}
 }

@@ -20,6 +20,7 @@ import java.lang.annotation.*;
  * @version 1.0
  * @since 1.0
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)

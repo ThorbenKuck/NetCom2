@@ -33,6 +33,7 @@ import java.lang.annotation.*;
  * @see Tests
  * @since 1.0
  */
+@Deprecated
 @APILevel
 @Documented
 @Target(ElementType.TYPE)

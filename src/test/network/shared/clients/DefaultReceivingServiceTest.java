@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.SetupListenerException;
 import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Callback;

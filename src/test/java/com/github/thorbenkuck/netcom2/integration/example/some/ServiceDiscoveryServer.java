@@ -6,6 +6,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 import java.net.SocketException;
 
@@ -26,6 +27,10 @@ public class ServiceDiscoveryServer {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(this::printTestObject);
+
+		serverStart.getCommunicationRegistration()
+				.register(TestObject.class)
+				.addFirst(Session::send);
 		try {
 			serverStart.launch();
 			serverStart.allowLocalAreaNetworkFind(8888);

@@ -116,7 +116,7 @@ public interface Logging {
 	 *
 	 * @param o the Object that should be logged.
 	 */
-	default void warn(final Object o, Throwable throwable) {
+	default void warn(final Object o, final Throwable throwable) {
 		warn(o);
 		catching(throwable);
 	}
@@ -188,11 +188,11 @@ public interface Logging {
 	 *
 	 * @param o the String that should be logged.
 	 */
-	default void fatal(final Throwable throwable, Object o) {
+	default void fatal(final Throwable throwable, final Object o) {
 		fatal(o, throwable);
 	}
 
-	default void instantiated(Object object) {
+	default void instantiated(final Object object) {
 		Class<?> type = object.getClass();
 		if(type.getInterfaces().length == 1) {
 			instantiated(type.getInterfaces()[0].getSimpleName() + " as " + type.getSimpleName());
@@ -201,7 +201,7 @@ public interface Logging {
 		}
 	}
 
-	default void instantiated(String objectName) {
+	default void instantiated(final String objectName) {
 		debug("Instantiated " + objectName);
 	}
 }

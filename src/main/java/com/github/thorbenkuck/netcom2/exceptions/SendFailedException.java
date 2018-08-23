@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 /**
  * This RuntimeException, will be thrown, if any Object-send fails for any reason.

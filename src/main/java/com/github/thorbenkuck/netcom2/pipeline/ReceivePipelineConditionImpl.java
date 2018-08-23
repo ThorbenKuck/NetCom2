@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.function.BiPredicate;

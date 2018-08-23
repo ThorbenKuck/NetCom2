@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.logging;
 
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -29,7 +29,6 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	public SystemDefaultStyleLogging(final PrintStream printStream) {
 		out = printStream;
-		instantiated(this);
 	}
 
 	/**

@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.massive;
 
 import com.github.thorbenkuck.netcom2.TestObject;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 
@@ -30,6 +32,7 @@ public class MassiveClient implements Runnable {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
+		NetComLogging.setLogging(Logging.trace());
 		long startTime = System.currentTimeMillis();
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		for (int i = 0; i < TOTAL_CLIENT_COUNT; i++) {

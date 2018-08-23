@@ -85,11 +85,15 @@ public class NativeBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public synchronized void shutdownNow() throws IOException {
+	public synchronized void shutdownNow() {
 		shutdown();
 		synchronized (core) {
 			for (Connection connection : core) {
-				connection.close();
+				try {
+					connection.close();
+				} catch (IOException e) {
+					logging.catching(e);
+				}
 			}
 			core.clear();
 		}

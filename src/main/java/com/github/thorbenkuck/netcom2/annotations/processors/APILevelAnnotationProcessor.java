@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.annotations.processors;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.APILevel;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;

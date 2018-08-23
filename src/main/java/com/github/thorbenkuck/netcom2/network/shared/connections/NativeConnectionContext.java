@@ -3,10 +3,10 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ObjectHandler;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 import java.io.IOException;
 import java.util.function.Consumer;

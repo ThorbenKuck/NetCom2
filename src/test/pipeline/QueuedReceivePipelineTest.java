@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.netcom2.annotations.ReceiveHandler;
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;

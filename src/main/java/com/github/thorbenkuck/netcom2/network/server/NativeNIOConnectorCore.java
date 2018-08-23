@@ -226,7 +226,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	}
 
 	@Override
-	public void disconnect() throws IOException {
+	public void disconnect() {
 		synchronized (eventLoopList) {
 			for (EventLoop eventLoop : eventLoopList) {
 				eventLoop.shutdownNow();
@@ -234,7 +234,15 @@ class NativeNIOConnectorCore implements ConnectorCore {
 			eventLoopList.clear();
 			currentEventLoopValue.clear();
 		}
-		selectorValue.get().close();
-		serverSocketChannelValue.get().close();
+		try {
+			selectorValue.get().close();
+		} catch (IOException e) {
+			logging.catching(e);
+		}
+		try {
+			serverSocketChannelValue.get().close();
+		} catch (IOException e) {
+			logging.catching(e);
+		}
 	}
 }

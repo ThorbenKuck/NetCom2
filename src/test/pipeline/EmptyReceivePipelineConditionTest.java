@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.Testing;
+import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import org.junit.Test;

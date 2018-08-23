@@ -7,13 +7,12 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.UnknownClientException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -120,7 +119,7 @@ class NativeServerStart implements ServerStart {
 	 * @see #softStop()
 	 */
 	@Override
-	public void disconnect() throws IOException {
+	public void disconnect() {
 		softStop();
 		connectorCoreValue.get().disconnect();
 	}

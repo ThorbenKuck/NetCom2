@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.network.shared.session;
+package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;

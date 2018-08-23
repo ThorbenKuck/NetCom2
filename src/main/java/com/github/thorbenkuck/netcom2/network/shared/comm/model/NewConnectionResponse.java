@@ -4,12 +4,12 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 
 import java.io.Serializable;
 
-public class NewConnectionResponse implements Serializable {
-	private static final long serialVersionUID = 4414647424220391756L;
+public final class NewConnectionResponse implements Serializable {
 
+	private static final long serialVersionUID = 4414647424220391756L;
 	private final ClientID clientID;
 
-	public NewConnectionResponse(ClientID clientID) {
+	public NewConnectionResponse(final ClientID clientID) {
 		this.clientID = clientID;
 	}
 
@@ -20,7 +20,14 @@ public class NewConnectionResponse implements Serializable {
 	 *
 	 * @return
 	 */
-	public ClientID getClientID() {
+	public final ClientID getClientID() {
 		return clientID;
+	}
+
+	@Override
+	public final String toString() {
+		return "NewConnectionResponse{" +
+				"clientID=" + clientID +
+				'}';
 	}
 }

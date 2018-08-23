@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.utility;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;

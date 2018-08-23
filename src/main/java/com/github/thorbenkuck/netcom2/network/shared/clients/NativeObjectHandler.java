@@ -142,6 +142,7 @@ class NativeObjectHandler implements ObjectHandler {
 		String decrypted = decryptionPipeline.apply(string);
 		Object deSerialized = deserialize(decrypted);
 		logging.trace("Calculated received object");
+		logging.debug("Converted to " + deSerialized.getClass());
 		return deSerialized;
 	}
 }

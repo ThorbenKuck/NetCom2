@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.file;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,5 +41,4 @@ public class FileServer {
 			e.printStackTrace();
 		}
 	}
-
 }

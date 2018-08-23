@@ -162,7 +162,7 @@
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>
             <artifactId>keller-core</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
     <profiles>

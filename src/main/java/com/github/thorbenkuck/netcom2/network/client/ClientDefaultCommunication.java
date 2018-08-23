@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
@@ -11,7 +12,6 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionReq
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionResponse;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.network.shared.session.Session;
 
 public class ClientDefaultCommunication {
 
@@ -88,7 +88,7 @@ public class ClientDefaultCommunication {
 		 */
 		@Override
 		public void accept(ConnectionContext connectionContext, Session session, Ping ping) {
-			logging.debug("Received Ping from Server");
+			logging.debug("Received Ping from Server for " + connectionContext.getIdentifier());
 			logging.trace("Checking ClientID of ConnectionContext");
 			if (ClientID.isEmpty(connectionContext.getClientID())) {
 				logging.trace("ClientID is null, updating based on received ClientID");
