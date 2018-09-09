@@ -75,17 +75,17 @@ class NIOConnection implements Connection {
 		buffer.free(byteBuffer);
 	}
 
-	private byte[] doRead(ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
+	private byte[] doRead(final ByteBuffer byteBuffer) throws ConnectionDisconnectedException {
 		logging.debug("Initializing concrete read from SocketChannel");
 		logging.trace("Checking underlying Socket Channel");
 		if (!socketChannel.isOpen() || !socketChannel.isConnected()) {
 			throw new ConnectionDisconnectedException("SocketChannel is closed");
 		}
-		int read;
+		final int read;
 		try {
 			logging.trace("Performing initial read");
 			read = socketChannel.read(byteBuffer);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new ConnectionDisconnectedException("Connection is not open anymore!", e);
 		}
 		logging.trace("read " + Arrays.toString(byteBuffer.array()));

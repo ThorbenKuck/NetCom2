@@ -5,23 +5,17 @@ import com.github.thorbenkuck.netcom2.exceptions.*;
 import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
 import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
 import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.Synchronize;
-import com.github.thorbenkuck.netcom2.network.shared.cache.AbstractCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection;
-import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.clients.*;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 
-@Testing(ClientStartImpl.class)
+@Testing(NativeClientStart.class)
 public class ClientStartImplTest {
 
 	private static final String ADDRESS = "localhost";
@@ -49,8 +43,7 @@ public class ClientStartImplTest {
 	@Test
 	public void launch() throws Exception {
 		// Arrange
-		ClientStartImpl clientStart = new ClientStartImpl(ADDRESS, PORT);
-		clientStart.setSocketFactory(mockedSocketFactory);
+		NativeClientStart clientStart = new NativeClientStart(new InetSocketAddress(ADDRESS, PORT), ClientCore.nio());
 
 		// Act
 		clientStart.client = mock(Client.class);

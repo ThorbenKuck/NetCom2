@@ -94,10 +94,10 @@ public class ClientDefaultCommunication {
 				logging.trace("ClientID is null, updating based on received ClientID");
 				connectionContext.updateClientID(ping.getClientID());
 			}
-			logging.trace("Sending ping over ConnectionContext");
-			connectionContext.send(ping);
 			logging.trace("Finishing Connect of ConnectionContext");
 			connectionContext.finishConnect();
+			logging.trace("Sending ping over ConnectionContext");
+			connectionContext.flush(ping);
 		}
 	}
 }

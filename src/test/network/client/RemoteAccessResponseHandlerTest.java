@@ -1,6 +1,7 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.annotations.Testing;
+import com.github.thorbenkuck.netcom2.network.client.RemoteAccessBlockRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
 import org.junit.Test;
 

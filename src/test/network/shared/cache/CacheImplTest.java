@@ -1,6 +1,9 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
 import com.github.thorbenkuck.keller.annotations.Testing;
+import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
+import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
+import com.github.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
 import org.junit.Test;
 
 import java.util.Optional;

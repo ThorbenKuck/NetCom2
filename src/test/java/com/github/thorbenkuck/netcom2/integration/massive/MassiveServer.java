@@ -1,4 +1,4 @@
-package com.github.thorbenkuck.netcom2.integration.example.some;
+package com.github.thorbenkuck.netcom2.integration.massive;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
@@ -8,42 +8,26 @@ import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
-import java.net.SocketException;
-
-public class ServiceDiscoveryServer {
+public class MassiveServer {
 
 	public static void main(String[] args) {
 		NetComLogging.setLogging(Logging.trace());
-		ServiceDiscoveryServer serviceDiscoveryServer = new ServiceDiscoveryServer();
-		serviceDiscoveryServer.startServer();
-	}
+		ServerStart serverStart = ServerStart.at(7777);
 
-	private void printTestObject(TestObject testObject) {
-		System.out.println("Received Message vom Client: " + testObject);
-	}
-
-	private void startServer() {
-		ServerStart serverStart = ServerStart.at(4546);
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addFirst(this::printTestObject);
+				.addFirst(System.out::println);
 
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(Session::send);
+
 		try {
 			serverStart.launch();
-			serverStart.allowLocalAreaNetworkFind(8888);
-
-			new Thread(() -> {
-				try {
-					serverStart.acceptAllNextClients();
-				} catch (ClientConnectionFailedException e) {
-					e.printStackTrace(System.out);
-				}
-			}).start();
-		} catch (StartFailedException | SocketException e) {
+			serverStart.acceptAllNextClients();
+		} catch (StartFailedException | ClientConnectionFailedException e) {
 			e.printStackTrace();
 		}
 	}
+
 }

@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.TestUtils;
 import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.network.server.ClientList;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;

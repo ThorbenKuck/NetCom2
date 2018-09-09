@@ -3,6 +3,10 @@ package com.github.thorbenkuck.netcom2.network.client;
 import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
+import com.github.thorbenkuck.netcom2.network.client.InvocationHandlerProducer;
+import com.github.thorbenkuck.netcom2.network.client.JavaRemoteInformationInvocationHandler;
+import com.github.thorbenkuck.netcom2.network.client.RemoteAccessBlockRegistration;
+import com.github.thorbenkuck.netcom2.network.client.Sender;
 import org.junit.Test;
 
 import java.util.UUID;

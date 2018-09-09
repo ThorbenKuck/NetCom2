@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.integration.example.some;
 
-import com.github.thorbenkuck.netcom2.TestObject;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 
