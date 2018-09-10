@@ -31,6 +31,7 @@ public class ServiceDiscoveryServer {
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(Session::send);
+
 		try {
 			serverStart.launch();
 			serverStart.allowLocalAreaNetworkFind(8888);
