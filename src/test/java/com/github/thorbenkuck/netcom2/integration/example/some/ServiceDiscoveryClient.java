@@ -18,6 +18,7 @@ public class ServiceDiscoveryClient {
 
 	private void received(TestObject testObject) {
 		received = true;
+		System.out.println(testObject);
 	}
 
 	private void startClient() {

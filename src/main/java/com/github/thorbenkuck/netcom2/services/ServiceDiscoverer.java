@@ -17,9 +17,9 @@ public interface ServiceDiscoverer {
 		return new NativeServiceDiscoverer(port);
 	}
 
-	void addHeaderMapping(String headerType, BiConsumer<String, NativeServiceDiscoverer.DiscoveryProcessingRequest> headerProcessor);
+	void addHeaderMapping(String headerType, BiConsumer<String, DiscoveryProcessingRequest> headerProcessor);
 
-	void addHeaderMapping(String headerType, BiFunction<String, NativeServiceDiscoverer.DiscoveryProcessingRequest, Boolean> headerProcessor);
+	void addHeaderMapping(String headerType, BiFunction<String, DiscoveryProcessingRequest, Boolean> headerProcessor);
 
 	void onDiscover(Consumer<ServiceHubLocation> locationConsumer);
 

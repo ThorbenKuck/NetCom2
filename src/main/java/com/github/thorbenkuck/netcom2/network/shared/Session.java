@@ -24,7 +24,7 @@ public interface Session extends Mutex {
 		return open(SendBridge.openTo(client));
 	}
 
-	static Session open(SendBridge sendBridge) {
+	static Session open(final SendBridge sendBridge) {
 		return new NativeSession(sendBridge);
 	}
 

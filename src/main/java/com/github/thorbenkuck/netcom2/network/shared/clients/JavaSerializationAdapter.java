@@ -14,7 +14,7 @@ public class JavaSerializationAdapter implements SerializationAdapter {
 
 	private final Logging logging = Logging.unified();
 
-	JavaSerializationAdapter() {
+	public JavaSerializationAdapter() {
 		logging.instantiated(this);
 	}
 

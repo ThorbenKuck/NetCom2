@@ -13,7 +13,7 @@ public class JavaDeserializationAdapter implements DeSerializationAdapter {
 
 	private final Logging logging = Logging.unified();
 
-	JavaDeserializationAdapter() {
+	public JavaDeserializationAdapter() {
 		logging.instantiated(this);
 	}
 
