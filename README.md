@@ -57,7 +57,7 @@ Also there is a NIGHTLY branch, for the impatient.
 
 ### Current State
 
-2.0 (release 30.03.2018)
+2.0 (release 19.08.2018)
  * Session lost its update and HeartBeat functions
    * Update is a security risk. The Session should not be send through the Network
    * Heartbeats make no sens connect to the Session
