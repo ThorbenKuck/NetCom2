@@ -1,93 +1,80 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
+import com.github.thorbenkuck.keller.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
-import com.github.thorbenkuck.netcom2.interfaces.Factory;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
+import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
-import com.github.thorbenkuck.netcom2.network.interfaces.ClientConnectedHandler;
-import com.github.thorbenkuck.netcom2.network.interfaces.NetworkInterface;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
-import java.net.ServerSocket;
-import java.util.concurrent.ExecutorService;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
 
-/**
- * This interface describes the Server-side of NetCom2.
- * <p>
- * As most other components, this interface has an implementation, that is hidden for different Reasons.
- *
- * @version 1.1
- * @see com.github.thorbenkuck.netcom2.network.client.ClientStart
- * @since 1.0
- */
 public interface ServerStart extends SoftStoppable, MultipleConnections, NetworkInterface {
 
-	/**
-	 * Creates a new ServerStart at the provided port.
-	 * <p>
-	 * This is the only way currently of creating a ServerStart.
-	 * <p>
-	 * You may however feel free to create your own.
-	 *
-	 * @param port the port, the Server shut letch onto
-	 * @return a new Instance of the ServerStart
-	 */
-	static ServerStart at(final int port) {
-		return new ServerStartImpl(new ServerConnector(port));
+	static ServerStart at(int port) {
+		return at(new InetSocketAddress(port));
 	}
 
-	/**
-	 * Calling this Method will block, until the Server is shutdown or until an exception occurs.
-	 * <p>
-	 * This method is accepting all Clients. While doing so, this call blocks.
-	 * <p>
-	 * If you want to use this method in an non-blocking way, use the {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#runLater(Runnable)}
-	 * or {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#runOnNetComThread(Runnable)} method.
-	 * <p>
-	 * NOTE: If you extract this Method into another NetComThread, most of the Time, your Program will just exit.
-	 * The NetComThreads are daemon threads, which means, that they will not stop the Program from exiting if they are still running.
-	 * A best Practice would be, to use your own Thread to extract this.
-	 * <p>
-	 * By default, this is the main Way of using the ServerStart. If you require some Work between each client connection,
-	 * use the {@link #acceptNextClient()} method, which only accepts the next client.
-	 * <p>
-	 * An {@link ClientConnectionFailedException} will be thrown, if the Creation of the Client fails or any {@link ClientConnectedHandler}
-	 * throws an Exception. The last one will result in an stop of the whole Server, to allow you to fix the issue.
-	 *
-	 * @throws ClientConnectionFailedException if anything goes wrong while a Client connects
-	 * @see #acceptNextClient()
-	 */
-	void acceptAllNextClients() throws ClientConnectionFailedException;
+	static ServerStart at(InetSocketAddress socketAddress) {
+		return nio(socketAddress);
+	}
 
-	/**
-	 * Accepts the next Client tha connects.
-	 * <p>
-	 * This Method-Call will block, until the next Client is connected.
-	 * You will use this, if you need to doe some Work between each Client connection.
-	 * <p>
-	 * An {@link ClientConnectionFailedException} will be thrown, if the Creation of the Client fails or any {@link ClientConnectedHandler}
-	 * throws an Exception.
-	 *
-	 * @throws ClientConnectionFailedException if anything goes wrong while a Client connects
-	 */
+	static ServerStart raw(int port) {
+		return raw(new InetSocketAddress(port));
+	}
+
+	static ServerStart raw(InetSocketAddress socketAddress) {
+		return new NativeServerStart(socketAddress);
+	}
+
+	static ServerStart tcp(int port) {
+		return tcp(new InetSocketAddress(port));
+	}
+
+	static ServerStart tcp(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.tcp(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	@Experimental
+	static ServerStart udp(int port) {
+		return udp(new InetSocketAddress(port));
+	}
+
+	@Experimental
+	static ServerStart udp(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.udp(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	static ServerStart nio(int port) {
+		return nio(new InetSocketAddress(port));
+	}
+
+	static ServerStart nio(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.nio(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	ClientFactory getClientFactory();
+
 	void acceptNextClient() throws ClientConnectionFailedException;
 
-	/**
-	 * Returns the current port of the ServerStart.
-	 *
-	 * @return the port this ServerStart uses
-	 */
+	void acceptAllNextClients() throws ClientConnectionFailedException;
+
 	int getPort();
 
-	/**
-	 * Sets the port of the ServerStart.
-	 * <p>
-	 * Allows you, to set the Port, even after the ServerStart has been created.
-	 * If you need to change the port after the ServerStart is created, use this.
-	 *
-	 * @param port the port the ServerStart should letch onto
-	 */
-	void setPort(final int port);
+	ServiceDiscoveryHub allowLocalAreaNetworkFind(int port) throws SocketException;
+
+	void setPort(int to);
 
 	/**
 	 * Adds an {@link ClientConnectedHandler}, that should handle a newly created Client.
@@ -106,33 +93,11 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler);
 
 	/**
-	 * Returns an {@link Distributor} instance, to Distribute without knowing the specific Session of the Client.
-	 * <p>
-	 * This Distributor is used, if you want to send something to multiple Targets.
-	 * <p>
-	 * For most other needs, you should use the Session, that is injected into the OnReceive handlers or use the
-	 * {@link ClientConnectedHandler}
-	 *
-	 * @return an internally maintained instance of the Distributor
-	 * @see Distributor
-	 */
-	Distributor distribute();
-
-	/**
 	 * Shuts down the Server and disconnects all connected Clients
 	 *
 	 * @see #softStop()
 	 */
 	void disconnect();
-
-	/**
-	 * Sets the ServerFactory, that is asked to produce the ServerSocket
-	 * <p>
-	 * If you want to use SSL, you may provide an Factory, that creates an SSLServerSocket.
-	 *
-	 * @param factory the Factory, that should be used.
-	 */
-	void setServerSocketFactory(final Factory<Integer, ServerSocket> factory);
 
 	/**
 	 * Returns the internally maintained ClientList.
@@ -149,12 +114,14 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	ClientList clientList();
 
 	/**
-	 * Sets the ExecutorService, to be used internally
+	 * Do not use this method anymore!
 	 *
-	 * @param executorService the ExecutorService.
+	 * @deprecated create your own instance using {@link Distributor#open(ServerStart)}
 	 */
-	@Experimental
-	void setExecutorService(final ExecutorService executorService);
+	@Deprecated
+	default Distributor distribute() {
+		return Distributor.open(this);
+	}
 
 	/**
 	 * Returns an internally maintained {@link RemoteObjectRegistration}.
@@ -163,7 +130,13 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 *
 	 * @return a unified instance for the RemoteObjectRegistration
 	 * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory
+	 *
+	 * @deprecated create your own instance using {@link RemoteObjectRegistration#open(ServerStart)}
 	 */
-	@Experimental
-	RemoteObjectRegistration remoteObjects();
+	@Deprecated
+	default RemoteObjectRegistration remoteObjects() {
+		return RemoteObjectRegistration.open(this);
+	}
+
+	void setConnectorCore(ConnectorCore connectorCore);
 }

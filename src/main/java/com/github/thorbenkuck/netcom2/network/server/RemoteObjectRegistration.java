@@ -1,23 +1,18 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.annotations.rmi.RegistrationOverrideProhibited;
-import com.github.thorbenkuck.netcom2.network.client.RemoteObjectAccess;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
+import com.github.thorbenkuck.netcom2.interfaces.Module;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 
-/**
- * Any Implementation of this Interface will handle the Registration of RemoteObjects at the Server-Side and therefore the delegation and Handling
- * of {@link RemoteAccessCommunicationRequest}s
- * <p>
- * Internally it holds Objects, that are responsible to be called when ever an Object, created with {@link RemoteObjectAccess}
- * is created. It contains methods to register and unregister Objects, identified by Classes. However, the provided classes
- * have to be assignable from the provided Object.
- *
- * @version 1.0
- * @since 1.0
- */
-public interface RemoteObjectRegistration {
+public interface RemoteObjectRegistration extends Module<ServerStart> {
+
+	static RemoteObjectRegistration open(ServerStart serverStart) {
+		NativeRemoteObjectRegistration remoteObjectRegistration = new NativeRemoteObjectRegistration();
+		remoteObjectRegistration.setup(serverStart);
+
+		return remoteObjectRegistration;
+	}
 
 	/**
 	 * This call will register the given Object, identified by its class.
@@ -27,7 +22,6 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param object The object that should be registered
 	 */
-	@Experimental
 	void register(Object object);
 
 	/**
@@ -43,7 +37,6 @@ public interface RemoteObjectRegistration {
 	 * @param o          The Object
 	 * @param identifier the identifiers
 	 */
-	@Experimental
 	void register(Object o, Class<?>... identifier);
 
 	/**
@@ -65,7 +58,6 @@ public interface RemoteObjectRegistration {
 	 * @see #register(Object)
 	 * @see #register(Object, Class[])
 	 */
-	@Experimental
 	void hook(Object object);
 
 	/**
@@ -73,7 +65,6 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param object the object that should be unregistered
 	 */
-	@Experimental
 	void unregister(Object object);
 
 	/**
@@ -90,7 +81,6 @@ public interface RemoteObjectRegistration {
 	 * @param object      the Object, that should be registered internally
 	 * @param identifiers the identifiers to check for.
 	 */
-	@Experimental
 	void unregister(Object object, Class... identifiers);
 
 	/**
@@ -102,7 +92,6 @@ public interface RemoteObjectRegistration {
 	 *
 	 * @param identifier all identifiers, that should be unregistered.
 	 */
-	@Experimental
 	void unregister(Class... identifier);
 
 	/**
@@ -111,7 +100,6 @@ public interface RemoteObjectRegistration {
 	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
 	 */
-	@Experimental
 	void unhook(Object object);
 
 	/**
@@ -120,11 +108,10 @@ public interface RemoteObjectRegistration {
 	 * This means, also Classes annotated with {@link RegistrationOverrideProhibited}
 	 * will be cleared!
 	 */
-	@Experimental
 	void clear();
 
 	/**
-	 * This call executes an {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
+	 * This call executes a {@link RemoteAccessCommunicationRequest} with the provided instances internally, then return
 	 * a {@link RemoteAccessCommunicationResponse}.
 	 * <p>
 	 * This method will search internally for the set instance, according to the {@link RemoteAccessCommunicationRequest#clazz},
@@ -144,7 +131,5 @@ public interface RemoteObjectRegistration {
 	 * @param request the result, that was received over the Network
 	 * @return the computed RemoteAccessCommunicationResponse, that should be send over the Network
 	 */
-	@Experimental
 	RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request);
-
 }

@@ -3,18 +3,15 @@ package com.github.thorbenkuck.netcom2.integration.example.echo;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
-import com.github.thorbenkuck.netcom2.logging.NetComLogging;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
 
 public class EchoServerTest {
 
 	private static ServerStart serverStart;
 
 	public static void main(String[] args) {
-		NetComLogging.setLogging(Logging.debug());
 		// Create the Server at Port 8888
 		serverStart = ServerStart.at(8888);
 
@@ -39,6 +36,6 @@ public class EchoServerTest {
 		communicationRegistration.register(TestObject.class)
 				.addFirst(Session::send);
 		communicationRegistration.register(TestObject.class)
-				.addFirst((session, o) -> System.out.println("sending back: " + o.getHello()));
+				.addFirst((session, o) -> System.out.println("sending back: " + o.getContent()));
 	}
 }

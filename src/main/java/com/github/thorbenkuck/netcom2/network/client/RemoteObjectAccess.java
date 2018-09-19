@@ -1,38 +1,16 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.annotations.Experimental;
-import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
-
-/**
- * This interface provides a way of getting RemoteObjects.
- * <p>
- * The {@link ClientStart} for example implements this method. So you
- * may get any RemoteObject by stating
- * <p>
- * <pre><code>
- * class Example {
- *     private ClientStart clientStart;
- *     ...
- *
- *     public void run() {
- *         TestObject testObject = clientStart.getRemoteObject(TestObject.class);
- *     }
- * }
- * </code></pre>
- * <p>
- * It returns an actual, callable instance of the provided Class. However, the Method-call will be delegated to the Server.
- * The Server then calculates results based upon the real Object, registered at the {@link RemoteObjectRegistration} and
- * then return this Result back to the Client.
- * <p>
- * Further any Throwable encountered while running the real Object will be pinged back to the executing client.
- *
- * @version 1.0
- * @see com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions
- * @see com.github.thorbenkuck.netcom2.annotations.rmi.SingletonRemoteObject
- * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler
- * @since 1.0
- */
+@Deprecated
 public interface RemoteObjectAccess {
+
+	/**
+	 * Returns the internally maintained {@link RemoteObjectFactory}.
+	 * <p>
+	 * This method will never return null.
+	 *
+	 * @return the internally maintained instance of a RemoteObjectFactory.
+	 */
+	RemoteObjectFactory getRemoteObjectFactory();
 
 	/**
 	 * The call of this Method will result in a callable instance of the provided <code>class</code>.
@@ -50,8 +28,9 @@ public interface RemoteObjectAccess {
 	 * @return an callable instance of the type <code>T</code>
 	 * @see RemoteObjectFactory
 	 */
-	@Experimental
-	<T> T getRemoteObject(Class<T> clazz);
+	default <T> T getRemoteObject(Class<T> clazz) {
+		return getRemoteObjectFactory().create(clazz);
+	}
 
 	/**
 	 * This Method changes the {@link InvocationHandlerProducer} set internally.
@@ -63,7 +42,6 @@ public interface RemoteObjectAccess {
 	 * @param invocationHandlerProducer the {@link InvocationHandlerProducer} that should create the {@link com.github.thorbenkuck.netcom2.network.client.RemoteObjectHandler}
 	 * @see InvocationHandlerProducer
 	 */
-	@Experimental
 	void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer);
 
 }

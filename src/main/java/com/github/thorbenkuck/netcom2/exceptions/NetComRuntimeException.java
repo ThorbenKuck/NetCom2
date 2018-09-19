@@ -10,7 +10,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * <li>IllegalStateException</li>
  * <li>NullPointerException</li>
  * </ul>
- * <p>
+ *
  * There are no custom Exception-types for those Exceptions.
  *
  * @version 1.0

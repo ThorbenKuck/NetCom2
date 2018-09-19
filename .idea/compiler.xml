@@ -2,7 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -12,10 +11,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="NetCom2" target="1.8" />
-      <module name="NetCom2 (1)" target="1.8" />
-      <module name="NetCom2 (2)" target="1.8" />
-      <module name="NetCom2_main" target="1.8" />
-      <module name="NetCom2_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

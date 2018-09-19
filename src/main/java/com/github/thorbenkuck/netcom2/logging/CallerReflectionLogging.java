@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 /**
@@ -29,72 +28,55 @@ public class CallerReflectionLogging implements Logging {
 		NetCom2Utils.assertNotNull(base);
 		this.style = base;
 		warn("This Logging-Mechanism is very workload-intensive!");
+		instantiated(this);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trace(final String s) {
-		style.trace(s);
+	public void trace(final Object o) {
+		style.trace(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
-		style.debug(s);
+	public void debug(final Object o) {
+		style.debug(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
-		style.info(s);
+	public void info(final Object o) {
+		style.info(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
-		style.warn(s);
+	public void warn(final Object o) {
+		style.warn(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
-		style.error(s);
+	public void error(final Object o) {
+		style.error(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-		error(s);
-		catching(throwable);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s) {
-		style.fatal(s);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
-		fatal(s);
-		catching(throwable);
+	public void fatal(final Object o) {
+		style.fatal(o);
 	}
 
 	/**

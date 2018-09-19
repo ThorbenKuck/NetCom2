@@ -4,17 +4,18 @@ import java.io.Serializable;
 
 public class TestObject implements Serializable {
 
-	private String hello;
+	private final String content;
 
-	public TestObject(String hello) {
-		this.hello = hello;
+	public TestObject(String content) {
+		this.content = content;
 	}
 
-	public String getHello() {
-		return hello;
+	public String getContent() {
+		return content;
 	}
 
+	@Override
 	public String toString() {
-		return "TestObject{hello=" + hello + "}";
+		return content;
 	}
 }

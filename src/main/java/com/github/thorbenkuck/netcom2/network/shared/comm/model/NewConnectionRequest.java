@@ -1,51 +1,24 @@
 package com.github.thorbenkuck.netcom2.network.shared.comm.model;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-
 import java.io.Serializable;
 
-@APILevel
 public final class NewConnectionRequest implements Serializable {
 
 	private static final long serialVersionUID = 4414647424220391756L;
-	private final Class key;
+	private final Class<?> identifier;
 
-	public NewConnectionRequest(final Class key) {
-		this.key = key;
+	public NewConnectionRequest(final Class<?> identifier) {
+		this.identifier = identifier;
 	}
 
-	public final Class getKey() {
-		return key;
+	public final Class<?> getIdentifier() {
+		return identifier;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public final String toString() {
 		return "NewConnectionRequest{" +
-				"key=" + key +
+				"identifier=" + identifier +
 				'}';
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean equals(final Object o) {
-		if (this == o) return true;
-		if (!(o instanceof NewConnectionRequest)) return false;
-
-		NewConnectionRequest request = (NewConnectionRequest) o;
-
-		return key.equals(request.key);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final int hashCode() {
-		return key.hashCode();
 	}
 }

@@ -2,20 +2,19 @@ package com.github.thorbenkuck.netcom2.integration.rmi;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
-public class RMIServer implements Runnable {
+public class RMIServer {
 
-	private ServerStart serverStart = ServerStart.at(4444);
+	public static final String SERVER_PREFIX = "[FROM_SERVER]: ";
 
 	public static void main(String[] args) {
-		new RMIServer().run();
-	}
+		ServerStart serverStart = ServerStart.at(4568);
 
-	@Override
-	public void run() {
-		serverStart.remoteObjects().register(new RemoteTest(), RemoteTestInterface.class);
-		serverStart.remoteObjects().register(new PrimitiveRemoteTest(), PrimitiveRemoteTestInterface.class);
+		RemoteObjectRegistration remoteObjectRegistration = RemoteObjectRegistration.open(serverStart);
+		remoteObjectRegistration.hook(new ServerImplementation());
+
 		try {
 			serverStart.launch();
 			serverStart.acceptAllNextClients();
@@ -24,19 +23,13 @@ public class RMIServer implements Runnable {
 		}
 	}
 
-	private class RemoteTest implements RemoteTestInterface {
+
+	private static final class ServerImplementation implements RemoteTestObject {
 
 		@Override
-		public String getHelloWorld() {
-			return "Go ask someone else!";
+		public String convert(String input) {
+			return SERVER_PREFIX + input;
 		}
 	}
 
-	private class PrimitiveRemoteTest implements PrimitiveRemoteTestInterface {
-
-		@Override
-		public String get(final int i) {
-			return "sqr(" + String.valueOf(i * i) + ") = " + i;
-		}
-	}
 }

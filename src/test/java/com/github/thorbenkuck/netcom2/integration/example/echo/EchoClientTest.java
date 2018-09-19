@@ -4,7 +4,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,12 +33,12 @@ public class EchoClientTest {
 			System.exit(1);
 		}
 		// If launched, schedule the sending every 1 second
-		schedule(clientStart.send());
+		schedule(Sender.open(clientStart));
 	}
 
 	private static void register(CommunicationRegistration communicationRegistration) {
 		communicationRegistration.register(TestObject.class)
-				.addFirst((testObject -> System.out.println("Server send: " + testObject.getHello())));
+				.addFirst((testObject -> System.out.println("Server send: " + testObject.getContent())));
 	}
 
 	private static void schedule(Sender send) {

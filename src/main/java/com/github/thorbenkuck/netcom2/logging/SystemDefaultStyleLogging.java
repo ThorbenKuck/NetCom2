@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 public class SystemDefaultStyleLogging implements Logging {
 
 	private final PrintStream out;
+	private final Value<String> prefixValue = Value.of("");
 
 	public SystemDefaultStyleLogging() {
 		this(System.out);
@@ -35,7 +36,7 @@ public class SystemDefaultStyleLogging implements Logging {
 	 *
 	 * @param s the String, that should be printed
 	 */
-	private void println(final String s) {
+	private void println(final Object s) {
 		synchronized (out) {
 			out.println(s);
 		}
@@ -49,70 +50,48 @@ public class SystemDefaultStyleLogging implements Logging {
 		return "{Default Logging-style for NetCom2Logging}";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void trace(final String s) {
-		println(getPrefix() + "TRACE : " + s);
+	private String convert(String level) {
+		return getPrefix() + prefixValue.get() + level;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
-		println(getPrefix() + "DEBUG : " + s);
+	public void trace(final Object o) {
+		println(convert("TRACE : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
-		println(getPrefix() + "INFO : " + s);
+	public void debug(final Object o) {
+		println(convert("DEBUG : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
-		println(getPrefix() + "WARN : " + s);
+	public void info(final Object o) {
+		println(convert("INFO : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
-		println(getPrefix() + "ERROR : " + s);
+	public void warn(final Object o) {
+		println(convert("WARN : ") + o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-		error(s);
-		catching(throwable);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s) {
-		println(getPrefix() + "FATAL : " + s);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
-		fatal(s);
-		catching(throwable);
+	public void error(final Object o) {
+		println(convert("ERROR : ") + o);
 	}
 
 	/**
@@ -127,6 +106,14 @@ public class SystemDefaultStyleLogging implements Logging {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void fatal(final Object o) {
+		println(convert("FATAL") + o);
+	}
+
+	/**
 	 * Returns a unified prefix.
 	 * <p>
 	 * This is the default prefix, which is universally used by this class.
@@ -137,6 +124,6 @@ public class SystemDefaultStyleLogging implements Logging {
 	 * @return the prefix
 	 */
 	String getPrefix() {
-		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") ";
+		return "[" + LocalDateTime.now() + "] (" + Thread.currentThread().toString() + ") : ";
 	}
 }

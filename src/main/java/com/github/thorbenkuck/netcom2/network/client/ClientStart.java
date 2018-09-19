@@ -1,108 +1,103 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.interfaces.SocketFactory;
-import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.interfaces.NetworkInterface;
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
+import com.github.thorbenkuck.keller.annotations.Experimental;
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.exceptions.ConnectionEstablishmentFailedException;
+import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
+import com.github.thorbenkuck.netcom2.interfaces.SoftStoppable;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.DeSerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.network.shared.cache.Cache;
-import com.github.thorbenkuck.netcom2.network.shared.clients.DeSerializationAdapter;
-import com.github.thorbenkuck.netcom2.network.shared.clients.SerializationAdapter;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ClientDisconnectedHandler;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoverer;
 
-/*
-&lt; for < and &gt; for > .
- */
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
 
-/**
- * This Class is the used to connect to an launched {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}.
- * <p>
- * It is the main entry-point for any Client-related actions. It further never exposes its implementation. You may initialize
- * a Client the following way:
- * <p>
- * <code>
- * final String address = "localhost"; // the address of the Server
- * final int port = 4444; // the port of the Server
- * final ClientStart clientStart = ClientStart.at(address, port);
- * </code>
- * <p>
- * Note however, that the Server has to:
- * <ol type="a">
- * <li>Be already running, if you call <code>clientStart.launch()</code></li>
- * <li>Be assigned to the same port and address as given to the ClientStart</li>
- * </ol>
- * <p>
- * The following code starts a Server and a Client, which both successfully connect:
- * <p>
- * <code>
- * ServerStart serverStart = ServerStart.at(4444);
- * ClientStart clientStart = ClientStart.at("localhost", 4444);
- * try {
- * serverStart.launch();
- * } catch(Exception ignored) {}
- * new Thread(() -&gt; {
- * try {
- * serverStart.acceptAllNextClients();
- * } catch(ClientConnectionFailedException ignored) {}
- * }).start();
- * try {
- * clientStart.launch();
- * } catch(Exception ignored) {}
- * </code>
- * <p>
- * Once the launch method of the ServerStart is finished, the ClientStart might be launched.
- * If however, the ServerStart is not yet launched, the ClientStart.launch method will fail and throw
- * an StartFailedException.
- *
- * @version 1.1
- * @see com.github.thorbenkuck.netcom2.network.server.ServerStart
- * @since 1.0
- */
-public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
+public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftStoppable {
 
-	/**
-	 * Creates a new ClientStart.
-	 * <p>
-	 * The use of this method is recommended to be used! At all times, this method is ensured to never change.
-	 * Therefore, relying on any implementation details, is not recommended, because they might become subject to change.
-	 *
-	 * @param address the address of the already running ServerStart as a String
-	 * @param port    the port, that the ServerStart is bound to.
-	 * @return a new Instance of this interface.
-	 */
-	static ClientStart at(final String address, final int port) {
-		return new ClientStartImpl(address, port);
+	static ClientStart at(String hostname, int port) {
+		return at(new InetSocketAddress(hostname, port));
 	}
 
-	/**
-	 * This Method-Call will create a new Connection, identified by the provided <code>key</code>.
-	 * <p>
-	 * Calling this Method, will lead to a request-response-chain between the Server and the Client.
-	 * After this, the Connection will be created an is usable. This whole procedure is asynchronous. To allow synchronization,
-	 * you may use the returned {@link Awaiting} instance
-	 *
-	 * @param key the identifying Class for the new Connection
-	 * @return an synchronization mechanism
-	 * @see com.github.thorbenkuck.netcom2.network.shared.clients.AbstractConnection
-	 * @see com.github.thorbenkuck.netcom2.network.shared.clients.Connection
-	 */
-	Awaiting createNewConnection(final Class key);
+	static ClientStart at(SocketAddress socketAddress) {
+		return nio(socketAddress);
+	}
 
-	/**
-	 * Sets the Factory, to create the Socket, used by the ClientStart
-	 *
-	 * @param factory the factory, that creates the Socket
-	 * @see SocketFactory
-	 */
-	void setSocketFactory(final SocketFactory factory);
+	static ClientStart nio(String hostname, int port) {
+		return nio(new InetSocketAddress(hostname, port));
+	}
+
+	static ClientStart nio(SocketAddress socketAddress) {
+		return as(socketAddress, ClientCore.nio());
+	}
+
+	static ClientStart tcp(String hostname, int port) {
+		return tcp(new InetSocketAddress(hostname, port));
+	}
+
+	static ClientStart tcp(SocketAddress socketAddress) {
+		return as(socketAddress, ClientCore.tcp());
+	}
+
+	@Experimental
+	static ClientStart udp(String hostname, int port) {
+		return udp(new InetSocketAddress(hostname, port));
+	}
+
+	@Experimental
+	static ClientStart udp(SocketAddress socketAddress) {
+		return as(socketAddress, ClientCore.udp());
+	}
+
+	static ClientStart findLocalServer(int hubPort) throws InterruptedException, SocketException {
+		Logging logging = Logging.unified();
+		logging.info("Attempting to find a Server through local area network ..");
+		logging.debug("Created ServiceDiscoverer");
+		ServiceDiscoverer discoverer = ServiceDiscoverer.open(hubPort);
+		Value<ClientStart> clientStart = Value.empty();
+		Synchronize synchronize = Synchronize.createDefault();
+		discoverer.onDiscover(serviceHubLocation -> {
+			clientStart.set(serviceHubLocation.toClientStart());
+			discoverer.close();
+			synchronize.goOn();
+		});
+		discoverer.findServiceHubs();
+
+		synchronize.synchronize();
+
+		return clientStart.get();
+	}
+
+	static ClientStart as(SocketAddress socketAddress, ClientCore clientCore) {
+		return new NativeClientStart(socketAddress, clientCore);
+	}
+
+	Awaiting newConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException;
+
+	// Wrong wording
+	@Deprecated
+	default Awaiting createNewConnection(Class<?> identifier) throws ConnectionEstablishmentFailedException {
+		return newConnection(identifier);
+	}
 
 	/**
 	 * Used to send Objects to the ServerStart.
 	 *
 	 * @return an instance of the {@link Sender} interface
 	 * @see Sender
+	 * @deprecated create your own class using {@link Sender#open(ClientStart)}
 	 */
-	Sender send();
+	@Deprecated
+	default Sender send() {
+		return Sender.open(this);
+	}
 
 	/**
 	 * Adds a {@link SerializationAdapter} as a fallback serialization instance to this ClientStart.
@@ -110,7 +105,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	 * @param serializationAdapter the adapter, that should be used.
 	 * @see SerializationAdapter
 	 */
-	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
+	void addFallBackSerialization(final SerializationAdapter serializationAdapter);
 
 	/**
 	 * Adds a {@link DeSerializationAdapter} as a fallback deserialization instance to this ClientStart.
@@ -118,7 +113,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	 * @param deSerializationAdapter the adapter, that should be used.
 	 * @see DeSerializationAdapter
 	 */
-	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
+	void addFallBackDeSerialization(final DeSerializationAdapter deSerializationAdapter);
 
 	/**
 	 * Sets the {@link SerializationAdapter} as the main serialization instance to this ClientStart.
@@ -128,7 +123,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	 * @param mainSerializationAdapter the adapter, that should be used.
 	 * @see SerializationAdapter
 	 */
-	void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter);
+	void setMainSerializationAdapter(final SerializationAdapter mainSerializationAdapter);
 
 	/**
 	 * Sets the {@link DeSerializationAdapter} as the main deserialization instance to this ClientStart.
@@ -138,7 +133,7 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	 * @param mainDeSerializationAdapter the adapter, that should be used.
 	 * @see DeSerializationAdapter
 	 */
-	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+	void setMainDeSerializationAdapter(final DeSerializationAdapter mainDeSerializationAdapter);
 
 	/**
 	 * Adds a Handler, that will be invoked once the Connection between the Server and the Client is terminated.
@@ -151,25 +146,13 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	 * <li>Some IO-Exception is encountered within all Sockets of a active Connections</li>
 	 * </ul>
 	 *
-	 * @param disconnectedHandler the Handler, that should be called once the Connection is terminated
+	 * @param clientDisconnectedHandler the Handler, that should be called once the Connection is terminated
 	 */
-	void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler);
+	void addDisconnectedHandler(final ClientDisconnectedHandler clientDisconnectedHandler);
 
-	/**
-	 * Sets an Adapter for decryption of received Strings.
-	 *
-	 * @param decryptionAdapter the DecryptionAdapter
-	 * @see DecryptionAdapter
-	 */
-	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
+	void addDecryptionAdapter(DecryptionAdapter decryptionAdapter);
 
-	/**
-	 * Sets an Adapter for encryption of Strings that should be send.
-	 *
-	 * @param encryptionAdapter the EncryptionAdapter
-	 * @see EncryptionAdapter
-	 */
-	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
+	void addEncryptionAdapter(EncryptionAdapter encryptionAdapter);
 
 	/**
 	 * This Method is a shortcut for: {@link Cache#reset()}
@@ -179,11 +162,88 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface {
 	void clearCache();
 
 	/**
-	 * Returns the internally maintained {@link RemoteObjectFactory}.
-	 * <p>
-	 * This method will never return null.
+	 * Sets an Adapter for decryption of received Strings.
 	 *
-	 * @return the internally maintained instance of a RemoteObjectFactory.
+	 * @param decryptionAdapter the DecryptionAdapter
+	 * @see DecryptionAdapter
+	 * @deprecated This Methods wording is false. The Encryption/Decryption process is utilized using a Pipeline.
+	 * Therefore multiple Adapter are possible. Use {@link #addDecryptionAdapter(DecryptionAdapter)}
 	 */
-	RemoteObjectFactory getRemoteObjectFactory();
+	@Deprecated
+	default void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		addDecryptionAdapter(decryptionAdapter);
+	}
+
+	/**
+	 * Sets an Adapter for encryption of Strings that should be send.
+	 *
+	 * @param encryptionAdapter the EncryptionAdapter
+	 * @see EncryptionAdapter
+	 * @deprecated This Methods wording is false. The Encryption/Decryption process is utilized using a Pipeline.
+	 * Therefore multiple Adapter are possible. Use {@link #addEncryptionAdapter(EncryptionAdapter)}
+	 */
+	@Deprecated
+	default void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		addEncryptionAdapter(encryptionAdapter);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @deprecated create your own object using {@link RemoteObjectFactory#open(ClientStart)}
+	 */
+	@Deprecated
+	default RemoteObjectFactory getRemoteObjectFactory() {
+		return RemoteObjectFactory.open(this);
+	}
+
+	/**
+	 * @deprecated This Method is not supported anymore. Since the RemoteObjectFactory has been decoupled, this method has no effect anymore
+	 */
+	@Deprecated
+	default void updateRemoteInvocationProducer(InvocationHandlerProducer invocationHandlerProducer) {
+		throw new UnsupportedOperationException("Deprecated because of lost RemoteObjectFactory state!");
+	}
+
+	/**
+	 * Calling this Method is used to block the application from existing.
+	 * <p>
+	 * By Default, NetCom2 utilizes mostly daemon Threads. This means, you could prepare a ClientStart and launch it,
+	 * but the program exists right after the last statement.
+	 * <p>
+	 * To counter this, the ClientStart provides 2 functions, this and the function {@link #blockOnCurrentThread()}.
+	 * <p>
+	 * This Methods starts a new non-daemon Thread. This Thread will run, until an internal Synchronization mechanism is
+	 * finished.
+	 * <p>
+	 * This Thread may not be joined or interrupted, nor shut down forcefully.
+	 * <p>
+	 * You can shut it down, using {@link #softStop()}.
+	 * <p>
+	 * The Thread utilizes the method {@link #blockOnCurrentThread()} and allows you to use the current Thread for different
+	 * Tasks. On the other hand does this Method create a new Thread.
+	 *
+	 * @see #blockOnCurrentThread()
+	 * @see #softStop()
+	 */
+	void startBlockerThread();
+
+	/**
+	 * Calling this Method is used to block the application from existing.
+	 * <p>
+	 * By Default, NetCom2 utilizes mostly daemon Threads. This means, you could prepare a ClientStart and launch it,
+	 * but the program exists right after the last statement.
+	 * <p>
+	 * To counter this, the ClientStart provides 2 functions, this and the function {@link #startBlockerThread()}.
+	 * <p>
+	 * This Method synchronizes over an internally maintained {@link com.github.thorbenkuck.keller.sync.Synchronize} instance.
+	 * This means, calling this Method will result in a block of the current Thread until {@link #softStop()} is called
+	 * and all dependencies are shut down.
+	 * <p>
+	 * The absolute shutdown time is not known, but you may use this Method freely to synchronize your application.
+	 *
+	 * @see #startBlockerThread()
+	 * @see #softStop()
+	 */
+	void blockOnCurrentThread();
 }

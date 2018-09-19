@@ -4,11 +4,11 @@ package com.github.thorbenkuck.netcom2.interfaces;
  * This Adapter interface takes something and turns it into anther type, as stated in the generic types.
  * <p>
  * The difference to the {@link Factory} is, that the original type is not necessarily used within the new Object,
- * whilst the {@link Factory} needs the Object to create the new Object. Also, the instantiation of the Adapter interface
- * might not create a new Instance, every time the {@link Adapter#get(Object)} is called
+ * whilst the {@link Factory} needs the Object to access the new Object. Also, the instantiation of the Adapter interface
+ * might not access a new Instance, every time the {@link Adapter#get(Object)} is called
  * <p>
  * The Adapter interface may be used to adapt to something. If you, for example use a {@link String} within your
- * Application and get an int injected, you might provide an interface to create an {@link Adapter} to convert the
+ * Application and get an int injected, you might provide an interface to access an {@link Adapter} to convert the
  * int into a {@link String}. This Adapter might look like this:
  * <p>
  * <pre><code>

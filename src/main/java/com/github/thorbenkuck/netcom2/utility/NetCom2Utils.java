@@ -1,8 +1,8 @@
 package com.github.thorbenkuck.netcom2.utility;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Asynchronous;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
@@ -144,7 +144,7 @@ public class NetCom2Utils {
 	/**
 	 * This Method is a short form for {@link Wrapper#wrap(OnReceiveSingle)} and uses an static instance of <code>Wrapper</code>
 	 * <p>
-	 * This means you do not need to create <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
+	 * This means you do not need to access <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
 	 *
 	 * @param onReceiveSingle the {@link OnReceiveSingle} that should be wrapped
 	 * @param <T>             the generic Type of the OnReceiveSingle
@@ -161,7 +161,7 @@ public class NetCom2Utils {
 	/**
 	 * This Method is a short form for {@link Wrapper#wrap(OnReceive)} and uses an static instance of <code>Wrapper</code>
 	 * <p>
-	 * This means you do not need to create <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
+	 * This means you do not need to access <code>Wrapper</code> instances, whenever an <code>OnReceive</code> should be wrapped
 	 *
 	 * @param onReceive the {@link OnReceive} that should be wrapped
 	 * @param <T>       the generic Type of the OnReceive

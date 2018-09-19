@@ -7,7 +7,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * @version 1.0
  * @see com.github.thorbenkuck.netcom2.network.client.Sender#unRegistrationToServer(Class)
  * @see com.github.thorbenkuck.netcom2.network.client.Sender#unRegistrationToServer(Class, Class)
- * @see com.github.thorbenkuck.netcom2.network.client.Sender#unRegistrationToServer(Class, com.github.thorbenkuck.netcom2.network.shared.clients.Connection)
+ * @see com.github.thorbenkuck.netcom2.network.client.Sender#unRegistrationToServer(Class, com.github.thorbenkuck.netcom2.network.shared.connections.Connection)
  * @since 1.0
  */
 public class UnRegistrationException extends NetComRuntimeException {

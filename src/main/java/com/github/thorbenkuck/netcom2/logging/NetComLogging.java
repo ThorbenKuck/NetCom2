@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.concurrent.locks.Lock;
@@ -50,68 +49,56 @@ public class NetComLogging implements Logging {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void trace(final String s) {
-		NetComLogging.getLogging().trace(s);
+	public NetComLogging() {
+		instantiated(this);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
-		NetComLogging.getLogging().debug(s);
+	public void trace(final Object o) {
+		NetComLogging.getLogging().trace(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
-		NetComLogging.getLogging().info(s);
+	public void debug(final Object o) {
+		NetComLogging.getLogging().debug(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
-		NetComLogging.getLogging().warn(s);
+	public void info(final Object o) {
+		NetComLogging.getLogging().info(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
-		NetComLogging.getLogging().error(s);
+	public void warn(final Object o) {
+		NetComLogging.getLogging().warn(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
-		NetComLogging.getLogging().error(s, throwable);
+	public void error(final Object o) {
+		NetComLogging.getLogging().error(o);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final String s) {
-		NetComLogging.getLogging().fatal(s);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
-		NetComLogging.getLogging().fatal(s, throwable);
+	public void fatal(final Object o) {
+		NetComLogging.getLogging().fatal(o);
 	}
 
 	/**

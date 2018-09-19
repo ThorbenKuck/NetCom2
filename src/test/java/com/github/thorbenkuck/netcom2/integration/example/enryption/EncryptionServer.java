@@ -4,6 +4,7 @@ import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.clients.ObjectHandler;
 
 public class EncryptionServer {
 
@@ -24,13 +25,14 @@ public class EncryptionServer {
 
 	public void run() throws StartFailedException {
 		serverStart.addClientConnectedHandler(client -> {
-			client.setEncryptionAdapter(string -> Cipher.caesarEncryption(string, 12));
-			client.setDecryptionAdapter(string -> Cipher.caesarDecryption(string, 12));
+			ObjectHandler handler = client.objectHandler();
+			handler.addEncryptionAdapter(string -> Cipher.caesarEncryption(string, 12));
+			handler.addDecryptionAdapter(string -> Cipher.caesarDecryption(string, 12));
 		});
 
 		serverStart.getCommunicationRegistration()
 				.register(TestObject.class)
-				.addFirst(o -> System.out.println(o.getHello()));
+				.addFirst(o -> System.out.println(o.getContent()));
 
 		serverStart.launch();
 		try {

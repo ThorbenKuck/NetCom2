@@ -1,14 +1,13 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.annotations.Tested;
+import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.netcom2.annotations.rmi.IgnoreRemoteExceptions;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteObjectNotRegisteredException;
 import com.github.thorbenkuck.netcom2.exceptions.RemoteRequestException;
 import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationRequest;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.RemoteAccessCommunicationResponse;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationRequest;
+import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicationResponse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,23 +17,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-/**
- * This is the proxy, which is used for the RMI API.
- * <p>
- * Since it is a RemoteObjectHandler, it is in fact a proxy.
- *
- * @param <T> the proxied type.
- * @version 1.0
- * @since 1.0
- */
-@Synchronized
-@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.client.JavaRemoteInformationInvocationHandlerTest")
 public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHandler {
 
 	private final Sender sender;
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration;
 	private final Class<?> clazz;
 	private final UUID uuid;
+	private final Logging logging = Logging.unified();
 	private Runnable fallbackRunnable;
 	private T fallbackInstance;
 
@@ -45,6 +34,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		this.clazz = clazz;
 		this.uuid = uuid;
+		logging.instantiated(this);
 	}
 
 	/**
@@ -217,4 +207,5 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 			}
 		}
 	}
+
 }

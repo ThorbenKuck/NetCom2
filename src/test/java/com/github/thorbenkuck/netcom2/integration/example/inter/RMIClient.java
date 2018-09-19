@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.integration.example.inter;
 
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
+import com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,9 @@ public class RMIClient {
 			return;
 		}
 
-		Internationalization languages = clientStart.getRemoteObjectFactory()
-				.create(Internationalization.class, new LocalInternationalization());
+		RemoteObjectFactory factory = RemoteObjectFactory.open(clientStart);
+
+		Internationalization languages = factory.create(Internationalization.class, new LocalInternationalization());
 
 		final List<Language> languagesList = languages.getAvailableLanguages();
 		final List<String> identifiers = languages.getAvailableIdentifier();

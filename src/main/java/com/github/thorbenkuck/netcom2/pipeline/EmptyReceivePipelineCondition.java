@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 import java.util.function.BiPredicate;
@@ -32,5 +32,15 @@ class EmptyReceivePipelineCondition<T> implements ReceivePipelineCondition<T> {
 	 */
 	@Override
 	public void withRequirement(final Predicate<Session> userPredicate) {
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(BiPredicate<Session, T> userPredicate) {
+		return this;
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(Predicate<Session> userPredicate) {
+		return this;
 	}
 }

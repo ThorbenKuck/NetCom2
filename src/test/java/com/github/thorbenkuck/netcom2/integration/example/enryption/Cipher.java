@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.integration.example.enryption;
 public class Cipher {
 
 	public static char cipher(char c, int k) {
-		if(!Character.isAlphabetic(c) || ! Character.isDigit(c)) {
+		if (!Character.isAlphabetic(c) || !Character.isDigit(c)) {
 			return c;
 		}
 		// declare some helping constants
@@ -20,7 +20,7 @@ public class Cipher {
 	}
 
 	public static String caesarEncryption(String string, int shift) {
-		if(shift < 0 || shift > 25) {
+		if (shift < 0 || shift > 25) {
 			throw new IllegalArgumentException("Shift between 0 and 25 expected!");
 		}
 		StringBuilder sb = new StringBuilder();
@@ -31,7 +31,7 @@ public class Cipher {
 	}
 
 	public static String caesarDecryption(String string, int shift) {
-		if(shift < 0 || shift > 25) {
+		if (shift < 0 || shift > 25) {
 			throw new IllegalArgumentException("Shift between 0 and 25 expected!");
 		}
 		StringBuilder sb = new StringBuilder();

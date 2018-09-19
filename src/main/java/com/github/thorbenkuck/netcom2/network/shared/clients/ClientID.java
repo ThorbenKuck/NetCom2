@@ -1,27 +1,14 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-/**
- * This Class is the Identification of any Client.
- * <p>
- * Classes like the {@link com.github.thorbenkuck.netcom2.network.server.ClientList} use this ID to identify any Client
- * that has connected. Though this is mostly not needed, there are some needed Cases where this ID is compared and queried.
- * <p>
- * For example, the establishment of a new Connection requires the Client to identify falsely create IDs to delete falsely
- * create clients.
- *
- * @version 1.0
- * @since 1.0
- */
-@Synchronized
-public final class ClientID implements Serializable {
+public class ClientID implements Serializable {
 
-	private final UUID id;
+	private static final long serialVersionUID = 4414647424220391756L;
+	private UUID id;
 
 	/**
 	 * The ClientID is a wrapper for the UUID Class.
@@ -134,6 +121,12 @@ public final class ClientID implements Serializable {
 		}
 	}
 
+	public void updateBy(ClientID clientID) {
+		synchronized (this) {
+			this.id = clientID.id;
+		}
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -141,12 +134,16 @@ public final class ClientID implements Serializable {
 
 		ClientID clientID = (ClientID) o;
 
-		return id != null ? id.equals(clientID.id) : clientID.id == null;
+		synchronized (this) {
+			return id != null ? id.equals(clientID.id) : clientID.id == null;
+		}
 	}
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+		synchronized (this) {
+			return id != null ? id.hashCode() : 0;
+		}
 	}
 
 	/**
@@ -154,6 +151,9 @@ public final class ClientID implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "{" + (id == null ? "EmptyClientID" : id.toString()) + "}";
+		synchronized (this) {
+			return "{" + (id == null ? "EmptyClientID" : id.toString()) + "}";
+		}
 	}
+
 }

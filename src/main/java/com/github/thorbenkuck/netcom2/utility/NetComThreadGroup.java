@@ -8,6 +8,7 @@ package com.github.thorbenkuck.netcom2.utility;
  * @version 1.0
  * @since 1.0
  */
+@Deprecated
 public class NetComThreadGroup extends ThreadGroup {
 
 	public NetComThreadGroup(String name) {

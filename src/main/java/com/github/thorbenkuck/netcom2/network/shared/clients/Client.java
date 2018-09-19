@@ -1,19 +1,17 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.interfaces.Mutex;
-import com.github.thorbenkuck.netcom2.network.client.ClientStart;
-import com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
-import com.github.thorbenkuck.netcom2.network.shared.DisconnectedHandler;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration;
+import com.github.thorbenkuck.keller.sync.Awaiting;
+import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.network.shared.*;
+import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
+import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * An Client is an Object-Representation of a physical Computer, connected via one or multiple {@link java.net.Socket}.
@@ -21,7 +19,6 @@ import java.util.concurrent.ExecutorService;
  * The Client encapsulates information needed for the Client-Server-Communication, such as:
  * <ul>
  * <li>Connections this Computer uses</li>
- * <li>Serialization and FallbackSerialization</li>
  * <li>A Session, shared across all active Connections</li>
  * <li>A Disconnected Handler</li>
  * <li>The CommunicationRegistration</li>
@@ -36,250 +33,46 @@ import java.util.concurrent.ExecutorService;
  * <p>
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
+ * <p>
+ * <b>Version 1.1:</b>
+ * <p>
+ * With version 1.1, the Serialization and Encryption mechanisms, are decoupled into the {@link ObjectHandler}.
+ * <p>
+ * The Connection management also has been overhauled. A Client now is considered primed, as soon as the DefaultConnection
+ * is established.
+ * <p>
+ * All currently deprecated methods will be removed in the next major update.
  *
- * @version 1.0
+ * @version 1.1
+ * @see Session
+ * @see CommunicationRegistration
+ * @see ObjectHandler
  * @since 1.0
  */
-public interface Client extends Mutex {
+public interface Client {
 
-	/**
-	 * Returns a new instance of the internal implementation of this interface.
-	 * <p>
-	 * Based upon the given {@link CommunicationRegistration}, the ClientImplementation will be created and returned.
-	 * <p>
-	 * The use of this Method is encouraged over instantiating the internal Client manually! The internal Implementation might
-	 * change due to development reasons and might be swapped easy without breaking code using this method
-	 *
-	 * @param communicationRegistration the {@link CommunicationRegistration}, which is used by all Connections to handle received Objects
-	 * @return an instance of the internal Client implementation
-	 */
-	static Client create(final CommunicationRegistration communicationRegistration) {
-		return new ClientImpl(communicationRegistration);
+	static Client create(CommunicationRegistration communicationRegistration) {
+		return new NativeClient(communicationRegistration);
 	}
 
 	/**
-	 * This Method is meant for providing an custom {@link ExecutorService} to be used within every subclass of  the Client.
+	 * Removes a Connection from the internally maintained ConnectionMap.
 	 * <p>
-	 * For example the {@link Connection} provides a method to override the existing ThreadPool.
-	 * <p>
-	 * WARNING! This Method is extremely workload intensive! For this Method to work correctly, all current {@link Runnable}
-	 * have to be stopped and than the current ExecutorService has to be shutdown. This procedure is repeated for each subclass, like the Connections.
-	 * In this Time-Frame all {@link com.github.thorbenkuck.netcom2.network.interfaces.SendingService} and {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService} will be stopped,
-	 * which will lead to an shut down communication during the time the ExecutorService is swapped!
+	 * This is only needed, if you manually add a Connection to the Client.
 	 *
-	 * @param executorService the new ExecutorService to be used within every sub class.
+	 * @param connection the Connection, that should be removed
 	 */
-	void setThreadPool(final ExecutorService executorService);
+	void removeConnection(Connection connection);
 
 	/**
-	 * This Method initially sets up the Client.
+	 * Adds a connection.
 	 * <p>
-	 * It creates a new {@link Session} and potentially overrides the existing one. Calling this Method might be a bad idea.
-	 * It certainly is possible to call this Method at runtime, but the Session has to be passed to every Connection.
-	 * <p>
-	 * Further: You should call <code>client.getSession().triggerPrimation()</code> after the this method returns.
-	 * The new Session, now associated after this method finishes, is NOT primed.
-	 * <p>
-	 * Also, if you call this method during an Connection establishment or anything similar, you might screw up the currently
-	 * running Mechanism, which requires the Session.
-	 * <p>
-	 * This method is to be understood as the initial setup of an Client. It is called upon its creation and not again later.
-	 * <p>
-	 * Implementation Aspects: Call this Method within the constructor, or make clear, that it has to be called as soon as
-	 * possible. Further you might disable any other call, after the first.
-	 */
-	void setup();
-
-	/**
-	 * This Method cuts all Connections.
-	 * <p>
-	 * In detail: it closes all Connections, created at any point in time, and afterwards clears the list which those where kept in.
-	 * After all Connections are closed, the disconnected handler will be called in an descending order of how they where added
-	 * Each of the {@link DisconnectedHandler} will only be called, if {@link DisconnectedHandler#active()} returns true (Which
-	 * is the default value).
-	 * Lastly the ClientID will be set to an {@link ClientID#empty()} and the Session will be recreated
-	 * <p>
-	 * Calling this method is not reversible! Once closed, it cannot be reopened easily. The only way would be, to manually
-	 * recreate all Connections, required for this Client to function. So calling this method manually is discouraged
-	 * <p>
-	 * That being said, this Method is called by the ClientStart, if the Server disconnects after an Connection has been
-	 * established. Internally this is done, to prevent calculations to recreate the Client once this ClientStart reconnects.
-	 * <p>
-	 * This will disconnect the ClientStart and ServerStart respectively.
-	 */
-	void disconnect();
-
-	/**
-	 * @see Session#triggerPrimation()
-	 */
-	void triggerPrimation();
-
-	/**
-	 * @return Awaiting
-	 * @see Session#primed()
-	 */
-	Awaiting primed();
-
-	/**
-	 * @see Session#newPrimation()
-	 */
-	void newPrimation();
-
-	/**
-	 * Returns the internal Session for this Client.
-	 * The Session is created upon calling {@link #setup()}.
-	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses an {@link com.github.thorbenkuck.netcom2.interfaces.SendBridge}
-	 * which is individual for each Client. Therefor every Session is unique for every Client, even tho multiple Session may have the same attribute.
+	 * Internally it uses the {@link #setConnection(Class, Connection)} method, based on the {@link Connection#getIdentifier()}
+	 * value.
 	 *
-	 * @return the internally set {@link Session}
-	 * @see Session
-	 * <p>
-	 * This might return null, if {@link #clearSession()} is called! A client without a Session cannot function correctly!
-	 * Therefor calling this method might destroy the internal behaviour
+	 * @param connection the Connection, that should be added.
 	 */
-	Session getSession();
-
-	/**
-	 * Sets the internal Session, overriding any previously set instances.
-	 *
-	 * @param session the current internal set Session or null.
-	 */
-	void setSession(final Session session);
-
-	/**
-	 * Deletes the internal Session.
-	 * <p>
-	 * The Session will be set to null! This is important! If you call this method {@link #getSession()} WILL return null!
-	 * <p>
-	 * You should ONLY call this method, if you experience difficulties or something similar whenever an Client disconnects.
-	 * Otherwise you will get a LOT of {@link NullPointerException} from nearly everywhere inside NetCom2.
-	 * <p>
-	 * Most remarkably you will produce a {@link NullPointerException} whenever you registered a {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive} or {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}
-	 * which uses the injected Session and is received from the Client responsible for this Session.
-	 * <p>
-	 * This method is called by the DefaultClientDisconnectedHandler
-	 * to reset the internal Client from within the {@link ClientStart}
-	 * so that you might reconnect and reuse this client. At the ServerSide this will lead to problems.
-	 * <p>
-	 * To counterweight the call of clear Session you might call {@link #setup()}, to set a new Session instance.
-	 */
-	void clearSession();
-
-	/**
-	 * Adds an {@link DisconnectedHandler} to this Client, which is called if this Client disconnects from the ClientStart or ServerStart respectively.
-	 * <p>
-	 * The DisconnectedHandler is therefore a CallBackObject.
-	 *
-	 * @param disconnectedHandler an instance of an DisconnectedHandler.
-	 */
-	void addDisconnectedHandler(final DisconnectedHandler disconnectedHandler);
-
-	/**
-	 * This Method will try to send an Object over an Connection.
-	 * <p>
-	 * Since this Method takes no identifier parameter for the Connection, it uses the {@link DefaultConnection} to Send the method.
-	 * This Method returns nearly immediately. Further, an Object is considered "send" if the Connection accepts the Object.
-	 * <p>
-	 * For your convenience you might use the returned {@link ReceiveOrSendSynchronization} and wait until the Object is send
-	 * or another Object is received over the Connection
-	 *
-	 * @param object the Object to be send over the Connection, must meet the Connection requirements to be send successfully
-	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
-	 */
-	ReceiveOrSendSynchronization send(final Object object);
-
-	/**
-	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the connectionKey of an existing
-	 * Connection to be send over this Connection instead.
-	 *
-	 * @param connectionKey the Key of the Connection, this object should be send over
-	 * @param object        the Object to be send over the Connection, must meet the Connection requirements to be send successfully
-	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
-	 * @see #send(Object)
-	 */
-	ReceiveOrSendSynchronization send(final Class connectionKey, final Object object);
-
-	/**
-	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the concrete Connection the given Object
-	 * should be send over.
-	 *
-	 * @param connection the Connection the Object should be send over
-	 * @param object     the Object to be send over the Connection, must meet the Connection requirements to be send successfully
-	 * @return an ReceiveOrSendSynchronization for Synchronizing this asynchronous process.
-	 * @see #send(Object)
-	 */
-	ReceiveOrSendSynchronization send(final Connection connection, final Object object);
-
-	/**
-	 * Returns an respective Connection for a given ConnectionKey.
-	 * <p>
-	 * Since this Connection might not (yet) exist, it is wrapped in an Optional.
-	 *
-	 * @param connectionKey the Key for the Connection
-	 * @return the Optional.of(connection for connectionKey)
-	 */
-	Optional<Connection> getConnection(final Class connectionKey);
-
-	/**
-	 * Creates an new Connection based upon an Class.
-	 * <p>
-	 * A call on the ServerStart will result in an Request to create a new Connection on the ClientStart.
-	 * A call on the ClientStart will result in an Request to ask to create a new Connection on the ServerStart which is
-	 * functionally equal to this call on the ServerStart
-	 * <p>
-	 * Once the Request ist send from the ServerStart to the ClientStart, a new physical connection is going to be established.
-	 * This whole Process is completely Asynchronous and can be synchronized using the returned {@link Awaiting#synchronize()}.
-	 * <p>
-	 * This results in an long Request-Response-Chain from ClientStart to ServerStart. On the end of this Chain, the returned Awaiting
-	 * is triggered to continue and the Connection is ready to be used.
-	 * <p>
-	 * The key is an Class, so that it is assured it can be send over the Network.
-	 *
-	 * @param connectionKey a Class as an key to identify the Connection.
-	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
-	 */
-	Awaiting createNewConnection(final Class connectionKey);
-
-	/**
-	 * Returns a random Connection from this Client
-	 * <p>
-	 * This is method is one of the potentially least used methods of this whole class
-	 *
-	 * @return a random Connection from this Client
-	 */
-	Connection getAnyConnection();
-
-	/**
-	 * Returns the formatted address for this Client.
-	 * <p>
-	 * This is only used for printing and in the following form:
-	 * <p>
-	 * <code>inetAddress() + ":" + port</code>
-	 *
-	 * @return the formatted Address of this Client.
-	 */
-	String getFormattedAddress();
-
-	/**
-	 * Returns the {@link ClientID} for this Client
-	 * <p>
-	 * This Method will never Return null and is controlled by {@link #setID(ClientID)}
-	 *
-	 * @return the ClientID for this Client
-	 */
-	ClientID getID();
-
-	/**
-	 * Sets the {@link ClientID} for this client.
-	 * <p>
-	 * This might not be null and will throw an {@link IllegalArgumentException} if null is provided.
-	 * You can certainly call this method, but it is highly discouraged to do so. The idea of this method is, to manually
-	 * override the ClientID of false Clients, created via a new Connection creation.
-	 *
-	 * @param id the new ID for this client
-	 * @throws IllegalArgumentException if id == null
-	 */
-	void setID(final ClientID id);
+	void addConnection(Connection connection);
 
 	/**
 	 * Safes an connection for this Client.
@@ -306,10 +99,10 @@ public interface Client extends Mutex {
 	 * <p>
 	 * An both will result in the same Connection
 	 *
-	 * @param key        the key, through which the Connection can be used
+	 * @param identifier the key, through which the Connection can be used
 	 * @param connection the Connection, that should be used, when asked for the Connection
 	 */
-	void setConnection(final Class key, final Connection connection);
+	void setConnection(Class<?> identifier, Connection connection);
 
 	/**
 	 * Searches for the set {@link Connection}s for the originalKey.
@@ -328,11 +121,11 @@ public interface Client extends Mutex {
 	 * <p>
 	 * A {@link Connection} might be routed to any number of keys. So one {@link Connection} can be accessible by any number of calls.
 	 * <p>
-	 * Other than {@link #setConnection(Class, Connection)} an "null-route" is possible, to allow an sort of "fallback-route".
+	 * Other than {@link #setConnection(Class, Connection)} a "null-route" is possible, to allow an sort of "fallback-route".
 	 * <p>
 	 * If you use:
 	 * <code>client.routConnection(OriginalKey.class, null);</code>
-	 * a warning will be logged via the {@link Logging} and the Connection is
+	 * a warning will be logged via the {@link com.github.thorbenkuck.netcom2.logging.Logging} and the Connection is
 	 * used, whenever you state:
 	 * <code>client.send(new MessageObject(), null);</code>
 	 * <p>
@@ -352,123 +145,199 @@ public interface Client extends Mutex {
 	void routeConnection(final Connection originalConnection, final Class newKey);
 
 	/**
-	 * Returns the {@link CommunicationRegistration} used by this Client.
+	 * Returns an respective Connection for a given ConnectionKey.
 	 * <p>
-	 * Since this Client has one or more {@link Connection} established, which have on {@link com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService},
-	 * which require the CommunicationRegistration this Client encapsulates the CommunicationRegistration
+	 * Since this Connection might not (yet) exist, it is wrapped in an Optional.
+	 *
+	 * @param connectionKey the Key for the Connection
+	 * @return the Optional.of(connection for connectionKey)
+	 */
+	Optional<Connection> getConnection(final Class connectionKey);
+
+	/**
+	 * This Method cuts all Connections.
+	 * <p>
+	 * In detail: it closes all Connections, created at any point in time, and afterwards clears the list which those where kept in.
+	 * After all Connections are closed, the disconnected handler will be called in an descending order of how they where added
+	 * Each of the {@link ClientDisconnectedHandler} will be called.
+	 * <p>
+	 * Lastly the ClientID will be set to an {@link ClientID#empty()} and the Session will be recreated
+	 * <p>
+	 * Calling this method is not reversible! Once closed, it cannot be reopened easily. The only way would be, to manually
+	 * recreate all Connections, required for this Client to function. So calling this method manually is discouraged
+	 * <p>
+	 * That being said, this Method is called by the ClientStart, if the Server disconnects after an Connection has been
+	 * established. Internally this is done, to prevent calculations to recreate the Client once this ClientStart reconnects.
+	 * <p>
+	 * This will disconnect the ClientStart and ServerStart respectively.
+	 * <p>
+	 * Note: The behaviour of this Method changed in V.1.1. It will now trigger a pipeline, containing the disconnected Handler.
+	 */
+	void disconnect();
+
+	/**
+	 * Returns the internal Session for this Client.
+	 * The Session is created upon calling {@link #setup()}.
+	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses an {@link com.github.thorbenkuck.netcom2.interfaces.SendBridge}
+	 * which is individual for each Client. Therefor every Session is unique for every Client, even tho multiple Session may have the same attribute.
+	 *
+	 * @return the internally set {@link Session}
+	 * @see Session
+	 */
+	Session getSession();
+
+	/**
+	 * Sets the internal Session, overriding any previously set instances.
+	 *
+	 * @param session the current internal set Session or null.
+	 */
+	void setSession(final Session session);
+
+	/**
+	 * Returns the {@link CommunicationRegistration} used by this Client.
 	 *
 	 * @return the used CommunicationRegistration by this Client
 	 */
 	CommunicationRegistration getCommunicationRegistration();
 
 	/**
-	 * This method sets the internal List of FallBackSerializationAdapter, without overriding the existing ones.
-	 *
-	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
-	 */
-	void addFallBackSerializationAdapter(final List<SerializationAdapter<Object, String>> fallBackSerializationAdapter);
-
-	/**
-	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
-	 *
-	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
-	 */
-	void addFallBackDeSerializationAdapter(
-			final List<DeSerializationAdapter<String, Object>> fallBackDeSerializationAdapter);
-
-	/**
-	 * Adds an FallbackSerialization in form of an SerializationAdapter.
+	 * Returns an Awaiting instance over the primed state
 	 * <p>
-	 * All Adapter added this way, are tested if the {@link #setMainSerializationAdapter(SerializationAdapter)} fails to serialize
-	 * the given Object.
+	 * This Awaiting will block, until the defaultConnection is established
 	 *
-	 * @param serializationAdapter an SerializationAdapter to be used, if the main Adapter fails
+	 * @return a Awaiting instance
 	 */
-	void addFallBackSerialization(final SerializationAdapter<Object, String> serializationAdapter);
+	Awaiting primed();
 
 	/**
-	 * Adds an FallbackDeSerialization in form of an DeSerializationAdapter.
+	 * Describes whether or not this Client is primed.
+	 *
+	 * @return true if this Client is primed, else false
+	 */
+	boolean isPrimed();
+
+	/**
+	 * Triggers the primed state of this Client.
 	 * <p>
-	 * All Adapter added this way, are tested if the {@link #setMainDeSerializationAdapter(DeSerializationAdapter)} fails to deserialize
-	 * the given Object.
-	 *
-	 * @param deSerializationAdapter an DeSerializationAdapter to be used, if the main Adapter fails
-	 */
-	void addFallBackDeSerialization(final DeSerializationAdapter<String, Object> deSerializationAdapter);
-
-	/**
-	 * @return the set MainSerializationAdapter
-	 * @see #setMainSerializationAdapter(SerializationAdapter)
-	 */
-	SerializationAdapter<Object, String> getMainSerializationAdapter();
-
-	/**
-	 * Sets the Main-{@link SerializationAdapter} to be used by the {@link Connection}, encapsulated by this Client.
+	 * You may call this at any time, but you should not. This will be called automatically, once the DefaultConnection
+	 * is established.
 	 * <p>
-	 * This will take the object, that should be send over the chosen {@link Connection} and turns it into an String.
-	 * This String is than send over the Network and then DeSerialized, using the {@link #setMainDeSerializationAdapter(DeSerializationAdapter)}.
+	 * If this client is already primed, this call is ignored.
+	 */
+	void triggerPrimed();
+
+	/**
+	 * Returns the {@link ClientID} for this Client
 	 * <p>
-	 * The String should be reversibly serialized, so that it can be turned back into an Object with its current state.
+	 * This Method will never Return null and is controlled by {@link #setID(ClientID)}
 	 *
-	 * @param mainSerializationAdapter the new MainSerializationAdapter
+	 * @return the ClientID for this Client
 	 */
-	void setMainSerializationAdapter(final SerializationAdapter<Object, String> mainSerializationAdapter);
+	ClientID getID();
 
 	/**
-	 * @return the set MainDeSerializationAdapter
-	 * @see #setMainDeSerializationAdapter(DeSerializationAdapter)
-	 */
-	DeSerializationAdapter<String, Object> getMainDeSerializationAdapter();
-
-	/**
-	 * Sets the Main-{@link DeSerializationAdapter} to be used by the {@link Connection}, encapsulated by this Client.
+	 * Sets the {@link ClientID} for this client.
 	 * <p>
-	 * This will take the string, that was received over an {@link Connection} and turns it into an Object, which is than passed anto the {@link CommunicationRegistration}.
-	 * This String was formally serialized using the {@link #setMainSerializationAdapter(SerializationAdapter)}.
+	 * This might not be null and will throw an {@link IllegalArgumentException} if null is provided.
+	 * You can certainly call this method, but it is highly discouraged to do so. The idea of this method is, to manually
+	 * override the ClientID of false Clients, created via a new Connection creation.
 	 *
-	 * @param mainDeSerializationAdapter the new Main-DeSerializationAdapter
+	 * @param id the new ID for this client
+	 * @throws IllegalArgumentException if id == null
 	 */
-	void setMainDeSerializationAdapter(final DeSerializationAdapter<String, Object> mainDeSerializationAdapter);
+	void setID(final ClientID id);
+
+	void receive(RawData rawData, Connection connection);
 
 	/**
-	 * @return the set Set of all Fallback SerializationAdapter
-	 * @see #addFallBackSerialization(SerializationAdapter)
-	 */
-	Set<SerializationAdapter<Object, String>> getFallBackSerialization();
-
-	/**
-	 * @return the set Set of all Fallback DeSerializationAdapter
-	 * @see #addFallBackDeSerialization(DeSerializationAdapter)
-	 */
-	Set<DeSerializationAdapter<String, Object>> getFallBackDeSerialization();
-
-	/**
-	 * @return the set set DecryptionAdapter
-	 * @see #setDecryptionAdapter(DecryptionAdapter)
-	 */
-	DecryptionAdapter getDecryptionAdapter();
-
-	/**
-	 * Sets an {@link DecryptionAdapter} to be used to decrypt strings after they were deSerialized using an {@link DeSerializationAdapter}.
-	 *
-	 * @param decryptionAdapter the {@link DecryptionAdapter} that should be used in all {@link Connection} of this Client
-	 */
-	void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter);
-
-	/**
-	 * @return the set set EncryptionAdapter
-	 * @see #setEncryptionAdapter(EncryptionAdapter)
-	 */
-	EncryptionAdapter getEncryptionAdapter();
-
-	/**
-	 * Sets an {@link EncryptionAdapter} to be used to encrypt strings after they were serialized using an {@link SerializationAdapter}.
+	 * Adds an {@link ClientDisconnectedHandler} to this Client, which is called if this Client disconnects from the ClientStart or ServerStart respectively.
 	 * <p>
-	 * This encryption should be reversibly, so that it can be turned back into its original state using the {@link DecryptionAdapter}.
+	 * The DisconnectedHandler is therefore a CallBackObject.
+	 * <p>
+	 * Note: Previously, this Method expected a DisconnectedHandler. We now use a {@link ClientDisconnectedHandler}, because
+	 * it inherits from Consumer and may easily be added to a Pipeline, without the need of a wrapper
 	 *
-	 * @param encryptionAdapter the {@link EncryptionAdapter} that should be used in all {@link Connection} of this Client
+	 * @param disconnectedHandler an instance of an DisconnectedHandler.
 	 */
-	void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter);
+	void addDisconnectedHandler(ClientDisconnectedHandler disconnectedHandler);
+
+	void removeDisconnectedHandler(ClientDisconnectedHandler disconnectedHandler);
+
+	void addPrimedCallback(Consumer<Client> clientConsumer);
+
+	ObjectHandler objectHandler();
+
+	/**
+	 * Whilst the other send Methods wait for the Connection to de block {@link Connection#connected()}, this method ignores this.
+	 * <p>
+	 * Some times it is needed, but most of the time, this is not what you want. Instead, try to use {@link #send(Object, Class)},
+	 * {@link #send(Object, Connection)} or {@link #send(Object)}.
+	 * <p>
+	 * The {@link Connection#connected()} {@link Awaiting} blocks until the internal default CommunicationProtocol is finished.
+	 * Only then it is ensured, that the Server or the Client knows exactly what this Connection is associated with.
+	 *
+	 * @param object     the Object to send over the Connection
+	 * @param connection the Connection to send the Object to
+	 */
+	void sendIgnoreConstraints(Object object, Connection connection);
+
+	/**
+	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the concrete Connection the given Object
+	 * should be send over.
+	 * <p>
+	 * This Method is the exit-point of every other send call.
+	 *
+	 * @param connection the Connection the Object should be send over
+	 * @param object     the Object to be send over the Connection, must meet the Connection requirements to be send successfully
+	 * @see #send(Object)
+	 */
+	void send(Object object, Connection connection);
+
+	/**
+	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the connectionKey of an existing
+	 * Connection to be send over this Connection instead.
+	 * <p>
+	 * Note: Previously, this method returned a ReceiveOrSendSynchronization. This is no longer the case.
+	 *
+	 * @param object        the Object to be send over the Connection, must meet the Connection requirements to be send successfully
+	 * @param connectionKey the Key of the Connection, this object should be send over
+	 * @see #send(Object)
+	 */
+	void send(Object object, Class<?> connectionKey);
+
+	/**
+	 * This Method will try to send an Object over an Connection.
+	 * <p>
+	 * Since this Method takes no identifier parameter for the Connection, it uses the {@link com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection}
+	 * to Send the method. This Method returns nearly immediately. Further, an Object is considered "send" if the
+	 * Connection accepts the Object.
+	 * <p>
+	 * In the new Design, this method ultimately extracts a new Task into the {@link NetComThreadPool} using
+	 * {@link NetComThreadPool#submitTask(Runnable)}. If you experience to slow processing, call {@link NetComThreadPool#startWorkerProcess()}
+	 * to start a new Worker.
+	 * <p>
+	 * Note: Previously, this method returned a ReceiveOrSendSynchronization. This is no longer the case.
+	 *
+	 * @param object the Object to be send over the Connection, must meet the Connection requirements to be send successfully
+	 * @see NetComThreadPool#submitTask(Runnable)
+	 * @see NetComThreadPool#startWorkerProcess()
+	 */
+	void send(final Object object);
+
+	/**
+	 * Returns the formatted address for this Client.
+	 * <p>
+	 * This is only used for printing and in the following form:
+	 * <p>
+	 * <code>inetAddress() + ":" + port</code>
+	 *
+	 * @return the formatted Address of this Client.
+	 */
+	String getFormattedAddress();
+
+	void overridePrepareConnection(Class clazz, Synchronize synchronize);
+
+	Synchronize accessPrepareConnection(Class clazz);
 
 	/**
 	 * Prepares a {@link Connection} to be established soon.
@@ -486,13 +355,329 @@ public interface Client extends Mutex {
 	 * the {@link #createNewConnection(Class)} the internal Mechanisms will sooner or later call this method to create an
 	 * Awaiting to synchronize Threads, waiting for this Connection.
 	 * <p>
-	 * Do not cast this return value to an {@link com.github.thorbenkuck.netcom2.network.shared.Synchronize}! The instance
+	 * Do not cast this return value to an {@link Synchronize}! The instance
 	 * of the Awaiting is depending on the Implementation of the Client.
 	 *
 	 * @param clazz the key for the new {@link Connection}, that is going to be established
 	 * @return the {@link Awaiting} to synchronize and wait for the Connection to be established.
 	 */
 	Awaiting prepareConnection(final Class clazz);
+
+	/**
+	 * Creates an new Connection based upon an Class.
+	 * <p>
+	 * A call on the ServerStart will result in an Request to create a new Connection on the ClientStart.
+	 * A call on the ClientStart will result in an Request to ask to create a new Connection on the ServerStart which is
+	 * functionally equal to this call on the ServerStart
+	 * <p>
+	 * Once the Request ist send from the ServerStart to the ClientStart, a new physical connection is going to be established.
+	 * This whole Process is completely Asynchronous and can be synchronized using the returned {@link Awaiting#synchronize()}.
+	 * <p>
+	 * This results in an long Request-Response-Chain from ClientStart to ServerStart. On the end of this Chain, the returned Awaiting
+	 * is triggered to continue and the Connection is ready to be used.
+	 * <p>
+	 * The key is an Class, so that it is assured it can be send over the Network.
+	 *
+	 * @param connectionKey a Class as an key to identify the Connection.
+	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
+	 */
+	default Awaiting createNewConnection(final Class connectionKey) {
+		send(new NewConnectionRequest(connectionKey));
+		return prepareConnection(connectionKey);
+	}
+
+	void connectionPrepared(Class<?> identifier);
+
+	void invalidate();
+
+	/*
+	 * Following are old Methods, which are now deprecated.
+	 *
+	 * Each method has been replaced or reworked and will be implemented with default.
+	 *
+	 * Still, even though most of this might still work, it is highly recommended, to use the new Design, instead of the
+	 * old Design.
+	 */
+
+	/**
+	 * This Method is meant for providing an custom {@link ExecutorService} to be used within every subclass of  the Client.
+	 * <p>
+	 * For example the {@link Connection} provides a method to override the existing ThreadPool.
+	 * <p>
+	 * WARNING! This Method is extremely workload intensive! For this Method to work correctly, all current {@link Runnable}
+	 * have to be stopped and than the current ExecutorService has to be shutdown. This procedure is repeated for each subclass, like the Connections.
+	 * In this Time-Frame all {} and {} will be stopped,
+	 * which will lead to an shut down communication during the time the ExecutorService is swapped!
+	 *
+	 * @param executorService the new ExecutorService to be used within every sub class.
+	 * @deprecated The Client will no longer manually create Threads. It uses {@link NetComThreadPool}
+	 */
+	@Deprecated
+	default void setThreadPool(final ExecutorService executorService) {
+	}
+
+	/**
+	 * This Method initially sets up the Client.
+	 * <p>
+	 * It creates a new {@link Session} and potentially overrides the existing one. Calling this Method might be a bad idea.
+	 * It certainly is possible to call this Method at runtime, but the Session has to be passed to every Connection.
+	 * <p>
+	 * Further: You should call <code>client.getSession().triggerPrimation()</code> after the this method returns.
+	 * The new Session, now associated after this method finishes, is NOT primed.
+	 * <p>
+	 * Also, if you call this method during an Connection establishment or anything similar, you might screw up the currently
+	 * running Mechanism, which requires the Session.
+	 * <p>
+	 * This method is to be understood as the initial setup of an Client. It is called upon its creation and not again later.
+	 * <p>
+	 * Implementation Aspects: Call this Method within the constructor, or make clear, that it has to be called as soon as
+	 * possible. Further you might disable any other call, after the first.
+	 *
+	 * @deprecated Old Design. Use {@link #triggerPrimed()} upon first Connection creation
+	 */
+	@Deprecated
+	default void setup() {
+	}
+
+	/**
+	 * @see Session#triggerPrimation()
+	 * @deprecated use {@link #triggerPrimed()}
+	 */
+	@Deprecated
+	default void triggerPrimation() {
+		triggerPrimed();
+	}
+
+	/**
+	 * @see Session#newPrimation()
+	 */
+	@Deprecated
+	default void newPrimation() {
+
+	}
+
+	/**
+	 * Deletes the internal Session.
+	 * <p>
+	 * The Session will be set to null! This is important! If you call this method {@link #getSession()} WILL return null!
+	 * <p>
+	 * You should ONLY call this method, if you experience difficulties or something similar whenever an Client disconnects.
+	 * Otherwise you will get a LOT of {@link NullPointerException} from nearly everywhere inside NetCom2.
+	 * <p>
+	 * This method is called by the DefaultClientDisconnectedHandler
+	 * to reset the internal Client from within the {@link com.github.thorbenkuck.netcom2.network.client.ClientStart}
+	 * so that you might reconnect and reuse this client. At the ServerSide this will lead to problems.
+	 * <p>
+	 * To counterweight the call of clear Session you might call {@link #setup()}, to set a new Session instance.
+	 */
+	@Deprecated
+	default void clearSession() {
+	}
+
+	/**
+	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the connectionKey of an existing
+	 * Connection to be send over this Connection instead.
+	 *
+	 * @param connectionKey the Key of the Connection, this object should be send over
+	 * @param object        the Object to be send over the Connection, must meet the Connection requirements to be send successfully
+	 * @see #send(Object)
+	 * @deprecated this Method has been replace by {@link #send(Object, Class)} because of the wording
+	 */
+	@Deprecated
+	default void send(Class connectionKey, Object object) {
+		send(object, connectionKey);
+	}
+
+	/**
+	 * Behaves similar to the {@link #send(Object)} method with the exception, that it takes the concrete Connection the given Object
+	 * should be send over.
+	 *
+	 * @param connection the Connection the Object should be send over
+	 * @param object     the Object to be send over the Connection, must meet the Connection requirements to be send successfully
+	 * @see #send(Object)
+	 * @deprecated this Method has been replace by {@link #send(Object, Connection)} because of the wording
+	 */
+	@Deprecated
+	default void send(final Connection connection, final Object object) {
+		send(object, connection);
+	}
+
+	/**
+	 * Returns a random Connection from this Client
+	 * <p>
+	 * This is method is one of the potentially least used methods of this whole class
+	 *
+	 * @return a random Connection from this Client
+	 * @deprecated This Method is way to calculation intensive for its task.
+	 */
+	@Deprecated
+	default Connection getAnyConnection() {
+		return getConnection(DefaultConnection.class).orElseThrow(IllegalStateException::new);
+	}
+
+	/**
+	 * This method sets the internal List of FallBackSerializationAdapter, without overriding the existing ones.
+	 *
+	 * @param fallBackSerializationAdapter a List containing multiple {@link SerializationAdapter} instances
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void addFallBackSerializationAdapter(final List<SerializationAdapter> fallBackSerializationAdapter) {
+		objectHandler().addFallbackSerialization(fallBackSerializationAdapter);
+	}
+
+	/**
+	 * This method sets the internal List of FallBackDeSerializationAdapter, without overriding the existing ones.
+	 *
+	 * @param fallBackDeSerializationAdapter a List containing multiple {@link DeSerializationAdapter} instances
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void addFallBackDeSerializationAdapter(final List<DeSerializationAdapter> fallBackDeSerializationAdapter) {
+		objectHandler().addFallbackDeserialization(fallBackDeSerializationAdapter);
+	}
+
+	/**
+	 * Adds an FallbackSerialization in form of an SerializationAdapter.
+	 * <p>
+	 * All Adapter added this way, are tested if the {@link #setMainSerializationAdapter(SerializationAdapter)} fails to serialize
+	 * the given Object.
+	 *
+	 * @param serializationAdapter an SerializationAdapter to be used, if the main Adapter fails
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void addFallBackSerialization(final SerializationAdapter serializationAdapter) {
+		objectHandler().addFallbackSerialization(serializationAdapter);
+	}
+
+	/**
+	 * Adds an FallbackDeSerialization in form of an DeSerializationAdapter.
+	 * <p>
+	 * All Adapter added this way, are tested if the {@link #setMainDeSerializationAdapter(DeSerializationAdapter)} fails to deserialize
+	 * the given Object.
+	 *
+	 * @param deSerializationAdapter an DeSerializationAdapter to be used, if the main Adapter fails
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void addFallBackDeSerialization(final DeSerializationAdapter deSerializationAdapter) {
+		objectHandler().addFallbackDeserialization(deSerializationAdapter);
+	}
+
+	/**
+	 * @return the set MainSerializationAdapter
+	 * @see #setMainSerializationAdapter(SerializationAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default SerializationAdapter getMainSerializationAdapter() {
+		throw new UnsupportedOperationException("Deprecated");
+	}
+
+	/**
+	 * Sets the Main-{@link SerializationAdapter} to be used by the {@link Connection}, encapsulated by this Client.
+	 * <p>
+	 * This will take the object, that should be send over the chosen {@link Connection} and turns it into an String.
+	 * This String is than send over the Network and then DeSerialized, using the {@link #setMainDeSerializationAdapter(DeSerializationAdapter)}.
+	 * <p>
+	 * The String should be reversibly serialized, so that it can be turned back into an Object with its current state.
+	 *
+	 * @param mainSerializationAdapter the new MainSerializationAdapter
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void setMainSerializationAdapter(final SerializationAdapter mainSerializationAdapter) {
+		objectHandler().setMainSerialization(mainSerializationAdapter);
+	}
+
+	/**
+	 * @return the set MainDeSerializationAdapter
+	 * @see #setMainDeSerializationAdapter(DeSerializationAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default DeSerializationAdapter getMainDeSerializationAdapter() {
+		throw new UnsupportedOperationException("Deprecated!");
+	}
+
+	/**
+	 * Sets the Main-{@link DeSerializationAdapter} to be used by the {@link Connection}, encapsulated by this Client.
+	 * <p>
+	 * This will take the string, that was received over an {@link Connection} and turns it into an Object, which is than passed anto the {@link CommunicationRegistration}.
+	 * This String was formally serialized using the {@link #setMainSerializationAdapter(SerializationAdapter)}.
+	 *
+	 * @param mainDeSerializationAdapter the new Main-DeSerializationAdapter
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void setMainDeSerializationAdapter(final DeSerializationAdapter mainDeSerializationAdapter) {
+		objectHandler().setMainDeserialization(mainDeSerializationAdapter);
+	}
+
+	/**
+	 * @return the set Set of all Fallback SerializationAdapter
+	 * @see #addFallBackSerialization(SerializationAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default Set<SerializationAdapter> getFallBackSerialization() {
+		return Collections.unmodifiableSet(new HashSet<>());
+	}
+
+	/**
+	 * @return the set Set of all Fallback DeSerializationAdapter
+	 * @see #addFallBackDeSerialization(DeSerializationAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default Set<DeSerializationAdapter> getFallBackDeSerialization() {
+		return Collections.unmodifiableSet(new HashSet<>());
+	}
+
+	/**
+	 * @return the set set DecryptionAdapter
+	 * @see #setDecryptionAdapter(DecryptionAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default DecryptionAdapter getDecryptionAdapter() {
+		throw new UnsupportedOperationException("Deprecated");
+	}
+
+	/**
+	 * Sets an {@link DecryptionAdapter} to be used to decrypt strings after they were deSerialized using an {@link DeSerializationAdapter}.
+	 *
+	 * @param decryptionAdapter the {@link DecryptionAdapter} that should be used in all {@link Connection} of this Client
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void setDecryptionAdapter(final DecryptionAdapter decryptionAdapter) {
+		objectHandler().addDecryptionAdapter(decryptionAdapter);
+	}
+
+	/**
+	 * @return the set set EncryptionAdapter
+	 * @see #setEncryptionAdapter(EncryptionAdapter)
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default EncryptionAdapter getEncryptionAdapter() {
+		throw new UnsupportedOperationException("Deprecated");
+	}
+
+	/**
+	 * Sets an {@link EncryptionAdapter} to be used to encrypt strings after they were serialized using an {@link SerializationAdapter}.
+	 * <p>
+	 * This encryption should be reversibly, so that it can be turned back into its original state using the {@link DecryptionAdapter}.
+	 *
+	 * @param encryptionAdapter the {@link EncryptionAdapter} that should be used in all {@link Connection} of this Client
+	 * @deprecated has been relocated to the {@link ObjectHandler}
+	 */
+	@Deprecated
+	default void setEncryptionAdapter(final EncryptionAdapter encryptionAdapter) {
+		objectHandler().addEncryptionAdapter(encryptionAdapter);
+	}
 
 	/**
 	 * Returns, whether or not an Connection is prepared.
@@ -508,7 +693,10 @@ public interface Client extends Mutex {
 	 * @param clazz the identifier of the Connection
 	 * @return whether or not the Connection is prepared but not released
 	 */
-	boolean isConnectionPrepared(final Class clazz);
+	@Deprecated
+	default boolean isConnectionPrepared(final Class clazz) {
+		return getConnection(clazz).isPresent();
+	}
 
 	/**
 	 * Releases the internal {@link Awaiting} instance, waiting for any Connection prepared, identified by the parameter.
@@ -522,7 +710,9 @@ public interface Client extends Mutex {
 	 * This Method may release the internal {@link Awaiting}, but the implementation of the Awaiting is defined by the implementation
 	 * of this Client.
 	 */
-	void notifyAboutPreparedConnection(final Class clazz);
+	@Deprecated
+	default void notifyAboutPreparedConnection(final Class clazz) {
+	}
 
 	/**
 	 * Adds an faulty ID, that this Client is falsely associated with.
@@ -538,7 +728,9 @@ public interface Client extends Mutex {
 	 *
 	 * @param clientID the {@link ClientID} of an Client, that was created falsely
 	 */
-	void addFalseID(final ClientID clientID);
+	@Deprecated
+	default void addFalseID(final ClientID clientID) {
+	}
 
 	/**
 	 * Returns all false {@link ClientID}.
@@ -546,7 +738,10 @@ public interface Client extends Mutex {
 	 * @return a List of all ClientIDs, identifying false Clients
 	 * @see #addFalseID(ClientID)
 	 */
-	List<ClientID> getFalseIDs();
+	@Deprecated
+	default List<ClientID> getFalseIDs() {
+		return Collections.unmodifiableList(new ArrayList<>());
+	}
 
 	/**
 	 * Removes a false ID from this Client.
@@ -554,7 +749,9 @@ public interface Client extends Mutex {
 	 * @param clientID the ClientID, that should be removed
 	 * @see #addFalseID(ClientID)
 	 */
-	void removeFalseID(final ClientID clientID);
+	@Deprecated
+	default void removeFalseID(final ClientID clientID) {
+	}
 
 	/**
 	 * Removes all given false IDs from this Client.
@@ -562,5 +759,7 @@ public interface Client extends Mutex {
 	 * @param clientIDS a list, containing ClientIDs, that should be removed
 	 * @see #removeFalseID(ClientID)
 	 */
-	void removeFalseIDs(final List<ClientID> clientIDS);
+	@Deprecated
+	default void removeFalseIDs(final List<ClientID> clientIDS) {
+	}
 }

@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 
 /**
  * This Logging implementation ignores all calls and logs nothing.
@@ -11,12 +10,9 @@ import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
  */
 @Synchronized
 public class DisabledLogging implements Logging {
-	/**
-	 * <b>This method call will be ignored!</b>
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void trace(final String s) {
+
+	public DisabledLogging() {
+		instantiated(this);
 	}
 
 	/**
@@ -24,7 +20,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void debug(final String s) {
+	public void trace(final Object o) {
 	}
 
 	/**
@@ -32,7 +28,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void info(final String s) {
+	public void debug(final Object o) {
 	}
 
 	/**
@@ -40,7 +36,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void warn(final String s) {
+	public void info(final Object o) {
 	}
 
 	/**
@@ -48,7 +44,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s) {
+	public void warn(final Object o) {
 	}
 
 	/**
@@ -56,7 +52,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void error(final String s, final Throwable throwable) {
+	public void error(final Object o) {
 	}
 
 	/**
@@ -64,15 +60,7 @@ public class DisabledLogging implements Logging {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fatal(final String s) {
-	}
-
-	/**
-	 * <b>This method call will be ignored!</b>
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void fatal(final String s, final Throwable throwable) {
+	public void fatal(final Object o) {
 	}
 
 	/**

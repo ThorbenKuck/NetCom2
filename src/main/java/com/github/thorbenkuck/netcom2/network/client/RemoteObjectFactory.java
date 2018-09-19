@@ -1,11 +1,19 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
-/**
- * Implementations will create RemoteObjects.
- * <p>
- * Those RemoteObjects are proxies. There should be NO reason to check for that.
- */
-public interface RemoteObjectFactory {
+import com.github.thorbenkuck.netcom2.interfaces.Module;
+
+public interface RemoteObjectFactory extends Module<ClientStart> {
+
+	static RemoteObjectFactory open(ClientStart clientStart) {
+		return open(clientStart, Sender.open(clientStart));
+	}
+
+	static RemoteObjectFactory open(ClientStart clientStart, Sender sender) {
+		NativeRemoteObjectFactory remoteObjectFactory = new NativeRemoteObjectFactory(sender);
+		remoteObjectFactory.setup(clientStart);
+
+		return remoteObjectFactory;
+	}
 
 	/**
 	 * Sets the default Runnable fallback, if the requested Class is not registered.

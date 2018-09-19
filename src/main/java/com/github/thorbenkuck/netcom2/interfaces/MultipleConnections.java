@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.network.shared.Awaiting;
+import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
 /**
@@ -9,7 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * To successfully use this method, the sessions have to be kept and controlled by the inherited Class. The {@link com.github.thorbenkuck.netcom2.network.server.ServerStart}
  * is such a Class.
  * <p>
- * You may create a new Connection by stating the following:
+ * You may access a new Connection by stating the following:
  * <p>
  * <pre>{@code
  * ServerStart serverStart = ...
@@ -18,7 +18,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * serverStart.createNewConnection(session, connectionKey);
  * }</pre>
  * <p>
- * This however is a bad approach design wise. In most situations, it is recommended to create the new Connection through
+ * This however is a bad approach design wise. In most situations, it is recommended to access the new Connection through
  * the use of the {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client} class.
  * <p>
  * A better way to approach this, would be to encapsulate the Session within an custom <code>User</code> object and to
@@ -31,7 +31,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
  * use the ServerStart directly, but pass the MultipleConnections interface instead.
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.client.ClientStart#createNewConnection(Class)
+ * @see com.github.thorbenkuck.netcom2.network.client.ClientStart#newConnection(Class)
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#createNewConnection(Class)
  * @since 1.0
  */

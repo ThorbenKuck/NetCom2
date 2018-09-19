@@ -1,29 +1,18 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.netcom2.interfaces.Module;
 import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObserver;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ReceiveOrSendSynchronization;
+import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection;
 
-/**
- * This interface is the bridge between Server and Client.
- * <p>
- * The {@link ClientStart} aggregates this Object and exposes it via
- * {@link ClientStart#send()}.
- * <p>
- * It can be used to:
- * <ul>
- * <li>send Objects to the Server, so that the {@link com.github.thorbenkuck.netcom2.network.shared.comm.CommunicationRegistration} of the Server handles it</li>
- * <li>register to a certain type of message</li>
- * <li>unregister from a certain type of message</li>
- * </ul>
- * <p>
- * The reset Method should not be used within production. Reset clears out all saved instances of requested registrations
- * and therefore is after calling it not able to resolve register responses.
- *
- * @version 1.0
- * @since 1.0
- */
-public interface Sender {
+public interface Sender extends Module<ClientStart> {
+
+	static Sender open(ClientStart clientStart) {
+		NativeSender sender = new NativeSender();
+		sender.setup(clientStart);
+
+		return sender;
+	}
 
 	/**
 	 * Sends an Object over the network to the server.
@@ -31,12 +20,11 @@ public interface Sender {
 	 * The call will result in an asynchronous extraction. However, it returns a synchronization mechanism,
 	 * that will allow the developer to listen for a successful send or incoming messages.
 	 * <p>
-	 * It uses the {@link com.github.thorbenkuck.netcom2.network.shared.clients.DefaultConnection}
+	 * It uses the {@link DefaultConnection}
 	 *
 	 * @param o the Object that should be send over the network.
-	 * @return a synchronization mechanism to allow procedural programming
 	 */
-	ReceiveOrSendSynchronization objectToServer(Object o);
+	void objectToServer(Object o);
 
 	/**
 	 * Sends an Object over the network to the server.
@@ -48,9 +36,8 @@ public interface Sender {
 	 *
 	 * @param o          the Object that should be send over the network.
 	 * @param connection the Connection that should be used.
-	 * @return an synchronization mechanism to allow procedural programming
 	 */
-	ReceiveOrSendSynchronization objectToServer(Object o, Connection connection);
+	void objectToServer(Object o, Connection connection);
 
 	/**
 	 * Sends an Object over the network to the server.
@@ -62,9 +49,8 @@ public interface Sender {
 	 *
 	 * @param o             the Object that should be send over the network.
 	 * @param connectionKey the identifier of the Connection that should be used
-	 * @return an synchronization mechanism to allow procedural programming
 	 */
-	ReceiveOrSendSynchronization objectToServer(Object o, Class connectionKey);
+	void objectToServer(Object o, Class connectionKey);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -76,9 +62,8 @@ public interface Sender {
 	 * @param clazz    the class of the message, you want to register to
 	 * @param observer the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>      the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer);
+	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -93,10 +78,9 @@ public interface Sender {
 	 * @param observer   the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>        the type of the message, you want to register to
 	 * @param connection the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                                                      Connection connection);
+	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
+	                              Connection connection);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -111,10 +95,9 @@ public interface Sender {
 	 * @param observer      the callback object, that should be called, if an Object of the specified type arrives
 	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the key for the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                                                      Class connectionKey);
+	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
+	                              Class connectionKey);
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -124,9 +107,8 @@ public interface Sender {
 	 *
 	 * @param clazz the class of the message, you want to register to
 	 * @param <T>   the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz);
+	<T> void unRegistrationToServer(Class<T> clazz);
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -137,9 +119,8 @@ public interface Sender {
 	 * @param clazz      the class of the message, you want to register to
 	 * @param connection the Connection that should be used
 	 * @param <T>        the type of the message, you want to register to
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz, Connection connection);
+	<T> void unRegistrationToServer(Class<T> clazz, Connection connection);
 
 	/**
 	 * Requests an unRegistration from the specified message type.
@@ -150,9 +131,8 @@ public interface Sender {
 	 * @param clazz         the class of the message, you want to register to
 	 * @param <T>           the type of the message, you want to register to
 	 * @param connectionKey the class, identifying the Connection that should be used.
-	 * @return a synchronization mechanism
 	 */
-	<T> ReceiveOrSendSynchronization unRegistrationToServer(Class<T> clazz, Class connectionKey);
+	<T> void unRegistrationToServer(Class<T> clazz, Class connectionKey);
 
 	/**
 	 * Resets the Sender to its original state.
@@ -166,5 +146,4 @@ public interface Sender {
 	 * This method is called if the last Connection is disconnected.
 	 */
 	void reset();
-
 }

@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
@@ -48,5 +48,19 @@ class ReceivePipelineConditionImpl<T> implements ReceivePipelineCondition<T> {
 	public final void withRequirement(final Predicate<Session> userPredicate) {
 		NetCom2Utils.parameterNotNull(userPredicate);
 		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(BiPredicate<Session, T> userPredicate) {
+		NetCom2Utils.parameterNotNull(userPredicate);
+		receiver.addTriPredicate(new OnReceivePredicateWrapper<>(userPredicate));
+		return this;
+	}
+
+	@Override
+	public ReceivePipelineCondition<T> require(Predicate<Session> userPredicate) {
+		NetCom2Utils.parameterNotNull(userPredicate);
+		receiver.addTriPredicate(new OnReceiveSinglePredicateWrapper<>(userPredicate));
+		return this;
 	}
 }

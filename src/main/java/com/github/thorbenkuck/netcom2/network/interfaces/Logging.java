@@ -1,13 +1,15 @@
 package com.github.thorbenkuck.netcom2.network.interfaces;
 
-import com.github.thorbenkuck.netcom2.logging.*;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 
 /**
  * This interface is the core interface as entry for the Logging api.
  *
  * @version 1.0
  * @since 1.0
+ * @deprecated This class is relocated to {@link com.github.thorbenkuck.netcom2.logging}. This makes more sens
  */
+@Deprecated
 public interface Logging {
 
 	/**
@@ -15,7 +17,7 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging getDefault() {
+	static com.github.thorbenkuck.netcom2.logging.Logging getDefault() {
 		return error();
 	}
 
@@ -24,17 +26,17 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging disabled() {
-		return new DisabledLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging disabled() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.disabled();
 	}
 
 	/**
-	 * Creates logging instance, that updates with the {@link NetComLogging#setLogging(Logging)} instance
+	 * Creates logging instance, that updates with the {@link NetComLogging#setLogging(com.github.thorbenkuck.netcom2.logging.Logging)} instance
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging unified() {
-		return new NetComLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging unified() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.unified();
 	}
 
 	/**
@@ -42,8 +44,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging callerTrace() {
-		return new CallerReflectionLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging callerTrace() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.callerTrace();
 	}
 
 	/**
@@ -51,8 +53,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging trace() {
-		return new TraceLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging trace() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.trace();
 	}
 
 	/**
@@ -60,8 +62,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging debug() {
-		return new DebugLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging debug() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.debug();
 	}
 
 	/**
@@ -69,8 +71,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging info() {
-		return new InfoLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging info() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.info();
 	}
 
 	/**
@@ -78,8 +80,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging warn() {
-		return new WarnLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging warn() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.warn();
 	}
 
 	/**
@@ -87,8 +89,8 @@ public interface Logging {
 	 *
 	 * @return an Logging instance
 	 */
-	static Logging error() {
-		return new ErrorLogging();
+	static com.github.thorbenkuck.netcom2.logging.Logging error() {
+		return com.github.thorbenkuck.netcom2.logging.Logging.error();
 	}
 
 	/**

@@ -1,7 +1,10 @@
 package com.github.thorbenkuck.netcom2.utility;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -19,28 +22,47 @@ public class NetComThreadFactory implements ThreadFactory {
 
 	static final String NET_COM_THREAD_NAME = "NetComThread";
 	private final Logging logging = Logging.unified();
-	private final NetComThreadContainer threadContainer = new NetComThreadContainer();
-	// Check whether or not the Thread-Group helps
-	// or hinders the NetComThread (thread-safety)
-	private final NetComThreadGroup threadGroup = new NetComThreadGroup(Thread.currentThread().getThreadGroup(), "NetCom2ThreadGroup");
 	private final AtomicBoolean daemon = new AtomicBoolean(true);
+	private final List<NetComThread> runningThreadList = new ArrayList<>();
+	private final Value<Integer> count = Value.of(0);
 
-	NetComThreadFactory() {
-		logging.debug("Instantiated new NetComThreadFactory");
+	public NetComThreadFactory() {
+		logging.instantiated(this);
+	}
+
+	private void remove(NetComThread thread) {
+		synchronized (runningThreadList) {
+			int newCount = count.get() - 1;
+			logging.debug("Thread number " + thread.getNumber() + " finished!");
+			runningThreadList.remove(thread);
+			count.set(newCount);
+		}
+	}
+
+	private void add(NetComThread thread) {
+		synchronized (runningThreadList) {
+			int newCount = count.get() + 1;
+			logging.debug("Setting thread number to " + newCount);
+			thread.setNumber(newCount);
+			runningThreadList.add(thread);
+			count.set(newCount);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Thread newThread(Runnable r) {
-		NetCom2Utils.parameterNotNull(r);
+	public Thread newThread(Runnable runnable) {
+		NetCom2Utils.parameterNotNull(runnable);
 		logging.trace("Creating new NetComThread");
-		NetComThread thread = new NetComThread(threadGroup, r);
-		logging.trace("Updating NetComThreadContainer of freshly created Thread");
-		thread.setNetComThreadContainer(threadContainer);
+		NetComThread thread = new NetComThread(runnable);
 		logging.trace("Updating daemon state to: " + daemon.get());
 		thread.setDaemon(daemon.get());
+		logging.trace("Setting finish callback");
+		thread.setFinishedCallback(this::remove);
+		logging.trace("Storing NetComThread ..");
+		add(thread);
 		logging.debug("Created new Thread: " + thread);
 		return thread;
 	}
@@ -50,9 +72,9 @@ public class NetComThreadFactory implements ThreadFactory {
 	 *
 	 * @param threadConsumer The Consumer to add
 	 */
+	@Deprecated
 	public void onThreadFinished(Consumer<Thread> threadConsumer) {
-		NetCom2Utils.parameterNotNull(threadConsumer);
-		threadContainer.addThreadFinishedConsumer(threadConsumer);
+		logging.warn("[NetComThreadFactory#onThreadFinished]: This Method call is ignored!");
 	}
 
 	/**
@@ -63,5 +85,14 @@ public class NetComThreadFactory implements ThreadFactory {
 	public void setDaemon(boolean daemon) {
 		logging.debug("Setting daemon state of all Threads to: " + daemon);
 		this.daemon.set(daemon);
+	}
+
+	public List<Thread> getRunningThreads() {
+		final List<Thread> copy;
+		synchronized (runningThreadList) {
+			copy = new ArrayList<>(runningThreadList);
+		}
+
+		return copy;
 	}
 }

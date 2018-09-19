@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.logging;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 
 /**
  * This class is inherits from {@link SystemDefaultStyleLogging} and overrides the {@link #getPrefix()} method to

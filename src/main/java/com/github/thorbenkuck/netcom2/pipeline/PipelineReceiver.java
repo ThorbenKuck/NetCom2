@@ -1,11 +1,11 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.LinkedList;
@@ -24,7 +24,7 @@ import java.util.Queue;
 class PipelineReceiver<T> {
 
 	private final OnReceiveTriple<T> onReceive;
-	private final Queue<TriPredicate<Connection, Session, T>> predicates = new LinkedList<>();
+	private final Queue<TriPredicate<ConnectionContext, Session, T>> predicates = new LinkedList<>();
 
 	/**
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
@@ -83,7 +83,7 @@ class PipelineReceiver<T> {
 	 * @param triPredicate The TriPredicate to add
 	 */
 	@APILevel
-	final void addTriPredicate(final TriPredicate<Connection, Session, T> triPredicate) {
+	final void addTriPredicate(final TriPredicate<ConnectionContext, Session, T> triPredicate) {
 		NetCom2Utils.parameterNotNull(triPredicate);
 		predicates.add(triPredicate);
 	}
@@ -93,17 +93,17 @@ class PipelineReceiver<T> {
 	 * <p>
 	 * This method is only meant for internal use.
 	 *
-	 * @param connection The connection to test with
+	 * @param connectionContext The connection to test with
 	 * @param session    The session to test with
 	 * @param t          The T to test with
 	 * @return false if one predicate returns false, true otherwise
 	 */
 	@APILevel
-	final boolean test(Connection connection, Session session, T t) {
-		NetCom2Utils.parameterNotNull(connection, session, t);
-		final Queue<TriPredicate<Connection, Session, T>> predicateTemp = new LinkedList<>(predicates);
+	final boolean test(ConnectionContext connectionContext, Session session, T t) {
+		NetCom2Utils.parameterNotNull(connectionContext, session, t);
+		final Queue<TriPredicate<ConnectionContext, Session, T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
-			if (!predicateTemp.remove().test(connection, session, t)) {
+			if (!predicateTemp.remove().test(connectionContext, session, t)) {
 				return false;
 			}
 		}

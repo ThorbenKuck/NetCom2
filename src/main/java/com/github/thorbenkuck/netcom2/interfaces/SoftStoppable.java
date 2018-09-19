@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.interfaces;
 /**
  * This Method defines a stoppable Action
  * <p>
- * You may create a class that is inherited by {@link Runnable} and SoftStoppable to create a Runnable that you
+ * You may access a class that is inherited by {@link Runnable} and SoftStoppable to access a Runnable that you
  * can stop using the {@link #softStop()} Method. So you do not need to hard-stop the Thread it is running in.
  *
  * @version 1.0

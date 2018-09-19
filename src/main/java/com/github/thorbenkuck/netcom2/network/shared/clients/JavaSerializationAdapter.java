@@ -1,10 +1,8 @@
 package com.github.thorbenkuck.netcom2.network.shared.clients;
 
-import com.github.thorbenkuck.netcom2.annotations.Asynchronous;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.SerializationFailedException;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.network.shared.SerializationAdapter;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -12,32 +10,22 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 
-/**
- * This SerializationAdapter utilizes the Java-Serialization, to serialize a Object into a String.
- *
- * @version 1.0
- * @since 1.0
- */
-@Synchronized
-@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.network.shared.clients.JavaSerializationAdapterTest")
-public class JavaSerializationAdapter implements SerializationAdapter<Object, String> {
+public class JavaSerializationAdapter implements SerializationAdapter {
 
 	private final Logging logging = Logging.unified();
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws IllegalArgumentException if the provided Object is null
-	 */
-	@Asynchronous
+	public JavaSerializationAdapter() {
+		logging.instantiated(this);
+	}
+
 	@Override
-	public String get(final Object o) throws SerializationFailedException {
+	public String apply(final Object o) throws SerializationFailedException {
 		NetCom2Utils.parameterNotNull(o);
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;
 		try {
 			logging.trace("Creating ObjectOutputStream..");
-			oos = new ObjectOutputStream(baos);
+			oos = new ObjectOutputStream(byteArrayOutputStream);
 			logging.trace("Writing object..");
 			oos.writeObject(o);
 			logging.trace("Done!");
@@ -52,12 +40,12 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 				}
 			}
 			try {
-				baos.close();
+				byteArrayOutputStream.close();
 			} catch (IOException e) {
 				logging.catching(e);
 			}
 		}
-		final String toReturn = Base64.getEncoder().encodeToString(baos.toByteArray());
+		final String toReturn = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
 		logging.trace("Encoded " + o + " to " + toReturn);
 		return toReturn;
 	}
@@ -69,5 +57,4 @@ public class JavaSerializationAdapter implements SerializationAdapter<Object, St
 	public String toString() {
 		return "JavaSerializationAdapter{Default SerializationAdapter requiring java.io.Serializable}";
 	}
-
 }

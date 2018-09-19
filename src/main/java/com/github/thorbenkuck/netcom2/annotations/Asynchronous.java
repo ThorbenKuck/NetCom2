@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  * <p>
  * This should be a sign for anyone, to ensure thread safety
  * <p>
- * It is further recommended to return any kind of synchronization-mechanism (like {@link com.github.thorbenkuck.netcom2.network.shared.Awaiting})
+ * It is further recommended to return any kind of synchronization-mechanism (like {@link com.github.thorbenkuck.keller.sync.Awaiting})
  * but it is certainly not required.
  * <p>
  * Outside of NetCom2's internal Modules, this Annotation is a signal, that you will be restricted to asynchronous behaviour
@@ -20,6 +20,7 @@ import java.lang.annotation.*;
  * @version 1.0
  * @since 1.0
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)

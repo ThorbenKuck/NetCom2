@@ -1,22 +1,24 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.annotations.Tested;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 /**
@@ -33,11 +35,11 @@ import java.util.function.Consumer;
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();
+	private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 	private final Logging logging = Logging.unified();
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
 	private final ReceiveObjectHandlerWrapper receiveObjectHandlerWrapper = new ReceiveObjectHandlerWrapper();
-	private final Semaphore semaphore = new Semaphore(1);
 	private boolean closed = false;
 	private boolean sealed = false;
 	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
@@ -50,34 +52,26 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	public QueuedReceivePipeline(final Class<T> clazz) {
 		NetCom2Utils.parameterNotNull(clazz);
 		this.clazz = clazz;
+		logging.instantiated(this);
 	}
 
 	/**
 	 * Tries to put the specified connection, session and S into the specified pipeline receiver.
 	 *
 	 * @param receiver   The PipelineReceiver
-	 * @param connection The connection
+	 * @param connectionContext The connection
 	 * @param session    The session
 	 * @param s          The S
 	 * @param <S>        The type
 	 */
-	private <S> void run(PipelineReceiver<S> receiver, Connection connection, Session session, S s) {
+	private <S> void run(final PipelineReceiver<S> receiver, final ConnectionContext connectionContext, final Session session, final S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
 		if (onReceiveTriple == null) {
-			logging.warn("Found null OnReceive in PipelineReceiver " + receiver);
-			return;
+			logging.error("Found null OnReceive in PipelineReceiver " + receiver);
+			throw new IllegalStateException("Found null registration for " + s.getClass());
 		}
-		try {
-			onReceiveTriple.beforeExecution();
-			onReceiveTriple.accept(connection, session, s);
-			onReceiveTriple.successfullyExecuted();
-		} catch (Exception encountered) {
-			// The onReceive is notified if an Exception is encountered.
-			// To notify the main Procedure, as well as the other developers, this
-			// Exception is re thrown. Outer procedures may catch those.
-			onReceiveTriple.exceptionEncountered(encountered);
-			throw encountered;
-		}
+
+		onReceiveTriple.execute(connectionContext, session, s);
 	}
 
 	/**
@@ -128,7 +122,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		ifClosed(() -> falseAdd(pipelineService));
 		ifOpen(() -> {
 			synchronized (core) {
-				ifOpen(() -> core.add(pipelineReceiver));
+				core.add(pipelineReceiver);
 			}
 			pipelineService.onRegistration();
 			logging.debug("Registering onReceive: " + pipelineReceiver);
@@ -263,7 +257,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public boolean contains(final OnReceiveTriple<T> onReceiveTriple) {
 		NetCom2Utils.parameterNotNull(onReceiveTriple);
-		return core.contains(new PipelineReceiver<>(onReceiveTriple));
+		synchronized (core) {
+			return core.contains(new PipelineReceiver<>(onReceiveTriple));
+		}
 	}
 
 	/**
@@ -354,6 +350,24 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		}
 	}
 
+	@Override
+	public void remove(OnReceiveSingle<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		synchronized (core) {
+			core.remove(new PipelineReceiver<>(new OnReceiveSingleWrapper<>(pipelineService)));
+			pipelineService.onUnRegistration();
+		}
+	}
+
+	@Override
+	public void remove(OnReceiveTriple<T> pipelineService) {
+		NetCom2Utils.parameterNotNull(pipelineService);
+		synchronized (core) {
+			core.remove(new PipelineReceiver<>(pipelineService));
+			pipelineService.onUnRegistration();
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -368,17 +382,22 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Runs a certain T through this ReceivePipeline.
+	 * <p>
+	 * It will check every {@link ReceivePipelineCondition}, to see whether or not the so registered OnReceive will be executed
+	 *
+	 * @param connectionContext the {@link Connection}, which is associated with the receiving of the T
+	 * @param session    the {@link Session}, which is associated with the receiving of the T
+	 * @param t          the Object, which should be run through this ReceivePipeline
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void run(final Connection connection, final Session session, final T t) {
-		NetCom2Utils.parameterNotNull(connection, session, t);
+	public void run(ConnectionContext connectionContext, Session session, T t) {
+		NetCom2Utils.parameterNotNull(connectionContext, session, t);
 		try {
 			synchronized (core) {
 				core.stream()
-						.filter(pipelineReceiver -> pipelineReceiver.test(connection, session, t))
-						.forEachOrdered(pipelineReceiver -> run(pipelineReceiver, connection, session, t));
+						.filter(pipelineReceiver -> pipelineReceiver.test(connectionContext, session, t))
+						.forEachOrdered(pipelineReceiver -> run(pipelineReceiver, connectionContext, session, t));
 			}
 		} catch (final Exception e) {
 			logging.error("Encountered exception!", e);
@@ -451,19 +470,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		if (!(o instanceof QueuedReceivePipeline)) return false;
 
 		final QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
-		try {
-			that.acquire();
 
-			return closed == that.closed && sealed == that.sealed && core.equals(that.core)
-					&& logging.equals(that.logging) && policyLock.equals(that.policyLock)
-					&& clazz.equals(that.clazz) && receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper)
-					&& receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
-		} catch (final InterruptedException e) {
-			logging.catching(e);
-			return false;
-		} finally {
-			that.release();
-		}
+		return closed == that.closed && sealed == that.sealed && core.equals(that.core)
+				&& logging.equals(that.logging) && policyLock.equals(that.policyLock)
+				&& clazz.equals(that.clazz) && receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper)
+				&& receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
 	}
 
 	/**
@@ -484,7 +495,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void acquire() throws InterruptedException {
-		semaphore.acquire();
+		readWriteLock.readLock().lock();
 	}
 
 	/**
@@ -492,7 +503,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 */
 	@Override
 	public void release() {
-		semaphore.release();
+		readWriteLock.readLock().unlock();
 	}
 
 	/**

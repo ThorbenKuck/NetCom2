@@ -1,22 +1,12 @@
 package com.github.thorbenkuck.netcom2.network.shared.cache;
 
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * This Class may be extended by any CacheImplementation.
- * <p>
- * This makes it easier for you.. just use it.. You know you want it.. It gives you cookies!
- *
- * @version 1.0
- * @since 1.0
- */
-@Synchronized
-public abstract class CacheObservable {
+public class CacheObservable {
 
 	private final List<CacheObserver<?>> obs = new ArrayList<>();
 	private AtomicBoolean changed = new AtomicBoolean(false);
@@ -154,4 +144,5 @@ public abstract class CacheObservable {
 			}
 		}
 	}
+
 }

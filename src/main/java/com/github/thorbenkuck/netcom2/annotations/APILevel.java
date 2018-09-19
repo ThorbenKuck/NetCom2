@@ -21,6 +21,7 @@ import java.lang.annotation.*;
  * @version 1.0
  * @since 1.0
  */
+@Deprecated
 @Documented
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)

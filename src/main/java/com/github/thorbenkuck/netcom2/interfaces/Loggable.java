@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 
 /**
  * This interface describes, that the internally set {@link Logging} instance may be overridden separately.

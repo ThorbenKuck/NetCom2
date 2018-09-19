@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.integration.example.inter;
 
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
+import com.github.thorbenkuck.netcom2.network.server.RemoteObjectRegistration;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
 import java.util.List;
@@ -31,8 +32,9 @@ public class RMIServer {
 	}
 
 	public void run() {
-		serverStart.remoteObjects()
-				.register(new ServerInternationalization(), Internationalization.class);
+		RemoteObjectRegistration remoteObjectRegistration = RemoteObjectRegistration.open(serverStart);
+		remoteObjectRegistration.register(new ServerInternationalization(), Internationalization.class);
+
 		try {
 			serverStart.launch();
 		} catch (StartFailedException e) {

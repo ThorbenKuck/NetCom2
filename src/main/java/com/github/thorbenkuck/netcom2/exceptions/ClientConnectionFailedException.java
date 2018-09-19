@@ -1,6 +1,8 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
 
+import com.github.thorbenkuck.netcom2.network.server.ConnectorCore;
+
 /**
  * This Exception signals that the internal creation of an Client, based upon a Socket, failed.
  * <p>
@@ -12,7 +14,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * that is responsible for creating the ServerSocket
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.server.ServerStart#setServerSocketFactory(com.github.thorbenkuck.netcom2.interfaces.Factory)
+ * @see com.github.thorbenkuck.netcom2.network.server.ServerStart#setConnectorCore(ConnectorCore)
  * @since 1.0
  */
 public class ClientConnectionFailedException extends NetComException {

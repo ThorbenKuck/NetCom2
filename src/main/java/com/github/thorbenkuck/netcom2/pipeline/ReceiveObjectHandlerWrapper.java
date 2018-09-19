@@ -1,13 +1,13 @@
 package com.github.thorbenkuck.netcom2.pipeline;
 
-import com.github.thorbenkuck.netcom2.annotations.APILevel;
-import com.github.thorbenkuck.netcom2.annotations.Synchronized;
+import com.github.thorbenkuck.keller.annotations.APILevel;
+import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.exceptions.HandlerInvocationException;
 import com.github.thorbenkuck.netcom2.exceptions.NoCorrectHandlerFoundException;
-import com.github.thorbenkuck.netcom2.network.interfaces.Logging;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This class uses reflection to create wrappers of OnReceiveTriple.
+ * This class uses reflection to access wrappers of OnReceiveTriple.
  * <p>
  * This class is meant for NetCom2 internal use only.
  *
@@ -202,14 +202,14 @@ class ReceiveObjectHandlerWrapper {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void accept(final Connection connection, final Session session, final T t) {
+		public void accept(final ConnectionContext connectionContext, final Session session, final T t) {
 			logging.debug("Trying to access " + t);
 			if (!t.getClass().equals(toExpect) || !t.getClass().isAssignableFrom(toExpect)) {
 				throw new HandlerInvocationException(
 						"Could not invoke method: " + toInvoke + " awaiting class " + toExpect);
 			}
 			logging.trace("applying ..");
-			invoke(getParametersInCorrectOder(connection, session, t));
+			invoke(getParametersInCorrectOder(connectionContext, session, t));
 
 		}
 	}

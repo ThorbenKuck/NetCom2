@@ -2,15 +2,6 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import java.util.UUID;
 
-/**
- * This interface is like a Factory, for creating a {@link JavaRemoteInformationInvocationHandler}.
- * <p>
- * The future of this interface is uncertain, since the {@link JavaRemoteInformationInvocationHandler} is bound to Java
- * and this advanced RMI API should be accessible across most programming languages.
- *
- * @version 1.0
- * @since 1.0
- */
 public interface InvocationHandlerProducer {
 
 	/**
