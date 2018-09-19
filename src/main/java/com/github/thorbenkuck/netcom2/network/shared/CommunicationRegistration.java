@@ -12,6 +12,7 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionConte
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface CommunicationRegistration extends Mutex {
 
@@ -25,11 +26,51 @@ public interface CommunicationRegistration extends Mutex {
 	 * Because of type-erasure, the type check has to be done at runtime.
 	 * You will never get an {@link ReceivePipeline receivePipeline} of another type
 	 *
-	 * @param clazz the Class of the Object, that should be handled.
+	 * @param type the Class of the Object, that should be handled.
 	 * @param <T>   the Type of the Object, identified by the provided Class
 	 * @return either a new or an already established instance of the {@link ReceivePipeline}
 	 */
-	<T> ReceivePipeline<T> register(final Class<T> clazz);
+	<T> ReceivePipeline<T> register(final Class<T> type);
+
+	/**
+	 * Retrieves the already registered ReceivePipeline, for the provided type.
+	 *
+	 * If there is no ReceivePipeline registered, this method throws a {@link IllegalArgumentException}.
+	 *
+	 * The main use of this Method is within a scenario, where you require the ReceivePipeline to be registered beforehand,
+	 * like if you want to update a ReceivePipeline programmatically at a certain point after the Application has been launched.
+	 *
+	 * @param type the Class of the Object, that should be handled.
+	 * @param <T>   the Type of the Object, identified by the provided Class
+	 * @return either a new or an already established instance of the {@link ReceivePipeline}
+	 *
+	 * @see #isRegistered(Class)
+	 * @see #register(Class)
+	 */
+	default <T> ReceivePipeline<T> registered(final Class<T> type) {
+		if (!isRegistered(type)) {
+			throw new IllegalArgumentException("There is no ReceivePipeline registered for the Type " + type);
+		}
+
+		return register(type);
+	}
+
+	/**
+	 * Retrieves the already registered ReceivePipeline, for the provided type.
+	 * <p>
+	 * If there is no ReceivePipeline registered, this method throws a {@link IllegalArgumentException}.
+	 * <p>
+	 * The main use of this Method is within a scenario, where you require the ReceivePipeline to be registered beforehand,
+	 * like if you want to update a ReceivePipeline programmatically at a certain point after the Application has been launched.
+	 *
+	 * @param type the Class of the Object, that should be handled.
+	 * @param <T>  the Type of the Object, identified by the provided Class
+	 */
+	default <T> void ifRegistered(final Class<T> type, Consumer<ReceivePipeline<T>> consumer) {
+		if (isRegistered(type)) {
+			consumer.accept(register(type));
+		}
+	}
 
 	/**
 	 * Removes the internally set instance of the {@link ReceivePipeline}, handling an Object of the same
@@ -38,17 +79,17 @@ public interface CommunicationRegistration extends Mutex {
 	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} set to
 	 * the maintained {@link ReceivePipeline}. It will simply remove the set instance.
 	 *
-	 * @param clazz the Class, that defines the type of the ReceivePipeline
+	 * @param type the Class, that defines the type of the ReceivePipeline
 	 */
-	void unRegister(final Class clazz);
+	void unRegister(final Class type);
 
 	/**
 	 * Determines whether or not a {@link ReceivePipeline} is registered to handle Objects of the same Type as <code>clazz</code>
 	 *
-	 * @param clazz the Class, that defines the type of the {@link ReceivePipeline}
+	 * @param type the Class, that defines the type of the {@link ReceivePipeline}
 	 * @return true if any {@link ReceivePipeline} is set, false otherwise
 	 */
-	boolean isRegistered(final Class clazz);
+	boolean isRegistered(final Class type);
 
 	/**
 	 * This method is used to trigger a {@link ReceivePipeline}, with the provided arguments.
@@ -95,7 +136,7 @@ public interface CommunicationRegistration extends Mutex {
 	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
 	 * method is a potential candidate for deprecated.
 	 *
-	 * @param clazz      the Class, defining the Type of the {@link ReceivePipeline}
+	 * @param type      the Class, defining the Type of the {@link ReceivePipeline}
 	 * @param connection the {@link Connection}, over which the Object has been received
 	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
 	 * @param o          the Object, that was received over the {@link Connection}
@@ -108,15 +149,49 @@ public interface CommunicationRegistration extends Mutex {
 	@Asynchronous
 	@Deprecated
 	@SuppressWarnings("unchecked")
-	default <T> void trigger(final Class<T> clazz, final Connection connection, final Session session, final Object o)
+	default <T> void trigger(final Class<T> type, final Connection connection, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		trigger(clazz, connection.context(), session, o);
+		trigger(type, connection.context(), session, o);
 	}
 
 	void trigger(ConnectionContext connectionContext, Session session, Object object) throws CommunicationNotSpecifiedException;
 
+
+	/**
+	 * This method takes a Object and runs it through a {@link ReceivePipeline} of the Type that is defined by the provided Class.
+	 * <p>
+	 * This method provides the possibility to define other Class-Types than the Object is of. This is due to inheritance.
+	 * If you want to run an Object through this CommunicationRegistration, but you want it to be handled by an
+	 * {@link ReceivePipeline}, that only handles the super type or an declared/inherited interface, you may
+	 * do that.
+	 * <p>
+	 * By calling this Method, you  are basically running the provided Object through the internally maintained {@link ReceivePipeline}.
+	 * The other provided parameters (<code>connection</code>, <code>session</code>) will be needed regardless of the
+	 * internally set handlers. This is because the ReceivePipeline does not know whether any set Handler needs those
+	 * parameters or not. It only knows {@link OnReceiveTriple}
+	 * <p>
+	 * To ensure scalability, this Method extracts the actual run of the {@link ReceivePipeline} into another Thread.
+	 * Therefor this method does not rethrow thrown Errors, Exceptions and RuntimeExceptions, thrown by the ReceiveHandler.
+	 * <p>
+	 * If no {@link ReceivePipeline} was ever registered to this CommunicationRegistration, it will throw an
+	 * {@link CommunicationNotSpecifiedException}. his behaviour can be overridden by providing an DefaultCommunicationHandler
+	 * with {@link #addDefaultCommunicationHandler(OnReceive)}
+	 *
+	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
+	 * method is a potential candidate for deprecated.
+	 *
+	 * @param type      the Class, defining the Type of the {@link ReceivePipeline}
+	 * @param connectionContext the {@link ConnectionContext}, over which the Object has been received
+	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
+	 * @param o          the Object, that was received over the {@link Connection}
+	 * @param <T>        the Type of the {@link ReceivePipeline}
+	 * @throws CommunicationNotSpecifiedException if no {@link ReceivePipeline} is set for the provided type
+	 *                                            and no DefaultCommunicationHandler has been set.
+	 * @see OnReceiveTriple
+	 * @see com.github.thorbenkuck.netcom2.pipeline.Wrapper
+	 */
 	@Asynchronous
-	<T> void trigger(Class<T> clazz, ConnectionContext connectionContext, Session session, Object o)
+	<T> void trigger(Class<T> type, ConnectionContext connectionContext, Session session, Object o)
 			throws CommunicationNotSpecifiedException;
 
 	/**

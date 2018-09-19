@@ -4,7 +4,9 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
+import com.github.thorbenkuck.netcom2.exceptions.SendFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -53,102 +55,123 @@ class UDPConnection implements Connection {
 
 	@Override
 	public Awaiting connected() {
-		return null;
+		return connectedSynchronize;
 	}
 
 	@Override
-	public void close() throws IOException {
-
+	public void close() {
+		connectedSynchronize.reset();
+		datagramSocket.disconnect();
+		datagramSocket.close();
+		readingWorker.stop();
+		shutdownPipeline.apply(this);
 	}
 
 	@Override
-	public void open() throws IOException {
-
+	public void open() {
+		// Nothing to do here
 	}
 
 	@Override
 	public void write(String message) {
-
+		write(message.getBytes());
 	}
 
 	@Override
 	public void write(byte[] data) {
-
+		DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
+		try {
+			datagramSocket.send(datagramPacket);
+		} catch (IOException e) {
+			throw new SendFailedException(e);
+		}
 	}
 
 	@Override
-	public void read(Consumer<Queue<RawData>> callback) throws IOException {
-
+	public void read(Consumer<Queue<RawData>> callback) {
+		callbackValue.set(callback);
+		read();
 	}
 
 	@Override
 	public void hook(ConnectionContext connectionContext) {
-
+		contextValue.set(connectionContext);
 	}
 
 	@Override
-	public void read() throws IOException {
+	public void read() {
+		if (reading.get()) {
+			logging.warn("This Connection is already reading asynchronously");
+			return;
+		}
 
+		NetComThreadPool.submitCustomProcess(readingWorker);
 	}
 
 	@Override
 	public Optional<Class<?>> getIdentifier() {
-		return Optional.empty();
+		return Optional.ofNullable(identifierValue.get());
 	}
 
 	@Override
 	public void setIdentifier(Class<?> identifier) {
-
+		identifierValue.set(identifier);
 	}
 
 	@Override
 	public Optional<SocketAddress> remoteAddress() {
-		return Optional.empty();
+		return Optional.ofNullable(datagramSocket.getRemoteSocketAddress());
 	}
 
 	@Override
 	public Optional<SocketAddress> localAddress() {
-		return Optional.empty();
+		return Optional.ofNullable(datagramSocket.getLocalSocketAddress());
 	}
 
 	@Override
 	public void addShutdownHook(Consumer<Connection> connectionConsumer) {
-
+		shutdownPipeline.add(connectionConsumer);
 	}
 
 	@Override
 	public void removeShutdownHook(Consumer<Connection> connectionConsumer) {
-
+		shutdownPipeline.remove(connectionConsumer);
 	}
 
 	@Override
 	public boolean isOpen() {
-		return false;
+		return datagramSocket.isBound();
 	}
 
 	@Override
 	public Queue<RawData> drain() {
-		return null;
+		Queue<RawData> copy;
+		synchronized (received) {
+			copy = new LinkedList<>(received);
+			received.clear();
+		}
+		return copy;
 	}
 
 	@Override
 	public void finishConnect() {
-
+		inSetup.set(false);
+		connectedSynchronize.goOn();
 	}
 
 	@Override
 	public boolean isConnected() {
-		return false;
+		return datagramSocket.isConnected();
 	}
 
 	@Override
 	public boolean inSetup() {
-		return false;
+		return inSetup.get();
 	}
 
 	@Override
 	public ConnectionContext context() {
-		return null;
+		return contextValue.get();
 	}
 
 	class ReadingWorker implements Runnable {
@@ -186,11 +209,7 @@ class UDPConnection implements Connection {
 			}
 			runningValue.set(false);
 			// disconnect
-			try {
-				close();
-			} catch (IOException e) {
-				logging.catching(e);
-			}
+			close();
 		}
 	}
 }

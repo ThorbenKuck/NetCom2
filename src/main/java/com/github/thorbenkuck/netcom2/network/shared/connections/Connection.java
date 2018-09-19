@@ -3,6 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -19,10 +20,10 @@ public interface Connection {
 	static Connection tcp(Socket socket) {
 		return new TCPConnection(socket);
 	}
-//
-//	static Connection udp(DatagramSocket datagramSocket) {
-//		return new UDPConnection(datagramSocket);
-//	}
+
+	static Connection udp(DatagramSocket datagramSocket) {
+		return new UDPConnection(datagramSocket);
+	}
 
 	Awaiting connected();
 

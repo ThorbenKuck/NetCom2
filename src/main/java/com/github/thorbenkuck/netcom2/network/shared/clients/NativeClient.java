@@ -366,6 +366,7 @@ class NativeClient implements Client {
 					logging.trace("Checking connection to send to ..");
 					if (!connection.isConnected()) {
 						logging.debug("Awaiting finish of Connection");
+						System.out.println("Awaiting finish of Connection");
 						connection.connected().synchronize();
 						logging.debug("Connection is now connected");
 					}

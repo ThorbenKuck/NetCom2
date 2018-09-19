@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
-import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -13,51 +12,31 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnecti
 import com.github.thorbenkuck.netcom2.network.shared.connections.EventLoop;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
+import java.net.SocketException;
 import java.util.function.Supplier;
 
-class NativeNIOClientCore implements ClientCore {
+public class NativeUDPClientCore implements ClientCore {
 
-	private final Value<Thread> parallelBlock = Value.emptySynchronized();
 	private final Logging logging = Logging.unified();
 	private final Synchronize shutdownSynchronize = Synchronize.createDefault();
-	private final Value<EventLoop> eventLoopValue = Value.emptySynchronized();
+	private final Value<Thread> parallelBlock = Value.emptySynchronized();
+	private final EventLoop eventLoop = EventLoop.openBlocking();
+	private final Value<Boolean> initialized = Value.synchronize(false);
 
-	NativeNIOClientCore() {
-		logging.instantiated(this);
-	}
-
-	private void initialize() throws IOException {
-		EventLoop eventLoop = EventLoop.openNonBlocking();
-		eventLoop.start();
-		eventLoopValue.set(eventLoop);
-	}
-
-	private SocketChannel establishSocketChannel(SocketAddress socketAddress) throws StartFailedException {
-		final SocketChannel socketChannel;
-		try {
-			logging.debug("Opening SocketChannel at " + socketAddress);
-			socketChannel = SocketChannel.open(socketAddress);
-			socketChannel.configureBlocking(false);
-		} catch (IOException e) {
-			throw new StartFailedException(e);
+	private synchronized void init() {
+		if (initialized.get()) {
+			return;
 		}
 
-		return socketChannel;
-	}
-
-	private Connection createConnection(SocketChannel socketChannel, Class<?> identifier, Client client) {
-		Connection connection = Connection.nio(socketChannel);
-		connection.setIdentifier(identifier);
-		connection.hook(ConnectionContext.combine(client, connection));
-
-		return connection;
+		eventLoop.start();
+		initialized.set(true);
 	}
 
 	private void createBlockingThread(Supplier<Boolean> running) {
 		if (!parallelBlock.isEmpty()) {
-			logging.warn("Only one block till finished call is allowed!");
+			logging.warn("Only one block till finished call is allowed! <IGNORING>");
 			return;
 		}
 
@@ -65,6 +44,10 @@ class NativeNIOClientCore implements ClientCore {
 		thread.setDaemon(false);
 		thread.setName("NetCom2-Blocking-Thread");
 		parallelBlock.set(thread);
+	}
+
+	private DatagramSocket establishConnection(SocketAddress socketAddress) throws SocketException {
+		return new DatagramSocket(socketAddress);
 	}
 
 	@Override
@@ -99,31 +82,21 @@ class NativeNIOClientCore implements ClientCore {
 
 	@Override
 	public void establishConnection(SocketAddress socketAddress, Client client, Class<?> connectionKey) throws StartFailedException {
-		logging.debug("Starting to establish the " + connectionKey.getSimpleName() + " Connection");
-		logging.trace("Accessing this");
-		synchronized (this) {
-			logging.trace("Checking EventLoop");
-			if (eventLoopValue.isEmpty()) {
-				logging.trace("Could not locate a active EventLoop. Creating new ..");
-				try {
-					initialize();
-				} catch (IOException e) {
-					throw new StartFailedException(e);
-				}
-			}
+		init();
+		DatagramSocket socket;
+		try {
+			socket = establishConnection(socketAddress);
+		} catch (SocketException e) {
+			throw new StartFailedException(e);
 		}
 
-		logging.trace("Fetching EventLoopValue");
-		EventLoop eventLoop = eventLoopValue.get();
-		logging.trace("Establishing SocketChannel");
-		SocketChannel socketChannel = establishSocketChannel(socketAddress);
-		logging.trace("Creating a new Connection");
-		Connection connection = createConnection(socketChannel, connectionKey, client);
+		Connection connection = Connection.udp(socket);
+		connection.setIdentifier(connectionKey);
+		connection.hook(ConnectionContext.combine(client, connection));
 
-		Awaiting awaiting = client.prepareConnection(connectionKey);
+		client.prepareConnection(connectionKey);
 		client.setConnection(connectionKey, connection);
 
-		logging.trace("Registering newly created Connection to the EventLoop");
 		try {
 			eventLoop.register(connection);
 		} catch (IOException e) {
@@ -133,9 +106,10 @@ class NativeNIOClientCore implements ClientCore {
 		logging.trace("Sending a NewConnectionInitializer for the new Connection");
 		client.sendIgnoreConstraints(new NewConnectionInitializer(connectionKey), connection);
 
+
 		logging.trace("Awaiting the connect Synchronize");
 		try {
-			awaiting.synchronize();
+			connection.connected().synchronize();
 			logging.info(connectionKey.getSimpleName() + " is now successfully connected");
 		} catch (InterruptedException e) {
 			logging.catching(e);

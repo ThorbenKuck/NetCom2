@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.server;
 
+import com.github.thorbenkuck.keller.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.ClientConnectionFailedException;
 import com.github.thorbenkuck.netcom2.interfaces.MultipleConnections;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
@@ -35,6 +36,19 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	static ServerStart tcp(InetSocketAddress socketAddress) {
 		ServerStart serverStart = raw(socketAddress);
 		serverStart.setConnectorCore(ConnectorCore.tcp(serverStart.getClientFactory()));
+
+		return serverStart;
+	}
+
+	@Experimental
+	static ServerStart udp(int port) {
+		return udp(new InetSocketAddress(port));
+	}
+
+	@Experimental
+	static ServerStart udp(InetSocketAddress socketAddress) {
+		ServerStart serverStart = raw(socketAddress);
+		serverStart.setConnectorCore(ConnectorCore.udp(serverStart.getClientFactory()));
 
 		return serverStart;
 	}

@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.keller.annotations.Experimental;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 
@@ -14,6 +15,11 @@ public interface ClientCore {
 
 	static ClientCore tcp() {
 		return new NativeTCPClientCore();
+	}
+
+	@Experimental
+	static ClientCore udp() {
+		return new NativeUDPClientCore();
 	}
 
 	void blockOnCurrentThread(Supplier<Boolean> running);

@@ -26,6 +26,7 @@ public class Client {
 		Awaiting awaiting;
 		try {
 			clientStart.launch();
+			System.out.println("DefaultConnection established");
 			awaiting = clientStart.newConnection(TestConnectionKey.class);
 		} catch (StartFailedException | ConnectionEstablishmentFailedException e) {
 			e.printStackTrace();
@@ -35,6 +36,7 @@ public class Client {
 		Sender sender = Sender.open(clientStart);
 
 		sender.objectToServer(new TestObject("From DefaultConnection"));
+		System.out.println("Send TestObject over DefaultConnection");
 
 		try {
 			awaiting.synchronize();

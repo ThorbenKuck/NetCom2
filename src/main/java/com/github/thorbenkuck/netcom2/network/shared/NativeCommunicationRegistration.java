@@ -156,14 +156,14 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> ReceivePipeline<T> register(final Class<T> clazz) {
-		NetCom2Utils.parameterNotNull(clazz);
-		mapping.computeIfAbsent(clazz, k -> {
-			logging.trace("Creating ReceivingPipeline for " + clazz);
-			return new QueuedReceivePipeline<>(clazz);
+	public <T> ReceivePipeline<T> register(final Class<T> type) {
+		NetCom2Utils.parameterNotNull(type);
+		mapping.computeIfAbsent(type, k -> {
+			logging.trace("Creating ReceivingPipeline for " + type);
+			return new QueuedReceivePipeline<>(type);
 		});
-		logging.debug("Registering communication for " + clazz);
-		return (ReceivePipeline<T>) mapping.get(clazz);
+		logging.debug("Registering communication for " + type);
+		return (ReceivePipeline<T>) mapping.get(type);
 	}
 
 	/**
@@ -172,15 +172,15 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
-	public void unRegister(final Class clazz) {
-		NetCom2Utils.parameterNotNull(clazz);
-		if (!isRegistered(clazz)) {
-			logging.warn("Could not find OnReceive to unregister for Class " + clazz);
+	public void unRegister(final Class type) {
+		NetCom2Utils.parameterNotNull(type);
+		if (!isRegistered(type)) {
+			logging.warn("Could not find OnReceive to unregister for Class " + type);
 			return;
 		}
-		logging.trace("Unregister whole ReceivePipeline for " + clazz + " ..");
-		mapping.remove(clazz);
-		logging.debug("Unregistered ReceivePipeline for " + clazz);
+		logging.trace("Unregister whole ReceivePipeline for " + type + " ..");
+		mapping.remove(type);
+		logging.debug("Unregistered ReceivePipeline for " + type);
 	}
 
 	/**
@@ -189,9 +189,9 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @throws IllegalArgumentException if the provided Class is null
 	 */
 	@Override
-	public boolean isRegistered(final Class clazz) {
-		NetCom2Utils.parameterNotNull(clazz);
-		return mapping.get(clazz) != null;
+	public boolean isRegistered(final Class type) {
+		NetCom2Utils.parameterNotNull(type);
+		return mapping.get(type) != null;
 	}
 
 	/**
@@ -212,25 +212,25 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 */
 	@Asynchronous
 	@Override
-	public <T> void trigger(final Class<T> clazz, final ConnectionContext connectionContext, final Session session, final Object o)
+	public <T> void trigger(final Class<T> type, final ConnectionContext connectionContext, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		NetCom2Utils.parameterNotNull(clazz, connectionContext, session, o);
-		logging.debug("Searching for Communication specification at " + clazz + " with instance " + o);
-		logging.trace("Trying to match " + clazz + " with " + o.getClass());
-		sanityCheck(clazz, o);
-		if (!isRegistered(clazz)) {
-			logging.debug("Could not find specific communication for " + clazz + ". Using fallback!");
-			handleNotRegistered(clazz, connectionContext, session, o);
+		NetCom2Utils.parameterNotNull(type, connectionContext, session, o);
+		logging.debug("Searching for Communication specification at " + type + " with instance " + o);
+		logging.trace("Trying to match " + type + " with " + o.getClass());
+		sanityCheck(type, o);
+		if (!isRegistered(type)) {
+			logging.debug("Could not find specific communication for " + type + ". Using fallback!");
+			handleNotRegistered(type, connectionContext, session, o);
 		} else {
 			NetComThreadPool.submitTask(new Runnable() {
 				@Override
 				public void run() {
-					triggerExisting(clazz, connectionContext, session, o);
+					triggerExisting(type, connectionContext, session, o);
 				}
 
 				@Override
 				public String toString() {
-					return "CommRegistrationTask{TriggerExistingCommunication, clazz=" + clazz + "}";
+					return "CommRegistrationTask{TriggerExistingCommunication, clazz=" + type + "}";
 				}
 			});
 		}

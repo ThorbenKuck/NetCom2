@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.network.client;
 
+import com.github.thorbenkuck.keller.annotations.Experimental;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
@@ -43,6 +44,16 @@ public interface ClientStart extends RemoteObjectAccess, NetworkInterface, SoftS
 
 	static ClientStart tcp(SocketAddress socketAddress) {
 		return as(socketAddress, ClientCore.tcp());
+	}
+
+	@Experimental
+	static ClientStart udp(String hostname, int port) {
+		return udp(new InetSocketAddress(hostname, port));
+	}
+
+	@Experimental
+	static ClientStart udp(SocketAddress socketAddress) {
+		return as(socketAddress, ClientCore.udp());
 	}
 
 	static ClientStart findLocalServer(int hubPort) throws InterruptedException, SocketException {
