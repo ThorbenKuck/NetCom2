@@ -10,7 +10,7 @@ It is designed to function as an over-network EventBus.
 
 ## Currently...
 
-The Version 2.0 is beeing release! As soon as maven-central catches up, it will be available.
+*The Version 2.0 is beeing release! As soon as maven-central catches up, it will be available.*
 
 Also, the tests are not within this package. They will be back with the next security upate.
 
