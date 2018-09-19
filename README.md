@@ -8,6 +8,12 @@ It is designed to function as an over-network EventBus.
 [![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/NetCom2/badge.svg)](https://snyk.io/test/github/thorbenkuck/NetCom2) 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
 
+## Currently...
+
+The Version 2.0 is beeing release! As soon as maven-central catches up, it will be available.
+
+Also, the tests are not within this package. They will be back with the next security upate.
+
 ## About this framework
 
 This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
