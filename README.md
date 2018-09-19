@@ -14,6 +14,8 @@ The Version 2.0 is beeing release! As soon as maven-central catches up, it will 
 
 Also, the tests are not within this package. They will be back with the next security upate.
 
+If you want to migrate to the new Version, check out our [V.2 Migration Guide](https://github.com/ThorbenKuck/NetCom2/wiki/V.2-Migration-Guide)
+
 ## About this framework
 
 This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
