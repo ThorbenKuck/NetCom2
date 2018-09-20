@@ -42,13 +42,12 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	private final Map<Class<?>, Object> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
 	private final RemoteRequestHandler remoteRequestHandler = new RemoteRequestHandler();
+	private CommunicationRegistration communicationRegistration;
 
 	@APILevel
 	NativeRemoteObjectRegistration() {
 		logging.instantiated(this);
 	}
-
-	private CommunicationRegistration communicationRegistration;
 
 	/**
 	 * Orders the provided arguments, to align to the method-signature

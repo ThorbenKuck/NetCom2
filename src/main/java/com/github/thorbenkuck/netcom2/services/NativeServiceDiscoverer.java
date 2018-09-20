@@ -28,7 +28,7 @@ final class NativeServiceDiscoverer implements ServiceDiscoverer {
 		this.port = port;
 		synchronized (headerMapping) {
 			headerMapping.put("STATUS", (string, request) -> {
-				if (!string.equals("200")) {
+				if (!"200".equals(string)) {
 					logging.info(">>> Message: " + string + " " + request.header().get("MESSAGE"));
 					return false;
 				}
