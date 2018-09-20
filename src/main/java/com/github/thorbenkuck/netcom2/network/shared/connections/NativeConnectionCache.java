@@ -3,7 +3,7 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.logging.Logging;
 
-class NativeConnectionCache implements ConnectionCache {
+final class NativeConnectionCache implements ConnectionCache {
 
 	private static final byte[] EMPTY_BYTES = new byte[0];
 	private final Value<byte[]> bytesValue = Value.synchronize(EMPTY_BYTES);
@@ -13,7 +13,7 @@ class NativeConnectionCache implements ConnectionCache {
 		logging.instantiated(this);
 	}
 
-	private byte[] concatenate(byte[] a, byte[] b) {
+	private byte[] concatenate(final byte[] a, final byte[] b) {
 		int aLen = a.length;
 		int bLen = b.length;
 
@@ -25,26 +25,26 @@ class NativeConnectionCache implements ConnectionCache {
 		return result;
 	}
 
-	private synchronized void appendToValue(byte[] bytes) {
-		byte[] currentByte = bytesValue.get();
-		byte[] newValue = concatenate(currentByte, bytes);
+	private synchronized void appendToValue(final byte[] bytes) {
+		final byte[] currentByte = bytesValue.get();
+		final byte[] newValue = concatenate(currentByte, bytes);
 
 		bytesValue.set(newValue);
 	}
 
 	private synchronized byte[] getAndClearFromValue() {
-		byte[] result = bytesValue.get();
+		final byte[] result = bytesValue.get();
 		bytesValue.set(EMPTY_BYTES);
 		return result;
 	}
 
 	@Override
-	public void append(byte[] bytes) {
+	public final void append(final byte[] bytes) {
 		appendToValue(bytes);
 	}
 
 	@Override
-	public byte[] take() {
+	public final byte[] take() {
 		return getAndClearFromValue();
 	}
 }

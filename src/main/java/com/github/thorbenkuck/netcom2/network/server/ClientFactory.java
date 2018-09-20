@@ -7,13 +7,13 @@ import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHand
 
 public interface ClientFactory {
 
-	static ClientFactory open(CommunicationRegistration communicationRegistration) {
+	static ClientFactory open(final CommunicationRegistration communicationRegistration) {
 		return new NativeClientFactory(communicationRegistration);
 	}
 
 	Client produce() throws ClientCreationFailedException;
 
-	void addClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
+	void addClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler);
 
-	void removeClientConnectedHandler(ClientConnectedHandler clientConnectedHandler);
+	void removeClientConnectedHandler(final ClientConnectedHandler clientConnectedHandler);
 }

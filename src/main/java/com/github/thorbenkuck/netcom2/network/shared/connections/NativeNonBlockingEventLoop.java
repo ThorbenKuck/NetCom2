@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 
-class NativeNonBlockingEventLoop implements EventLoop {
+final class NativeNonBlockingEventLoop implements EventLoop {
 
 	private final SelectorChannel selectorChannel;
 	private final Logging logging = Logging.unified();
@@ -36,10 +36,10 @@ class NativeNonBlockingEventLoop implements EventLoop {
 		logging.instantiated(this);
 	}
 
-	private void handleRead(SelectionKey selectionKey) {
+	private void handleRead(final SelectionKey selectionKey) {
 		logging.debug("Received read event");
-		SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-		Connection connection = get(socketChannel);
+		final SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+		final Connection connection = get(socketChannel);
 		if (connection == null) {
 			logging.error("Could not find Connection for SocketChannel " + socketChannel + "!");
 			return;
@@ -60,32 +60,32 @@ class NativeNonBlockingEventLoop implements EventLoop {
 			} else if (connection.isOpen()) {
 				logging.debug("Connection cannot be drained");
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.error("Read from Connection failed", e);
 			logging.warn("Found potential faulty Connection");
 			// TODO check for faulty connection/cleanup
 		}
 	}
 
-	private void store(SocketChannel socketChannel, Connection connection) {
+	private void store(final SocketChannel socketChannel, final Connection connection) {
 		synchronized (connectionMap) {
 			connectionMap.put(socketChannel, connection);
 		}
 	}
 
-	private Connection get(SocketChannel socketChannel) {
+	private Connection get(final SocketChannel socketChannel) {
 		synchronized (connectionMap) {
 			return connectionMap.get(socketChannel);
 		}
 	}
 
-	private void remove(SocketChannel socketChannel) {
+	private void remove(final SocketChannel socketChannel) {
 		synchronized (connectionMap) {
 			connectionMap.remove(socketChannel);
 		}
 	}
 
-	private NIOConnection requireAndCast(Connection connection) {
+	private NIOConnection requireAndCast(final Connection connection) {
 		// i know this is ugly.
 		// Any other ideas are
 		// welcome!
@@ -98,10 +98,10 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void register(Connection connection) {
+	public final void register(final Connection connection) {
 		logging.debug("Registering new Connection");
 		logging.trace("Requiring NIOConnection type");
-		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
+		final SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
 		logging.trace("Accessing Selector ..");
 		try {
 			selectorLock.lock();
@@ -122,10 +122,10 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void unregister(Connection connection) {
+	public final void unregister(final Connection connection) {
 		logging.debug("Unregister provided Connection");
 		logging.trace("Requiring NIOConnection type");
-		SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
+		final SocketChannel socketChannel = requireAndCast(connection).getSocketChannel();
 		logging.trace("Acquiring SelectorLock");
 		try {
 			selectorLock.lock();
@@ -142,7 +142,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void start() {
+	public final void start() {
 		logging.debug("Starting NIOEventLoop");
 		logging.trace("Requesting selection extract into separate Thread");
 		selectorChannel.start();
@@ -151,13 +151,13 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void shutdown() {
+	public final void shutdown() {
 		try {
 			logging.trace("Acquiring SelectorLock");
 			selectorLock.lock();
 			selectorChannel.close();
 			PARALLEL_OBJECT_HANDLER.running.set(false);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.catching(e);
 		} finally {
 			selectorLock.unlock();
@@ -166,14 +166,14 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void shutdownNow() {
+	public final void shutdownNow() {
 		shutdown();
 		synchronized (connectionMap) {
 			connectionMap.forEach((socketChannel, connection) -> {
 				try {
 					connection.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (final IOException e) {
+					logging.catching(e);
 				}
 			});
 			connectionMap.clear();
@@ -181,7 +181,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public boolean isRunning() {
+	public final boolean isRunning() {
 		try {
 			logging.trace("Acquiring SelectorLock");
 			selectorLock.lock();
@@ -193,7 +193,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public int workload() {
+	public final int workload() {
 		synchronized (connectionMap) {
 			return connectionMap.size();
 		}
@@ -201,7 +201,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 
 	private final class ConnectionShutdownHook implements Consumer<Connection> {
 		@Override
-		public void accept(Connection connection) {
+		public void accept(final Connection connection) {
 			unregister(connection);
 		}
 	}
@@ -215,7 +215,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 		}
 
 		@Override
-		public void run() {
+		public final void run() {
 			logging.info("Listening to new RawDataPackages");
 			logging.trace("Setting running flag");
 			running.set(true);
@@ -243,7 +243,7 @@ class NativeNonBlockingEventLoop implements EventLoop {
 					} else if (!connection.isOpen() && !connection.inSetup()) {
 						logging.warn("Connection is not open, nor in setup!");
 					}
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					logging.trace("Interrupted while awaiting next DataPackage");
 					if (!running.get()) {
 						logging.warn("Was still running! Stopping now!");

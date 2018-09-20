@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-class TCPConnection implements Connection {
+final class TCPConnection implements Connection {
 
 	private final Synchronize connectedSynchronize = Synchronize.createDefault();
 	private final Socket socket;
@@ -32,13 +32,13 @@ class TCPConnection implements Connection {
 	private final Pipeline<Connection> shutdownPipeline = Pipeline.unifiedCreation();
 	private final Value<Boolean> reading = Value.synchronize(false);
 
-	TCPConnection(Socket socket) {
+	TCPConnection(final Socket socket) {
 		this.socket = socket;
 		readingWorker = new ReadingWorker(socket, this::addRawData);
 		logging.instantiated(this);
 	}
 
-	private void addRawData(RawData readData) {
+	private void addRawData(final RawData readData) {
 		synchronized (received) {
 			received.add(readData);
 			// Still synchronize. This
@@ -54,12 +54,12 @@ class TCPConnection implements Connection {
 	}
 
 	@Override
-	public Awaiting connected() {
+	public final Awaiting connected() {
 		return connectedSynchronize;
 	}
 
 	@Override
-	public void close() throws IOException {
+	public final void close() throws IOException {
 		connectedSynchronize.reset();
 		readingWorker.stop();
 		socket.close();
@@ -67,38 +67,38 @@ class TCPConnection implements Connection {
 	}
 
 	@Override
-	public void open() throws IOException {
+	public final void open() throws IOException {
 		socket.setKeepAlive(true);
 	}
 
 	@Override
-	public void write(String message) {
+	public final void write(final String message) {
 		write(message.getBytes());
 	}
 
 	@Override
-	public void write(byte[] data) {
+	public final void write(final byte[] data) {
 		try {
 			socket.getOutputStream().write(data);
 			socket.getOutputStream().flush();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new SendFailedException(e);
 		}
 	}
 
 	@Override
-	public void hook(ConnectionContext connectionContext) {
+	public final void hook(final ConnectionContext connectionContext) {
 		contextValue.set(connectionContext);
 	}
 
 	@Override
-	public void read(Consumer<Queue<RawData>> callback) {
+	public final void read(final Consumer<Queue<RawData>> callback) {
 		callbackValue.set(callback);
 		read();
 	}
 
 	@Override
-	public synchronized void read() {
+	public final synchronized void read() {
 		if (reading.get()) {
 			logging.warn("This Connection is already reading asynchronously.");
 			return;

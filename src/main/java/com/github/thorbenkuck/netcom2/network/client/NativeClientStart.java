@@ -219,4 +219,17 @@ class NativeClientStart implements ClientStart {
 	Client getClient() {
 		return client;
 	}
+
+	@Override
+	public String toString() {
+		return "NativeClientStart{" +
+				"addressValue=" + addressValue +
+				", client=" + client +
+				", running=" + running +
+				", communicationRegistration=" + communicationRegistration +
+				", cache=" + cache +
+				", loggingValue=" + loggingValue +
+				", clientCore=" + clientCore +
+				'}';
+	}
 }

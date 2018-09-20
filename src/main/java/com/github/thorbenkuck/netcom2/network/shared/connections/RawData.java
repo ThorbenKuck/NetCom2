@@ -6,16 +6,16 @@ public final class RawData {
 
 	private final byte[] data;
 
-	RawData(byte[] data) {
+	RawData(final byte[] data) {
 		this.data = data;
 	}
 
-	public byte[] access() {
+	public final byte[] access() {
 		return data;
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return Arrays.toString(data);
 	}
 }

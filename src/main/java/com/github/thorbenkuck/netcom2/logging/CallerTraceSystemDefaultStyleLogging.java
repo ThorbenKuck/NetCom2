@@ -15,16 +15,6 @@ import com.github.thorbenkuck.keller.annotations.Synchronized;
 class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @return the super.getPrefix combined with the {@link #getCaller()}
-	 */
-	@Override
-	public String getPrefix() {
-		return super.getPrefix() + "[" + getCaller() + "] ";
-	}
-
-	/**
 	 * Determines the caller of any method by analysing the stackTrace of the current Thread.
 	 * <p>
 	 * This is very workload intensive and should be used with care!
@@ -43,5 +33,15 @@ class CallerTraceSystemDefaultStyleLogging extends SystemDefaultStyleLogging {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @return the super.getPrefix combined with the {@link #getCaller()}
+	 */
+	@Override
+	public String getPrefix() {
+		return super.getPrefix() + "[" + getCaller() + "] ";
 	}
 }

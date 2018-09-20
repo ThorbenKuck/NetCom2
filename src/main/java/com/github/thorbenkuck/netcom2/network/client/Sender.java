@@ -80,7 +80,7 @@ public interface Sender extends Module<ClientStart> {
 	 * @param connection the Connection that should be used.
 	 */
 	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                              Connection connection);
+								  Connection connection);
 
 	/**
 	 * Sends a register request to the Server. If successful, the Server will update the Client every time, the requested
@@ -97,7 +97,7 @@ public interface Sender extends Module<ClientStart> {
 	 * @param connectionKey the key for the Connection that should be used.
 	 */
 	<T> void registrationToServer(Class<T> clazz, CacheObserver<T> observer,
-	                              Class connectionKey);
+								  Class connectionKey);
 
 	/**
 	 * Requests an unRegistration from the specified message type.

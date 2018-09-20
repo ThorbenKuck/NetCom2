@@ -6,7 +6,7 @@ public interface ConnectionCache {
 		return new NativeConnectionCache();
 	}
 
-	void append(byte[] bytes);
+	void append(final byte[] bytes);
 
 	byte[] take();
 }

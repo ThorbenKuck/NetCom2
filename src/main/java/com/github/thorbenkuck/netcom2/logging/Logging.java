@@ -194,7 +194,7 @@ public interface Logging {
 
 	default void instantiated(final Object object) {
 		Class<?> type = object.getClass();
-		if(type.getInterfaces().length == 1) {
+		if (type.getInterfaces().length == 1) {
 			instantiated(type.getInterfaces()[0].getSimpleName() + " as " + type.getSimpleName());
 		} else {
 			instantiated(type.getSimpleName());

@@ -27,40 +27,6 @@ class NativeObjectHandler implements ObjectHandler {
 		logging.instantiated(this);
 	}
 
-	@Override
-	public void addFallbackSerialization(SerializationAdapter serializationAdapter) {
-		synchronized (fallbackSerializationList) {
-			fallbackSerializationList.add(serializationAdapter);
-		}
-	}
-
-	@Override
-	public void addFallbackDeserialization(DeSerializationAdapter deSerializationAdapter) {
-		synchronized (fallbackDeserializationList) {
-			fallbackDeserializationList.add(deSerializationAdapter);
-		}
-	}
-
-	@Override
-	public void setMainSerialization(SerializationAdapter serializationAdapter) {
-		mainSerializationAdapter.set(serializationAdapter);
-	}
-
-	@Override
-	public void setMainDeserialization(DeSerializationAdapter deSerializationAdapter) {
-		mainDeserializationAdapter.set(deSerializationAdapter);
-	}
-
-	@Override
-	public void addEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
-		encryptionPipeline.add(encryptionAdapter);
-	}
-
-	@Override
-	public void addDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
-		decryptionPipeline.add(decryptionAdapter);
-	}
-
 	private String mainSerialize(Object object) throws SerializationFailedException {
 		if (mainSerializationAdapter.isEmpty()) {
 			throw new SerializationFailedException("No main SerializationAdapter present!");
@@ -127,6 +93,40 @@ class NativeObjectHandler implements ObjectHandler {
 		} catch (DeSerializationFailedException e) {
 			return fallbackDeserialize(string, e);
 		}
+	}
+
+	@Override
+	public void addFallbackSerialization(SerializationAdapter serializationAdapter) {
+		synchronized (fallbackSerializationList) {
+			fallbackSerializationList.add(serializationAdapter);
+		}
+	}
+
+	@Override
+	public void addFallbackDeserialization(DeSerializationAdapter deSerializationAdapter) {
+		synchronized (fallbackDeserializationList) {
+			fallbackDeserializationList.add(deSerializationAdapter);
+		}
+	}
+
+	@Override
+	public void setMainSerialization(SerializationAdapter serializationAdapter) {
+		mainSerializationAdapter.set(serializationAdapter);
+	}
+
+	@Override
+	public void setMainDeserialization(DeSerializationAdapter deSerializationAdapter) {
+		mainDeserializationAdapter.set(deSerializationAdapter);
+	}
+
+	@Override
+	public void addEncryptionAdapter(EncryptionAdapter encryptionAdapter) {
+		encryptionPipeline.add(encryptionAdapter);
+	}
+
+	@Override
+	public void addDecryptionAdapter(DecryptionAdapter decryptionAdapter) {
+		decryptionPipeline.add(decryptionAdapter);
 	}
 
 	@Override

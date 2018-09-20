@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 
 public interface Distributor extends Module<ServerStart> {
 
-	static Distributor open(ServerStart serverStart) {
-		NativeDistributor distributor = new NativeDistributor();
+	static Distributor open(final ServerStart serverStart) {
+		final NativeDistributor distributor = new NativeDistributor();
 		distributor.setup(serverStart);
 
 		return distributor;
@@ -25,7 +25,7 @@ public interface Distributor extends Module<ServerStart> {
 	@Deprecated
 	void toSpecific(final Object o, final Predicate<Session>... predicates);
 
-	void toSpecific(Object o, Predicate<Session> predicate);
+	void toSpecific(final Object o, final Predicate<Session> predicate);
 
 	/**
 	 * Sends the specified object to <b>all</b> clients, using their DefaultConnection.
@@ -34,7 +34,7 @@ public interface Distributor extends Module<ServerStart> {
 	 */
 	void toAll(final Object o);
 
-	void toAllExcept(Object o, Predicate<Session> predicate);
+	void toAllExcept(final Object o, final Predicate<Session> predicate);
 
 	/**
 	 * Sends the specified object to all clients that do <b>not satisfy any</b> of the given predicates.

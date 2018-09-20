@@ -29,7 +29,7 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 
 	@APILevel
 	JavaRemoteInformationInvocationHandler(final Sender sender, final RemoteAccessBlockRegistration remoteAccessBlockRegistration,
-	                                       final Class<T> clazz, final UUID uuid) {
+										   final Class<T> clazz, final UUID uuid) {
 		this.sender = sender;
 		this.remoteAccessBlockRegistration = remoteAccessBlockRegistration;
 		this.clazz = clazz;
@@ -104,6 +104,39 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 	}
 
 	/**
+	 * Executes the set Fallbacks.
+	 * <p>
+	 * If no Fallback is accessible, a {@link RemoteObjectNotRegisteredException} will be thrown instead
+	 * <p>
+	 * The return value depends on the set fallback. It will return:
+	 * <p>
+	 * <ul>
+	 * <li>A correct instance, if the Fallback is an instance</li>
+	 * <li>null, if the fallback is an runnable</li>
+	 * <li>nothing, else. In this case, an RemoteObjectNotRegisteredException will be thrown.</li>
+	 * </ul>
+	 *
+	 * @param received the Throwable received from the RemoteObject (might be null)
+	 * @param method   the Method, that was invoked
+	 * @param args     the Arguments, passed to the method-call
+	 * @return the Result of the fallback execution. Might be null!
+	 * @throws InvocationTargetException if the method within the fallback instance is not correctly invokable
+	 * @throws IllegalAccessException    if the fallback instance has changed the access rights to the method
+	 */
+	protected Object executeFallback(Throwable received, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+		synchronized (this) {
+			if (fallbackInstance != null) {
+				return method.invoke(fallbackInstance, args);
+			} else if (fallbackRunnable != null) {
+				fallbackRunnable.run();
+				return null;
+			} else {
+				throw new RemoteObjectNotRegisteredException(received.getMessage());
+			}
+		}
+	}
+
+	/**
 	 * This invoke method, requests computation from the ServerStart.
 	 * <p>
 	 * It passes the Method, that is requested to be called, and wraps it, so that the parameters are contained, as well
@@ -172,39 +205,6 @@ public class JavaRemoteInformationInvocationHandler<T> implements RemoteObjectHa
 		synchronized (this) {
 			this.fallbackInstance = fallbackInstance;
 			this.fallbackRunnable = null;
-		}
-	}
-
-	/**
-	 * Executes the set Fallbacks.
-	 * <p>
-	 * If no Fallback is accessible, a {@link RemoteObjectNotRegisteredException} will be thrown instead
-	 * <p>
-	 * The return value depends on the set fallback. It will return:
-	 * <p>
-	 * <ul>
-	 * <li>A correct instance, if the Fallback is an instance</li>
-	 * <li>null, if the fallback is an runnable</li>
-	 * <li>nothing, else. In this case, an RemoteObjectNotRegisteredException will be thrown.</li>
-	 * </ul>
-	 *
-	 * @param received the Throwable received from the RemoteObject (might be null)
-	 * @param method   the Method, that was invoked
-	 * @param args     the Arguments, passed to the method-call
-	 * @return the Result of the fallback execution. Might be null!
-	 * @throws InvocationTargetException if the method within the fallback instance is not correctly invokable
-	 * @throws IllegalAccessException    if the fallback instance has changed the access rights to the method
-	 */
-	protected Object executeFallback(Throwable received, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-		synchronized (this) {
-			if (fallbackInstance != null) {
-				return method.invoke(fallbackInstance, args);
-			} else if (fallbackRunnable != null) {
-				fallbackRunnable.run();
-				return null;
-			} else {
-				throw new RemoteObjectNotRegisteredException(received.getMessage());
-			}
 		}
 	}
 

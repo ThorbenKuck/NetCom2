@@ -9,22 +9,22 @@ import java.net.SocketAddress;
 
 public interface ConnectorCore {
 
-	static ConnectorCore nio(ClientFactory clientFactory) {
+	static ConnectorCore nio(final ClientFactory clientFactory) {
 		return new NativeNIOConnectorCore(clientFactory);
 	}
 
-	static ConnectorCore tcp(ClientFactory clientFactory) {
+	static ConnectorCore tcp(final ClientFactory clientFactory) {
 		return new NativeTCPConnectorCore(clientFactory);
 	}
 
 	@Experimental
-	static ConnectorCore udp(ClientFactory clientFactory) {
+	static ConnectorCore udp(final ClientFactory clientFactory) {
 		return new NativeUDPConnectorCore(clientFactory);
 	}
 
 	void clear();
 
-	void establishConnection(SocketAddress socketAddress) throws StartFailedException;
+	void establishConnection(final SocketAddress socketAddress) throws StartFailedException;
 
 	void handleNext() throws ClientConnectionFailedException;
 

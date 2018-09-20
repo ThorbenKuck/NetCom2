@@ -2,21 +2,21 @@ package com.github.thorbenkuck.netcom2.network.shared.connections;
 
 import java.util.Queue;
 
-final class RawDataPackage {
+public final class RawDataPackage {
 
 	private final Queue<RawData> data;
 	private final Connection connection;
 
-	RawDataPackage(Queue<RawData> data, Connection connection) {
+	RawDataPackage(final Queue<RawData> data, final Connection connection) {
 		this.data = data;
 		this.connection = connection;
 	}
 
-	public Connection getConnection() {
+	public final Connection getConnection() {
 		return connection;
 	}
 
-	public Queue<RawData> getRawData() {
+	public final Queue<RawData> getRawData() {
 		return data;
 	}
 }

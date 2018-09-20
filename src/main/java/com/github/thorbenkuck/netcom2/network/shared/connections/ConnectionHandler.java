@@ -8,7 +8,7 @@ public interface ConnectionHandler {
 		return new NativeConnectionHandler();
 	}
 
-	void prepare(byte[] read);
+	void prepare(final byte[] read);
 
 	List<String> takeContents();
 

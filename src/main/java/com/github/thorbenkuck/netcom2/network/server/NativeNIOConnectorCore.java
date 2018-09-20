@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-class NativeNIOConnectorCore implements ConnectorCore {
+final class NativeNIOConnectorCore implements ConnectorCore {
 
 	private final Value<Selector> selectorValue = Value.emptySynchronized();
 	private final Value<ServerSocketChannel> serverSocketChannelValue = Value.emptySynchronized();
@@ -32,7 +32,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	private final ClientFactory clientFactory;
 	private final Logging logging = Logging.unified();
 
-	NativeNIOConnectorCore(ClientFactory clientFactory) {
+	NativeNIOConnectorCore(final ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 		logging.instantiated(this);
 	}
@@ -40,7 +40,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	private void createEventLoop() throws IOException {
 		logging.debug("Creating new EventLoop");
 		logging.trace("Opening new NIOEventLoop ..");
-		EventLoop eventLoop = EventLoop.openNonBlocking();
+		final EventLoop eventLoop = EventLoop.openNonBlocking();
 
 		logging.trace("Adding NIOEventLoop to all EventLoops ..");
 		synchronized (eventLoopList) {
@@ -57,7 +57,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 
 	private synchronized void findNextEventLoop() throws IOException {
 		logging.debug("Searching for free EventLoop using first fit.");
-		if(currentEventLoopValue.get().workload() < maxEventLoopWorkload.get()) {
+		if (currentEventLoopValue.get().workload() < maxEventLoopWorkload.get()) {
 			logging.debug("Current EventLoop has free capacities.");
 			return;
 		}
@@ -67,7 +67,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 			copy = new ArrayList<>(eventLoopList);
 		}
 		logging.trace("Searching through EventLoop snapshot for first EventLoop with free capacities ..");
-		for (EventLoop eventLoop : copy) {
+		for (final EventLoop eventLoop : copy) {
 			if (eventLoop.workload() < maxEventLoopWorkload.get()) {
 				logging.debug("Found EventLoop with capacities.");
 				logging.trace("Setting CurrentEventLoopValue");
@@ -80,7 +80,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		createEventLoop();
 	}
 
-	private void registerConnected(SocketChannel socketChannel) throws IOException {
+	private void registerConnected(final SocketChannel socketChannel) throws IOException {
 		logging.debug("Registering newly connected SocketChannel");
 		logging.trace("Constructing connection for socketChannel ..");
 		final Connection connection = Connection.nio(socketChannel);
@@ -96,11 +96,11 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		final Client client = clientFactory.produce();
 		connection.hook(ConnectionContext.combine(client, connection));
 		logging.trace("Checking current EventLoop value ..");
-		if(currentEventLoopValue.isEmpty()) {
+		if (currentEventLoopValue.isEmpty()) {
 			logging.trace("EventLoop value is empty. Requesting new EventLoopValue ..");
 			createEventLoop();
 		}
-		EventLoop current = currentEventLoopValue.get();
+		final EventLoop current = currentEventLoopValue.get();
 		if (current.workload() >= maxEventLoopWorkload.get()) {
 			logging.trace("EventLoop value is maxed out. Requesting find of next EventLoop value ..");
 			findNextEventLoop();
@@ -110,7 +110,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 		if (!serverSocketChannelValue.isEmpty()) {
 			serverSocketChannelValue.clear();
 		}
@@ -118,14 +118,14 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		if (!selectorValue.isEmpty()) {
 			try {
 				selectorValue.set(Selector.open());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new IllegalStateException("Selector Opening failed at clear. This cannot be recovered!");
 			}
 		}
 	}
 
 	@Override
-	public synchronized void establishConnection(SocketAddress socketAddress) throws StartFailedException {
+	public final synchronized void establishConnection(final SocketAddress socketAddress) throws StartFailedException {
 		logging.debug("Trying to establish connection to " + socketAddress);
 		logging.trace("Checking connected flag..");
 		if (connected.get()) {
@@ -156,7 +156,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 
 			logging.trace("Updating connected flag");
 			connected.set(true);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.error("IO transaction failed. Recovering for new launch attempt ..");
 			clear();
 			throw new StartFailedException(e);
@@ -164,7 +164,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	}
 
 	@Override
-	public synchronized void handleNext() throws ClientConnectionFailedException {
+	public final synchronized void handleNext() throws ClientConnectionFailedException {
 		logging.debug("Awaiting next SocketChannel connect");
 		logging.trace("Fetching Selector value ..");
 		final Selector selector = selectorValue.get();
@@ -174,7 +174,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 			logging.trace("Awaiting select of Selector ..");
 			selected = selector.select();
 			logging.trace("Selector woke up");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.error("Selector#select threw IOException!");
 			throw new ClientConnectionFailedException(e);
 		}
@@ -209,7 +209,7 @@ class NativeNIOConnectorCore implements ConnectorCore {
 
 					logging.trace("Requesting registration of connected SocketChannel");
 					registerConnected(socketChannel);
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					logging.error("Encountered Exception while handling new Connect. Continuing until finish..");
 					if (exception == null) {
 						exception = new ClientConnectionFailedException(e);
@@ -226,9 +226,9 @@ class NativeNIOConnectorCore implements ConnectorCore {
 	}
 
 	@Override
-	public void disconnect() {
+	public final void disconnect() {
 		synchronized (eventLoopList) {
-			for (EventLoop eventLoop : eventLoopList) {
+			for (final EventLoop eventLoop : eventLoopList) {
 				eventLoop.shutdownNow();
 			}
 			eventLoopList.clear();
@@ -236,13 +236,24 @@ class NativeNIOConnectorCore implements ConnectorCore {
 		}
 		try {
 			selectorValue.get().close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.catching(e);
 		}
 		try {
 			serverSocketChannelValue.get().close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.catching(e);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "NIOConnectorCore{" +
+				"serverSocketChannelValue=" + serverSocketChannelValue +
+				", connected=" + connected +
+				", eventLoopList=" + eventLoopList +
+				", maxEventLoopWorkload=" + maxEventLoopWorkload +
+				", clientFactory=" + clientFactory +
+				'}';
 	}
 }

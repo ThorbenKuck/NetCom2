@@ -22,6 +22,10 @@ public class NetComLogging implements Logging {
 	private static Logging logging = Logging.getDefault();
 	private static Lock loggingLock = new ReentrantLock(true);
 
+	public NetComLogging() {
+		instantiated(this);
+	}
+
 	private static Logging getLogging() {
 		try {
 			loggingLock.lock();
@@ -47,10 +51,6 @@ public class NetComLogging implements Logging {
 		} finally {
 			loggingLock.unlock();
 		}
-	}
-
-	public NetComLogging() {
-		instantiated(this);
 	}
 
 	/**

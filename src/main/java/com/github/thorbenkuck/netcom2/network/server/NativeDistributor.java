@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-class NativeDistributor implements Distributor {
+final class NativeDistributor implements Distributor {
 
 	private static final List<Session> EMPTY_REGISTRATION_ENTRY = Collections.unmodifiableList(new ArrayList<>());
 	private final Logging logging = Logging.unified();
@@ -30,7 +30,7 @@ class NativeDistributor implements Distributor {
 		logging.instantiated(this);
 	}
 
-	private void handleRegistration(CommunicationRegistration communicationRegistration) {
+	private void handleRegistration(final CommunicationRegistration communicationRegistration) {
 		try {
 			communicationRegistration.acquire();
 			communicationRegistration.register(CacheRegistration.class)
@@ -38,23 +38,23 @@ class NativeDistributor implements Distributor {
 			communicationRegistration.register(CacheUnRegistration.class)
 					.addFirst(cacheUnRegistrationHandler);
 			this.communicationRegistration = communicationRegistration;
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			communicationRegistration.release();
 		}
 	}
 
-	private void register(Session session, Class<?> type) {
+	private void register(final Session session, final Class<?> type) {
 		synchronized (registrations) {
 			registrations.computeIfAbsent(type, clazz -> new ArrayList<>());
 			registrations.get(type).add(session);
 		}
 	}
 
-	private void unRegister(Session session, Class<?> type) {
+	private void unRegister(final Session session, final Class<?> type) {
 		synchronized (registrations) {
-			List<Session> registered = registrations.get(type);
+			final List<Session> registered = registrations.get(type);
 			if (registered != null) {
 				registered.remove(session);
 				if (registered.isEmpty()) {
@@ -64,8 +64,8 @@ class NativeDistributor implements Distributor {
 		}
 	}
 
-	private void toAllRegistered(Class<?> type, Object object) {
-		List<Session> targets;
+	private void toAllRegistered(final Class<?> type, final Object object) {
+		final List<Session> targets;
 		synchronized (registrations) {
 			targets = new ArrayList<>(registrations.getOrDefault(type, EMPTY_REGISTRATION_ENTRY));
 		}
@@ -73,9 +73,9 @@ class NativeDistributor implements Distributor {
 		targets.forEach(session -> session.send(object));
 	}
 
-	private Predicate<Session> combine(Predicate<Session>... predicates) {
+	private Predicate<Session> combine(final Predicate<Session>... predicates) {
 		return session -> {
-			for (Predicate<Session> predicate : predicates) {
+			for (final Predicate<Session> predicate : predicates) {
 				if (!predicate.test(session)) {
 					return false;
 				}
@@ -92,7 +92,7 @@ class NativeDistributor implements Distributor {
 	 * @param predicates The predicates to filter by
 	 */
 	@Override
-	public void toSpecific(Object o, Predicate<Session>... predicates) {
+	public final void toSpecific(final Object o, final Predicate<Session>... predicates) {
 		toSpecific(o, combine(predicates));
 	}
 
@@ -104,20 +104,20 @@ class NativeDistributor implements Distributor {
 	 * @param predicate The predicates to filter by
 	 */
 	@Override
-	public void toSpecific(Object o, Predicate<Session> predicate) {
+	public final void toSpecific(final Object o, final Predicate<Session> predicate) {
 		clientList.sessionStream()
 				.filter(predicate)
 				.forEach(session -> session.send(o));
 	}
 
 	@Override
-	public void toAll(Object object) {
+	public final void toAll(final Object object) {
 		clientList.sessionStream()
 				.forEach(session -> session.send(object));
 	}
 
 	@Override
-	public void toAllExcept(Object o, Predicate<Session> predicate) {
+	public final void toAllExcept(final Object o, final Predicate<Session> predicate) {
 		clientList.sessionStream()
 				.filter(session -> !predicate.test(session))
 				.forEach(session -> session.send(o));
@@ -131,7 +131,7 @@ class NativeDistributor implements Distributor {
 	 * @param predicates The predicates to filter by
 	 */
 	@Override
-	public void toAllExcept(Object o, Predicate<Session>... predicates) {
+	public final void toAllExcept(final Object o, final Predicate<Session>... predicates) {
 		toAllExcept(o, combine(predicates));
 	}
 
@@ -142,13 +142,13 @@ class NativeDistributor implements Distributor {
 	 * @param o The object to send
 	 */
 	@Override
-	public void toAllIdentified(Object o) {
+	public final void toAllIdentified(final Object o) {
 		toAllIdentified(o, (Predicate<Session>) null);
 	}
 
 	@Override
 	@Deprecated
-	public void toAllIdentified(Object o, Predicate<Session>... predicates) {
+	public final void toAllIdentified(final Object o, final Predicate<Session>... predicates) {
 		toAllIdentified(o, combine(predicates));
 	}
 
@@ -160,8 +160,8 @@ class NativeDistributor implements Distributor {
 	 * @param predicate The predicate to filter by. May be null (but really, you should not put null here.
 	 */
 	@Override
-	public void toAllIdentified(Object o, Predicate<Session> predicate) {
-		Predicate<Session> combinedTest = session -> {
+	public final void toAllIdentified(final Object o, final Predicate<Session> predicate) {
+		final Predicate<Session> combinedTest = session -> {
 			if (!session.isIdentified()) {
 				return false;
 			}
@@ -171,7 +171,7 @@ class NativeDistributor implements Distributor {
 
 			return true;
 		};
-		List<Session> toSend = clientList.sessionStream()
+		final List<Session> toSend = clientList.sessionStream()
 				.filter(combinedTest)
 				.collect(Collectors.toList());
 
@@ -185,7 +185,7 @@ class NativeDistributor implements Distributor {
 	 * @param o The object to send
 	 */
 	@Override
-	public void toRegistered(Object o) {
+	public final void toRegistered(final Object o) {
 		toAllRegistered(o.getClass(), o);
 	}
 
@@ -202,12 +202,12 @@ class NativeDistributor implements Distributor {
 	 */
 	@Override
 	@Deprecated
-	public void toRegistered(Object o, Predicate<Session>... predicates) {
+	public final void toRegistered(final Object o, final Predicate<Session>... predicates) {
 		logging.error("Distributor#toRegistererd(Object, Predicate<Session>) : This method is not used because of the conflicting use cases! See the Javadoc for more information");
 	}
 
 	@Override
-	public void setup(ServerStart serverStart) {
+	public final void setup(final ServerStart serverStart) {
 		cache = serverStart.cache();
 		clientList = serverStart.clientList();
 		handleRegistration(serverStart.getCommunicationRegistration());
@@ -215,22 +215,22 @@ class NativeDistributor implements Distributor {
 	}
 
 	@Override
-	public void close() {
+	public final void close() {
 		cache.removeGeneralObserver(observer);
 		try {
 			communicationRegistration.acquire();
 			// TODO Extract
-			ReceivePipeline<CacheRegistration> pipeline = communicationRegistration.register(CacheRegistration.class);
+			final ReceivePipeline<CacheRegistration> pipeline = communicationRegistration.register(CacheRegistration.class);
 			pipeline.remove(cacheRegistrationHandler);
 			if (pipeline.isEmpty()) {
 				communicationRegistration.unRegister(CacheRegistration.class);
 			}
-			ReceivePipeline<CacheUnRegistration> unRegistrationPipeline = communicationRegistration.register(CacheUnRegistration.class);
+			final ReceivePipeline<CacheUnRegistration> unRegistrationPipeline = communicationRegistration.register(CacheUnRegistration.class);
 			unRegistrationPipeline.remove(cacheUnRegistrationHandler);
 			if (unRegistrationPipeline.isEmpty()) {
 				communicationRegistration.unRegister(CacheUnRegistration.class);
 			}
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
 			communicationRegistration.release();
@@ -240,26 +240,31 @@ class NativeDistributor implements Distributor {
 	private final class DistributorCacheObserver implements GeneralCacheObserver {
 
 		@Override
-		public void newEntry(Object object, CacheObservable observable) {
+		public final void newEntry(final Object object, final CacheObservable observable) {
 			toAllRegistered(object.getClass(), new CacheAddition(object));
 		}
 
 		@Override
-		public void updatedEntry(Object object, CacheObservable observable) {
+		public final void updatedEntry(final Object object, final CacheObservable observable) {
 			toAllRegistered(object.getClass(), new CacheUpdate(object));
 		}
 
 		@Override
-		public void deletedEntry(Object object, CacheObservable observable) {
+		public final void deletedEntry(final Object object, final CacheObservable observable) {
 			toAllRegistered(object.getClass(), new CacheRemove(object.getClass()));
+		}
+
+		@Override
+		public String toString() {
+			return "DistributorCacheObserver";
 		}
 	}
 
 	private final class CacheRegistrationHandler implements OnReceive<CacheRegistration> {
 
 		@Override
-		public void accept(Session session, CacheRegistration cacheRegistration) {
-			List<Session> registered;
+		public final void accept(final Session session, final CacheRegistration cacheRegistration) {
+			final List<Session> registered;
 
 			synchronized (registrations) {
 				registered = new ArrayList<>(registrations.getOrDefault(cacheRegistration.getType(), new ArrayList<>()));
@@ -270,14 +275,24 @@ class NativeDistributor implements Distributor {
 				session.send(cacheRegistration);
 			}
 		}
+
+		@Override
+		public String toString() {
+			return "CacheRegistrationHandler";
+		}
 	}
 
 	private final class CacheUnRegistrationHandler implements OnReceive<CacheUnRegistration> {
 
 		@Override
-		public void accept(Session session, CacheUnRegistration cacheUnRegistration) {
+		public final void accept(final Session session, final CacheUnRegistration cacheUnRegistration) {
 			unRegister(session, cacheUnRegistration.getType());
 			session.send(cacheUnRegistration);
+		}
+
+		@Override
+		public String toString() {
+			return "CacheUnRegistrationHandler";
 		}
 	}
 }

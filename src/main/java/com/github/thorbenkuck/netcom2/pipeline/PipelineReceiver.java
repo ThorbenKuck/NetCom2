@@ -94,8 +94,8 @@ class PipelineReceiver<T> {
 	 * This method is only meant for internal use.
 	 *
 	 * @param connectionContext The connection to test with
-	 * @param session    The session to test with
-	 * @param t          The T to test with
+	 * @param session           The session to test with
+	 * @param t                 The T to test with
 	 * @return false if one predicate returns false, true otherwise
 	 */
 	@APILevel

@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class NativeBlockingEventLoop implements EventLoop {
+final class NativeBlockingEventLoop implements EventLoop {
 
 	private final List<Connection> core = new ArrayList<>();
 	private final ConnectionShutdownHook SHUTDOWN_HOOK = new ConnectionShutdownHook();
@@ -26,11 +26,11 @@ public class NativeBlockingEventLoop implements EventLoop {
 		logging.instantiated(this);
 	}
 
-	private void prepareRawData(Queue<RawData> rawDataQueue, Connection connection) {
-		RawDataPackage rawDataPackage = new RawDataPackage(rawDataQueue, connection);
+	private void prepareRawData(final Queue<RawData> rawDataQueue, final Connection connection) {
+		final RawDataPackage rawDataPackage = new RawDataPackage(rawDataQueue, connection);
 		dataQueue.add(rawDataPackage);
 		if (dataQueue.size() > 10) {
-			RawDataPackageProcess rawDataPackageProcess = new RawDataPackageProcess();
+			final RawDataPackageProcess rawDataPackageProcess = new RawDataPackageProcess();
 			synchronized (separateProcesses) {
 				separateProcesses.add(rawDataPackageProcess);
 			}
@@ -41,16 +41,16 @@ public class NativeBlockingEventLoop implements EventLoop {
 	private void decreaseCustomWorkerProcesses() {
 		synchronized (separateProcesses) {
 			try {
-				RawDataPackageProcess rawDataPackageProcess = separateProcesses.remove(0);
+				final RawDataPackageProcess rawDataPackageProcess = separateProcesses.remove(0);
 				rawDataPackageProcess.stop();
-			} catch (IndexOutOfBoundsException ignored) {
+			} catch (final IndexOutOfBoundsException ignored) {
 				// There are now Processes in the Queue. Ignore this request
 			}
 		}
 	}
 
 	@Override
-	public void register(Connection connection) throws IOException {
+	public final void register(final Connection connection) throws IOException {
 		if (!started.get()) {
 			throw new IOException("EventLoop has not been started!");
 		}
@@ -62,7 +62,7 @@ public class NativeBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public void unregister(Connection connection) {
+	public final void unregister(final Connection connection) {
 		synchronized (core) {
 			core.remove(connection);
 			connection.removeShutdownHook(SHUTDOWN_HOOK);
@@ -70,7 +70,11 @@ public class NativeBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public synchronized void start() {
+	public final synchronized void start() {
+		if (started.get()) {
+			logging.warn("Tried to start a already started EventLoop!");
+			return;
+		}
 		logging.debug("Starting EventLoop..");
 		started.set(true);
 		NetComThreadPool.submitCustomProcess(process);
@@ -78,20 +82,20 @@ public class NativeBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public synchronized void shutdown() {
+	public final synchronized void shutdown() {
 		logging.debug("Shutting EventLoop down..");
 		started.set(false);
 		process.stop();
 	}
 
 	@Override
-	public synchronized void shutdownNow() {
+	public final synchronized void shutdownNow() {
 		shutdown();
 		synchronized (core) {
-			for (Connection connection : core) {
+			for (final Connection connection : core) {
 				try {
 					connection.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					logging.catching(e);
 				}
 			}
@@ -100,12 +104,12 @@ public class NativeBlockingEventLoop implements EventLoop {
 	}
 
 	@Override
-	public boolean isRunning() {
+	public final boolean isRunning() {
 		return started.get();
 	}
 
 	@Override
-	public int workload() {
+	public final int workload() {
 		synchronized (core) {
 			return core.size();
 		}
@@ -114,7 +118,7 @@ public class NativeBlockingEventLoop implements EventLoop {
 	private final class ConnectionShutdownHook implements Consumer<Connection> {
 
 		@Override
-		public void accept(Connection connection) {
+		public final void accept(final Connection connection) {
 			unregister(connection);
 		}
 	}
@@ -141,8 +145,8 @@ public class NativeBlockingEventLoop implements EventLoop {
 						continue;
 					}
 					synchronized (this) {
-						RawDataPackage rawDataPackage = dataQueue.take();
-						Queue<RawData> rawData = rawDataPackage.getRawData();
+						final RawDataPackage rawDataPackage = dataQueue.take();
+						final Queue<RawData> rawData = rawDataPackage.getRawData();
 
 						while (rawData.peek() != null) {
 							rawDataPackage.getConnection()
@@ -150,7 +154,7 @@ public class NativeBlockingEventLoop implements EventLoop {
 									.receive(rawData.poll());
 						}
 					}
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					if (running.get()) {
 						logging.error("RawDataPackageProcess has been interrupted. Stopping any further reads ..", e);
 						running.set(false);

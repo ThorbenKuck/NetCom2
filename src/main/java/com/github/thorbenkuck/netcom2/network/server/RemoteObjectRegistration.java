@@ -7,8 +7,8 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.RemoteAccessCommunicat
 
 public interface RemoteObjectRegistration extends Module<ServerStart> {
 
-	static RemoteObjectRegistration open(ServerStart serverStart) {
-		NativeRemoteObjectRegistration remoteObjectRegistration = new NativeRemoteObjectRegistration();
+	static RemoteObjectRegistration open(final ServerStart serverStart) {
+		final NativeRemoteObjectRegistration remoteObjectRegistration = new NativeRemoteObjectRegistration();
 		remoteObjectRegistration.setup(serverStart);
 
 		return remoteObjectRegistration;
@@ -22,7 +22,7 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 *
 	 * @param object The object that should be registered
 	 */
-	void register(Object object);
+	void register(final Object object);
 
 	/**
 	 * This call will register the given Object, identified by ALL given Classes.
@@ -37,7 +37,7 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 * @param o          The Object
 	 * @param identifier the identifiers
 	 */
-	void register(Object o, Class<?>... identifier);
+	void register(final Object o, final Class<?>... identifier);
 
 	/**
 	 * Register the provided Object by all its class and all declared interfaces.
@@ -58,14 +58,14 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 * @see #register(Object)
 	 * @see #register(Object, Class[])
 	 */
-	void hook(Object object);
+	void hook(final Object object);
 
 	/**
 	 * Unregisters an given Object, identified by its class.
 	 *
 	 * @param object the object that should be unregistered
 	 */
-	void unregister(Object object);
+	void unregister(final Object object);
 
 	/**
 	 * This call will unregisters the given Object, identified by ALL given Classes.
@@ -81,7 +81,7 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 * @param object      the Object, that should be registered internally
 	 * @param identifiers the identifiers to check for.
 	 */
-	void unregister(Object object, Class... identifiers);
+	void unregister(final Object object, final Class... identifiers);
 
 	/**
 	 * This call unregisters any Objects, registered at any way internally.
@@ -92,7 +92,7 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 *
 	 * @param identifier all identifiers, that should be unregistered.
 	 */
-	void unregister(Class... identifier);
+	void unregister(final Class... identifier);
 
 	/**
 	 * Similarly to Hook, this will search for all public interfaces, declared by the direct class of the Object and unregister them
@@ -100,7 +100,7 @@ public interface RemoteObjectRegistration extends Module<ServerStart> {
 	 * @param object the Object that should be unhooked
 	 * @see #hook(Object)
 	 */
-	void unhook(Object object);
+	void unhook(final Object object);
 
 	/**
 	 * Clears out all saved instances.

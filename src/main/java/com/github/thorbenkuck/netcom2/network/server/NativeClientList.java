@@ -12,7 +12,7 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import java.util.*;
 import java.util.stream.Stream;
 
-class NativeClientList implements ClientList {
+final class NativeClientList implements ClientList {
 
 	private final List<Client> core;
 	private final Value<Boolean> openValue;
@@ -27,7 +27,7 @@ class NativeClientList implements ClientList {
 	}
 
 	@Override
-	public void remove(Client client) {
+	public final void remove(final Client client) {
 		logging.debug("Attempting to remove Client");
 		if (!openValue.get()) {
 			logging.warn("ClientList is closed!");
@@ -43,7 +43,7 @@ class NativeClientList implements ClientList {
 	}
 
 	@Override
-	public void add(Client client) {
+	public final void add(final Client client) {
 		logging.debug("Attempting to add Client");
 		if (!openValue.get()) {
 			logging.warn("ClientList is closed");
@@ -59,24 +59,24 @@ class NativeClientList implements ClientList {
 	}
 
 	@Override
-	public void close() {
+	public final void close() {
 		logging.debug("Closing " + this);
 		openValue.set(false);
 	}
 
 	@Override
-	public void open() {
+	public final void open() {
 		logging.debug("Opening " + this);
 		openValue.set(true);
 	}
 
 	@Override
-	public boolean isOpen() {
+	public final boolean isOpen() {
 		return openValue.get();
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 		logging.debug("Attempting to clear ClientList");
 		logging.trace("Acquiring access over core");
 		synchronized (core) {
@@ -87,35 +87,35 @@ class NativeClientList implements ClientList {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		synchronized (core) {
 			return core.isEmpty();
 		}
 	}
 
 	@Override
-	public Collection<Client> snapShot() {
+	public final Collection<Client> snapShot() {
 		synchronized (core) {
 			return new ArrayList<>(core);
 		}
 	}
 
 	@Override
-	public Optional<Client> getClient(Session session) {
+	public final Optional<Client> getClient(Session session) {
 		return snapShot().stream()
 				.filter(current -> current.getSession().equals(session))
 				.findFirst();
 	}
 
 	@Override
-	public Optional<Client> getClient(ClientID clientID) {
+	public final Optional<Client> getClient(ClientID clientID) {
 		return snapShot().stream()
 				.filter(current -> current.getID().equals(clientID))
 				.findFirst();
 	}
 
 	@Override
-	public Stream<Client> stream() {
+	public final Stream<Client> stream() {
 		final List<Client> copy;
 		synchronized (core) {
 			copy = new ArrayList<>(core);
@@ -125,7 +125,7 @@ class NativeClientList implements ClientList {
 	}
 
 	@Override
-	public Stream<Session> sessionStream() {
+	public final Stream<Session> sessionStream() {
 		return snapShot().stream()
 				.map(Client::getSession);
 	}
@@ -134,14 +134,14 @@ class NativeClientList implements ClientList {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Iterator<Client> iterator() {
+	public final Iterator<Client> iterator() {
 		synchronized (core) {
 			return NetCom2Utils.createAsynchronousIterator(core);
 		}
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "NativeClientList{" +
 				"core=" + core +
 				", openValue=" + openValue +
@@ -156,8 +156,13 @@ class NativeClientList implements ClientList {
 		 * @param client the input argument
 		 */
 		@Override
-		public void accept(Client client) {
+		public void accept(final Client client) {
 			remove(client);
+		}
+
+		@Override
+		public String toString() {
+			return "ClientListDisconnectedHandler";
 		}
 	}
 }

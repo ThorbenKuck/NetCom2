@@ -406,8 +406,8 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * It will check every {@link ReceivePipelineCondition}, to see whether or not the so registered OnReceive will be executed
 	 *
 	 * @param connectionContext the {@link Connection}, which is associated with the receiving of the T
-	 * @param session    the {@link Session}, which is associated with the receiving of the T
-	 * @param t          the Object, which should be run through this ReceivePipeline
+	 * @param session           the {@link Session}, which is associated with the receiving of the T
+	 * @param t                 the Object, which should be run through this ReceivePipeline
 	 */
 	void run(final ConnectionContext connectionContext, final Session session, final T t);
 

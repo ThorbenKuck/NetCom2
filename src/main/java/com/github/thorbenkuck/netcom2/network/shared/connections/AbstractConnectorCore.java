@@ -18,14 +18,14 @@ public abstract class AbstractConnectorCore implements ConnectorCore {
 	private final Logging logging = Logging.unified();
 	private final ClientFactory clientFactory;
 
-	public AbstractConnectorCore(ClientFactory clientFactory) {
+	public AbstractConnectorCore(final ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 
 	private void establishEventLoop() {
 		logging.debug("Creating new EventLoop");
 		logging.trace("Opening new NIOEventLoop ..");
-		EventLoop eventLoop = createEventLoop();
+		final EventLoop eventLoop = createEventLoop();
 
 		logging.trace("Adding NIOEventLoop to all EventLoops ..");
 		synchronized (eventLoopList) {
@@ -69,11 +69,11 @@ public abstract class AbstractConnectorCore implements ConnectorCore {
 
 	protected abstract void close() throws IOException;
 
-	protected Client createClient() {
+	protected final Client createClient() {
 		return clientFactory.produce();
 	}
 
-	protected EventLoop getCurrentEventLoop() {
+	protected final EventLoop getCurrentEventLoop() {
 		checkEventLoop();
 		return currentEventLoopValue.get();
 	}
@@ -83,7 +83,7 @@ public abstract class AbstractConnectorCore implements ConnectorCore {
 			logging.trace("EventLoop value is empty. Requesting new EventLoopValue ..");
 			establishEventLoop();
 		}
-		EventLoop current = currentEventLoopValue.get();
+		final EventLoop current = currentEventLoopValue.get();
 		if (current.workload() >= maxEventLoopWorkload.get()) {
 			logging.trace("EventLoop value is maxed out. Requesting find of next EventLoop value ..");
 			findNextEventLoop();
@@ -102,7 +102,7 @@ public abstract class AbstractConnectorCore implements ConnectorCore {
 		}
 		try {
 			close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.catching(e);
 		}
 	}

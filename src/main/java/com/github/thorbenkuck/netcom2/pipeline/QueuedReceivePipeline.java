@@ -58,11 +58,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	/**
 	 * Tries to put the specified connection, session and S into the specified pipeline receiver.
 	 *
-	 * @param receiver   The PipelineReceiver
+	 * @param receiver          The PipelineReceiver
 	 * @param connectionContext The connection
-	 * @param session    The session
-	 * @param s          The S
-	 * @param <S>        The type
+	 * @param session           The session
+	 * @param s                 The S
+	 * @param <S>               The type
 	 */
 	private <S> void run(final PipelineReceiver<S> receiver, final ConnectionContext connectionContext, final Session session, final S s) {
 		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
@@ -91,6 +91,28 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private void ifOpen(final Runnable runnable) {
 		if (!closed) {
 			runnable.run();
+		}
+	}
+
+	/**
+	 * Throws PipelineAccessException if pipeline is closed.
+	 *
+	 * @throws PipelineAccessException if the pipeline is closed
+	 */
+	protected void requiresOpen() {
+		if (closed) {
+			throw new PipelineAccessException("ReceivePipeline Closed!");
+		}
+	}
+
+	/**
+	 * Throws PipelineAccessException if pipeline is sealed.
+	 *
+	 * @throws PipelineAccessException if the pipeline is sealed
+	 */
+	protected void requiredNotSealed() {
+		if (sealed) {
+			throw new PipelineAccessException("ReceivePipeline is sealed!");
 		}
 	}
 
@@ -387,8 +409,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 * It will check every {@link ReceivePipelineCondition}, to see whether or not the so registered OnReceive will be executed
 	 *
 	 * @param connectionContext the {@link Connection}, which is associated with the receiving of the T
-	 * @param session    the {@link Session}, which is associated with the receiving of the T
-	 * @param t          the Object, which should be run through this ReceivePipeline
+	 * @param session           the {@link Session}, which is associated with the receiving of the T
+	 * @param t                 the Object, which should be run through this ReceivePipeline
 	 */
 	@Override
 	public void run(ConnectionContext connectionContext, Session session, T t) {
@@ -504,27 +526,5 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	@Override
 	public void release() {
 		readWriteLock.readLock().unlock();
-	}
-
-	/**
-	 * Throws PipelineAccessException if pipeline is closed.
-	 *
-	 * @throws PipelineAccessException if the pipeline is closed
-	 */
-	protected void requiresOpen() {
-		if (closed) {
-			throw new PipelineAccessException("ReceivePipeline Closed!");
-		}
-	}
-
-	/**
-	 * Throws PipelineAccessException if pipeline is sealed.
-	 *
-	 * @throws PipelineAccessException if the pipeline is sealed
-	 */
-	protected void requiredNotSealed() {
-		if (sealed) {
-			throw new PipelineAccessException("ReceivePipeline is sealed!");
-		}
 	}
 }

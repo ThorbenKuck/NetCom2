@@ -12,7 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-class NativeTCPConnectorCore extends AbstractConnectorCore {
+final class NativeTCPConnectorCore extends AbstractConnectorCore {
 
 	private final Value<Boolean> connected = Value.synchronize(false);
 	private final Value<ServerSocket> serverSocketValue = Value.emptySynchronized();
@@ -23,67 +23,67 @@ class NativeTCPConnectorCore extends AbstractConnectorCore {
 		logging.instantiated(this);
 	}
 
-	private void registerConnected(Socket socket) throws IOException {
-		Connection connection = Connection.tcp(socket);
+	private void registerConnected(final Socket socket) throws IOException {
+		final Connection connection = Connection.tcp(socket);
 		// Assume the DefaultConnection
 		// This will not always be true.
 		// However, the chain of
 		// initial messages will fix this
 		connection.setIdentifier(DefaultConnection.class);
 
-		Client client = createClient();
+		final Client client = createClient();
 		connection.hook(ConnectionContext.combine(client, connection));
 
 		logging.trace("Registering Connection to EventLoop");
 		getCurrentEventLoop().register(connection);
 	}
 
-	protected EventLoop createEventLoop() {
+	protected final EventLoop createEventLoop() {
 		logging.debug("Creating new EventLoop");
 		logging.trace("Opening new NIOEventLoop ..");
 		return EventLoop.openBlocking();
 	}
 
 	@Override
-	protected void close() throws IOException {
-		ServerSocket serverSocket = serverSocketValue.get();
+	protected final void close() throws IOException {
+		final ServerSocket serverSocket = serverSocketValue.get();
 		if (serverSocket != null) {
 			serverSocket.close();
 		}
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 		if (!serverSocketValue.isEmpty()) {
 			serverSocketValue.clear();
 		}
 	}
 
 	@Override
-	public void establishConnection(SocketAddress socketAddress) throws StartFailedException {
+	public final void establishConnection(final SocketAddress socketAddress) throws StartFailedException {
 		try {
-			ServerSocket serverSocket = new ServerSocket();
+			final ServerSocket serverSocket = new ServerSocket();
 			serverSocket.bind(socketAddress);
 			serverSocketValue.set(serverSocket);
 
 			connected.set(true);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new StartFailedException(e);
 		}
 	}
 
 	@Override
-	public void handleNext() throws ClientConnectionFailedException {
+	public final void handleNext() throws ClientConnectionFailedException {
 		if (serverSocketValue.isEmpty()) {
 			throw new ClientConnectionFailedException("Not yet launched");
 		}
 
-		ServerSocket serverSocket = serverSocketValue.get();
+		final ServerSocket serverSocket = serverSocketValue.get();
 
 		try {
-			Socket socket = serverSocket.accept();
+			final Socket socket = serverSocket.accept();
 			registerConnected(socket);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new ClientConnectionFailedException(e);
 		}
 	}

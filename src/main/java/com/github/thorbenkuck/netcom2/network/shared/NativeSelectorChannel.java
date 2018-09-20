@@ -135,13 +135,13 @@ class NativeSelectorChannel implements SelectorChannel {
 		@SuppressWarnings("MagicConstant")
 		private void handleRegistration(Queue<RegistrationRequest> copy) {
 			logging.debug("Handling new registrations");
-			while(copy.peek() != null) {
+			while (copy.peek() != null) {
 				logging.trace("Polling next Registration request");
 				final RegistrationRequest registrationRequest = copy.poll();
 				final SocketChannel socketChannel = registrationRequest.getSocketChannel();
 				try {
 					logging.trace("Checking connected SocketChannel");
-					if(socketChannel.isOpen()) {
+					if (socketChannel.isOpen()) {
 						logging.trace("SocketChannel is open. Registering socketChannel ..");
 						socketChannel.register(selector, registrationRequest.getOp());
 					}
@@ -162,7 +162,7 @@ class NativeSelectorChannel implements SelectorChannel {
 				logging.trace("Removing key from Iterator");
 				iterator.remove();
 
-				if(!key.isValid()) {
+				if (!key.isValid()) {
 					logging.debug("Key is invalid! Continuing ..");
 					continue;
 				}
@@ -175,11 +175,11 @@ class NativeSelectorChannel implements SelectorChannel {
 				// Maybe this is possible:
 				// int ops = key.readyOps() << SomeMagicConstant;
 				logging.trace("Fetching ops");
-				if(key.isAcceptable()) {
+				if (key.isAcceptable()) {
 					ops = SelectionKey.OP_ACCEPT;
-				} else if(key.isConnectable()) {
+				} else if (key.isConnectable()) {
 					ops = SelectionKey.OP_CONNECT;
-				} else if(key.isReadable()) {
+				} else if (key.isReadable()) {
 					ops = SelectionKey.OP_READ;
 				} else {
 					ops = SelectionKey.OP_WRITE;

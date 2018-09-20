@@ -9,7 +9,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-class NIOBuffer {
+final class NIOBuffer {
 
 	private final Map<Integer, ByteBuffer> cache = new HashMap<>();
 	private final Deque<ByteBuffer> priorityQueue = new ArrayDeque<>();
@@ -20,12 +20,12 @@ class NIOBuffer {
 		logging.instantiated(this);
 	}
 
-	private ByteBuffer create(int amount) {
+	private ByteBuffer create(final int amount) {
 		logging.debug("Creating new ByteBuffer with a capacity of " + amount);
 		return ByteBuffer.allocate(amount);
 	}
 
-	private void clearByteBuffer(ByteBuffer byteBuffer) {
+	private void clearByteBuffer(final ByteBuffer byteBuffer) {
 		byteBuffer.clear();
 		byteBuffer.put(new byte[byteBuffer.capacity()]);
 		byteBuffer.clear();
@@ -37,7 +37,7 @@ class NIOBuffer {
 			while (priorityQueue.size() > priorityQueueLength.get()) {
 				logging.debug("Detected capacity overflow ..");
 				logging.trace("Clearing last ByteBuffer of PriorityQueue ..");
-				ByteBuffer byteBuffer = priorityQueue.removeLast();
+				final ByteBuffer byteBuffer = priorityQueue.removeLast();
 				logging.trace("Removing ByteBuffer fom cache ..");
 				synchronized (cache) {
 					cache.remove(byteBuffer.capacity());
@@ -49,7 +49,7 @@ class NIOBuffer {
 		logging.trace("Overflow state is okay.");
 	}
 
-	private void insertIntoPriorityQueue(ByteBuffer byteBuffer) {
+	private void insertIntoPriorityQueue(final ByteBuffer byteBuffer) {
 		logging.debug("Inserting ByteBuffer into the PriorityQueue");
 		logging.trace("Trying to remove ByteBuffer from PriorityQueue to prevent duplicates ..");
 		synchronized (priorityQueue) {
@@ -65,7 +65,7 @@ class NIOBuffer {
 		checkOverflow();
 	}
 
-	private void removeFromPriorityQueue(ByteBuffer byteBuffer) {
+	private void removeFromPriorityQueue(final ByteBuffer byteBuffer) {
 		logging.debug("Inserting ByteBuffer into the PriorityQueue");
 		logging.trace("Trying to remove ByteBuffer from PriorityQueue to prevent duplicates ..");
 		synchronized (priorityQueue) {
@@ -77,9 +77,9 @@ class NIOBuffer {
 		}
 	}
 
-	private ByteBuffer getOrCreate(int amount) {
+	private ByteBuffer getOrCreate(final int amount) {
 		logging.debug("Fetching byteBuffer");
-		ByteBuffer byteBuffer;
+		final ByteBuffer byteBuffer;
 		logging.trace("Checking empty");
 		checkEmpty();
 		logging.trace("Fetching ByteBuffer");
@@ -108,7 +108,7 @@ class NIOBuffer {
 				if (priorityQueue.isEmpty()) {
 					logging.trace("PriorityQueue is empty");
 					logging.debug("Requesting new ByteBuffer");
-					ByteBuffer buffer = create(1024);
+					final ByteBuffer buffer = create(1024);
 					logging.trace("Adding ByteBuffer to Cache");
 					cache.put(buffer.capacity(), buffer);
 					logging.trace("Adding ByteBuffer to PriorityQueue");
@@ -118,19 +118,19 @@ class NIOBuffer {
 		}
 	}
 
-	ByteBuffer allocate(byte[] data) {
-		ByteBuffer buffer = allocate(data.length);
+	final ByteBuffer allocate(final byte[] data) {
+		final ByteBuffer buffer = allocate(data.length);
 		buffer.put(data);
 		buffer.flip();
 
 		return buffer;
 	}
 
-	ByteBuffer allocate(int amount) {
+	final ByteBuffer allocate(final int amount) {
 		return getOrCreate(amount);
 	}
 
-	ByteBuffer allocate() {
+	final ByteBuffer allocate() {
 		ByteBuffer buffer;
 		synchronized (priorityQueue) {
 			checkEmpty();
@@ -155,7 +155,7 @@ class NIOBuffer {
 		return buffer;
 	}
 
-	void free(ByteBuffer byteBuffer) {
+	final void free(final ByteBuffer byteBuffer) {
 		logging.debug("Freeing given ByteBuffer");
 		synchronized (priorityQueue) {
 			logging.trace("Acquired priorityQueue");

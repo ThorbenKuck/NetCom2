@@ -16,7 +16,7 @@ import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.function.Consumer;
 
-class NIOConnection implements Connection {
+final class NIOConnection implements Connection {
 
 	private final SocketChannel socketChannel;
 	private final Value<Boolean> open = Value.synchronize(false);
@@ -30,13 +30,13 @@ class NIOConnection implements Connection {
 	private final Value<Boolean> setupComplete = Value.synchronize(false);
 	private final Value<ConnectionContext> connectionContextValue = Value.emptySynchronized();
 
-	NIOConnection(SocketChannel socketChannel) {
+	NIOConnection(final SocketChannel socketChannel) {
 		NetCom2Utils.assertNotNull(socketChannel);
 		this.socketChannel = socketChannel;
 		logging.instantiated(this);
 	}
 
-	private void writeTo(ByteBuffer byteBuffer) {
+	private void writeTo(final ByteBuffer byteBuffer) {
 		try {
 			logging.trace("Starting to write to output from ByteBuffer ..");
 			logging.trace("ByteBuffer state: " + Arrays.toString(byteBuffer.array()));
@@ -46,13 +46,13 @@ class NIOConnection implements Connection {
 				socketChannel.write(byteBuffer);
 			}
 			logging.trace("Successfully performed write");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.error("Encountered IOException while writing to SocketChannel!");
-			SendFailedException sendFailedException = new SendFailedException(e);
+			final SendFailedException sendFailedException = new SendFailedException(e);
 			logging.trace("Closing " + this);
 			try {
 				close();
-			} catch (IOException e1) {
+			} catch (final IOException e1) {
 				logging.error("Close failed!");
 				sendFailedException.addSuppressed(e1);
 			}
@@ -60,10 +60,10 @@ class NIOConnection implements Connection {
 		}
 	}
 
-	private void writeNewWrapped(byte[] data) {
+	private void writeNewWrapped(final byte[] data) {
 		logging.debug("Write using possibly new ByteBuffer");
 		logging.trace("Requesting ByteBuffer containing " + data.length + " bytes");
-		ByteBuffer byteBuffer = buffer.allocate(data);
+		final ByteBuffer byteBuffer = buffer.allocate(data);
 		logging.trace("ByteBuffer value: (size=" + byteBuffer.capacity() + ") ");
 		logging.trace("Checking ByteBuffer size if it fits the data");
 		if (data.length > byteBuffer.capacity()) {
@@ -99,7 +99,7 @@ class NIOConnection implements Connection {
 			return new byte[0];
 		}
 
-		byte[] result = byteBuffer.array();
+		final byte[] result = byteBuffer.array();
 
 		byteBuffer.clear();
 
@@ -107,12 +107,12 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public Awaiting connected() {
+	public final Awaiting connected() {
 		return setupSynchronize;
 	}
 
 	@Override
-	public void close() throws IOException {
+	public final void close() throws IOException {
 		logging.debug("Closing Connection");
 		logging.trace("This methods only concern is, to shutdown the SocketChannel");
 		logging.trace("Closing underlying SocketChannel");
@@ -124,7 +124,7 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public void open() throws IOException {
+	public final void open() throws IOException {
 		logging.debug("Opening " + this);
 		logging.trace("Updating open flag");
 		open.set(true);
@@ -134,12 +134,12 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public void write(String message) {
+	public final void write(final String message) {
 		write((message + "\r\n").getBytes());
 	}
 
 	@Override
-	public void write(byte[] data) {
+	public final void write(final byte[] data) {
 		logging.debug("Starting to write");
 		logging.trace("Performing sanity-checks on data ..");
 		if (data == null) {
@@ -151,18 +151,18 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public void hook(ConnectionContext context) {
+	public final void hook(final ConnectionContext context) {
 		connectionContextValue.set(context);
 	}
 
 	@Override
-	public void read(Consumer<Queue<RawData>> callback) throws IOException {
+	public final void read(final Consumer<Queue<RawData>> callback) throws IOException {
 		read();
 		callback.accept(drain());
 	}
 
 	@Override
-	public void read() throws IOException {
+	public final void read() throws IOException {
 		if (identifierValue.isEmpty()) {
 			logging.warn("No ConnectionKey set yet. Stopping read.");
 			return;
@@ -175,7 +175,7 @@ class NIOConnection implements Connection {
 			logging.trace("ByteBuffer size=" + byteBuffer.capacity());
 
 			logging.trace("Performing read operation");
-			byte[] result = doRead(byteBuffer);
+			final byte[] result = doRead(byteBuffer);
 			logging.trace("Passing read bytes to the ConnectionHandler, ignoring \\0");
 			// Maybe we construct
 			// a method for removing
@@ -185,7 +185,7 @@ class NIOConnection implements Connection {
 
 			logging.trace("fetching results from ConnectionHandler ..");
 			logging.trace("Fetching read data");
-			List<String> read = connectionHandler.takeContents();
+			final List<String> read = connectionHandler.takeContents();
 			logging.trace("Found " + read.size() + " new received lines");
 
 			read.stream()
@@ -209,51 +209,51 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public Optional<Class<?>> getIdentifier() {
+	public final Optional<Class<?>> getIdentifier() {
 		return Optional.ofNullable(identifierValue.get());
 	}
 
 	@Override
-	public void setIdentifier(Class<?> identifier) {
+	public final void setIdentifier(final Class<?> identifier) {
 		logging.debug("Updating identifier to: " + identifier);
 		identifierValue.set(identifier);
 	}
 
 	@Override
-	public Optional<SocketAddress> remoteAddress() {
+	public final Optional<SocketAddress> remoteAddress() {
 		try {
 			return Optional.of(socketChannel.getRemoteAddress());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			return Optional.empty();
 		}
 	}
 
 	@Override
-	public Optional<SocketAddress> localAddress() {
+	public final Optional<SocketAddress> localAddress() {
 		try {
 			return Optional.of(socketChannel.getLocalAddress());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			return Optional.empty();
 		}
 	}
 
 	@Override
-	public void addShutdownHook(Consumer<Connection> connectionConsumer) {
+	public final void addShutdownHook(final Consumer<Connection> connectionConsumer) {
 		shutdownPipeline.add(connectionConsumer);
 	}
 
 	@Override
-	public void removeShutdownHook(Consumer<Connection> connectionConsumer) {
+	public final void removeShutdownHook(final Consumer<Connection> connectionConsumer) {
 		shutdownPipeline.remove(connectionConsumer);
 	}
 
 	@Override
-	public boolean isOpen() {
+	public final boolean isOpen() {
 		return open.get() && socketChannel.isOpen();
 	}
 
 	@Override
-	public Queue<RawData> drain() {
+	public final Queue<RawData> drain() {
 		final Queue<RawData> readDataCopy;
 		synchronized (readDataQueue) {
 			readDataCopy = new LinkedList<>(readDataQueue);
@@ -264,7 +264,7 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public void finishConnect() {
+	public final void finishConnect() {
 		logging.debug("Finishing the setup of " + this);
 		logging.trace("Releasing waiting Threads ..");
 		setupSynchronize.goOn();
@@ -273,7 +273,7 @@ class NIOConnection implements Connection {
 		logging.trace("Finishing SocketChannel connect");
 		try {
 			socketChannel.finishConnect();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logging.error("Encountered IOException while trying to finish the SocketChannel connect!", e);
 		}
 		logging.trace("Checking open flag");
@@ -282,7 +282,7 @@ class NIOConnection implements Connection {
 				logging.trace("Connection is not yet opened. Opening");
 				open();
 				logging.trace("Opened successfully");
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				logging.error("Encountered IOException while trying to open the SocketChannel connect!", e);
 			}
 		}
@@ -290,24 +290,24 @@ class NIOConnection implements Connection {
 	}
 
 	@Override
-	public boolean isConnected() {
+	public final boolean isConnected() {
 		return setupComplete.get() && isOpen();
 	}
 
 	@Override
-	public boolean inSetup() {
+	public final boolean inSetup() {
 		return !setupComplete.get();
 	}
 
 	@Override
-	public ConnectionContext context() {
+	public final ConnectionContext context() {
 		return connectionContextValue.get();
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder("NIOConnection{");
-		Optional<SocketAddress> remoteAddress = remoteAddress();
+	public final String toString() {
+		final StringBuilder stringBuilder = new StringBuilder("NIOConnection{");
+		final Optional<SocketAddress> remoteAddress = remoteAddress();
 		if (remoteAddress.isPresent()) {
 			stringBuilder.append("address=").append(remoteAddress.get());
 		} else {
@@ -322,7 +322,7 @@ class NIOConnection implements Connection {
 		return stringBuilder.toString();
 	}
 
-	SocketChannel getSocketChannel() {
+	final SocketChannel getSocketChannel() {
 		return socketChannel;
 	}
 }

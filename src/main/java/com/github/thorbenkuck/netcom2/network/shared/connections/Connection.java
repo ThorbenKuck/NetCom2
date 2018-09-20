@@ -13,15 +13,15 @@ import java.util.function.Consumer;
 
 public interface Connection {
 
-	static Connection nio(SocketChannel socketChannel) {
+	static Connection nio(final SocketChannel socketChannel) {
 		return new NIOConnection(socketChannel);
 	}
 
-	static Connection tcp(Socket socket) {
+	static Connection tcp(final Socket socket) {
 		return new TCPConnection(socket);
 	}
 
-	static Connection udp(DatagramSocket datagramSocket) {
+	static Connection udp(final DatagramSocket datagramSocket) {
 		return new UDPConnection(datagramSocket);
 	}
 
@@ -31,27 +31,27 @@ public interface Connection {
 
 	void open() throws IOException;
 
-	void write(String message);
+	void write(final String message);
 
-	void write(byte[] data);
+	void write(final byte[] data);
 
-	void read(Consumer<Queue<RawData>> callback) throws IOException;
+	void read(final Consumer<Queue<RawData>> callback) throws IOException;
 
-	void hook(ConnectionContext connectionContext);
+	void hook(final ConnectionContext connectionContext);
 
 	void read() throws IOException;
 
 	Optional<Class<?>> getIdentifier();
 
-	void setIdentifier(Class<?> identifier);
+	void setIdentifier(final Class<?> identifier);
 
 	Optional<SocketAddress> remoteAddress();
 
 	Optional<SocketAddress> localAddress();
 
-	void addShutdownHook(Consumer<Connection> connectionConsumer);
+	void addShutdownHook(final Consumer<Connection> connectionConsumer);
 
-	void removeShutdownHook(Consumer<Connection> connectionConsumer);
+	void removeShutdownHook(final Consumer<Connection> connectionConsumer);
 
 	boolean isOpen();
 

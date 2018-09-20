@@ -12,9 +12,9 @@ public interface EventLoop {
 		return new NativeBlockingEventLoop();
 	}
 
-	void register(Connection connection) throws IOException;
+	void register(final Connection connection) throws IOException;
 
-	void unregister(Connection connection);
+	void unregister(final Connection connection);
 
 	void start();
 

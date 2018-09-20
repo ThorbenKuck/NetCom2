@@ -16,12 +16,12 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionConte
 import java.io.IOException;
 import java.util.Optional;
 
-public class ServerDefaultCommunication {
+public final class ServerDefaultCommunication {
 
 	private static final Logging logging = Logging.unified();
 
-	public static void applyTo(ServerStart serverStart) {
-		CommunicationRegistration communicationRegistration = serverStart.getCommunicationRegistration();
+	public static void applyTo(final ServerStart serverStart) {
+		final CommunicationRegistration communicationRegistration = serverStart.getCommunicationRegistration();
 
 		communicationRegistration.register(NewConnectionRequest.class)
 				.addFirst(new NewConnectionRequestHandler());
@@ -42,7 +42,7 @@ public class ServerDefaultCommunication {
 		 * @param newConnectionRequest the second input argument
 		 */
 		@Override
-		public void accept(Session session, NewConnectionRequest newConnectionRequest) {
+		public void accept(final Session session, final NewConnectionRequest newConnectionRequest) {
 			logging.debug("Received NewConnectionRequest for " + newConnectionRequest.getIdentifier() + ". Sending back ..");
 			session.send(newConnectionRequest);
 			logging.info("NEW_CONNECTION > 0 > Sending NewConnectionRequest back to the client");
@@ -54,12 +54,12 @@ public class ServerDefaultCommunication {
 		/**
 		 * Performs this operation on the given arguments.
 		 *
-		 * @param connectionContext               the first input argument
+		 * @param connectionContext        the first input argument
 		 * @param session                  the second input argument
 		 * @param newConnectionInitializer
 		 */
 		@Override
-		public void accept(ConnectionContext connectionContext, Session session, NewConnectionInitializer newConnectionInitializer) {
+		public void accept(final ConnectionContext connectionContext, final Session session, final NewConnectionInitializer newConnectionInitializer) {
 			logging.debug("Received NewConnectionInitializer");
 			logging.trace("Updating identifier of connection");
 			connectionContext.setIdentifier(newConnectionInitializer.getIdentifier());
@@ -76,41 +76,41 @@ public class ServerDefaultCommunication {
 
 		private final ClientList clientList;
 
-		private NewConnectionResponseHandler(ServerStart serverStart) {
+		private NewConnectionResponseHandler(final ServerStart serverStart) {
 			this.clientList = serverStart.clientList();
 		}
 
 		/**
 		 * Performs this operation on the given arguments.
 		 *
-		 * @param connectionContext            the first input argument
+		 * @param connectionContext     the first input argument
 		 * @param session               the second input argument
 		 * @param newConnectionResponse
 		 */
 		@Override
-		public void accept(ConnectionContext connectionContext, Session session, NewConnectionResponse newConnectionResponse) {
+		public final void accept(final ConnectionContext connectionContext, final Session session, final NewConnectionResponse newConnectionResponse) {
 			logging.debug("Received NewConnectionResponse");
 			logging.debug("This involves information received from the Client! Testing for malicious activity");
-			ClientID clientID;
+			final ClientID clientID;
 			if (newConnectionResponse.getClientID() == null) {
 				logging.trace("Creating new ClientID");
 				clientID = ClientID.create();
 			} else {
 				logging.trace("The Client appears to have already been connected. Searching for the correct Client ..");
-				Optional<Client> correctClientOptional = clientList.getClient(newConnectionResponse.getClientID());
+				final Optional<Client> correctClientOptional = clientList.getClient(newConnectionResponse.getClientID());
 				logging.trace("Performing sanity-check on fetched Client");
 				if (!correctClientOptional.isPresent()) {
 					try {
 						logging.warn("<SECURITY> Malicious activity detected!");
 						logging.debug("Killing ConnectionContext");
 						connectionContext.kill();
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						logging.catching(e);
 					}
 					return;
 				}
 
-				Client correctClient = correctClientOptional.get();
+				final Client correctClient = correctClientOptional.get();
 				clientID = correctClient.getID();
 
 				connectionContext.applyTo(correctClient);
@@ -130,11 +130,11 @@ public class ServerDefaultCommunication {
 		 * Performs this operation on the given arguments.
 		 *
 		 * @param connectionContext the first input argument
-		 * @param session    the second input argument
+		 * @param session           the second input argument
 		 * @param ping
 		 */
 		@Override
-		public void accept(ConnectionContext connectionContext, Session session, Ping ping) {
+		public final void accept(final ConnectionContext connectionContext, final Session session, final Ping ping) {
 			logging.debug("Received Ping back from Client");
 			logging.trace("Finishing associated Connection");
 			connectionContext.finishConnect();

@@ -33,45 +33,10 @@ public class CacheObservable {
 	}
 
 	/**
-	 * Adds an CacheObserver to this Observable
-	 *
-	 * @param cacheObserver the observer
-	 * @param <T>           the generic type of that observer
-	 */
-	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
-		NetCom2Utils.assertNotNull(cacheObserver);
-		synchronized (obs) {
-			if (!this.obs.contains(cacheObserver)) {
-				this.obs.add(cacheObserver);
-			}
-		}
-	}
-
-	/**
-	 * Removes an Observer.
-	 *
-	 * @param cacheObserver the observer to remove
-	 */
-	public void deleteObserver(final CacheObserver<?> cacheObserver) {
-		synchronized (obs) {
-			obs.remove(cacheObserver);
-		}
-	}
-
-	/**
 	 * Deletes all observers, maintained inside this observable
 	 */
 	protected void deleteObservers() {
 		this.obs.clear();
-	}
-
-	/**
-	 * Describes whether or not this Observable has changed.
-	 *
-	 * @return true, if it has changed, else false
-	 */
-	public boolean hasChanged() {
-		return this.changed.get();
 	}
 
 	/**
@@ -86,15 +51,6 @@ public class CacheObservable {
 	 */
 	protected void clearChanged() {
 		this.changed.set(false);
-	}
-
-	/**
-	 * Returns the amount of observers inside of this Observable
-	 *
-	 * @return the number of observers
-	 */
-	public int countObservers() {
-		return this.obs.size();
 	}
 
 	/**
@@ -143,6 +99,50 @@ public class CacheObservable {
 				observers[i].deletedEntry(o, this);
 			}
 		}
+	}
+
+	/**
+	 * Adds an CacheObserver to this Observable
+	 *
+	 * @param cacheObserver the observer
+	 * @param <T>           the generic type of that observer
+	 */
+	public <T> void addObserver(final CacheObserver<T> cacheObserver) {
+		NetCom2Utils.assertNotNull(cacheObserver);
+		synchronized (obs) {
+			if (!this.obs.contains(cacheObserver)) {
+				this.obs.add(cacheObserver);
+			}
+		}
+	}
+
+	/**
+	 * Removes an Observer.
+	 *
+	 * @param cacheObserver the observer to remove
+	 */
+	public void deleteObserver(final CacheObserver<?> cacheObserver) {
+		synchronized (obs) {
+			obs.remove(cacheObserver);
+		}
+	}
+
+	/**
+	 * Describes whether or not this Observable has changed.
+	 *
+	 * @return true, if it has changed, else false
+	 */
+	public boolean hasChanged() {
+		return this.changed.get();
+	}
+
+	/**
+	 * Returns the amount of observers inside of this Observable
+	 *
+	 * @return the number of observers
+	 */
+	public int countObservers() {
+		return this.obs.size();
 	}
 
 }

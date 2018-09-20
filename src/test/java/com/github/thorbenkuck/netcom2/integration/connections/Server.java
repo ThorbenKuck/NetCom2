@@ -10,13 +10,17 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Server {
 
 	private static int receivedCount = 0;
 
 	public static void main(String[] args) {
-//		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-//		scheduledExecutorService.scheduleAtFixedRate(Server::diagnose, 1, 1, TimeUnit.SECONDS);
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService.scheduleAtFixedRate(Server::diagnose, 1, 1, TimeUnit.SECONDS);
 		ServerStart serverStart = ServerStart.at(4569);
 		NetComThreadPool.startWorkerProcesses(10);
 		NetComLogging.setLogging(Logging.disabled());

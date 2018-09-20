@@ -262,13 +262,13 @@ public class NetComThreadPool {
 						logging.debug(prefix + "Finished requested Task");
 						logging.trace(prefix + "Task finished successfully");
 					} catch (Throwable t) {
-						logging.error(prefix + "Could not complete Task! Encountered unexpected Throwable!");
+						logging.error(prefix + "Could not complete Task! Encountered unexpected Throwable!", t);
 						UnhandledExceptionContainer.catching(t);
 						logging.warn(prefix + "Trying to continue as if nothing happened.");
 					}
 				} catch (InterruptedException e) {
 					if (running.get()) {
-						logging.warn(prefix + "Interrupted while waiting on Task queue. Shutting down this WorkerTask!");
+						logging.warn(prefix + "Interrupted while waiting on Task queue. Shutting down this WorkerTask!", e);
 						UnhandledExceptionContainer.catching(e);
 						shutdown();
 					}

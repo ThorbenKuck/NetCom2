@@ -11,14 +11,14 @@ import java.util.stream.Stream;
 public interface ClientList extends Iterable<Client> {
 
 	static ClientList create() {
-		ClientList clients = new NativeClientList();
+		final ClientList clients = new NativeClientList();
 		clients.open();
 		return clients;
 	}
 
-	void remove(Client client);
+	void remove(final Client client);
 
-	void add(Client client);
+	void add(final Client client);
 
 	void close();
 
@@ -32,9 +32,9 @@ public interface ClientList extends Iterable<Client> {
 
 	Collection<Client> snapShot();
 
-	Optional<Client> getClient(Session session);
+	Optional<Client> getClient(final Session session);
 
-	Optional<Client> getClient(ClientID clientID);
+	Optional<Client> getClient(final ClientID clientID);
 
 	Stream<Client> stream();
 

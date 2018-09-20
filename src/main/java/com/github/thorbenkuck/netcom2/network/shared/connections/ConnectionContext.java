@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 public interface ConnectionContext {
 
-	static ConnectionContext combine(Client client, Connection connection) {
+	static ConnectionContext combine(final Client client, final Connection connection) {
 		return new NativeConnectionContext(client, connection);
 	}
 
@@ -21,37 +21,37 @@ public interface ConnectionContext {
 
 	Class<?> getIdentifier();
 
+	void setIdentifier(final Class<?> identifier);
+
 	void finishConnect();
 
 	Awaiting connectionEstablished();
 
-	void addConnectionShutdownCallback(Consumer<Connection> callback);
+	void addConnectionShutdownCallback(final Consumer<Connection> callback);
 
-	void write(byte[] bytes);
+	void write(final byte[] bytes);
 
-	void write(String string);
+	void write(final String string);
 
-	void send(Object object);
+	void send(final Object object);
 
-	void flush(Object object);
+	void flush(final Object object);
 
 	ObjectHandler objectHandler();
 
-	void updateClientID(ClientID clientID);
+	void updateClientID(final ClientID clientID);
 
 	ClientID getClientID();
 
 	Session getSession();
 
-	void setSession(Session session);
+	void setSession(final Session session);
 
 	void store();
 
-	void receive(RawData rawData);
+	void receive(final RawData rawData);
 
-	void setIdentifier(Class<?> identifier);
-
-	void applyTo(Client correctClient);
+	void applyTo(final Client correctClient);
 
 	void kill() throws IOException;
 

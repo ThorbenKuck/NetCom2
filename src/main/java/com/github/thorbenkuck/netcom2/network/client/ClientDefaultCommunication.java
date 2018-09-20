@@ -83,7 +83,7 @@ public class ClientDefaultCommunication {
 		 * Performs this operation on the given arguments.
 		 *
 		 * @param connectionContext the first input argument
-		 * @param session    the second input argument
+		 * @param session           the second input argument
 		 * @param ping
 		 */
 		@Override

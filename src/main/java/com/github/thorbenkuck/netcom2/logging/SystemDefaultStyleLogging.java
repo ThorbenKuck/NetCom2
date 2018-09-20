@@ -42,16 +42,16 @@ public class SystemDefaultStyleLogging implements Logging {
 		}
 	}
 
+	private String convert(String level) {
+		return getPrefix() + prefixValue.get() + level;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {
 		return "{Default Logging-style for NetCom2Logging}";
-	}
-
-	private String convert(String level) {
-		return getPrefix() + prefixValue.get() + level;
 	}
 
 	/**

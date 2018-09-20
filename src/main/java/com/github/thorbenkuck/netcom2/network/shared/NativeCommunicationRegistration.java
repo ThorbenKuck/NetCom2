@@ -51,10 +51,10 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Will execute the fallback, if no {@link ReceivePipeline} is registered for the <code>clazz</code>.
 	 *
-	 * @param clazz      the class of the received Object
+	 * @param clazz             the class of the received Object
 	 * @param connectionContext the {@link Connection}, this Object was received over
-	 * @param session    the {@link Session} of the received Object
-	 * @param o          the received Object
+	 * @param session           the {@link Session} of the received Object
+	 * @param o                 the received Object
 	 * @throws CommunicationNotSpecifiedException if no defaultCommunicationHandler is set.
 	 */
 	@Asynchronous
@@ -74,11 +74,11 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * <p>
 	 * If that {@link ReceivePipeline} is not existing, an ConcurrentModificationException will be thrown
 	 *
-	 * @param clazz      the class of the received Object
+	 * @param clazz             the class of the received Object
 	 * @param connectionContext the {@link Connection}, this Object was received over
-	 * @param session    the {@link Session} of the received Object
-	 * @param o          the received Object
-	 * @param <T>        The type of that {@link ReceivePipeline}
+	 * @param session           the {@link Session} of the received Object
+	 * @param o                 the received Object
+	 * @param <T>               The type of that {@link ReceivePipeline}
 	 * @throws ConcurrentModificationException if the {@link ReceivePipeline} cannot be found
 	 */
 	@SuppressWarnings("unchecked")
@@ -107,8 +107,8 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * Runs the defaultCommunicationHandlers.
 	 *
 	 * @param connectionContext the {@link ReceivePipeline}, the Object was received over
-	 * @param session    the {@link Session}, associated with the {@link Connection}
-	 * @param o          the received Object
+	 * @param session           the {@link Session}, associated with the {@link Connection}
+	 * @param o                 the received Object
 	 */
 	private void runDefaultCommunicationHandler(final ConnectionContext connectionContext, final Session session, final Object o) {
 		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
@@ -127,11 +127,11 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	/**
 	 * Handles an Object, that was received and is registered.
 	 *
-	 * @param pipeline   The {@link ReceivePipeline} registered for that Object
+	 * @param pipeline          The {@link ReceivePipeline} registered for that Object
 	 * @param connectionContext the {@link Connection}, the Object was received over
-	 * @param session    the {@link Session}, associated with the {@link Connection}
-	 * @param o          the received Object
-	 * @param <T>        the Type of that {@link ReceivePipeline}.
+	 * @param session           the {@link Session}, associated with the {@link Connection}
+	 * @param o                 the received Object
+	 * @param <T>               the Type of that {@link ReceivePipeline}.
 	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final ConnectionContext connectionContext,
 									  final Session session, final T o) {

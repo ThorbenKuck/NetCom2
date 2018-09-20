@@ -12,27 +12,27 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 
-public class NativeUDPConnectorCore extends AbstractConnectorCore {
+public final class NativeUDPConnectorCore extends AbstractConnectorCore {
 
 	private final Logging logging = Logging.unified();
 	private final Value<DatagramSocket> datagramSocketValue = Value.emptySynchronized();
 	private final Value<Boolean> connected = Value.synchronize(false);
 	private final Synchronize handleSynchronize = Synchronize.createDefault();
 
-	public NativeUDPConnectorCore(ClientFactory clientFactory) {
+	public NativeUDPConnectorCore(final ClientFactory clientFactory) {
 		super(clientFactory);
 		logging.instantiated(this);
 	}
 
-	private void registerConnected(DatagramSocket socket) throws IOException {
-		Connection connection = Connection.udp(socket);
+	private void registerConnected(final DatagramSocket socket) throws IOException {
+		final Connection connection = Connection.udp(socket);
 		// Assume the DefaultConnection
 		// This will not always be true.
 		// However, the chain of
 		// initial messages will fix this
 		connection.setIdentifier(DefaultConnection.class);
 
-		Client client = createClient();
+		final Client client = createClient();
 		connection.hook(ConnectionContext.combine(client, connection));
 
 		logging.trace("Registering Connection to EventLoop");
@@ -40,47 +40,47 @@ public class NativeUDPConnectorCore extends AbstractConnectorCore {
 	}
 
 	@Override
-	protected EventLoop createEventLoop() {
+	protected final EventLoop createEventLoop() {
 		return EventLoop.openBlocking();
 	}
 
 	@Override
-	protected void close() throws IOException {
+	protected final void close() throws IOException {
 		datagramSocketValue.get().close();
 		handleSynchronize.goOn();
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 		datagramSocketValue.clear();
 	}
 
 	@Override
-	public void establishConnection(SocketAddress socketAddress) throws StartFailedException {
+	public final void establishConnection(final SocketAddress socketAddress) throws StartFailedException {
 		if (connected.get()) {
 			return;
 		}
 		try {
-			DatagramSocket datagramSocket = new DatagramSocket(socketAddress);
+			final DatagramSocket datagramSocket = new DatagramSocket(socketAddress);
 			datagramSocketValue.set(datagramSocket);
 
 			connected.set(true);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new StartFailedException(e);
 		}
 	}
 
 	@Override
-	public void handleNext() throws ClientConnectionFailedException {
+	public final void handleNext() throws ClientConnectionFailedException {
 		try {
 			registerConnected(datagramSocketValue.get());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new ClientConnectionFailedException(e);
 		}
 
 		try {
 			handleSynchronize.synchronize();
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			throw new ClientConnectionFailedException("Interrupted while awaiting next Client", e);
 		}
 	}

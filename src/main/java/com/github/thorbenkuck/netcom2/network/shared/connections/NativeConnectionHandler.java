@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class NativeConnectionHandler implements ConnectionHandler {
+final class NativeConnectionHandler implements ConnectionHandler {
 
 	private final ConnectionCache connectionCache = ConnectionCache.create();
 	private final Logging logging = Logging.unified();
@@ -15,18 +15,12 @@ class NativeConnectionHandler implements ConnectionHandler {
 		logging.instantiated(this);
 	}
 
-	@Override
-	public void prepare(byte[] read) {
-		logging.trace("Storing " + read.length);
-		connectionCache.append(read);
-	}
-
-	private List<String> processNaive(String value) {
+	private List<String> processNaive(final String value) {
 		logging.debug("Assuming complete Data-Sets");
 		return Arrays.asList(value.split("\\r\\n"));
 	}
 
-	private List<String> processParanoid(String value) {
+	private List<String> processParanoid(final String value) {
 		logging.debug("Assuming incomplete Data-Sets");
 		if (!value.contains("\r\n")) {
 			logging.debug("Received value has no \\r\\n flag");
@@ -35,29 +29,29 @@ class NativeConnectionHandler implements ConnectionHandler {
 			return new ArrayList<>();
 		}
 		logging.trace("Splitting received value ..");
-		String[] subValues = value.split("[\\r\\n]+");
+		final String[] subValues = value.split("[\\r\\n]+");
 		logging.trace("Instantiating new ResultList");
 		final List<String> result = new ArrayList<>();
 
 		logging.trace("checking result data ..");
 		if (subValues.length > 1) {
 			logging.trace("Found at least on complete Data-Set");
-			String[] naiveValues = Arrays.copyOf(subValues, subValues.length - 1);
+			final String[] naiveValues = Arrays.copyOf(subValues, subValues.length - 1);
 			logging.trace("Adding complete Data-Sets to the ResultList");
 			result.addAll(Arrays.asList(naiveValues));
 		}
 
 		logging.trace("Fetching left over byte-data");
-		byte[] toCache = subValues[subValues.length - 1].getBytes();
+		final byte[] toCache = subValues[subValues.length - 1].getBytes();
 		logging.trace("Passing bytes back to the ConnectionCache");
 		connectionCache.append(toCache);
 
 		return result;
 	}
 
-	private List<String> processStored(byte[] bytes) {
+	private List<String> processStored(final byte[] bytes) {
 		logging.trace("Processing read data ..");
-		String value = new String(bytes);
+		final String value = new String(bytes);
 		logging.debug("Trying to process " + bytes.length + " bytes");
 
 		if (value.endsWith("\r\n")) {
@@ -68,7 +62,13 @@ class NativeConnectionHandler implements ConnectionHandler {
 	}
 
 	@Override
-	public List<String> takeContents() {
+	public final void prepare(final byte[] read) {
+		logging.trace("Storing " + read.length);
+		connectionCache.append(read);
+	}
+
+	@Override
+	public final List<String> takeContents() {
 		return processStored(connectionCache.take());
 	}
 }

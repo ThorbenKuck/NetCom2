@@ -13,52 +13,52 @@ import java.net.SocketException;
 
 public interface ServerStart extends SoftStoppable, MultipleConnections, NetworkInterface {
 
-	static ServerStart at(int port) {
+	static ServerStart at(final int port) {
 		return at(new InetSocketAddress(port));
 	}
 
-	static ServerStart at(InetSocketAddress socketAddress) {
+	static ServerStart at(final InetSocketAddress socketAddress) {
 		return nio(socketAddress);
 	}
 
-	static ServerStart raw(int port) {
+	static ServerStart raw(final int port) {
 		return raw(new InetSocketAddress(port));
 	}
 
-	static ServerStart raw(InetSocketAddress socketAddress) {
+	static ServerStart raw(final InetSocketAddress socketAddress) {
 		return new NativeServerStart(socketAddress);
 	}
 
-	static ServerStart tcp(int port) {
+	static ServerStart tcp(final int port) {
 		return tcp(new InetSocketAddress(port));
 	}
 
-	static ServerStart tcp(InetSocketAddress socketAddress) {
-		ServerStart serverStart = raw(socketAddress);
+	static ServerStart tcp(final InetSocketAddress socketAddress) {
+		final ServerStart serverStart = raw(socketAddress);
 		serverStart.setConnectorCore(ConnectorCore.tcp(serverStart.getClientFactory()));
 
 		return serverStart;
 	}
 
 	@Experimental
-	static ServerStart udp(int port) {
+	static ServerStart udp(final int port) {
 		return udp(new InetSocketAddress(port));
 	}
 
 	@Experimental
-	static ServerStart udp(InetSocketAddress socketAddress) {
-		ServerStart serverStart = raw(socketAddress);
+	static ServerStart udp(final InetSocketAddress socketAddress) {
+		final ServerStart serverStart = raw(socketAddress);
 		serverStart.setConnectorCore(ConnectorCore.udp(serverStart.getClientFactory()));
 
 		return serverStart;
 	}
 
-	static ServerStart nio(int port) {
+	static ServerStart nio(final int port) {
 		return nio(new InetSocketAddress(port));
 	}
 
-	static ServerStart nio(InetSocketAddress socketAddress) {
-		ServerStart serverStart = raw(socketAddress);
+	static ServerStart nio(final InetSocketAddress socketAddress) {
+		final ServerStart serverStart = raw(socketAddress);
 		serverStart.setConnectorCore(ConnectorCore.nio(serverStart.getClientFactory()));
 
 		return serverStart;
@@ -72,9 +72,10 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 
 	int getPort();
 
-	ServiceDiscoveryHub allowLocalAreaNetworkFind(int port) throws SocketException;
+	void setPort(final int to);
 
-	void setPort(int to);
+	@Experimental
+	ServiceDiscoveryHub allowLocalAreaNetworkFind(final int port) throws SocketException;
 
 	/**
 	 * Adds an {@link ClientConnectedHandler}, that should handle a newly created Client.
@@ -130,7 +131,6 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 	 *
 	 * @return a unified instance for the RemoteObjectRegistration
 	 * @see com.github.thorbenkuck.netcom2.network.client.RemoteObjectFactory
-	 *
 	 * @deprecated create your own instance using {@link RemoteObjectRegistration#open(ServerStart)}
 	 */
 	@Deprecated
@@ -138,5 +138,5 @@ public interface ServerStart extends SoftStoppable, MultipleConnections, Network
 		return RemoteObjectRegistration.open(this);
 	}
 
-	void setConnectorCore(ConnectorCore connectorCore);
+	void setConnectorCore(final ConnectorCore connectorCore);
 }

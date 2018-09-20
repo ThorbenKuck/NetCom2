@@ -27,23 +27,22 @@ public interface CommunicationRegistration extends Mutex {
 	 * You will never get an {@link ReceivePipeline receivePipeline} of another type
 	 *
 	 * @param type the Class of the Object, that should be handled.
-	 * @param <T>   the Type of the Object, identified by the provided Class
+	 * @param <T>  the Type of the Object, identified by the provided Class
 	 * @return either a new or an already established instance of the {@link ReceivePipeline}
 	 */
 	<T> ReceivePipeline<T> register(final Class<T> type);
 
 	/**
 	 * Retrieves the already registered ReceivePipeline, for the provided type.
-	 *
+	 * <p>
 	 * If there is no ReceivePipeline registered, this method throws a {@link IllegalArgumentException}.
-	 *
+	 * <p>
 	 * The main use of this Method is within a scenario, where you require the ReceivePipeline to be registered beforehand,
 	 * like if you want to update a ReceivePipeline programmatically at a certain point after the Application has been launched.
 	 *
 	 * @param type the Class of the Object, that should be handled.
-	 * @param <T>   the Type of the Object, identified by the provided Class
+	 * @param <T>  the Type of the Object, identified by the provided Class
 	 * @return either a new or an already established instance of the {@link ReceivePipeline}
-	 *
 	 * @see #isRegistered(Class)
 	 * @see #register(Class)
 	 */
@@ -96,7 +95,7 @@ public interface CommunicationRegistration extends Mutex {
 	 * <p>
 	 * All it does, is to call {@link #trigger(Class, Connection, Session, Object)}, with the direct Class of the provided
 	 * Object
-	 *
+	 * <p>
 	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
 	 * method is a potential candidate for deprecated.
 	 *
@@ -132,11 +131,11 @@ public interface CommunicationRegistration extends Mutex {
 	 * If no {@link ReceivePipeline} was ever registered to this CommunicationRegistration, it will throw an
 	 * {@link CommunicationNotSpecifiedException}. his behaviour can be overridden by providing an DefaultCommunicationHandler
 	 * with {@link #addDefaultCommunicationHandler(OnReceive)}
-	 *
+	 * <p>
 	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
 	 * method is a potential candidate for deprecated.
 	 *
-	 * @param type      the Class, defining the Type of the {@link ReceivePipeline}
+	 * @param type       the Class, defining the Type of the {@link ReceivePipeline}
 	 * @param connection the {@link Connection}, over which the Object has been received
 	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
 	 * @param o          the Object, that was received over the {@link Connection}
@@ -176,15 +175,15 @@ public interface CommunicationRegistration extends Mutex {
 	 * If no {@link ReceivePipeline} was ever registered to this CommunicationRegistration, it will throw an
 	 * {@link CommunicationNotSpecifiedException}. his behaviour can be overridden by providing an DefaultCommunicationHandler
 	 * with {@link #addDefaultCommunicationHandler(OnReceive)}
-	 *
+	 * <p>
 	 * Since the ConnectionContext has been introduced to provide a couple between the Connection and the Client, this
 	 * method is a potential candidate for deprecated.
 	 *
-	 * @param type      the Class, defining the Type of the {@link ReceivePipeline}
+	 * @param type              the Class, defining the Type of the {@link ReceivePipeline}
 	 * @param connectionContext the {@link ConnectionContext}, over which the Object has been received
-	 * @param session    the {@link Session}, identifying the other end of the {@link Connection}
-	 * @param o          the Object, that was received over the {@link Connection}
-	 * @param <T>        the Type of the {@link ReceivePipeline}
+	 * @param session           the {@link Session}, identifying the other end of the {@link Connection}
+	 * @param o                 the Object, that was received over the {@link Connection}
+	 * @param <T>               the Type of the {@link ReceivePipeline}
 	 * @throws CommunicationNotSpecifiedException if no {@link ReceivePipeline} is set for the provided type
 	 *                                            and no DefaultCommunicationHandler has been set.
 	 * @see OnReceiveTriple

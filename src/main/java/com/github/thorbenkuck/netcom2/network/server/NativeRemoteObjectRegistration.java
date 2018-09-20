@@ -21,12 +21,22 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.*;
 
-class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
+final class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 
 	private static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPING;
 
 	static {
-		Map<Class<?>, Class<?>> primitives = new HashMap<>();
+		// This primitive type
+		// mapping is needed, because
+		// of the way that those
+		// are serialized. An int
+		// for example is serialized
+		// to an Integer. Because of
+		// the way you execute dynamically
+		// an Integer cannot be passed as an int.
+		// Whatever sense this makes, is up
+		// to you.
+		final Map<Class<?>, Class<?>> primitives = new HashMap<>();
 		primitives.put(int.class, Integer.class);
 		primitives.put(double.class, Double.class);
 		primitives.put(long.class, Long.class);
@@ -56,16 +66,16 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param method the method, that should be invoked
 	 * @return an correctly ordered Array.
 	 */
-	private Object[] orderParameters(Object[] args, Method method) {
+	private Object[] orderParameters(final Object[] args, final Method method) {
 		if (args == null) {
 			return null;
 		}
-		List<Object> arguments = new ArrayList<>(Arrays.asList(args));
-		List<Object> parameters = new ArrayList<>();
+		final List<Object> arguments = new ArrayList<>(Arrays.asList(args));
+		final List<Object> parameters = new ArrayList<>();
 
-		for (Class parameterClass : method.getParameterTypes()) {
-			Class casedParameter = convertPrimitiveTypes(parameterClass);
-			Object o = get(arguments, casedParameter);
+		for (final Class parameterClass : method.getParameterTypes()) {
+			final Class casedParameter = convertPrimitiveTypes(parameterClass);
+			final Object o = get(arguments, casedParameter);
 			parameters.add(o);
 		}
 
@@ -80,8 +90,8 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @return the Object.
 	 * @throws IllegalArgumentException if the Object could not be found.
 	 */
-	private Object get(List<Object> list, Class clazz) {
-		for (Object object : list) {
+	private Object get(final List<Object> list, final Class clazz) {
+		for (final Object object : list) {
 			if (convertPrimitiveTypes(object.getClass()).equals(clazz)) {
 				return object;
 			}
@@ -98,10 +108,10 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param clazz the class that should be checked
 	 * @return true, if no annotation is present or nothing is currently saved, else false.
 	 */
-	private boolean canBeOverridden(Class clazz) {
+	private boolean canBeOverridden(final Class clazz) {
 		if (clazz.getAnnotation(RegistrationOverrideProhibited.class) != null) {
 			logging.trace("Found RegistrationOverrideProhibited Annotation, checking if instance is saved");
-			Object check;
+			final Object check;
 			synchronized (mapping) {
 				check = mapping.get(clazz);
 			}
@@ -120,9 +130,9 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param result    the result of the Method-call (may be null)
 	 * @param clazz     the RemoteObjectClass
 	 * @param method    the method, that was invoked
-	 * @return am encapsulated Result-Object
+	 * @return an encapsulated Result-Object
 	 */
-	private RemoteAccessCommunicationResponse generateResult(UUID uuid, Exception exception, Object result, Class clazz, Method method) {
+	private RemoteAccessCommunicationResponse generateResult(final UUID uuid, final Exception exception, final Object result, final Class clazz, final Method method) {
 		if (ignoreThrowable(exception, clazz, method)) {
 			return new RemoteAccessCommunicationResponse(uuid, null, result);
 		}
@@ -143,13 +153,13 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param annotatedElements all annotated elements
 	 * @return false, if the Exception should be thrown, true if not.
 	 */
-	private boolean ignoreThrowable(Exception exception, AnnotatedElement... annotatedElements) {
+	private boolean ignoreThrowable(final Exception exception, final AnnotatedElement... annotatedElements) {
 		if (exception != null) {
-			for (AnnotatedElement element : annotatedElements) {
+			for (final AnnotatedElement element : annotatedElements) {
 				if (element == null) {
 					continue;
 				}
-				IgnoreRemoteExceptions annotation = element.getAnnotation(IgnoreRemoteExceptions.class);
+				final IgnoreRemoteExceptions annotation = element.getAnnotation(IgnoreRemoteExceptions.class);
 				if (annotation != null) {
 					return !Arrays.asList(annotation.exceptTypes()).contains(exception.getClass());
 				}
@@ -170,7 +180,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param input the potential primitive type
 	 * @return the Wrapper type, or the type that provided if not primitive.
 	 */
-	private Class<?> convertPrimitiveTypes(Class<?> input) {
+	private Class<?> convertPrimitiveTypes(final Class<?> input) {
 		return PRIMITIVE_MAPPING.getOrDefault(input, input);
 	}
 
@@ -181,8 +191,8 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @param args   the arguments passed over
 	 * @return true, if all arguments are of the right type in the right order.
 	 */
-	private boolean parameterTypesEqual(Method method, Object[] args) {
-		Class<?>[] declaredParameterTypes = method.getParameterTypes();
+	private boolean parameterTypesEqual(final Method method, final Object[] args) {
+		final Class<?>[] declaredParameterTypes = method.getParameterTypes();
 		if (args == null) {
 			return declaredParameterTypes.length == 0;
 		}
@@ -190,8 +200,8 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 			return false;
 		}
 		for (int i = 0; i < args.length; i++) {
-			Class<?> declaredType = convertPrimitiveTypes(declaredParameterTypes[i]);
-			Class<?> argumentType = convertPrimitiveTypes(args[i].getClass());
+			final Class<?> declaredType = convertPrimitiveTypes(declaredParameterTypes[i]);
+			final Class<?> argumentType = convertPrimitiveTypes(args[i].getClass());
 			// This check, checks for Session
 			// or Connection types as well as for
 			// the declared type.  This means,
@@ -213,7 +223,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 *
 	 * @param clazz the Class, that should be unregistered.
 	 */
-	private void unregisterCertainClass(Class clazz) {
+	private void unregisterCertainClass(final Class clazz) {
 		logging.trace("Unregister " + clazz);
 		synchronized (mapping) {
 			mapping.remove(clazz);
@@ -234,7 +244,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * @return the computed Result of the Object
 	 * @throws Throwable any throwable the Object throws
 	 */
-	private Object handleMethod(Method method, Object callOn, Object[] args) throws Throwable {
+	private Object handleMethod(final Method method, final Object callOn, final Object[] args) throws Throwable {
 		final boolean accessible = method.isAccessible();
 		logging.trace("updating accessibility of Method " + method.getName());
 		method.setAccessible(true);
@@ -249,14 +259,14 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	}
 
 	@Override
-	public void setup(ServerStart serverStart) {
+	public final void setup(final ServerStart serverStart) {
 		communicationRegistration = serverStart.getCommunicationRegistration();
 
 		try {
 			communicationRegistration.acquire();
 			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
 					.addFirst(remoteRequestHandler);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			communicationRegistration.release();
@@ -264,12 +274,12 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	}
 
 	@Override
-	public void close() {
+	public final void close() {
 		try {
 			communicationRegistration.acquire();
 			communicationRegistration.register(RemoteAccessCommunicationRequest.class)
 					.remove(remoteRequestHandler);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			communicationRegistration.release();
@@ -280,7 +290,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void register(final Object object) {
+	public final void register(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
 		register(object, object.getClass());
 	}
@@ -289,20 +299,20 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void register(final Object o, final Class<?>... identifier) {
+	public final void register(final Object o, final Class<?>... identifier) {
 		NetCom2Utils.parameterNotNull(o, identifier);
 		if (identifier.length <= 0) {
 			throw new IllegalArgumentException("At least on identifier class is required to register an Object!");
 		}
 		logging.debug("Trying to register " + o.getClass() + " by " + Arrays.asList(identifier));
-		for (Class<?> clazz : identifier) {
+		for (final Class<?> clazz : identifier) {
 			logging.debug("Assignable " + clazz.isAssignableFrom(o.getClass()));
 			if (!clazz.isAssignableFrom(o.getClass())) {
 				logging.error("The Object " + o.getClass() + " is not assignable from " + clazz);
 				continue;
 			}
 
-			Object savedInstance;
+			final Object savedInstance;
 			synchronized (mapping) {
 				savedInstance = mapping.get(clazz);
 			}
@@ -322,9 +332,9 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void hook(Object object) {
+	public final void hook(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		List<Class<?>> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		final List<Class<?>> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
 		classList.add(object.getClass().getSuperclass());
 		classList.add(object.getClass());
 		register(object, classList.toArray(new Class[classList.size()]));
@@ -334,7 +344,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unregister(final Object object) {
+	public final void unregister(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
 		unregister(object, object.getClass());
 	}
@@ -343,12 +353,12 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unregister(Object object, Class... identifiers) {
+	public final void unregister(final Object object, final Class... identifiers) {
 		NetCom2Utils.parameterNotNull(object, identifiers);
 		logging.debug("Trying to unregister " + object.getClass() + ", identified by " + Arrays.asList(identifiers));
-		for (Class<?> clazz : identifiers) {
+		for (final Class<?> clazz : identifiers) {
 			logging.debug("Assignable " + clazz.isAssignableFrom(object.getClass()));
-			Object selected;
+			final Object selected;
 			synchronized (mapping) {
 				selected = mapping.get(clazz);
 			}
@@ -369,9 +379,9 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unregister(Class... identifier) {
+	public final void unregister(final Class... identifier) {
 		NetCom2Utils.parameterNotNull(identifier);
-		for (Class clazz : identifier) {
+		for (final Class clazz : identifier) {
 			unregisterCertainClass(clazz);
 		}
 	}
@@ -380,9 +390,9 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unhook(Object object) {
+	public final void unhook(final Object object) {
 		NetCom2Utils.parameterNotNull(object);
-		List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
+		final List<Class> classList = new ArrayList<>(Arrays.asList(object.getClass().getInterfaces()));
 		classList.add(object.getClass().getSuperclass());
 		classList.add(object.getClass());
 		unregister(object, classList.toArray(new Class[classList.size()]));
@@ -392,7 +402,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void clear() {
+	public final void clear() {
 		logging.debug("Clearing the RemoteObjectRegistration " + toString());
 		synchronized (mapping) {
 			mapping.clear();
@@ -403,7 +413,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
+	public final RemoteAccessCommunicationResponse run(final RemoteAccessCommunicationRequest request) {
 		NetCom2Utils.parameterNotNull(request);
 		NetCom2Utils.parameterNotNull(request.getMethodName(), request.getClazz(), request.getUuid());
 		final Object handlingObject;
@@ -420,7 +430,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 		Object methodCallResult = null;
 		Method methodToCall = null;
 
-		for (Method method : handlingObject.getClass().getMethods()) {
+		for (final Method method : handlingObject.getClass().getMethods()) {
 			if (method.getName().equals(request.getMethodName()) && parameterTypesEqual(method, request.getParameters())) {
 				logging.debug("Found suitable Method " + method.getName() + " of " + handlingObject);
 				methodToCall = method;
@@ -429,7 +439,7 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 		}
 
 		if (methodToCall != null) {
-			Object[] args = orderParameters(request.getParameters(), methodToCall);
+			final Object[] args = orderParameters(request.getParameters(), methodToCall);
 			try {
 				methodCallResult = handleMethod(methodToCall, handlingObject, args);
 				logging.debug("Computed result detected: " + methodCallResult);
@@ -451,13 +461,18 @@ class NativeRemoteObjectRegistration implements RemoteObjectRegistration {
 	private final class RemoteRequestHandler implements OnReceiveTriple<RemoteAccessCommunicationRequest> {
 
 		@Override
-		public void accept(ConnectionContext connectionContext, Session session, RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {
+		public void accept(final ConnectionContext connectionContext, final Session session, final RemoteAccessCommunicationRequest remoteAccessCommunicationRequest) {
 			NetCom2Utils.parameterNotNull(connectionContext, remoteAccessCommunicationRequest);
 			try {
 				connectionContext.send(run(remoteAccessCommunicationRequest));
 			} catch (RemoteRequestException e) {
 				logging.error("Could not run RemoteObjectRequest", e);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "RemoteRequestHandler{}";
 		}
 	}
 }

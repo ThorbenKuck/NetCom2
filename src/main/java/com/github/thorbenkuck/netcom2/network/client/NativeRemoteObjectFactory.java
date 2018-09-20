@@ -22,10 +22,16 @@ public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 	private final RemoteAccessBlockRegistration remoteAccessBlockRegistration = new RemoteAccessBlockRegistration();
 	private final Semaphore invocationHandlerProducerMutex = new Semaphore(1);
 	private final Logging logging = Logging.unified();
+	private final RemoteResponseHandler remoteResponseHandler = new RemoteResponseHandler();
 	private Runnable defaultFallback;
 	private InvocationHandlerProducer invocationHandlerProducer;
-	private final RemoteResponseHandler remoteResponseHandler = new RemoteResponseHandler();
 	private CommunicationRegistration communicationRegistration;
+
+	@APILevel
+	NativeRemoteObjectFactory(Sender sender) {
+		invocationHandlerProducer = new JavaInvocationHandlerProducer(sender, remoteAccessBlockRegistration);
+		logging.instantiated(this);
+	}
 
 	/**
 	 * Produces a {@link JavaRemoteInformationInvocationHandler}.
@@ -210,6 +216,33 @@ public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 		return createRemoteObject(invocationHandler, type);
 	}
 
+	@Override
+	public void setup(ClientStart clientStart) {
+		communicationRegistration = clientStart.getCommunicationRegistration();
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
+					.addFirst(remoteResponseHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			communicationRegistration.acquire();
+			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
+					.remove(remoteResponseHandler);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			communicationRegistration.release();
+		}
+	}
+
 	/**
 	 * Creates a RemoteObject, with a custom fallback Runnable
 	 *
@@ -284,39 +317,6 @@ public class NativeRemoteObjectFactory implements RemoteObjectFactory {
 			invocationHandlerProducer = producer;
 		} finally {
 			invocationHandlerProducerMutex.release();
-		}
-	}
-
-	@APILevel
-	NativeRemoteObjectFactory(Sender sender) {
-		invocationHandlerProducer = new JavaInvocationHandlerProducer(sender, remoteAccessBlockRegistration);
-		logging.instantiated(this);
-	}
-
-	@Override
-	public void setup(ClientStart clientStart) {
-		communicationRegistration = clientStart.getCommunicationRegistration();
-		try {
-			communicationRegistration.acquire();
-			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
-					.addFirst(remoteResponseHandler);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			communicationRegistration.release();
-		}
-	}
-
-	@Override
-	public void close() {
-		try {
-			communicationRegistration.acquire();
-			communicationRegistration.register(RemoteAccessCommunicationResponse.class)
-					.remove(remoteResponseHandler);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			communicationRegistration.release();
 		}
 	}
 
