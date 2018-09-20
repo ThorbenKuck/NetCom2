@@ -10,9 +10,9 @@ It is designed to function as an over-network EventBus.
 
 ## Currently...
 
-*The Version 2.0 is beeing release! As soon as maven-central catches up, it will be available.*
+*The Version 2.0 has been release!*
 
-Also, the tests are not within this package. They will be back with the next security upate.
+The unit tests are not within this package. They will be back with the next security upate.
 
 If you want to migrate to the new Version, check out our [V.2 Migration Guide](https://github.com/ThorbenKuck/NetCom2/wiki/V.2-Migration-Guide)
 
@@ -68,7 +68,7 @@ Also there is a NIGHTLY branch, for the impatient.
 2.0 (release 19.08.2018)
  * Session lost its update and HeartBeat functions
    * Update is a security risk. The Session should not be send through the Network
-   * Heartbeats make no sens connect to the Session
+   * Heartbeats make no sens connected to the Session
  * ClientStart and ServerStart where updated.
    * Interface they use are now mostly located in network.shared
  * The Logging interface has been relocated to the root.logging package
@@ -78,9 +78,17 @@ Also there is a NIGHTLY branch, for the impatient.
  * All Default implementations have been renamed to Native[InterfaceName]
    * This should not effect anyone.
  * The Connection has been greatly rewritten.
-   * TODO Describe differences
+   * The interface was advanced and changed
+   * There are now Connections, that use Socket, SocketChannel and DatagrammSocket.
+   * Within the OnReceiveTripple, the Connection is no longer used
+     * Instead, a ConnectionContext has been introduced
+     * This ConnectionContext combines the Connection and the representing Client
  * The Client has been greatly rewritten.
-   * TODO Describe differences
+   * The Client no longer follows the old setup-mechanism
+   * The definition of the send method was changed
+     * The Object that should be send comes before the Connection
+   * The Client now has a sendIgnoreConstraints method
+     * Normal send methods wait until a Connection is successfully established, sendIgnoreConstraints does not.
  * Some classes have been decoupled by default.
    * All of the associated methods are still prevalent in the respective interfaces.
    * They are deprecated and will be removed with the next major update
@@ -96,6 +104,10 @@ Also there is a NIGHTLY branch, for the impatient.
  * Keller has been integrated greatly
  * Session events have been removed
    * They accomplish the same behaviour as the CommunicationRegistration and are therefor not needed
+ * The Thread-Management has been reworked.
+   * The NetComThreadPool takes tasks, that will be worked on by worker-tasks
+   * You can submit custom worker tasks (like submitting a Runnable to a ExecutorService)
+ * ServiceDiscovery was introduced
  
  ### Installation
  
@@ -105,7 +117,7 @@ Also there is a NIGHTLY branch, for the impatient.
  <dependency>
    <groupId>com.github.thorbenkuck</groupId>
    <artifactId>NetCom2</artifactId>
-   <version>1.0.2</version>
+   <version>2.0</version>
  </dependency>
  ```
  
@@ -113,7 +125,7 @@ Also there is a NIGHTLY branch, for the impatient.
  
  ```
  dependencies {
-     compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '1.0.2'
+     compile group: 'com.github.thorbenkuck', name: 'NetCom2', version: '2.0'
  }
  ```
 
@@ -185,7 +197,7 @@ Now we want to send this from the Client to the Server. We realize this by sayin
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 clientStart.launch();
-clientStart.send().objectToServer(new Test());
+Sender.open(clientStart).objectToServer(new Test());
 ```
 
 on the ServerSide we have to say, how to handle this Object. We realize this by saying:
@@ -194,7 +206,9 @@ on the ServerSide we have to say, how to handle this Object. We realize this by 
 ServerStart serverStart = ServerStart.at(88888);
 serverStart.launch();
 
-serverStart.getCommunicationRegistration().register(Test.class).addFirst((session, o) -> {
+serverStart.getCommunicationRegistration()
+     .register(Test.class)
+     .addFirst((session, o) -> {
   System.out.println("received " + o.getString() + " from " + session);
   o.setString("received");
   session.send(o);
