@@ -36,7 +36,7 @@ To correctly contribute on NetCom2, follow the guidelines below:
 1) Design your changes
 2) Implement your changes
 3) Test your changes
-4) Create a pull-request
+4) Create a pull-request and (if possible) add a reviewer
 5) Await the reviewer to finish
 6) If your pull-request is denied, repeat at 1.
 
@@ -53,8 +53,8 @@ To correctly contribute on NetCom2, follow the guidelines below:
 ### Bug-fixes
 
 Only change things, that are relevant to your issue!  
-If possible, do not make major changes to the design!  
-Modify/create the/a test, so that the test shows, that the fixed bug is really fixed!
+If possible, do not make major changes to the design! If your bug-fix requires a redesign, please open another issue.  
+Modify/create the/a test, so that the test shows, that the fixed bug is really fixed! Unit-Tests are to be preferred, but integration-tests are also great.
 
 ### New features
 
@@ -62,21 +62,21 @@ The Issue, proposing the new feature has to be approved by more than 50% of the 
 Only start new feature developments on features that are accepted!
 
 Only change things, that are relevant to your issue!  
-Design the new feature beforehand!  
-If possible, do not make major changes to the design!  
-Create a test, that thoroughly tests your new feature!
+Design the new feature beforehand! If you cannot show any Design, your feature-request might likely be declined!  
+If possible, do not make major changes to the design! If you have to, please update the Issue with the new Design.  
+Create a test, that thoroughly tests your new feature! Unit-Tests are to be preferred
 
 ### Tests
 
-Tests can be done in 2 ways:
+Whenever you read "Test", we mean a Test that can be completed automatically. Tests can be done in 2 ways:
 
 1) Unit-Tests.  
-   Create your test in <code>src/test/java</code> and then in the same package as the class you are testing  
+   Create your test in <code>src/test/java/com/github/thorbenkuck/netcom2</code> and then in the same package as the class you are testing  
    Name your Test in the following pattern: _"{Class-Name}Test"_  
-   You may freely define the size of your unit. Make it as small as possible.  
+   You may freely define the size of your unit. Make it as big as possible.  
    Mock external dependencies, but do not mock message-objects.  
 2) Integration-Tests.  
-   Create your test in <code>src/test/java/integration</code> and then in whatever package you feel comfortable with  
+   Create your test in <code>src/test/java/com/github/thorbenkuck/netcom2/integration</code> and then in whatever package you feel comfortable with  
    Describe, what has to be done, so that your test can be run and succeeds.  
    
 Annotate your Test with the Annotation <code>@Testing</code> and your code with <code>@Tested</code>. Those Annotations are for documentation-purposes only.  
@@ -98,7 +98,7 @@ If you want to provide a new feature or a bug-fix, please follow these steps:
 7) Add a direct contributor as an assignee to your pull-request
 8) If your pull-request gets denied, start over from 3.
 
-**NOTE**: Only change thing relevant to your issue! If your pull-request changes anything, that is not important, your pull-request will be denied!
+**NOTE**: Only change thing relevant to your issue! If your pull-request changes anything, that is not relevant for the issue, your pull-request will be denied!
 
 If you want to contribute a new feature to NetCom2, you should have extensive knowledge about NetCom2 and Client-Server-Communications.
 

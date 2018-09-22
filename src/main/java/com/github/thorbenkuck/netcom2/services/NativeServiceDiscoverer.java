@@ -227,6 +227,7 @@ final class NativeServiceDiscoverer implements ServiceDiscoverer {
 			logging.debug(">>> Starting to listen for broadcast responses ..");
 			while (running.get()) {
 				byte[] buffer = new byte[15000];
+
 				DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 				try {
 					ServiceHubLocation serviceHubLocation = awaitPingBack(receivePacket);
