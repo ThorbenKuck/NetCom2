@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a new feature, that extends NetCom2 for using developers
 
 ---
 
@@ -12,7 +12,7 @@ about: Suggest an idea for this project
 - [ ] **Optional**: I have a specific Design in mind
 - [ ] **Optional**: This feature is seeking to fix an existing problem
     
-If your checklist is **not** fully ticked, please try to complete it such that it does. Optional parts are not required. You can freely delete those.
+If your checklist is **not** fully ticked, please try to complete it such that it does. Optional parts are not required. You can freely delete those. Either remove the _Optional-tags_ or remove the whole _Optional-part._
     
 The following is a template to help you state the request clearly.
 
@@ -22,7 +22,7 @@ The following is a template to help you state the request clearly.
 
 _Please describe in words, what the feature is, you are requesting_
 
-#### The connected problem
+#### \[Optional\]: The connected problem
 
 _Please describe what problem this feature is trying to fix. Connect an existing issue if possible_
 
@@ -32,25 +32,16 @@ _Please describe, why you want to see this feature implemented_
 
 ## Example
 
-_Provide a simple code-example, what you feature should look like_
+_Provide a simple code-example, what you feature should look like. Focus on how this feature is used by "outside" developers_
 
 ```java
 // Your example code here
 ```
 
+## \[Optional\]: Alternatives
+
+_Describe how else this feature could be implemented and what alternatives you have considered_
+
 ## \[Optional\]: Design
 
 _Describe your design as specific as possible. Images help with this_
-
-
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
-
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
-
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.

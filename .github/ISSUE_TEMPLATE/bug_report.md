@@ -12,7 +12,7 @@ about: Create a report to help us improve
 - [ ] I have a [minimal, complete and verifiable example](https://stackoverflow.com/help/mcve)
 - [ ] I have added the __bug__ label to this issue
     
-If your checklist is **not** fully ticked, please try to complete it such that it does.
+If your checklist is **not** fully ticked, please try to complete it such that it does. Optional parts are not required. You can freely delete those. Either remove the _Optional-tags_ or remove the whole _Optional-part._
     
 If you do not know the _exact_ steps necessary to reproduce your problem, please try to provide as
 much information as possible - the more information you provide, the faster we can help!
@@ -32,6 +32,10 @@ The following is a template to help you state the problem clearly.
 ## Description
     
 _Please describe the problem you're experiencing in detail._
+
+#### Expected behavior
+
+_Describe what you think should have happened instead of what actually happend_
     
 ## Steps
     
@@ -45,35 +49,3 @@ I believe the problem root occurs in \[FILE\] at line \[LINE\], because ...
 ## MCVE
     
 _Insert your minimal, complete and verifiable example here._
-
-
-
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
