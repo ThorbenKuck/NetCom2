@@ -98,40 +98,7 @@ try {
 
 There you go, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
 
-## Currently...
-
-*The Version 2.0 has been release!*
-
-The unit tests are not within this package. They will be back with the next security upate.
-
-If you want to migrate to the new Version, check out our [V.2 Migration Guide](https://github.com/ThorbenKuck/NetCom2/wiki/V.2-Migration-Guide)
-
-## About this framework
-
-This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
-
-#### The target source is java 1.8.+
-
-The 2 core-interfaces are:
-
-<ul>
-<li>ClientStart</li>
-<li>ServerStart</li>
-</ul>
-
-and both can be instantiated via
-```java
-// Client instantiation
-String address = ...
-int port = ...
-ClientStart clientStart = ClientStart.at(address, port);
-
-// Server instantiation
-int port = ...
-ServerStart serverStart = ServerStart.at(port);
-```
- 
- ### Installation
+### Installation
  
  Include this in your pom.xml (if you are using Maven)
  
@@ -156,6 +123,20 @@ ServerStart serverStart = ServerStart.at(port);
 If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have a decoupled, yet easy to read over network communication.
 
 But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-built cache and registration-mechanism, that makes it easier to send objects to specific clients who want those objects. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket that is being used.
+
+## Currently...
+
+*The Version 2.0 has been release!*
+
+The unit tests are not within this package. They will be back with the next security upate.
+
+If you want to migrate to the new Version, check out our [V.2 Migration Guide](https://github.com/ThorbenKuck/NetCom2/wiki/V.2-Migration-Guide)
+
+## About this framework
+
+This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
+
+#### The target source is java 1.8.+
 
 ----
 
