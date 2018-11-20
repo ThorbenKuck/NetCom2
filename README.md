@@ -120,6 +120,8 @@ There you go, you have a simple Server, that prints out what he received to the 
  }
  ```
 
+**The target source is java 1.8.+**
+
 ## For whom this is
 
 If you are searching for a easy to use framework, that gives you the option to easily create a Server-Client-Communication, this is for you. Also you should consider taking a look at this, if you want to have a decoupled, yet easy to read over network communication.
@@ -134,15 +136,31 @@ The unit tests are not within this package. They will be back with the next secu
 
 If you want to migrate to the new Version, check out our [V.2 Migration Guide](https://github.com/ThorbenKuck/NetCom2/wiki/V.2-Migration-Guide)
 
-## About this framework
+## Getting started
 
-This framework is designed to function as an over-network-EventBus. Whilst beeing lightweight, it still is extremly modular. Most bits can be changed in a reactive style. Though easy to use, you can accomplish many things using this.
+German Tutorials: [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
+English Tutorials: [YouTube Tutorial-series](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay)
 
-#### The target source is java 1.8.+
+## Where to go from here
+
+Every module from NetCom2 has some sort of modular base. This might sound overwhelming, but in fact, this Framework provides a vast amount of default implementation, which make it very easy to get started.
+
+Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
+
+If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
+
+Also, you may be interrested in checking out the Java-Doc, which can be find [here](https://thorbenkuck.github.io/NetCom2/apidocs/)
 
 ----
+## Current Development
 
-## Versions
+__We are currently looking for a good, free and reliable board for new feature suggestions__
+
+Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
+Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
+Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
+
+### Versions
 
 The Framework-Versions are to be read like this:
 
@@ -155,7 +173,7 @@ D is a non-breaking, security release
 
 Also there is a NIGHTLY branch, for the impatient.
 
-### Current State
+#### Current State
 
 2.0 (release 19.08.2018)
  * Session lost its update and HeartBeat functions
@@ -200,39 +218,3 @@ Also there is a NIGHTLY branch, for the impatient.
    * The NetComThreadPool takes tasks, that will be worked on by worker-tasks
    * You can submit custom worker tasks (like submitting a Runnable to a ExecutorService)
  * ServiceDiscovery was introduced
-
-## Getting started
-
-If you are German, you might be interested in this [YouTube Tutorial-series](https://www.youtube.com/watch?v=YvyLHyt0k3k&list=PLUUnTdOVEgvIqNxqAUL8388A73Yzpn57E).    
-If you cannot understand German, there is also a YouTube Tutorial-series in [English](https://www.youtube.com/watch?v=V33a8jRrp00&list=PLUUnTdOVEgvLKEQ7vD4Z3CL_0jb6u__ay), but this might sound a bit odd.
-
-## Where to go from here
-
-Every module from NetCom2 has some sort of modular base. This might sound overwhelming, but in fact, this Framework provides a vast amount of default implementation, which make it very easy to get started.
-
-Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
-
-If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
-
-Also, you may be interrested in checking out the Java-Doc, which can be find [here](https://thorbenkuck.github.io/NetCom2/apidocs/)
-
-----
-#### Current Development
-
-__We are currently looking for a good, free and reliable board for new Feature suggestions__
-
-Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
-Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.
-
-#### What comes next?
-
-First off, we would like to get this framework out there. Future changes are not planned yet, though we have some ideas. But note, it is not certain, whether or not, they will be added. We are looking for a board, to provide you with a way of suggesting new additions to this framework.
-
-Found a bug? Missing a Test? Report it as a [issue](https://github.com/ThorbenKuck/NetCom2/issues).    
-Don't know where to start? Look at the [github-wiki](https://github.com/ThorbenKuck/NetCom2/wiki), in particular the examples.     
-Have Problems starting? Post your question on [StackOverflow](https://stackoverflow.com/questions/ask?tags=java+NetCom2) and add the NetCom2 tag.    
-If you are having any other trouble with NetCom2, please also turn to StackOverflow.
-          
-----
-
