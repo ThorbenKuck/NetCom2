@@ -66,7 +66,9 @@ public class Test implements Serializable {
 }
 ```
 
-Now we want to send this from the Client to the Server. We realize this by saying:
+Now we want to send this from the Client to the Server. The full examples look like this:
+
+#### Full Client example
 
 ```java
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
@@ -74,7 +76,7 @@ clientStart.launch();
 Sender.open(clientStart).objectToServer(new Test());
 ```
 
-on the ServerSide we have to say, how to handle this Object. We realize this by saying:
+#### Full Server example
 
 ```java
 ServerStart serverStart = ServerStart.at(88888);
