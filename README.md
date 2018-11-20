@@ -1,7 +1,9 @@
 # NetCom2
 
-NetCom2 is a highly modular framework designed to function as a universal and asynchronous Client-Server-Communication-Interface.
-It is designed to function as an over-network EventBus.
+NetCom2 is a highly modular framework designed to function as a universal and asynchronous Client-Server-Communication-Interface. It is designed to function as an over-network EventBus.
+
+[Wiki](https://github.com/ThorbenKuck/NetCom2/wiki)    
+[Java-Doc](https://thorbenkuck.github.io/NetCom2/apidocs/)
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
@@ -145,9 +147,9 @@ English Tutorials: [YouTube Tutorial-series](https://www.youtube.com/watch?v=V33
 
 Every module from NetCom2 has some sort of modular base. This might sound overwhelming, but in fact, this Framework provides a vast amount of default implementation, which make it very easy to get started.
 
-Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
-
 If you want to see someone code using NetCom2 and understand german, check out [this Let's Code-series](https://www.youtube.com/watch?v=b8y5eJbmUvs&list=PLUUnTdOVEgvKSiaWfWuhwLJfmwZIHkvGV).
+
+Check out the [Wiki](https://github.com/ThorbenKuck/NetCom2/wiki) for more information's about creating a Server and a Client, with more depth.
 
 Also, you may be interrested in checking out the Java-Doc, which can be find [here](https://thorbenkuck.github.io/NetCom2/apidocs/)
 
