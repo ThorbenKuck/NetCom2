@@ -2,8 +2,7 @@
 
 NetCom2 is a highly modular framework designed to function as a universal and asynchronous Client-Server-Communication-Interface. It is designed to function as an over-network EventBus.
 
-[Wiki](https://github.com/ThorbenKuck/NetCom2/wiki)    
-[Java-Doc](https://thorbenkuck.github.io/NetCom2/apidocs/)
+Learning Resources: [**Wiki**](https://github.com/ThorbenKuck/NetCom2/wiki), [**Java-Doc**](https://thorbenkuck.github.io/NetCom2/apidocs/)
 
 [![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
