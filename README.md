@@ -18,6 +18,8 @@ Getting started is easy. You should have basic knowledge about how a Client-Serv
 To create a server, you simply say:
 
 ```java
+// Create a ServerStart-Object
+// respresentitive for the actual server
 ServerStart serverStart = ServerStart.at(/* your port number here */88888);
 ```
 
@@ -25,9 +27,14 @@ With that done, you have to tell the ServerStart-Object to listen to Clients
 
 ```java
 try {
+  // Create internal dependencies and reserve the port for the Server
   serverStart.launch();
+  // Listen for all connecting Clients
+  // This method call will block until the ServerStart is closed
   serverStart.acceptAllNextClients();
 } catch (/* ClientConnectionFailedException | StartFailedException */ NetComException e) {
+  //Both Exceptions are responsible for singaling different things.
+  // In here we just print it and exit the Application
   e.printStackTrace();
   System.exit(1);
 }
@@ -40,12 +47,17 @@ Launch creates internal dependencies and acceptAllNextClients(); waits for the n
 You create a Client similar to a Server. You just say:
 
 ```java
+// Create a ClientStart-Object
+// respresentitive for an actual client
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
 ```
 
 Now, to connect, simply say:
 
-```java 
+```java
+// Create the Sockets and actually connect to the server
+// At this point, the ServerStart has to be (at least) launched
+// This call will block until the ServerStart#acceptNextClient method handles this ClientStart
 clientStart.launch();
 ```
 
@@ -54,12 +66,14 @@ clientStart.launch();
 Let's assume, you have an Object called Test in the Shared project, which looks like this:
 
 ```java
+/**
+ * implements Serializable is responsible for the serialzation
+ * By default, NetCom2 uses the Java-Serialzation, so without this import,
+ * this object cannot be serialized (note though, that you could provide
+ * custom Serialzation)
+ */
 public class Test implements Serializable {
   private String s;
-  
-  public void setString(String newS) {
-    this.s = newS;
-  }
   
   public String getString() {
     return this.s;
@@ -67,39 +81,57 @@ public class Test implements Serializable {
 }
 ```
 
-Now we want to send this from the Client to the Server. The full examples look like this:
+Now we want to send this from the Client to the Server. On the Server-Side, we want to simply print out what we received. The full examples look like this:
 
 #### Full Client example
 
 ```java
+// Create a ClientStart object
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
+// Try to connect to the server
+// The ServerStart has to be (at least) launched at this point
 clientStart.launch();
-Sender.open(clientStart).objectToServer(new Test());
+// Create a Module, that allows us to send objects to the connected Server
+Sender sender = Sender.open(clientStart);
+// actually send a Test to the Server
+sender.objectToServer(new Test());
 ```
 
 #### Full Server example
 
 ```java
+// Create the Server-Object
 ServerStart serverStart = ServerStart.at(88888);
-serverStart.launch();
+try {
+  // Create internal dependencies and reserve the port for the Server
+  serverStart.launch();
+} catch(StartFailedException e) {
+  // Handling has to be adjusted!
+  e.printStackTrace();
+  System.exit(1);
+}
 
+// The CommunicationRegistration will maintain ReceivePipeline instance
+// Those will be triggered, once an object is received.
 serverStart.getCommunicationRegistration()
-     .register(Test.class)
-     .addFirst((session, o) -> {
-  System.out.println("received " + o.getString() + " from " + session);
-  o.setString("received");
-  session.send(o);
-});
+     .register(Test.class)        // Register the Test-Class and create a ReceivePipeline for it
+     .addFirst((session, o) -> {  // Add a println to the head of the ReceivePipeline 
+          System.out.println("received " + o.getString() + " from " + session);
+        });
 
 try {
+  // Handle all Clients, that want to connect.
   serverStart.acceptAllNextClients();
 } catch (ClientConnectionFailedException e) {
+  // Handling has to be adjusted!
   e.printStackTrace();
   System.exit(1);
 }
 ```
 
-There you go, you have a simple Server, that prints out what he received to the console and sends a "received" message back.
+First run the Server example and then run the Client example. Within the console of the Server, you will see an output the a Test was received.
+
+Make sure to chek out the [wiki](https://github.com/ThorbenKuck/NetCom2/wiki), espacially the example section to get more concrete examples. All components are explained within it.
 
 ### Installation
  
