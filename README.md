@@ -26,18 +26,11 @@ ServerStart serverStart = ServerStart.at(/* your port number here */88888);
 With that done, you have to tell the ServerStart-Object to listen to Clients
 
 ```java
-try {
-  // Create internal dependencies and reserve the port for the Server
-  serverStart.launch();
-  // Listen for all connecting Clients
-  // This method call will block until the ServerStart is closed
-  serverStart.acceptAllNextClients();
-} catch (/* ClientConnectionFailedException | StartFailedException */ NetComException e) {
-  //Both Exceptions are responsible for singaling different things.
-  // In here we just print it and exit the Application
-  e.printStackTrace();
-  System.exit(1);
-}
+// Create internal dependencies and reserve the port for the Server
+serverStart.launch();
+// Listen for all connecting Clients
+// This method call will block until the ServerStart is closed
+serverStart.acceptAllNextClients();
 ```
 
 Launch creates internal dependencies and acceptAllNextClients(); waits for the next clients to connect.
@@ -88,9 +81,16 @@ Now we want to send this from the Client to the Server. On the Server-Side, we w
 ```java
 // Create a ClientStart object
 ClientStart clientStart = ClientStart.at(/* address of Server */"localhost", /* port of Server*/88888);
-// Try to connect to the server
-// The ServerStart has to be (at least) launched at this point
-clientStart.launch();
+
+try {
+  // Try to connect to the server
+  // The ServerStart has to be (at least) launched at this point
+  clientStart.launch();
+} catch (StartFailedException e) {
+  // This Exception means, that the Server is not reachable for any reason
+  e.printStackTrace();
+  System.exit(1);
+}
 // Create a Module, that allows us to send objects to the connected Server
 Sender sender = Sender.open(clientStart);
 // actually send a Test to the Server
@@ -102,6 +102,7 @@ sender.objectToServer(new Test());
 ```java
 // Create the Server-Object
 ServerStart serverStart = ServerStart.at(88888);
+
 try {
   // Create internal dependencies and reserve the port for the Server
   serverStart.launch();
@@ -131,7 +132,7 @@ try {
 
 First run the Server example and then run the Client example. Within the console of the Server, you will see an output the a Test was received.
 
-Make sure to chek out the [wiki](https://github.com/ThorbenKuck/NetCom2/wiki), espacially the example section to get more concrete examples. All components are explained within it.
+This is a pretty simple example, make sure to chek out the [wiki](https://github.com/ThorbenKuck/NetCom2/wiki), espacially the "example" section to get more concrete examples. All components are explained within the rest of the wiki.
 
 ### Installation
  
