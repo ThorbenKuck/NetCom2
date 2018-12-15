@@ -23,8 +23,8 @@ package com.github.thorbenkuck.netcom2.interfaces;
  * @param <F> the type, which originally is present (from)
  * @param <T> the type, which the originally present Type should be turned into (to)
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.interfaces.EncryptionAdapter
- * @see com.github.thorbenkuck.netcom2.network.interfaces.DecryptionAdapter
+ * @see com.github.thorbenkuck.netcom2.network.shared.EncryptionAdapter
+ * @see com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter
  * @since 1.0
  */
 @FunctionalInterface
