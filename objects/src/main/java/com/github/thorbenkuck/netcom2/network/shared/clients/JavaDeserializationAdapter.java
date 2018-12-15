@@ -12,7 +12,12 @@ public class JavaDeserializationAdapter implements DeSerializationAdapter {
 	@Override
 	public Object apply(String string) throws DeSerializationFailedException {
 		final Object o;
-		byte[] data = Base64.getDecoder().decode(string.getBytes());
+		byte[] data;
+		try {
+			data = Base64.getDecoder().decode(string.getBytes());
+		} catch (IllegalArgumentException e) {
+			throw new DeSerializationFailedException(e);
+		}
 
 		try (final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
 			o = ois.readObject();

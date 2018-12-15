@@ -4,6 +4,7 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -111,6 +112,7 @@ public class NativeSession implements Session {
 	 */
 	@Override
 	public void send(Object o) {
+		NetCom2Utils.parameterNotNull(o);
 		sendBridge.send(o);
 	}
 

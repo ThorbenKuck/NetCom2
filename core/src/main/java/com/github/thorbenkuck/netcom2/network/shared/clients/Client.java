@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
 
 import java.util.Optional;
@@ -378,6 +379,7 @@ public interface Client {
 	 * @return an {@link Awaiting} that continues if the Connection is established and primed.
 	 */
 	default Awaiting createNewConnection(final Class connectionKey) {
+		NetCom2Utils.parameterNotNull(connectionKey);
 		send(new NewConnectionRequest(connectionKey));
 		return prepareConnection(connectionKey);
 	}

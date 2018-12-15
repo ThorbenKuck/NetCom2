@@ -9,6 +9,7 @@ import com.github.thorbenkuck.netcom2.network.shared.cache.CacheObservable;
 import com.github.thorbenkuck.netcom2.network.shared.cache.GeneralCacheObserver;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.*;
+import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -82,6 +83,7 @@ final class NativeDistributor implements Distributor {
 	 */
 	@Override
 	public final void toSpecific(final Object o, final Predicate<Session> predicate) {
+		NetCom2Utils.parameterNotNull(o, predicate);
 		clientList.sessionStream()
 				.filter(predicate)
 				.forEach(session -> session.send(o));
@@ -89,12 +91,14 @@ final class NativeDistributor implements Distributor {
 
 	@Override
 	public final void toAll(final Object object) {
+		NetCom2Utils.parameterNotNull(object);
 		clientList.sessionStream()
 				.forEach(session -> session.send(object));
 	}
 
 	@Override
 	public final void toAllExcept(final Object o, final Predicate<Session> predicate) {
+		NetCom2Utils.parameterNotNull(o, predicate);
 		clientList.sessionStream()
 				.filter(session -> !predicate.test(session))
 				.forEach(session -> session.send(o));
@@ -108,7 +112,8 @@ final class NativeDistributor implements Distributor {
 	 */
 	@Override
 	public final void toAllIdentified(final Object o) {
-		toAllIdentified(o, (Predicate<Session>) null);
+		NetCom2Utils.parameterNotNull(o);
+		toAllIdentified(o, Session::isIdentified);
 	}
 
 	/**
@@ -120,6 +125,7 @@ final class NativeDistributor implements Distributor {
 	 */
 	@Override
 	public final void toAllIdentified(final Object o, final Predicate<Session> predicate) {
+		NetCom2Utils.parameterNotNull(o, predicate);
 		final Predicate<Session> combinedTest = session -> {
 			if (!session.isIdentified()) {
 				return false;
@@ -145,6 +151,7 @@ final class NativeDistributor implements Distributor {
 	 */
 	@Override
 	public final void toRegistered(final Object o) {
+		NetCom2Utils.parameterNotNull(o);
 		toAllRegistered(o.getClass(), o);
 	}
 

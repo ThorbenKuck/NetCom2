@@ -34,7 +34,7 @@ public class Server {
 //				println("[EXAMPLE_2]: Awaiting primed client");
 //				client.primed().synchronize();
 //				println("[EXAMPLE_3]: Client connected, establishing new TestConnection");
-//				Awaiting awaiting = client.createNewConnection(TestConnectionKey.class);
+//				Awaiting awaiting = client.newConnection(TestConnectionKey.class);
 //				println("[EXAMPLE_4]: Waiting for the Connection to be established");
 //				awaiting.synchronize();
 //				println("[EXAMPLE_5]: Connection is established successfully");
