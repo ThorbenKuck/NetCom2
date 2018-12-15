@@ -28,6 +28,11 @@ public interface CacheObserver<T> {
 
 	/**
 	 * Defines, whether or not the provided Object should be injected into this Observer or not.
+	 * <p>
+	 * This method is required, to compensate for the type erasure. This is complete bogus, but required.
+	 * <p>
+	 * Otherwise the {@link CacheObservable} does not know, whether or not an invocation of any method will cause a
+	 * ClassCastException or not.
 	 *
 	 * @param o the Object that should be tested
 	 * @return true, if and else false
