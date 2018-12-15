@@ -37,6 +37,7 @@ public class FileClient {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
 	}
 
 	private static void handleReceive(FileResponse fileResponse) {

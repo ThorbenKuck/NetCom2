@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MassiveClient implements Runnable {
 
-	private static final int TOTAL_CLIENT_COUNT = 1000;
+	private static final int TOTAL_CLIENT_COUNT = 100;
 	private static final CountDownLatch countDownLatch = new CountDownLatch(TOTAL_CLIENT_COUNT * 2);
 	private static int receivedCount = 0;
 	private static int count = 0;
@@ -32,7 +32,7 @@ public class MassiveClient implements Runnable {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		NetComLogging.setLogging(Logging.trace());
+		NetComLogging.setLogging(Logging.disabled());
 		long startTime = System.currentTimeMillis();
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		for (int i = 0; i < TOTAL_CLIENT_COUNT; i++) {
@@ -60,9 +60,12 @@ public class MassiveClient implements Runnable {
 		clientStart.getCommunicationRegistration()
 				.register(TestObject.class)
 				.addFirst(MassiveClient::received);
+
+		System.out.println(Thread.currentThread().toString() + MY_COUNT + " launching ..");
 		try {
 			clientStart.launch();
 			Sender sender = Sender.open(clientStart);
+			System.out.println(Thread.currentThread().toString() + MY_COUNT + " sending ..");
 			sender.objectToServer(new TestObject(MY_COUNT + " says hello!"));
 		} catch (StartFailedException e) {
 			e.printStackTrace();

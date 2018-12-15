@@ -7,6 +7,7 @@ import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoveryHub;
 
 import java.net.SocketException;
 
@@ -34,7 +35,8 @@ public class ServiceDiscoveryServer {
 
 		try {
 			serverStart.launch();
-			serverStart.allowLocalAreaNetworkFind(8888);
+			ServiceDiscoveryHub serviceDiscoveryHub = ServiceDiscoveryHub.create(8888, serverStart);
+			serviceDiscoveryHub.listen();
 
 			new Thread(() -> {
 				try {

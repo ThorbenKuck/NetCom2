@@ -22,7 +22,6 @@ public class Server {
 		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		scheduledExecutorService.scheduleAtFixedRate(Server::diagnose, 1, 1, TimeUnit.SECONDS);
 		ServerStart serverStart = ServerStart.at(4569);
-		NetComThreadPool.startWorkerProcesses(10);
 		NetComLogging.setLogging(Logging.disabled());
 
 		serverStart.getCommunicationRegistration()

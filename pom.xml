@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <artifactId>NetCom2-Total</artifactId>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>NetCom2</name>
+    <name>NetCom2-Total</name>
     <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
         EventBus
     </description>
@@ -14,6 +14,18 @@
             UTF-8
         </project.build.sourceEncoding>
     </properties>
+
+    <modules>
+        <module>logging</module>
+        <module>utils</module>
+        <module>objects</module>
+        <module>core</module>
+        <module>asynch</module>
+        <module>main</module>
+        <module>cache</module>
+        <module>service</module>
+        <module>rmi</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
@@ -163,6 +175,21 @@
             <artifactId>keller-core</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.thorbenkuck</groupId>
+            <artifactId>NetCom2</artifactId>
+            <version>2.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.thorbenkuck</groupId>
+            <artifactId>NetCom2-RMI</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.thorbenkuck</groupId>
+            <artifactId>NetCom2-Service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -197,6 +224,6 @@
 
 
         <!-- mvn -DperformRelease=true release:clean release:prepare release:perform -->
-        <!-- mvn release:prepare-->
-        <!-- mvn release:perform-->
-        <!-- mvn -DperformRelease=true-->
+        <!-- mvn -DperformRelease=true release:clean-->
+        <!-- mvn -DperformRelease=true release:prepare-->
+        <!-- mvn -DperformRelease=true release:perform-->
