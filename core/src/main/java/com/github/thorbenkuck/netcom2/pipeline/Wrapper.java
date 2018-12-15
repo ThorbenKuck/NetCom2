@@ -13,8 +13,6 @@ import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
  * which is used within the {@link com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline}, you may use this class.
  * <p>
  * For most developers, this will not be necessary.
- * <p>
- * Use {@link com.github.thorbenkuck.netcom2.utility.NetCom2Utils#wrap(OnReceive)} instead of this class. It encapsulates an Wrapper to free up resources
  *
  * @version 1.0
  * @since 1.0

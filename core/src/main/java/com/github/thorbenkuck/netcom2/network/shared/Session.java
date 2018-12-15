@@ -89,7 +89,7 @@ public interface Session extends Mutex {
 	/**
 	 * Sends an Object over the Network.
 	 * <p>
-	 * This Method utilizes an {@link com.github.thorbenkuck.netcom2.interfaces.SendBridge} to send the given Object to the
+	 * This Method utilizes an {@link SendBridge} to send the given Object to the
 	 * Server.
 	 * This Method does no Sanity-Checks, neither does it work asynchronously! Its return depends completely on the implementation
 	 * of the corresponding {@link Client} and the corresponding {@link com.github.thorbenkuck.netcom2.network.shared.connections.Connection}.

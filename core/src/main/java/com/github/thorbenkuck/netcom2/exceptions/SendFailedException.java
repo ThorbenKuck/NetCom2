@@ -8,7 +8,7 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * @see com.github.thorbenkuck.netcom2.network.shared.connections.Connection#write(String)
  * @see com.github.thorbenkuck.netcom2.network.shared.Session#send(Object)
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#send(Object)
- * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#send(Class, Object)
+ * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#send(Object, Class)
  * @see com.github.thorbenkuck.netcom2.network.shared.clients.Client#send(Object, com.github.thorbenkuck.netcom2.network.shared.connections.Connection)
  * @since 1.0
  */
