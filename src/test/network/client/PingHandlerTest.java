@@ -2,7 +2,6 @@ package com.github.thorbenkuck.netcom2.network.client;
 
 import com.github.thorbenkuck.keller.annotations.Testing;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.comm.model.Ping;
 import com.github.thorbenkuck.netcom2.network.shared.session.Session;

@@ -1,9 +1,12 @@
 package com.github.thorbenkuck.netcom2.integration.example.some;
 
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.sync.Synchronize;
 import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.integration.TestObject;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
+import com.github.thorbenkuck.netcom2.services.ServiceDiscoverer;
 
 import java.net.SocketException;
 
@@ -23,7 +26,18 @@ public class ServiceDiscoveryClient {
 
 	private void startClient() {
 		try {
-			ClientStart clientStart = ClientStart.findLocalServer(8888);
+			Value<ClientStart> clientStartValue = Value.empty();
+			Synchronize synchronize = Synchronize.createDefault();
+			ServiceDiscoverer serviceDiscoverer = ServiceDiscoverer.open(8888);
+			serviceDiscoverer.onDiscover(location -> {
+				clientStartValue.set(location.toClientStart());
+				synchronize.goOn();
+			});
+
+			serviceDiscoverer.findServiceHubs();
+
+			synchronize.synchronize();
+			ClientStart clientStart = clientStartValue.get();
 
 			clientStart.getCommunicationRegistration()
 					.register(TestObject.class)
