@@ -83,7 +83,7 @@ public class NativeServerStartTest {
 		serverStart.acceptAllNextClients();
 
 		// Assert
-		verify(logging).trace(any(String.class));
+		verify(logging, atLeastOnce()).trace(any(String.class));
 	}
 
 	@Test
