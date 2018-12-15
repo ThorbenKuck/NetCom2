@@ -161,7 +161,7 @@
             <groupId>com.github.thorbenkuck</groupId>
             <artifactId>NetCom2-Util</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+
         </dependency>
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>

@@ -167,7 +167,6 @@ class NativeClient implements Client {
 	 */
 	@Override
 	public Optional<Connection> getConnection(Class connectionKey) {
-		NetCom2Utils.parameterNotNull(connectionKey);
 		synchronized (connectionMap) {
 			return Optional.ofNullable(connectionMap.get(connectionKey));
 		}
@@ -452,6 +451,7 @@ class NativeClient implements Client {
 
 	@Override
 	public Awaiting prepareConnection(Class clazz) {
+		NetCom2Utils.parameterNotNull(clazz);
 		logging.debug("Trying to prepare for " + clazz);
 		synchronized (prepared) {
 			prepared.computeIfAbsent(clazz, key -> Synchronize.createDefault());
@@ -472,6 +472,7 @@ class NativeClient implements Client {
 				logging.info("Released all waiting Threads for " + identifier);
 			} else {
 				logging.error("No Connection has been prepared for the Class " + identifier);
+				throw new IllegalArgumentException("No Connection set for " + identifier);
 			}
 		}
 	}
