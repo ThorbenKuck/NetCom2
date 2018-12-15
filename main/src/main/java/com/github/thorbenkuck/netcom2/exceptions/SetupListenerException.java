@@ -4,10 +4,10 @@ package com.github.thorbenkuck.netcom2.exceptions;
  * This RuntimeException will be thrown, if any Connection entry or exit point fails to be setUp.
  *
  * @version 1.0
- * @see com.github.thorbenkuck.netcom2.network.interfaces.ReceivingService
- * @see com.github.thorbenkuck.netcom2.network.interfaces.SendingService
  * @since 1.0
+ * @deprecated this exception will be removed in the near future. It purpose was no longer exists
  */
+@Deprecated
 public class SetupListenerException extends NetComRuntimeException {
 
 	/**
