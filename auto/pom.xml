@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2-Service</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <artifactId>NetCom2-Auto</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>NetCom2-Service</name>
-    <description>Service location</description>
+    <name>NetCom2-Auto</name>
+    <description>Annotation approach to reduce boilerplate code</description>
     <url>https://github.com/ThorbenKuck/NetCom2</url>
     <properties>
         <project.build.sourceEncoding>
@@ -160,6 +161,16 @@
             <groupId>com.github.thorbenkuck</groupId>
             <artifactId>keller-core</artifactId>
             <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0-rc4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.11.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>

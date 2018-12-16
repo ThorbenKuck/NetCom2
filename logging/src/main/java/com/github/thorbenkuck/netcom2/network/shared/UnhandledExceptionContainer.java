@@ -22,7 +22,7 @@ public class UnhandledExceptionContainer {
 
 	public static void catching(Throwable e) {
 		synchronized (pipeline) {
-			pipeline.run(e);
+			pipeline.apply(e);
 		}
 	}
 
