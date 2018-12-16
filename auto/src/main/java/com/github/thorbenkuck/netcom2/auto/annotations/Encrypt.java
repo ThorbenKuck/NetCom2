@@ -11,4 +11,9 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Documented
 public @interface Encrypt {
+
+	String name() default "";
+
+	boolean autoLoad() default true;
+
 }
