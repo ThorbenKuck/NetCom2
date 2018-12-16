@@ -2,7 +2,7 @@
 
 NetCom2-Auto is a module which introduces annotation-processor based approach to reduce boilerplate code.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Auto/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Auto) 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Logging/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Logging) 
 
 ## About this module
 
