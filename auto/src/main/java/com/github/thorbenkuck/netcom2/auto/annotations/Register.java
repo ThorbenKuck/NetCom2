@@ -17,6 +17,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface Register {
 
-	String className() default "";
+	String name() default "";
+
+	boolean autoLoad() default true;
 
 }

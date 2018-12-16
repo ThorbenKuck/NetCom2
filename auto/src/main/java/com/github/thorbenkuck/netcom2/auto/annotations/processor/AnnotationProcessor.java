@@ -6,6 +6,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -28,6 +29,10 @@ public abstract class AnnotationProcessor extends AbstractProcessor {
 
 		for (Element element : input) {
 			if (!alreadyProcessed.contains(element)) {
+				if (element.getModifiers().contains(Modifier.PRIVATE)) {
+					logger.error("private is not a valid modifier! Make sure the annotated element is package-private or public");
+					continue;
+				}
 				logger.log("Will process " + element.getSimpleName(), element);
 				alreadyProcessed.add(element);
 				value.add(element);
@@ -37,7 +42,9 @@ public abstract class AnnotationProcessor extends AbstractProcessor {
 		return value;
 	}
 
-	protected abstract void pre();
+	protected void pre() {
+
+	}
 
 	protected abstract Class<? extends Annotation> supported();
 

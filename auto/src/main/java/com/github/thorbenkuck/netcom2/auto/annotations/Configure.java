@@ -3,14 +3,14 @@ package com.github.thorbenkuck.netcom2.auto.annotations;
 import java.lang.annotation.*;
 
 /**
- * Handles the connection of a new {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client}.
+ * Any annotated method is required to have a parameter (of type {@link String}) and a return value (of type {@link String}).
  * <p>
- * Any annotated method might have one or zero parameters. If one parameter is present, it must be a {@link com.github.thorbenkuck.netcom2.network.shared.clients.Client}
+ * This method will be wrapped into any {@link com.github.thorbenkuck.netcom2.network.shared.DecryptionAdapter}.
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @Documented
-public @interface Disconnect {
+public @interface Configure {
 
 	String name() default "";
 
@@ -19,4 +19,5 @@ public @interface Disconnect {
 	boolean forServer() default true;
 
 	boolean forClient() default true;
+
 }

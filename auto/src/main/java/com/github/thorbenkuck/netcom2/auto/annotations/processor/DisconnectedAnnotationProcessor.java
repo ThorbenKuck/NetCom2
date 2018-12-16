@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.auto.annotations.processor;
 
-import com.github.thorbenkuck.netcom2.auto.annotations.Connect;
+import com.github.thorbenkuck.netcom2.auto.annotations.Disconnect;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.google.auto.service.AutoService;
 
@@ -11,20 +11,20 @@ import javax.lang.model.element.TypeElement;
 import java.lang.annotation.Annotation;
 
 @AutoService(Processor.class)
-public class ConnectAnnotationProcessor extends AnnotationProcessor {
+public class DisconnectedAnnotationProcessor extends AnnotationProcessor {
 
 	private TypeElement clientElement;
-	private ClientConnectedGenerator generator;
+	private ClientDisconnectedGenerator generator;
 
 	@Override
 	protected void pre() {
 		clientElement = elements.getTypeElement(Client.class.getCanonicalName());
-		generator = new ClientConnectedGenerator(filer);
+		generator = new ClientDisconnectedGenerator(filer);
 	}
 
 	@Override
 	protected Class<? extends Annotation> supported() {
-		return Connect.class;
+		return Disconnect.class;
 	}
 
 	@Override

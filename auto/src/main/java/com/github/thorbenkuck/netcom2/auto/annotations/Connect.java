@@ -12,6 +12,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface Connect {
 
-	String className() default "";
+	String name() default "";
+
+	boolean autoLoad() default true;
 
 }

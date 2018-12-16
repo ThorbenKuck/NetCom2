@@ -11,16 +11,18 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionConte
 import com.squareup.javapoet.*;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.*;
-import java.io.IOException;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import java.util.List;
 
 final class ReceiveHandlerGenerator {
 
-	private final Filer filer;
+	private final Writer writer;
 
 	ReceiveHandlerGenerator(Filer filer) {
-		this.filer = filer;
+		this.writer = new Writer(filer);
 	}
 
 	private CodeBlock invoke(ExecutableElement method, TypeElement clazz) {
@@ -64,7 +66,7 @@ final class ReceiveHandlerGenerator {
 	private String getName(ExecutableElement method, TypeElement clazz) {
 		Register register = method.getAnnotation(Register.class);
 
-		String set = register.className();
+		String set = register.name();
 		if (set.isEmpty()) {
 			String methodName = method.getSimpleName().toString();
 			return methodName.substring(0, 1).toUpperCase() + methodName.substring(1) + clazz.getSimpleName() + "ReceiveHandler";
@@ -74,6 +76,8 @@ final class ReceiveHandlerGenerator {
 	}
 
 	void generate(ExecutableElement method, TypeElement clazz, VariableElement parameter) {
+		Register annotation = method.getAnnotation(Register.class);
+
 		MethodSpec acceptMethod = MethodSpec.methodBuilder("apply")
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 				.addParameter(NetworkInterface.class, "networkInterface", Modifier.FINAL)
@@ -89,23 +93,13 @@ final class ReceiveHandlerGenerator {
 
 		String name = getName(method, clazz);
 
-		TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(name)
+		TypeSpec.Builder builder = TypeSpec.classBuilder(name)
 				.addSuperinterface(TypeName.get(OnReceiveWrapper.class))
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 				.addType(onReceive)
-				.addAnnotation(Auto.annotation(OnReceiveWrapper.class))
 				.addMethod(acceptMethod);
 
-		PackageElement packageElement = (PackageElement) clazz.getEnclosingElement();
-
-		try {
-			JavaFile.builder(packageElement.getQualifiedName().toString(), typeSpecBuilder.build())
-					.addFileComment("This file has been auto generated")
-					.indent("	")
-					.build().writeTo(filer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		writer.write(builder, clazz, OnReceiveWrapper.class, annotation.autoLoad());
 	}
 
 }
