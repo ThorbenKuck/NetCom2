@@ -14,9 +14,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		TestObject testObject = TestObject.create();
 		ObjectRepository objectRepository = ObjectRepository.hashingRecursive();
-		objectRepository.add(testObject);
 
 		NetCom2.launchServer()
 				.use(objectRepository)
@@ -28,7 +26,7 @@ public class Main {
 				.at("localhost", 8765)
 				.get();
 
-		Sender.open(clientStart).objectToServer(testObject);
+		Sender.open(clientStart).objectToServer(TestObject.create());
 	}
 
 	@Register

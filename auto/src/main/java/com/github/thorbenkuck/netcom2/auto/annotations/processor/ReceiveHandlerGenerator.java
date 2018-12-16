@@ -3,11 +3,12 @@ package com.github.thorbenkuck.netcom2.auto.annotations.processor;
 import com.github.thorbenkuck.netcom2.auto.ObjectRepository;
 import com.github.thorbenkuck.netcom2.auto.OnReceiveWrapper;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.google.auto.service.AutoService;
 import com.squareup.javapoet.*;
 
 import javax.annotation.processing.Filer;
@@ -23,12 +24,6 @@ final class ReceiveHandlerGenerator {
 		this.filer = filer;
 	}
 
-	private AnnotationSpec autoAnnotation(Class<?> serviceType) {
-		return AnnotationSpec.builder(AutoService.class)
-				.addMember("value", "$T.class", serviceType)
-				.build();
-	}
-
 	private CodeBlock invoke(ExecutableElement method, TypeElement clazz) {
 		// TODO Last thing
 		List<? extends VariableElement> parameters = method.getParameters();
@@ -37,8 +32,10 @@ final class ReceiveHandlerGenerator {
 				.beginControlFlow("try")
 				.addStatement("toExecuteOn = objectRepository.get($T.class)", TypeName.get(clazz.asType()))
 				.endControlFlow()
-				.beginControlFlow("catch (IllegalArgumentException e)")
-				.addStatement("e.printStackTrace()")
+				.beginControlFlow("catch ($T e)", Throwable.class)
+				.addStatement(CodeBlock.builder().add("// TODO find a better way to inform others. Maybe with a custom exception?").build())
+				.addStatement("$T.unified().error($S, e)", Logging.class, "Throwable while fetching instance")
+				.addStatement("$T.catching(e)", UnhandledExceptionContainer.class)
 				.addStatement("return")
 				.endControlFlow();
 
@@ -91,7 +88,7 @@ final class ReceiveHandlerGenerator {
 				.addSuperinterface(TypeName.get(OnReceiveWrapper.class))
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 				.addType(onReceive)
-				.addAnnotation(autoAnnotation(OnReceiveWrapper.class))
+				.addAnnotation(Auto.annotation(OnReceiveWrapper.class))
 				.addMethod(acceptMethod);
 
 		PackageElement packageElement = (PackageElement) clazz.getEnclosingElement();
