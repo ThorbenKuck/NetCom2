@@ -3,10 +3,8 @@ package com.github.thorbenkuck.netcom2.auto.annotations.processor;
 import com.github.thorbenkuck.netcom2.auto.ObjectRepository;
 import com.github.thorbenkuck.netcom2.auto.OnReceiveWrapper;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
-import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.UnhandledExceptionContainer;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.squareup.javapoet.*;
@@ -20,7 +18,7 @@ final class ReceiveHandlerGenerator {
 
 	private final Filer filer;
 
-	public ReceiveHandlerGenerator(Filer filer) {
+	ReceiveHandlerGenerator(Filer filer) {
 		this.filer = filer;
 	}
 
@@ -28,16 +26,7 @@ final class ReceiveHandlerGenerator {
 		// TODO Last thing
 		List<? extends VariableElement> parameters = method.getParameters();
 		CodeBlock.Builder builder = CodeBlock.builder()
-				.addStatement("$T toExecuteOn", TypeName.get(clazz.asType()))
-				.beginControlFlow("try")
-				.addStatement("toExecuteOn = objectRepository.get($T.class)", TypeName.get(clazz.asType()))
-				.endControlFlow()
-				.beginControlFlow("catch ($T e)", Throwable.class)
-				.addStatement(CodeBlock.builder().add("// TODO find a better way to inform others. Maybe with a custom exception?").build())
-				.addStatement("$T.unified().error($S, e)", Logging.class, "Throwable while fetching instance")
-				.addStatement("$T.catching(e)", UnhandledExceptionContainer.class)
-				.addStatement("return")
-				.endControlFlow();
+				.addStatement("$T toExecuteOn = objectRepository.get($T.class)", TypeName.get(clazz.asType()), TypeName.get(clazz.asType()));
 
 		if (parameters.size() == 1) {
 			builder.addStatement("toExecuteOn.$L(variable)", method.getSimpleName());
@@ -52,22 +41,8 @@ final class ReceiveHandlerGenerator {
 		return builder.build();
 	}
 
-	public void generate(String name, ExecutableElement method, TypeElement clazz, VariableElement parameter) {
-		MethodSpec acceptMethod = MethodSpec.methodBuilder("apply")
-				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-				.addParameter(NetworkInterface.class, "networkInterface", Modifier.FINAL)
-				.addParameter(ObjectRepository.class, "objectRepository", Modifier.FINAL)
-				.addAnnotation(Override.class)
-				.addCode(CodeBlock.builder()
-						.addStatement("$T communicationRegistration = networkInterface.getCommunicationRegistration()", CommunicationRegistration.class)
-						.addStatement("communicationRegistration.register($T.class).addFirst(new $L(objectRepository))", parameter, "InnerOnReceiveTriple")
-						.build())
-				.build();
-
-		System.out.println(TypeName.get(parameter.asType()));
-		System.out.println(TypeName.get(OnReceiveTriple.class));
-
-		TypeSpec onReceive = TypeSpec.classBuilder("InnerOnReceiveTriple")
+	private TypeSpec createInnerClass(VariableElement parameter, ExecutableElement method, TypeElement clazz) {
+		return TypeSpec.classBuilder("InnerOnReceiveTriple")
 				.addSuperinterface(ParameterizedTypeName.get(ClassName.get(OnReceiveTriple.class), TypeName.get(parameter.asType())))
 				.addField(ObjectRepository.class, "objectRepository", Modifier.PRIVATE, Modifier.FINAL)
 				.addMethod(MethodSpec.constructorBuilder()
@@ -83,6 +58,21 @@ final class ReceiveHandlerGenerator {
 						.addCode(invoke(method, clazz))
 						.build())
 				.build();
+	}
+
+	void generate(String name, ExecutableElement method, TypeElement clazz, VariableElement parameter) {
+		MethodSpec acceptMethod = MethodSpec.methodBuilder("apply")
+				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+				.addParameter(NetworkInterface.class, "networkInterface", Modifier.FINAL)
+				.addParameter(ObjectRepository.class, "objectRepository", Modifier.FINAL)
+				.addAnnotation(Override.class)
+				.addCode(CodeBlock.builder()
+						.addStatement("$T communicationRegistration = networkInterface.getCommunicationRegistration()", CommunicationRegistration.class)
+						.addStatement("communicationRegistration.register($T.class).addFirst(new $L(objectRepository))", parameter, "InnerOnReceiveTriple")
+						.build())
+				.build();
+
+		TypeSpec onReceive = createInnerClass(parameter, method, clazz);
 
 		TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(name)
 				.addSuperinterface(TypeName.get(OnReceiveWrapper.class))

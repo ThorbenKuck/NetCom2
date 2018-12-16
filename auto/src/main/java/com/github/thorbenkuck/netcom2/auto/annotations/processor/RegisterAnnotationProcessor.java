@@ -5,48 +5,21 @@ import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.google.auto.service.AutoService;
 
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
+import javax.annotation.processing.Processor;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.lang.annotation.Annotation;
 import java.util.List;
-import java.util.Set;
 
 @AutoService(Processor.class)
-public class RegisterAnnotationProcessor extends AbstractProcessor {
+public class RegisterAnnotationProcessor extends AnnotationProcessor {
 
-	private final List<? super Element> alreadyProcessed = new ArrayList<>();
-	private Types types;
-	private Elements elements;
-	private Filer filer;
-	private CompilationLogger logger;
 	private TypeElement sessionElement;
 	private TypeElement connectionContextElement;
-
-	private List<ExecutableElement> filter(Set<? extends Element> input) {
-		List<ExecutableElement> value = new ArrayList<>();
-
-		for (Element element : input) {
-			if (!(element instanceof ExecutableElement)) {
-				logger.warn("Found wrongly annotated element");
-				continue;
-			}
-			ExecutableElement toUse = (ExecutableElement) element;
-			if (!alreadyProcessed.contains(toUse)) {
-				logger.log("Will process " + toUse.getSimpleName(), toUse);
-				value.add(toUse);
-			}
-		}
-
-		return value;
-	}
+	private ReceiveHandlerGenerator receiveHandlerGenerator;
 
 	private VariableElement classify(List<? extends VariableElement> parameters) {
 		VariableElement returnValue = null;
@@ -73,54 +46,39 @@ public class RegisterAnnotationProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	public Set<String> getSupportedAnnotationTypes() {
-		Set<String> annotations = new LinkedHashSet<>();
-		annotations.add(Register.class.getCanonicalName());
-		return annotations;
-	}
-
-	@Override
-	public SourceVersion getSupportedSourceVersion() {
-		return SourceVersion.latestSupported();
-	}
-
-	@Override
-	public synchronized void init(ProcessingEnvironment processingEnv) {
-		super.init(processingEnv);
-		types = processingEnv.getTypeUtils();
-		elements = processingEnv.getElementUtils();
-		filer = processingEnv.getFiler();
-		logger = new CompilationLogger(processingEnv.getMessager());
-
+	protected void pre() {
 		sessionElement = elements.getTypeElement(Session.class.getCanonicalName());
 		connectionContextElement = elements.getTypeElement(ConnectionContext.class.getCanonicalName());
+		receiveHandlerGenerator = new ReceiveHandlerGenerator(filer);
 	}
 
 	@Override
-	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		boolean error = false;
-		List<ExecutableElement> toProcess = filter(roundEnv.getElementsAnnotatedWith(Register.class));
-		ReceiveHandlerGenerator receiveHandlerGenerator = new ReceiveHandlerGenerator(filer);
+	protected Class<? extends Annotation> supported() {
+		return Register.class;
+	}
 
-		for (ExecutableElement method : toProcess) {
-			List<? extends VariableElement> parameters = method.getParameters();
-			VariableElement type = classify(parameters);
-			alreadyProcessed.add(method);
-
-			if (type == null) {
-				error = true;
-				logger.error("A method annotated with @Register has to have exactly one parameter that is not a Session nor a ConnectionContext", method);
-				continue;
-			}
-
-			TypeElement typeElement = (TypeElement) method.getEnclosingElement();
-
-			// At this point, all we need
-			// to do is to generate the
-			// corresponding implementation
-			receiveHandlerGenerator.generate(method.getSimpleName().toString() + typeElement.getSimpleName() + "ReceiveHandler", method, typeElement, type);
+	@Override
+	protected boolean process(Element element) {
+		if (!(element instanceof ExecutableElement)) {
+			return false;
 		}
 
-		return error;
+		ExecutableElement method = (ExecutableElement) element;
+
+		List<? extends VariableElement> parameters = method.getParameters();
+		VariableElement type = classify(parameters);
+
+		if (type == null) {
+			logger.error("A method annotated with @Register has to have exactly one parameter that is not a Session nor a ConnectionContext", method);
+			return false;
+		}
+
+		TypeElement typeElement = (TypeElement) method.getEnclosingElement();
+
+		// At this point, all we need
+		// to do is to generate the
+		// corresponding implementation
+		receiveHandlerGenerator.generate(method.getSimpleName().toString() + typeElement.getSimpleName() + "ReceiveHandler", method, typeElement, type);
+		return true;
 	}
 }

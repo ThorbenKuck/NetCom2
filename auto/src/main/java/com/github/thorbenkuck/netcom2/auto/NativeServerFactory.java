@@ -4,8 +4,6 @@ import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
 import com.github.thorbenkuck.netcom2.network.server.ConnectorCore;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
-import java.util.List;
-
 final class NativeServerFactory implements ServerFactory {
 
 	private final GeneratedRepository repository;
@@ -16,8 +14,8 @@ final class NativeServerFactory implements ServerFactory {
 	}
 
 	private void connect(ServerStart serverStart) {
-		List<OnReceiveWrapper> wrapperList = repository.getAll();
-		wrapperList.forEach(wrapper -> wrapper.apply(serverStart, objectRepositoryValue.get()));
+		ObjectRepository objectRepository = objectRepositoryValue.get();
+		repository.apply(serverStart, objectRepository);
 	}
 
 	@Override

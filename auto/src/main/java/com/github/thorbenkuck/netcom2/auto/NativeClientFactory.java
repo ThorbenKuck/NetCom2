@@ -5,7 +5,6 @@ import com.github.thorbenkuck.netcom2.network.client.ClientCore;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 class NativeClientFactory implements ClientFactory {
 
@@ -17,8 +16,8 @@ class NativeClientFactory implements ClientFactory {
 	}
 
 	private void connect(ClientStart clientStart) {
-		List<OnReceiveWrapper> wrapperList = repository.getAll();
-		wrapperList.forEach(wrapper -> wrapper.apply(clientStart, objectRepositoryValue.get()));
+		ObjectRepository objectRepository = objectRepositoryValue.get();
+		repository.apply(clientStart, objectRepository);
 	}
 
 	@Override
