@@ -85,11 +85,33 @@ public class ServerExample {
 }
 ```
 
-On the Client-Side we have the same annotations, but without the `@Connect` annotation. The do the same as on the Server-Side. The `@Connect` annotation is not needed, because once the ClientStart#launch method is called, we are connected.
+Because of the `NetCom2` class, we do not need to combine anything. The annotation processors for each of those annotations create a certain instance, which is written to a service file. This instance delegates to your annotated method and is hooked to the ServerStart. Using the `ServiceLoader`, the `NetCom2` class automatically collects all of those instances. They are then added to the freshly created ServerStart instance.
+
+On the Client-Side we have the same annotations and the same mechanisms, but without the `@Connect` annotation. The do the same as on the Server-Side. The `@Connect` annotation is not needed, because once the ClientStart#launch method is called, we are connected.
+
+If wanted, we can configure the created classes. For example:
+
+```java
+@Register(name="MyExtremePerfectlyCraftedName", autoLoad=false)
+public void received(TestObject testObject) {
+    // Blablabla
+}
+```
+
+With that, a class called `MyExtremePerfectlyCraftedName` is created. Because of our `autoLoad=false`, this class will NOT be added to any service file. We can then add it manually like this:
+
+```java
+ServerStart serverStart = ServerStart.at(...);
+ObjectRepository repository = ObjectRepository.hashingRecursive();
+MyExtremePerfectlyCraftedName instance = new MyExtremePerfectlyCraftedName();
+instance.apply(serverStart, repository);
+```
+
+The `ObjectRepository` is an instance, to decouple dependencies. You might create an instance of this class for `Guice` for example (if you do, please publicise it, so that others may use it). This repository is asked for an instance of the class, containing the method that should be called. In all of those examples, we use the hasing recursive instance. This `ObjectRepository` instance will analyze all constructors of a class and recursively analyze the constructors of all dependencies to instantiate those. If one class cannot be instantiated, the next constructor will be analyzed and so on. All dependencies are hashed. Thread-safety might be an issue. Custom instances of those dependencies might be added using the `add` method.
 
 ## For whom this is
 
-For nearly everyone that writes code using NetCom2. This module greatly reduces the boilerplate code.
+For nearly everyone that writes code using NetCom2. This module greatly reduces the boilerplate code. Even if you just use NetCom2 a little bit, this module might be of interrest for you.
 
 
 ## Current State
