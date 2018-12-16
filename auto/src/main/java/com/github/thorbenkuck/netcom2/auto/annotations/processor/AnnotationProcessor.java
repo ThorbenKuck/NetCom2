@@ -17,7 +17,7 @@ import java.util.Set;
 
 public abstract class AnnotationProcessor extends AbstractProcessor {
 
-	private final List<? super Element> alreadyProcessed = new ArrayList<>();
+	private final List<Element> alreadyProcessed = new ArrayList<>();
 	protected Types types;
 	protected Elements elements;
 	protected Filer filer;
@@ -42,6 +42,9 @@ public abstract class AnnotationProcessor extends AbstractProcessor {
 	protected abstract Class<? extends Annotation> supported();
 
 	protected abstract boolean process(Element element);
+
+	protected void post(List<Element> handled) {
+	}
 
 	@Override
 	public final Set<String> getSupportedAnnotationTypes() {
@@ -85,6 +88,9 @@ public abstract class AnnotationProcessor extends AbstractProcessor {
 				error = true;
 			}
 		}
+
+		post(alreadyProcessed);
+
 		return !error;
 	}
 }
