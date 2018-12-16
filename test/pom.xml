@@ -1,40 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2-Total</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>NetCom2-Total</name>
-    <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
-        EventBus
-    </description>
-    <url>https://github.com/ThorbenKuck/NetCom2</url>
+    <artifactId>NetCom2-Test</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>NetCom2-Test</name>
     <properties>
         <project.build.sourceEncoding>
             UTF-8
         </project.build.sourceEncoding>
     </properties>
-
-    <modules>
-        <module>logging</module>
-        <module>utils</module>
-        <module>objects</module>
-        <module>core</module>
-        <module>asynch</module>
-        <module>main</module>
-        <module>cache</module>
-        <module>service</module>
-        <module>rmi</module>
-        <module>auto</module>
-        <module>test</module>
-    </modules>
-
-    <scm>
-        <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
-        <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
-        <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-        <tag>NetCom2-2.0</tag>
-    </scm>
 
     <developers>
         <developer>
@@ -51,17 +26,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <plugins>
@@ -137,20 +101,6 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.7</version>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-gpg-plugin</artifactId>-->
-            <!--<version>1.5</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>sign-artifacts</id>-->
-            <!--<phase>verify</phase>-->
-            <!--<goals>-->
-            <!--<goal>sign</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 
@@ -179,49 +129,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-RMI</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Service</artifactId>
-            <version>1.0</version>
+            <artifactId>NetCom2-Auto</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
 
 

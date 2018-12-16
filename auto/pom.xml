@@ -1,33 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2-Total</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>NetCom2-Total</name>
-    <description>NetCom2 is a lightweight, yet highly modular Client-Server-Communication-Framework, in the style of an
-        EventBus
-    </description>
+    <artifactId>NetCom2-Auto</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>NetCom2-Auto</name>
+    <description>Annotation approach to reduce boilerplate code</description>
     <url>https://github.com/ThorbenKuck/NetCom2</url>
     <properties>
         <project.build.sourceEncoding>
             UTF-8
         </project.build.sourceEncoding>
     </properties>
-
-    <modules>
-        <module>logging</module>
-        <module>utils</module>
-        <module>objects</module>
-        <module>core</module>
-        <module>asynch</module>
-        <module>main</module>
-        <module>cache</module>
-        <module>service</module>
-        <module>rmi</module>
-        <module>auto</module>
-        <module>test</module>
-    </modules>
 
     <scm>
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
@@ -178,18 +163,28 @@
             <version>1.0.2</version>
         </dependency>
         <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0-rc4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.11.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.thorbenkuck</groupId>
             <artifactId>NetCom2</artifactId>
             <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-RMI</artifactId>
-            <version>1.0</version>
+            <artifactId>NetCom2-Logging</artifactId>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Service</artifactId>
+            <artifactId>NetCom2-Util</artifactId>
             <version>1.0</version>
         </dependency>
     </dependencies>
