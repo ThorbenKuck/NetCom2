@@ -162,6 +162,14 @@ If you are searching for a easy to use framework, that gives you the option to e
 
 But do not mistake this as an simple framework! If you want, you can create your own en-/decryption mechanism. You can create customized Serialization. This framework also comes with a pre-built cache and registration-mechanism, that makes it easier to send objects to specific clients who want those objects. This framework is completely modular, which means, you can change nearly everything, from serialization to the socket that is being used.
 
+## Modules
+
+NetCom2 is split in many different Maven modules. The structure looks like this:
+
+![NetCom2 Module Structure](.images/NetCom2_modules.png)
+
+This module system is explained in more detail within the [wiki](https://github.com/ThorbenKuck/NetCom2/wiki/Modularization). However, each module has it's own README. Therfor you can look into a specific folder and get a brief overview over the folders structure.
+
 ## Currently...
 
 *The Version 2.0 has been release!*
