@@ -25,6 +25,8 @@
         <module>cache</module>
         <module>service</module>
         <module>rmi</module>
+        <module>auto</module>
+        <module>test</module>
     </modules>
 
     <scm>
