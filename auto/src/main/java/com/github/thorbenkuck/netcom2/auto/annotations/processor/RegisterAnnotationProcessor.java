@@ -78,7 +78,7 @@ public class RegisterAnnotationProcessor extends AnnotationProcessor {
 		// At this point, all we need
 		// to do is to generate the
 		// corresponding implementation
-		receiveHandlerGenerator.generate(method.getSimpleName().toString() + typeElement.getSimpleName() + "ReceiveHandler", method, typeElement, type);
+		receiveHandlerGenerator.generate(method, typeElement, type);
 		return true;
 	}
 }

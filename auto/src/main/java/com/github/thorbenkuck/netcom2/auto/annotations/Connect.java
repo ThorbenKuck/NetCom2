@@ -11,4 +11,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Documented
 public @interface Connect {
+
+	String className() default "";
+
 }

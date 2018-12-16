@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.auto.annotations.processor;
 
 import com.github.thorbenkuck.netcom2.auto.ClientConnectedWrapper;
 import com.github.thorbenkuck.netcom2.auto.ObjectRepository;
+import com.github.thorbenkuck.netcom2.auto.annotations.Connect;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import com.github.thorbenkuck.netcom2.network.shared.clients.ClientConnectedHandler;
@@ -43,6 +44,18 @@ final class ClientConnectedGenerator {
 				.build();
 	}
 
+	private String getName(ExecutableElement method, TypeElement clazz) {
+		Connect register = method.getAnnotation(Connect.class);
+
+		String set = register.className();
+		if (set.isEmpty()) {
+			String methodName = method.getSimpleName().toString();
+			return methodName.substring(0, 1).toUpperCase() + methodName.substring(1) + clazz.getSimpleName().toString() + "ClientConnectedHandler";
+		} else {
+			return set;
+		}
+	}
+
 	void generate(TypeElement type, ExecutableElement method) {
 		MethodSpec acceptMethod = MethodSpec.methodBuilder("apply")
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -56,7 +69,7 @@ final class ClientConnectedGenerator {
 
 		TypeSpec innerClass = createInnerClass(method, type);
 
-		String name = method.getSimpleName().toString() + type.getSimpleName().toString() + "ClientConnectedHandler";
+		String name = getName(method, type);
 
 		TypeSpec.Builder builder = TypeSpec.classBuilder(name)
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)

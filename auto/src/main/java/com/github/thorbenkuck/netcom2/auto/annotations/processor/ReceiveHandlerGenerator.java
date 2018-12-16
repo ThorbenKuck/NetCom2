@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.auto.annotations.processor;
 
 import com.github.thorbenkuck.netcom2.auto.ObjectRepository;
 import com.github.thorbenkuck.netcom2.auto.OnReceiveWrapper;
+import com.github.thorbenkuck.netcom2.auto.annotations.Register;
 import com.github.thorbenkuck.netcom2.interfaces.NetworkInterface;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
@@ -60,7 +61,19 @@ final class ReceiveHandlerGenerator {
 				.build();
 	}
 
-	void generate(String name, ExecutableElement method, TypeElement clazz, VariableElement parameter) {
+	private String getName(ExecutableElement method, TypeElement clazz) {
+		Register register = method.getAnnotation(Register.class);
+
+		String set = register.className();
+		if (set.isEmpty()) {
+			String methodName = method.getSimpleName().toString();
+			return methodName.substring(0, 1).toUpperCase() + methodName.substring(1) + clazz.getSimpleName() + "ReceiveHandler";
+		} else {
+			return set;
+		}
+	}
+
+	void generate(ExecutableElement method, TypeElement clazz, VariableElement parameter) {
 		MethodSpec acceptMethod = MethodSpec.methodBuilder("apply")
 				.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 				.addParameter(NetworkInterface.class, "networkInterface", Modifier.FINAL)
@@ -73,6 +86,8 @@ final class ReceiveHandlerGenerator {
 				.build();
 
 		TypeSpec onReceive = createInnerClass(parameter, method, clazz);
+
+		String name = getName(method, clazz);
 
 		TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(name)
 				.addSuperinterface(TypeName.get(OnReceiveWrapper.class))
