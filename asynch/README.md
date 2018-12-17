@@ -1,30 +1,66 @@
 # NetCom2-Asynch
 
-... WIP ...
+NetCom2-Asynch is a small module, that introduces a ThreadPool system, used within NetCom2
 
-[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
-[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/NetCom2/badge.svg)](https://snyk.io/test/github/thorbenkuck/NetCom2) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Asynch/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Asynch) 
 
 ## About this module
 
-... WIP ...
+This module introduces 3 classes. One specific NetComThread, one NetComThreadFactory to create NetComThreads and a NetComThreadPool.
+
+The NetComThreadPool is a very specific worker ThreadPool, that contains only "slave-Threads". Those slave-Threads will run worker-runnables, that execute other Runnable instances.
 
 ## Dependencies to other Modules
 
+[NetCom2-Logging](https://github.com/ThorbenKuck/NetCom2/tree/master/logging)    
+[NetCom2-Utils](https://github.com/ThorbenKuck/NetCom2/tree/master/utils)
+
 ## Examples
 
-Small Example
+```java
+// Both of these calls, will submit
+// the runnables to be handled by
+// all internally running 
+// slave-threads. They will not be
+// passed to a new Thread, but to
+// already running slave instances.
+// Those calls will only create
+// new Threads, if not enough 
+// slave-threads are running
+NetComThreadPool.submit(() -> {
+	// Asynchronous task
+})
+NetComThreadPool.submitPriorityTask(() -> {
+	// Asynchronous high priority task
+})
+
+// This call however will most 
+// likely create a new Thread 
+// and start it. This Thread will
+// handle the submitted Runnable.
+// This Runnable will NOT be 
+// handled by a slave-thread!
+NetComThreadPool.submitCustomProcess(() -> {
+	// Our custom process
+})
+
+// A simple output of how many 
+// slave-threads are running 
+// and how many may be
+// running in parallel
+System.out.println(NetComThreadPool.generateDiagnosticOutput());
+```
 
 ## For whom this is
 
-... WIP ...
+This module is used to introduce parallel working with not that many resources. Encapsulating a ExecutorService, this module is very specific. Most likely, this module is not what you want.
+
+But, if you want to execute sequential operations in parallel without a great overhead, this module may be something for you.
 
 
 ## Current State
 
-1.0 Release within extensive module separation
+1.0 Released as separate module
   - removed deprecated methods
  
  ### Installation
