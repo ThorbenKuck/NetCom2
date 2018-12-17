@@ -1,30 +1,75 @@
 # NetCom2-Cache
 
-... WIP ...
+This module introduces a low-level and observable cache
 
-[![Build Status](https://travis-ci.org/ThorbenKuck/NetCom2.svg?branch=master)](https://travis-ci.org/ThorbenKuck/NetCom2) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2) 
-[![Known Vulnerabilities](https://snyk.io/test/github/thorbenkuck/NetCom2/badge.svg)](https://snyk.io/test/github/thorbenkuck/NetCom2) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffbef87b4f3f44f6863096df9c87d0a0)](https://www.codacy.com/app/thorben.kuck/NetCom2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThorbenKuck/NetCom2&amp;utm_campaign=Badge_Grade)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Cache/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.thorbenkuck/NetCom2-Cache) 
 
 ## About this module
 
-... WIP ...
+The Cache-implementation introduced in this package is very low level. Dad tongues may call it a fancy wrapper for a HashMap.
+
+This Cache can simply be extended through observables. Those observables may introduce a timeout or something, but the target of this specific module was a very low-level cache. No automated data-maintenance.
 
 ## Dependencies to other Modules
 
+[NetCom2-Logging](https://github.com/ThorbenKuck/NetCom2/tree/master/logging)    
+[NetCom2-Utils](https://github.com/ThorbenKuck/NetCom2/tree/master/utils)
+
 ## Examples
 
-Small Example
+```java
+class ExampleObserver extends AbstractCacheObserver<TestObject> {
+	ExampleObserver() {
+		super(TestObject.class);
+	}
+	
+	@Override
+	public void newEntry(final TestObject t, final CacheObservable observable) {
+		System.out.println("New TestObject added to cache");
+	}
+
+    @Override
+	public void updatedEntry(final TestObject t, final CacheObservable observable) {
+		System.out.println("Updated TestObject added to cache");
+	}
+
+    @Override
+	public void deletedEntry(final TestObject t, final CacheObservable observable) {
+		System.out.println("Deleted TestObject from cache");
+	}
+}
+
+public class Example {
+	public void run() {
+        Cache cache = Cache.open();
+        TestObject object = new TestObject();
+        cache.addCacheObserver(new ExampleObserver());
+        
+        cache.addNew(object); // Only if type is not stored
+        cache.update(object); // Only if type is stored
+        cache.addAndOverride(object); // Both of the above
+        
+        cache.remove(TestObject.class); // remove all instances of the type
+    }
+}
+```
+
+The output of this Example (if the run method is called) will be:
+
+```
+New TestObject added to cache
+Updated TestObject added to cache
+Updated TestObject added to cache
+Deleted TestObject from cache
+```
 
 ## For whom this is
 
-... WIP ...
-
+This module is for you, if you need a observable Map which can differentiate between new additions, updates and removals.
 
 ## Current State
 
-1.0 Release within extensive module separation
+1.0 Released as separate module
   - removed deprecated methods
  
  ### Installation
