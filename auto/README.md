@@ -6,7 +6,7 @@ NetCom2-Auto is a module which introduces an annotation-processor based approach
 
 ## About this module
 
-Annotation processors generate code that will be handled internally and introduced automatically into ServerStart and ClientStarts if wanted.
+Annotation processors generate code, that you normally would have to write, will be handled internally and introduced automatically into ServerStart and ClientStart.
 
 All you have to do, is to annotate certain methods with specific annotations. You create a ServerStart/ClientStart using a new Class called ```NetCom2```. This will collect the gernerated classes (if wanted).
 
