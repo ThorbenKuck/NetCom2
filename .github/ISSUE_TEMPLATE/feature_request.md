@@ -1,6 +1,9 @@
 ---
 name: Feature request
 about: Suggest a new feature, that extends NetCom2 for using developers
+title: ''
+labels: ''
+assignees: ''
 
 ---
 

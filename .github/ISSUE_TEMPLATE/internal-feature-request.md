@@ -1,6 +1,9 @@
 ---
 name: Internal Feature request
 about: Suggest a new feature, that is used within NetCom2
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
