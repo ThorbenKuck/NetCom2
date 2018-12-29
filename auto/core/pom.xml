@@ -1,10 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2-Auto</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <artifactId>NetCom2-Auto-Annotation</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>NetCom2-Auto</name>
+    <name>NetCom2-Auto-Annotation</name>
     <description>Annotation approach to reduce boilerplate code</description>
     <url>https://github.com/ThorbenKuck/NetCom2</url>
     <properties>
@@ -13,10 +13,11 @@
         </project.build.sourceEncoding>
     </properties>
 
-    <modules>
-        <module>processor</module>
-        <module>core</module>
-    </modules>
+    <parent>
+        <groupId>com.github.thorbenkuck</groupId>
+        <artifactId>NetCom2-Auto</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
 
     <scm>
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
@@ -113,13 +114,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>com.github.thorbenkuck</groupId>
-                            <artifactId>NetCom2-Auto-Processor</artifactId>
-                            <version>1.0-SNAPSHOT</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
                 <version>3.7.0</version>
             </plugin>
@@ -152,41 +146,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0-rc4</version>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>keller-core</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Util</artifactId>
-            <version>1.0</version>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.11.1</version>
         </dependency>
     </dependencies>
     <profiles>

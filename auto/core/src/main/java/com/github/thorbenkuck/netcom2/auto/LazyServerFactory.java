@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 
 public interface LazyServerFactory {
 
-	ServerFactory use(ObjectRepository objectRepository);
+	LazyServerFactory use(ObjectRepository objectRepository);
 
 	ServerStart at(int port);
 

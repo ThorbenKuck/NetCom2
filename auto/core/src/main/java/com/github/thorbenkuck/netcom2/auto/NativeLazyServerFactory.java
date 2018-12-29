@@ -13,33 +13,50 @@ class NativeLazyServerFactory implements LazyServerFactory {
 		this.repository = repository;
 	}
 
+	private void launch(ServerStart serverStart) {
+		objectRepositoryValue.requireNotEmpty();
+		repository.apply(serverStart, objectRepositoryValue.get());
+	}
+
 	@Override
-	public ServerFactory use(ObjectRepository objectRepository) {
-		return null;
+	public LazyServerFactory use(ObjectRepository objectRepository) {
+		objectRepositoryValue.set(objectRepository);
+		return this;
 	}
 
 	@Override
 	public ServerStart at(int port) {
-		return null;
+		ServerStart serverStart = ServerStart.at(port);
+		launch(serverStart);
+		return serverStart;
 	}
 
 	@Override
 	public ServerStart asNIO(int port) {
-		return null;
+		ServerStart serverStart = ServerStart.nio(port);
+		launch(serverStart);
+		return serverStart;
 	}
 
 	@Override
 	public ServerStart asTCP(int port) {
-		return null;
+		ServerStart serverStart = ServerStart.tcp(port);
+		launch(serverStart);
+		return serverStart;
 	}
 
 	@Override
 	public ServerStart asUDP(int port) {
-		return null;
+		ServerStart serverStart = ServerStart.udp(port);
+		launch(serverStart);
+		return serverStart;
 	}
 
 	@Override
 	public ServerStart as(int port, ConnectorCore connectorCore) {
-		return null;
+		ServerStart serverStart = ServerStart.raw(port);
+		serverStart.setConnectorCore(connectorCore);
+		launch(serverStart);
+		return serverStart;
 	}
 }

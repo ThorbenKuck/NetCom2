@@ -6,6 +6,8 @@ import com.github.thorbenkuck.netcom2.auto.annotations.Configure;
 import com.github.thorbenkuck.netcom2.auto.annotations.Connect;
 import com.github.thorbenkuck.netcom2.auto.annotations.Disconnect;
 import com.github.thorbenkuck.netcom2.auto.annotations.Register;
+import com.github.thorbenkuck.netcom2.logging.Logging;
+import com.github.thorbenkuck.netcom2.logging.NetComLogging;
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
@@ -17,6 +19,7 @@ public class ServerMain {
 	}
 
 	public static void main(String[] args) {
+		NetComLogging.setLogging(Logging.trace());
 		TestObject testObject = TestObject.create();
 		ObjectRepository objectRepository = ObjectRepository.hashingRecursive();
 		objectRepository.add(testObject);

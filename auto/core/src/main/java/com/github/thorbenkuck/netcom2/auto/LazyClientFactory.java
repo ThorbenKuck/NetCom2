@@ -5,7 +5,7 @@ import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 
 public interface LazyClientFactory {
 
-	ClientFactory use(ObjectRepository objectRepository);
+	LazyClientFactory use(ObjectRepository objectRepository);
 
 	ClientStart at(String address, int port);
 
