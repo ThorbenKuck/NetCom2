@@ -20,6 +20,7 @@ public class ClientMain {
 		TestObject testObject = TestObject.create();
 		ObjectRepository objectRepository = ObjectRepository.hashingRecursive();
 		objectRepository.add(testObject);
+		ClientOnlyRegistration clientOnlyRegistration = new ClientOnlyRegistration();
 
 		clientStart = ClientStart.at("localhost", 8765);
 		new ClientOnlyRegistration().apply(clientStart, objectRepository);

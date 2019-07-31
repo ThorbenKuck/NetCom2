@@ -1,5 +1,6 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.network.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
@@ -10,6 +11,7 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionConte
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
@@ -261,6 +263,10 @@ public interface ReceivePipeline<T> extends Mutex {
 	 * @return and {@link ReceivePipelineCondition} to specify if the linked Method is executed
 	 */
 	ReceivePipelineCondition<T> to(final Object object);
+
+	void addAll(Collection<OnReceiveTriple<? super T>> collection);
+
+	void addAll(Pipeline<T> pipeline);
 
 	/**
 	 * Describes if a specific {@link OnReceiveTriple} is already registered withing this ReceivePipeline

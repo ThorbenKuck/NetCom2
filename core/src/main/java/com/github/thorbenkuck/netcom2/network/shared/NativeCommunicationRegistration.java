@@ -2,6 +2,8 @@ package com.github.thorbenkuck.netcom2.network.shared;
 
 import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.keller.annotations.Asynchronous;
+import com.github.thorbenkuck.keller.datatypes.interfaces.Value;
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -23,14 +25,16 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	@APILevel
 	protected final Map<Class, ReceivePipeline<?>> mapping = new HashMap<>();
 	private final Logging logging = Logging.unified();
-	private final List<OnReceiveTriple<Object>> defaultCommunicationHandlers = new ArrayList<>();
+	private final ReceivePipeline<Object> defaultCommunicationHandlers = new QueuedReceivePipeline<>(Object.class);
 	private final Semaphore mutexChangeableSemaphore = new Semaphore(1);
 	private final Wrapper wrapper = new Wrapper();
+	private final Value<CommunicationDispatcher> dispatcherValue;
 
-	NativeCommunicationRegistration() {
+	NativeCommunicationRegistration(CommunicationDispatcher communicationDispatcher) {
 		logging.trace("Requesting one new WorkerTask");
 		NetComThreadPool.startWorkerProcess();
 		logging.instantiated(this);
+		dispatcherValue = Value.synchronize(communicationDispatcher);
 	}
 
 	/**
@@ -113,17 +117,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * @param o                 the received Object
 	 */
 	private void runDefaultCommunicationHandler(final ConnectionContext connectionContext, final Session session, final Object o) {
-		final List<OnReceiveTriple<Object>> defaultCommunicationHandlerList = new ArrayList<>(defaultCommunicationHandlers);
-		for (OnReceiveTriple<Object> defaultCommunicationHandler : defaultCommunicationHandlerList) {
-			logging.trace("Asking " + defaultCommunicationHandler + " to handle dead object: " + o.getClass());
-			try {
-				defaultCommunicationHandler.execute(connectionContext, session, o);
-			} catch (final Throwable throwable) {
-				logging.error("Encountered unexpected Throwable while running " + defaultCommunicationHandler,
-						throwable);
-				logging.trace("Continuing anyways..");
-			}
-		}
+		dispatcherValue.get().dispatch(Collections.singleton(defaultCommunicationHandlers), connectionContext, session, o);
 	}
 
 	/**
@@ -137,18 +131,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 */
 	private <T> void handleRegistered(final ReceivePipeline<T> pipeline, final ConnectionContext connectionContext,
 									  final Session session, final T o) {
-		try {
-			logging.trace("Acquiring the pipeline ..");
-			pipeline.acquire();
-			logging.trace("Running the elements through the Pipeline(#elements=" + pipeline.size() + ".");
-			pipeline.run(connectionContext, session, o);
-			logging.debug("Successfully applied the ReceivePipeline");
-		} catch (final InterruptedException e) {
-			logging.catching(e);
-		} finally {
-			pipeline.release();
-			logging.trace("Released the pipeline ..");
-		}
+		dispatcherValue.get().dispatch(Collections.singleton(pipeline), connectionContext, session, o);
 	}
 
 	/**
@@ -216,7 +199,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	@Override
 	public <T> void trigger(final Class<T> type, final ConnectionContext connectionContext, final Session session, final Object o)
 			throws CommunicationNotSpecifiedException {
-		NetCom2Utils.parameterNotNull(type, connectionContext, session, o);
+		NetCom2Utils.parameterNotNull(type, o);
 		logging.debug("Searching for Communication specification at " + type + " with instance " + o);
 		logging.trace("Trying to match " + type + " with " + o.getClass());
 		sanityCheck(type, o);
@@ -224,17 +207,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 			logging.debug("Could not find specific communication for " + type + ". Using fallback!");
 			handleNotRegistered(type, connectionContext, session, o);
 		} else {
-			NetComThreadPool.submitTask(new Runnable() {
-				@Override
-				public void run() {
-					triggerExisting(type, connectionContext, session, o);
-				}
-
-				@Override
-				public String toString() {
-					return "CommRegistrationTask{TriggerExistingCommunication, clazz=" + type + "}";
-				}
-			});
+			triggerExisting(type, connectionContext, session, o);
 		}
 	}
 
@@ -263,7 +236,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	public void addDefaultCommunicationHandler(final OnReceiveTriple<Object> defaultCommunicationHandler) {
 		logging.trace("Adding default CommunicationHandler " + defaultCommunicationHandler + " ..");
 		NetCom2Utils.parameterNotNull(defaultCommunicationHandler);
-		this.defaultCommunicationHandlers.add(defaultCommunicationHandler);
+		this.defaultCommunicationHandlers.addFirst(defaultCommunicationHandler);
 	}
 
 	/**
@@ -314,9 +287,8 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 			communicationRegistration.acquire();
 			mapping.clear();
 			defaultCommunicationHandlers.clear();
-
 			mapping.putAll(communicationRegistration.map());
-			defaultCommunicationHandlers.addAll(communicationRegistration.listDefaultsCommunicationRegistration());
+			defaultCommunicationHandlers.addAll((Pipeline<Object>) communicationRegistration.listDefaultsCommunicationRegistration());
 		} catch (final InterruptedException e) {
 			logging.catching(e);
 		} finally {
@@ -337,8 +309,18 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<OnReceiveTriple<Object>> listDefaultsCommunicationRegistration() {
-		return new ArrayList<>(defaultCommunicationHandlers);
+	public ReceivePipeline<Object> listDefaultsCommunicationRegistration() {
+		return defaultCommunicationHandlers;
+	}
+
+	@Override
+	public CommunicationDispatcher getDispatcher() {
+		return dispatcherValue.get();
+	}
+
+	@Override
+	public void setDispatcher(CommunicationDispatcher dispatcher) {
+		dispatcherValue.set(dispatcher);
 	}
 
 	/**

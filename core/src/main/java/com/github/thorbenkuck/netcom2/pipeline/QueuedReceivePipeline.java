@@ -2,6 +2,7 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.keller.annotations.Tested;
+import com.github.thorbenkuck.keller.pipe.Pipeline;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.Logging;
@@ -13,6 +14,7 @@ import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
@@ -61,10 +63,9 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 * @param connectionContext The connection
 	 * @param session           The session
 	 * @param s                 The S
-	 * @param <S>               The type
 	 */
-	private <S> void run(final PipelineReceiver<S> receiver, final ConnectionContext connectionContext, final Session session, final S s) {
-		OnReceiveTriple<S> onReceiveTriple = receiver.getOnReceive();
+	private void run(final PipelineReceiver<T> receiver, final ConnectionContext connectionContext, final Session session, final T s) {
+		OnReceiveTriple<? super T> onReceiveTriple = receiver.getOnReceive();
 		if (onReceiveTriple == null) {
 			logging.error("Found null OnReceive in PipelineReceiver " + receiver);
 			throw new IllegalStateException("Found null registration for " + s.getClass());
@@ -270,6 +271,30 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		} finally {
 			policyLock.unlock();
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addAll(Collection<OnReceiveTriple<? super T>> collection) {
+		// Do NOT replace this with a method
+		// reference! This is not compilable!
+		// We manually infer the T-type, because
+		// the java-compiler is not smart enough
+		// to determine, that we want the Ty-type.
+		collection.stream()
+				.map(onReceiveTriple -> new PipelineReceiver<T>(onReceiveTriple))
+				.forEach(core::add);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addAll(Pipeline<T> pipeline) {
+		QueuedReceivePipeline<T> queuedReceivePipeline = (QueuedReceivePipeline<T>) pipeline;
+		addAll((Pipeline<T>) queuedReceivePipeline.core);
 	}
 
 	/**

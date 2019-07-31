@@ -10,14 +10,17 @@ import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
 import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
 import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public interface CommunicationRegistration extends Mutex {
 
 	static CommunicationRegistration open() {
-		return new NativeCommunicationRegistration();
+		return open(CommunicationDispatcher.onNetComThread());
+	}
+
+	static CommunicationRegistration open(CommunicationDispatcher communicationDispatcher) {
+		return new NativeCommunicationRegistration(communicationDispatcher);
 	}
 
 	/**
@@ -218,5 +221,9 @@ public interface CommunicationRegistration extends Mutex {
 	 * @see #addDefaultCommunicationHandler(OnReceiveSingle)
 	 * @see #addDefaultCommunicationHandler(OnReceiveTriple)
 	 */
-	List<OnReceiveTriple<Object>> listDefaultsCommunicationRegistration();
+	ReceivePipeline<Object> listDefaultsCommunicationRegistration();
+
+	CommunicationDispatcher getDispatcher();
+
+	void setDispatcher(CommunicationDispatcher dispatcher);
 }

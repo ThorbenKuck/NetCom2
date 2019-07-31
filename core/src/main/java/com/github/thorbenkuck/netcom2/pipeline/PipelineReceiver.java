@@ -23,8 +23,8 @@ import java.util.Queue;
 @Synchronized
 class PipelineReceiver<T> {
 
-	private final OnReceiveTriple<T> onReceive;
-	private final Queue<TriPredicate<ConnectionContext, Session, T>> predicates = new LinkedList<>();
+	private final OnReceiveTriple<? super T> onReceive;
+	private final Queue<TriPredicate<ConnectionContext, Session, ? super T>> predicates = new LinkedList<>();
 
 	/**
 	 * The PipelineReceiver requires the {@link OnReceiveTriple}.
@@ -35,7 +35,7 @@ class PipelineReceiver<T> {
 	 * @param onReceive the OnReceive to be handled
 	 */
 	@APILevel
-	PipelineReceiver(final OnReceiveTriple<T> onReceive) {
+	PipelineReceiver(final OnReceiveTriple<? super T> onReceive) {
 		this.onReceive = onReceive;
 	}
 
@@ -101,7 +101,7 @@ class PipelineReceiver<T> {
 	@APILevel
 	final boolean test(ConnectionContext connectionContext, Session session, T t) {
 		NetCom2Utils.parameterNotNull(connectionContext, session, t);
-		final Queue<TriPredicate<ConnectionContext, Session, T>> predicateTemp = new LinkedList<>(predicates);
+		final Queue<TriPredicate<ConnectionContext, Session, ? super T>> predicateTemp = new LinkedList<>(predicates);
 		while (predicateTemp.peek() != null) {
 			if (!predicateTemp.remove().test(connectionContext, session, t)) {
 				return false;
@@ -118,7 +118,7 @@ class PipelineReceiver<T> {
 	 * @return The OnReceiveTriple
 	 */
 	@APILevel
-	final OnReceiveTriple<T> getOnReceive() {
+	final OnReceiveTriple<? super T> getOnReceive() {
 		return onReceive;
 	}
 }
