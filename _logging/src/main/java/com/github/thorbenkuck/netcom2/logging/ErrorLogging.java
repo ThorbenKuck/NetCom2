@@ -20,26 +20,6 @@ public class ErrorLogging implements Logging {
 	}
 
 	@Override
-	public boolean traceEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean debugEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean infoEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean warnEnabled() {
-		return false;
-	}
-
-	@Override
 	public boolean errorEnabled() {
 		return true;
 	}

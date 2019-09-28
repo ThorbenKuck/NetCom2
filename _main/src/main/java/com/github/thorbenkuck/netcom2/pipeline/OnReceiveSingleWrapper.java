@@ -2,11 +2,11 @@ package com.github.thorbenkuck.netcom2.pipeline;
 
 import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.keller.annotations.Synchronized;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.shared.Session;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 /**
  * Wraps an OnReceiveSingle into a OnReceiveTriple.
@@ -46,17 +46,15 @@ class OnReceiveSingleWrapper<O> implements OnReceiveTriple<O> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public final void onUnRegistration() {
-		onReceive.onUnRegistration();
+	public final void didUnmount() {
+		onReceive.didUnmount();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public final void onRegistration() {
-		onReceive.onRegistration();
+	public final void didMount() {
+		onReceive.didMount();
 	}
 
 	/**

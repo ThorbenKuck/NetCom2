@@ -5,13 +5,13 @@ import com.github.thorbenkuck.keller.annotations.Tested;
 import com.github.thorbenkuck.netcom2.exceptions.PipelineAccessException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.logging.Logging;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.shared.OnReceive;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveSingle;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.shared.Session;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.network.connection.Connection;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -29,8 +29,6 @@ import java.util.function.Consumer;
  * @since 1.0
  */
 @Synchronized
-@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.EmptyReceivePipelineConditionTest")
-@Tested(responsibleTest = "com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipelineTest")
 public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 
 	private final Queue<PipelineReceiver<T>> core = new LinkedList<>();
@@ -38,10 +36,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	private final Logging logging = Logging.unified();
 	private final Lock policyLock = new ReentrantLock();
 	private final Class<T> clazz;
-	private final ReceiveObjectHandlerWrapper receiveObjectHandlerWrapper = new ReceiveObjectHandlerWrapper();
 	private boolean closed = false;
 	private boolean sealed = false;
-	private ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy = ReceivePipelineHandlerPolicy.ALLOW_SINGLE;
 
 	/**
 	 * Create a queued ReceivePipeline for the specified class
@@ -145,7 +141,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			synchronized (core) {
 				core.add(pipelineReceiver);
 			}
-			pipelineService.onRegistration();
+			pipelineService.didMount();
 			logging.debug("Registering onReceive: " + pipelineReceiver);
 		});
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
@@ -187,7 +183,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 				core.clear();
 				core.addAll(newCore);
 			}
-			pipelineService.onRegistration();
+			pipelineService.didMount();
 		}
 
 		return new ReceivePipelineConditionImpl<>(pipelineReceiver);
@@ -251,25 +247,6 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 			return addLast(pipelineService);
 		}
 		return ReceivePipelineCondition.empty();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ReceivePipelineCondition<T> to(final Object object) {
-		NetCom2Utils.parameterNotNull(object);
-		requiresOpen();
-		requiredNotSealed();
-		try {
-			policyLock.lock();
-			receivePipelineHandlerPolicy.prepare(this);
-			final ReceivePipelineCondition<T> toReturn = addFirst(receiveObjectHandlerWrapper.wrap(object, clazz));
-			receivePipelineHandlerPolicy.afterAdding(this);
-			return toReturn;
-		} finally {
-			policyLock.unlock();
-		}
 	}
 
 	/**
@@ -349,25 +326,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy) {
-		NetCom2Utils.parameterNotNull(receivePipelineHandlerPolicy);
-		try {
-			policyLock.lock();
-			this.receivePipelineHandlerPolicy = receivePipelineHandlerPolicy;
-		} finally {
-			policyLock.unlock();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void remove(final OnReceive<T> pipelineService) {
 		NetCom2Utils.parameterNotNull(pipelineService);
 		synchronized (core) {
 			core.remove(new PipelineReceiver<>(new OnReceiveWrapper<>(pipelineService)));
-			pipelineService.onUnRegistration();
+			pipelineService.didUnmount();
 		}
 	}
 
@@ -376,7 +339,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		NetCom2Utils.parameterNotNull(pipelineService);
 		synchronized (core) {
 			core.remove(new PipelineReceiver<>(new OnReceiveSingleWrapper<>(pipelineService)));
-			pipelineService.onUnRegistration();
+			pipelineService.didUnmount();
 		}
 	}
 
@@ -385,7 +348,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		NetCom2Utils.parameterNotNull(pipelineService);
 		synchronized (core) {
 			core.remove(new PipelineReceiver<>(pipelineService));
-			pipelineService.onUnRegistration();
+			pipelineService.didUnmount();
 		}
 	}
 
@@ -475,10 +438,8 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		result = 31 * result + logging.hashCode();
 		result = 31 * result + policyLock.hashCode();
 		result = 31 * result + clazz.hashCode();
-		result = 31 * result + receiveObjectHandlerWrapper.hashCode();
 		result = 31 * result + (closed ? 1 : 0);
 		result = 31 * result + (sealed ? 1 : 0);
-		result = 31 * result + receivePipelineHandlerPolicy.hashCode();
 		return result;
 	}
 
@@ -490,12 +451,11 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		if (this == o) return true;
 		if (!(o instanceof com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline)) return false;
 
-		final com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline<?> that = (com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline<?>) o;
+		final QueuedReceivePipeline<?> that = (QueuedReceivePipeline<?>) o;
 
 		return closed == that.closed && sealed == that.sealed && core.equals(that.core)
 				&& logging.equals(that.logging) && policyLock.equals(that.policyLock)
-				&& clazz.equals(that.clazz) && receiveObjectHandlerWrapper.equals(that.receiveObjectHandlerWrapper)
-				&& receivePipelineHandlerPolicy == that.receivePipelineHandlerPolicy;
+				&& clazz.equals(that.clazz);
 	}
 
 	/**
@@ -506,7 +466,6 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 		return (sealed ? "(SEALED)" : "") + "QueuedReceivePipeline{" +
 				"handling=" + clazz +
 				", open=" + !closed +
-				", receivePipelineHandlerPolicy=" + receivePipelineHandlerPolicy +
 				", core=" + core +
 				'}';
 	}
@@ -515,7 +474,7 @@ public class QueuedReceivePipeline<T> implements ReceivePipeline<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void acquire() throws InterruptedException {
+	public void acquire() {
 		readWriteLock.readLock().lock();
 	}
 

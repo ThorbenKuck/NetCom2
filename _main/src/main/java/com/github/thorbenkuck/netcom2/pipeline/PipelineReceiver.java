@@ -3,10 +3,10 @@ package com.github.thorbenkuck.netcom2.pipeline;
 import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.shared.Session;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.LinkedList;
 import java.util.Queue;

@@ -28,32 +28,32 @@ public class CallerReflectionLogging implements Logging {
 
 	@Override
 	public boolean traceEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean debugEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean infoEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean warnEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean errorEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean fatalEnabled() {
-		return false;
+		return true;
 	}
 
 	/**

@@ -32,9 +32,7 @@ public class SystemDefaultStyleLogging implements Logging {
 	 * @param s the String, that should be printed
 	 */
 	private void println(final Object s) {
-		synchronized (out) {
-			out.println(s);
-		}
+		out.println(s);
 	}
 
 	private String convert(String level) {
@@ -51,32 +49,32 @@ public class SystemDefaultStyleLogging implements Logging {
 
 	@Override
 	public boolean traceEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean debugEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean infoEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean warnEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean errorEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean fatalEnabled() {
-		return false;
+		return true;
 	}
 
 	/**

@@ -4,10 +4,13 @@ import com.github.thorbenkuck.keller.annotations.APILevel;
 import com.github.thorbenkuck.keller.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
+import com.github.thorbenkuck.netcom2.logging.Logging;
 import com.github.thorbenkuck.netcom2.pipeline.QueuedReceivePipeline;
 import com.github.thorbenkuck.netcom2.pipeline.Wrapper;
-import com.github.thorbenkuck.netcom2.shared.connections.Connection;
-import com.github.thorbenkuck.netcom2.shared.connections.ConnectionContext;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utils.asynch.NetComThreadPool;
+import com.github.thorbenkuck.network.connection.Connection;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
@@ -81,7 +84,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 	private <T> void triggerExisting(final Class<T> clazz, final ConnectionContext connectionContext, final Session session,
 									 final Object o) {
 		logging.trace(
-				"Running OnReceived for " + clazz + " with session " + session + " and received Object " + o + " ..");
+				"Running OnReceived for {} with session {} and received Object {} ..", clazz, session, o);
 		try {
 			logging.trace("Performing required type casts ..");
 			logging.trace("Casting ReceivePipeline ..");
@@ -134,7 +137,7 @@ class NativeCommunicationRegistration implements CommunicationRegistration {
 		try {
 			logging.trace("Acquiring the pipeline ..");
 			pipeline.acquire();
-			logging.trace("Running the elements through the Pipeline(#elements=" + pipeline.size() + ".");
+			logging.trace("Running the elements through the Pipeline(#elements={})", pipeline.size());
 			pipeline.run(connectionContext, session, o);
 			logging.debug("Successfully applied the ReceivePipeline");
 		} catch (final InterruptedException e) {

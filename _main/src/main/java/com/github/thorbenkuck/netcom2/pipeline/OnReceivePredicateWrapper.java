@@ -5,8 +5,8 @@ import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
 import com.github.thorbenkuck.netcom2.interfaces.TriPredicate;
 import com.github.thorbenkuck.netcom2.shared.Session;
-import com.github.thorbenkuck.netcom2.shared.connections.ConnectionContext;
 import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.function.BiPredicate;
 

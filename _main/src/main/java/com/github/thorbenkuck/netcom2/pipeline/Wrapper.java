@@ -4,7 +4,7 @@ import com.github.thorbenkuck.keller.annotations.Synchronized;
 import com.github.thorbenkuck.netcom2.shared.OnReceive;
 import com.github.thorbenkuck.netcom2.shared.OnReceiveSingle;
 import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
 
 /**
  * This Class is used to encapsulate the {@link OnReceiveWrapper} class, which is not Public

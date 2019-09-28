@@ -20,11 +20,6 @@ public class DebugLogging implements Logging {
 	}
 
 	@Override
-	public boolean traceEnabled() {
-		return false;
-	}
-
-	@Override
 	public boolean debugEnabled() {
 		return true;
 	}

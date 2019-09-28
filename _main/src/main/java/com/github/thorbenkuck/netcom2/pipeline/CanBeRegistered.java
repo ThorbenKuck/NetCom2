@@ -26,18 +26,18 @@ public interface CanBeRegistered {
 	/**
 	 * This method is called, when the implementing Class is registered. It can be changed, but it is not necessary to
 	 */
-	default void onUnRegistration() {
+	default void didUnmount() {
 	}
 
 	/**
 	 * This method is called, when the implementing Class is unregistered. It can be changed, but it is not necessary to
 	 */
-	default void onRegistration() {
+	default void didMount() {
 	}
 
 	/**
 	 * This method is called, if for example the ReceivePipeline is closed, but an instance of CanBeRegistered is added.
-	 * First {@link #onUnRegistration()} is called, than this, lastly {@link #onUnRegistration()}. This way, an
+	 * First {@link #didUnmount()} is called, than this, lastly {@link #didUnmount()}. This way, an
 	 */
 	default void onAddFailed() {
 	}

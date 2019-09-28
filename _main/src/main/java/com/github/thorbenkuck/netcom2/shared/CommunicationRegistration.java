@@ -4,11 +4,8 @@ import com.github.thorbenkuck.keller.annotations.Asynchronous;
 import com.github.thorbenkuck.netcom2.exceptions.CommunicationNotSpecifiedException;
 import com.github.thorbenkuck.netcom2.interfaces.Mutex;
 import com.github.thorbenkuck.netcom2.interfaces.ReceivePipeline;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceive;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveSingle;
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.connections.ConnectionContext;
+import com.github.thorbenkuck.network.connection.Connection;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.List;
 import java.util.Map;
@@ -75,10 +72,8 @@ public interface CommunicationRegistration extends Mutex {
 	 * Removes the internally set instance of the {@link ReceivePipeline}, handling an Object of the same
 	 * Type as the provided <code>clazz</code>.
 	 * <p>
-	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} set to
-	 * the maintained {@link ReceivePipeline}. It will simply remove the set instance.
 	 *
-	 * @param type the Class, that defines the type of the ReceivePipeline
+	 *  @param type the Class, that defines the type of the ReceivePipeline
 	 */
 	void unRegister(final Class type);
 
@@ -173,8 +168,6 @@ public interface CommunicationRegistration extends Mutex {
 	/**
 	 * Clears all set registration.
 	 * <p>
-	 * This Call will ignore the set {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy}.
-	 * <p>
 	 * All internally set {@link ReceivePipeline} will be cleared.
 	 * Currently running Handlers will NOT be stopped.
 	 */
@@ -191,9 +184,6 @@ public interface CommunicationRegistration extends Mutex {
 
 	/**
 	 * This call will override any internally set registrations and set all registration to the provided CommunicationRegistration.
-	 * <p>
-	 * This will ignore any {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy} and delete all
-	 * Registrations currently set.
 	 * <p>
 	 * This CommunicationRegistration will take all <b>instances</b> from the provided CommunicationRegistration!
 	 * This means, both are now nearly identical! A change at one {@link ReceivePipeline} in any of those CommunicationRegistrations

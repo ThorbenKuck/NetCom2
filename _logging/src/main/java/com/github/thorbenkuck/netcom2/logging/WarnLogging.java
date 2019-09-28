@@ -20,21 +20,6 @@ public class WarnLogging implements Logging {
 	}
 
 	@Override
-	public boolean traceEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean debugEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean infoEnabled() {
-		return false;
-	}
-
-	@Override
 	public boolean warnEnabled() {
 		return true;
 	}

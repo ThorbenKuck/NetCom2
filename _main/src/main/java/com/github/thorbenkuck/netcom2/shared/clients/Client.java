@@ -2,15 +2,13 @@ package com.github.thorbenkuck.netcom2.shared.clients;
 
 import com.github.thorbenkuck.keller.sync.Awaiting;
 import com.github.thorbenkuck.keller.sync.Synchronize;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ClientID;
-import com.github.thorbenkuck.netcom2.network.shared.clients.ObjectHandler;
-import com.github.thorbenkuck.netcom2.network.shared.comm.model.NewConnectionRequest;
-import com.github.thorbenkuck.netcom2.network.shared.connections.Connection;
-import com.github.thorbenkuck.netcom2.network.shared.connections.RawData;
 import com.github.thorbenkuck.netcom2.shared.CommunicationRegistration;
 import com.github.thorbenkuck.netcom2.shared.Session;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
-import com.github.thorbenkuck.netcom2.utility.threaded.NetComThreadPool;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.utils.asynch.NetComThreadPool;
+import com.github.thorbenkuck.network.connection.Connection;
+import com.github.thorbenkuck.network.encoding.ObjectDecoder;
+import com.github.thorbenkuck.network.encoding.ObjectEncoder;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -34,19 +32,12 @@ import java.util.function.Consumer;
  * Most of the Time, you do not need to do anything with this class, except for setting Encryption or Synchronization.
  * Some of the Methods are highly risky to use, except if followed by a certain other call.
  * <p>
- * <b>Version 1.1:</b>
- * <p>
- * With version 1.1, the Serialization and Encryption mechanisms, are decoupled into the {@link ObjectHandler}.
- * <p>
- * The Connection management also has been overhauled. A Client now is considered primed, as soon as the DefaultConnection
- * is established.
- * <p>
- * All currently deprecated methods will be removed in the next major update.
  *
  * @version 1.1
  * @see Session
  * @see CommunicationRegistration
- * @see ObjectHandler
+ * @see ObjectDecoder
+ * @see ObjectEncoder
  * @since 1.0
  */
 public interface Client {
@@ -62,9 +53,6 @@ public interface Client {
 
 	/**
 	 * Adds a connection.
-	 * <p>
-	 * Internally it uses the {@link #setConnection(Class, Connection)} method, based on the {@link Connection#getIdentifier()}
-	 * value.
 	 *
 	 * @param connection the Connection, that should be added.
 	 */
@@ -157,8 +145,6 @@ public interface Client {
 	 * After all Connections are closed, the disconnected handler will be called in an descending order of how they where added
 	 * Each of the {@link ClientDisconnectedHandler} will be called.
 	 * <p>
-	 * Lastly the ClientID will be set to an {@link ClientID#empty()} and the Session will be recreated
-	 * <p>
 	 * Calling this method is not reversible! Once closed, it cannot be reopened easily. The only way would be, to manually
 	 * recreate all Connections, required for this Client to function. So calling this method manually is discouraged
 	 * <p>
@@ -173,7 +159,7 @@ public interface Client {
 
 	/**
 	 * Returns the internal Session for this Client.
-	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses a {@link com.github.thorbenkuck.netcom2.network.shared.SendBridge}
+	 * The Client knows of its Session, but the Session does not knows of its Client. The Session however uses a
 	 * which is individual for each Client. Therefor every Session is unique for every Client, even tho multiple Session may have the same attribute.
 	 *
 	 * @return the internally set {@link Session}
@@ -221,28 +207,7 @@ public interface Client {
 	 */
 	void triggerPrimed();
 
-	/**
-	 * Returns the {@link ClientID} for this Client
-	 * <p>
-	 * This Method will never Return null and is controlled by {@link #setID(ClientID)}
-	 *
-	 * @return the ClientID for this Client
-	 */
-	ClientID getID();
-
-	/**
-	 * Sets the {@link ClientID} for this client.
-	 * <p>
-	 * This might not be null and will throw an {@link IllegalArgumentException} if null is provided.
-	 * You can certainly call this method, but it is highly discouraged to do so. The idea of this method is, to manually
-	 * override the ClientID of false Clients, created via a new Connection creation.
-	 *
-	 * @param id the new ID for this client
-	 * @throws IllegalArgumentException if id == null
-	 */
-	void setID(final ClientID id);
-
-	void receive(RawData rawData, Connection connection);
+	void receive(Object object, Connection connection);
 
 	/**
 	 * Adds an {@link ClientDisconnectedHandler} to this Client, which is called if this Client disconnects from the ClientStart or ServerStart respectively.
@@ -260,15 +225,17 @@ public interface Client {
 
 	void addPrimedCallback(Consumer<Client> clientConsumer);
 
-	ObjectHandler objectHandler();
+	ObjectEncoder objectEncoder();
+
+	ObjectDecoder objectDecoder();
 
 	/**
-	 * Whilst the other send Methods wait for the Connection to de block {@link Connection#connected()}, this method ignores this.
+	 * Whilst the other send Methods wait for the Connection to de block {@link Connection#isOpen()} ()}, this method ignores this.
 	 * <p>
 	 * Some times it is needed, but most of the time, this is not what you want. Instead, try to use {@link #send(Object, Class)},
 	 * {@link #send(Object, Connection)} or {@link #send(Object)}.
 	 * <p>
-	 * The {@link Connection#connected()} {@link Awaiting} blocks until the internal default CommunicationProtocol is finished.
+	 * The {@link Connection#isOpen()} {@link Awaiting} blocks until the internal default CommunicationProtocol is finished.
 	 * Only then it is ensured, that the Server or the Client knows exactly what this Connection is associated with.
 	 *
 	 * @param object     the Object to send over the Connection
@@ -303,7 +270,7 @@ public interface Client {
 	/**
 	 * This Method will try to send an Object over an Connection.
 	 * <p>
-	 * Since this Method takes no identifier parameter for the Connection, it uses the {@link com.github.thorbenkuck.netcom2.network.shared.connections.DefaultConnection}
+	 * Since this Method takes no identifier parameter for the Connection, it uses the
 	 * to Send the method. This Method returns nearly immediately. Further, an Object is considered "send" if the
 	 * Connection accepts the Object.
 	 * <p>
@@ -378,7 +345,6 @@ public interface Client {
 	 */
 	default Awaiting createNewConnection(final Class connectionKey) {
 		NetCom2Utils.parameterNotNull(connectionKey);
-		send(new NewConnectionRequest(connectionKey));
 		return prepareConnection(connectionKey);
 	}
 

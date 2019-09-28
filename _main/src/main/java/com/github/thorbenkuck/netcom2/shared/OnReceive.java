@@ -1,7 +1,6 @@
 package com.github.thorbenkuck.netcom2.shared;
 
-import com.github.thorbenkuck.netcom2.network.shared.ReceiveFamily;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
+import com.github.thorbenkuck.netcom2.interfaces.ReceiveFamily;
 import com.github.thorbenkuck.netcom2.pipeline.CanBeRegistered;
 
 import java.util.function.BiConsumer;

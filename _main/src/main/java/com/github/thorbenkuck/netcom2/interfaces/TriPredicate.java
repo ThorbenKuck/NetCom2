@@ -1,12 +1,13 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
 
 /**
  * This interface is created equally to the {@link java.util.function.Predicate}, but excepting 3 types as arguments
  * <p>
  * Its primary use is to enable the {@link com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition}, which
- * utilizes this predicate to evaluate whether or not an {@link com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple}
+ * utilizes this predicate to evaluate whether or not an {@link OnReceiveTriple}
  * should be executed or not.
  *
  * @param <T> T the first type to test

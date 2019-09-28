@@ -1,7 +1,7 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
-import com.github.thorbenkuck.netcom2.network.shared.comm.OnReceiveTriple;
-import com.github.thorbenkuck.netcom2.utility.NetCom2Utils;
+import com.github.thorbenkuck.netcom2.shared.OnReceiveTriple;
+import com.github.thorbenkuck.netcom2.utils.NetCom2Utils;
 
 /**
  * This interface is created equally to the {@link java.util.function.Consumer}, but expects 3 types as arguments

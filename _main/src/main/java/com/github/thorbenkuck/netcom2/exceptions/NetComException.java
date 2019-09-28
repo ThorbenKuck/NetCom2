@@ -1,6 +1,6 @@
 package com.github.thorbenkuck.netcom2.exceptions;
 
-public class NetComException extends RuntimeException {
+public class NetComException extends Exception {
 
     public NetComException() {
     }
@@ -17,7 +17,4 @@ public class NetComException extends RuntimeException {
         super(throwable);
     }
 
-    public NetComException(String s, Throwable throwable, boolean b, boolean b1) {
-        super(s, throwable, b, b1);
-    }
 }

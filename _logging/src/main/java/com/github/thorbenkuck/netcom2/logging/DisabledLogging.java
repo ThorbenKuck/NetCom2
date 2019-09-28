@@ -12,36 +12,6 @@ public class DisabledLogging implements Logging {
 		instantiated(this);
 	}
 
-	@Override
-	public boolean traceEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean debugEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean infoEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean warnEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean errorEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean fatalEnabled() {
-		return false;
-	}
-
 	/**
 	 * <b>This method call will be ignored!</b>
 	 * {@inheritDoc}

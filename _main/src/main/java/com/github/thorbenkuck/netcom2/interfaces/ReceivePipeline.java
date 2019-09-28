@@ -1,9 +1,9 @@
 package com.github.thorbenkuck.netcom2.interfaces;
 
 import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineCondition;
-import com.github.thorbenkuck.netcom2.pipeline.ReceivePipelineHandlerPolicy;
 import com.github.thorbenkuck.netcom2.shared.*;
-import com.github.thorbenkuck.netcom2.shared.connections.ConnectionContext;
+import com.github.thorbenkuck.network.connection.Connection;
+import com.github.thorbenkuck.network.connection.ConnectionContext;
 
 import java.util.function.Consumer;
 
@@ -208,56 +208,6 @@ public interface ReceivePipeline<T> extends Mutex {
     ReceivePipelineCondition<T> addLastIfNotContained(final OnReceiveTriple<T> pipelineService);
 
     /**
-     * Links a real Method to handle the object (and the Session, Connection), if it arrives.
-     * <p>
-     * The behaviour upon calling this Method is described by the internal {@link ReceivePipelineHandlerPolicy}, which
-     * can be set by the {@link #setReceivePipelineHandlerPolicy(ReceivePipelineHandlerPolicy)}.
-     * <p>
-     * The registered Method may accept any of the following Objects:
-     * <ul>
-     * <li>T, the object which is received over the Connection</li>
-     * <li>The Session, responsible for the Client, which send the Object</li>
-     * <li>The Connection over which the Object T has been received.</li>
-     * </ul>
-     * <p>
-     * The sequence of the declared Methods does not matter, you may declare the Object first, followed by the Session,
-     * or only the Connection.
-     * <p>
-     * For correctly detecting the Method, the ReceivePipeline requires you to add the @ReceiveHandler Annotation to the
-     * Method, which should handle the receiving of the Object
-     * <p>
-     * It looks something like this:
-     * <p>
-     * <pre><code>
-     * class TestObjectHandler {
-     *     {@literal @}ReceiveHandler
-     *     private void handle(TestObject testObject, Session session) {
-     *         // Do something
-     *     }
-     * }
-     *
-     * class Register {
-     *     private CommunicationRegistration registration;
-     *     private TestObjectHandler handler = new TestObjectHandler();
-     *     ...
-     *
-     *     public void registerObjects() {
-     *         communicationRegistration.register(TestObject.class)
-     *                   .to(handler);
-     *     }
-     * }
-     * </code></pre>
-     * <p>
-     * Note that the {@literal @}ReceiveHandler Annotation is commented out to ensure the correct JavaDOC parsing.
-     * <p>
-     * WARNING: This method needs to use Reflection to find the correct Method!
-     *
-     * @param object the Object, which contains the Method to handle the receiving of the Object, which is annotated with @ReceiveHandler
-     * @return and {@link ReceivePipelineCondition} to specify if the linked Method is executed
-     */
-    ReceivePipelineCondition<T> to(final Object object);
-
-    /**
      * Describes if a specific {@link OnReceiveTriple} is already registered withing this ReceivePipeline
      *
      * @param onReceiveTriple the {@link OnReceiveTriple} which should be checked for
@@ -328,18 +278,6 @@ public interface ReceivePipeline<T> extends Mutex {
      * @param runnable the {@link Runnable}, which should be executed if the ReceivePipeline is closed
      */
     void ifClosed(final Runnable runnable);
-
-    /**
-     * Updates the {@link ReceivePipelineHandlerPolicy} of this ReceivePipeline.
-     * <p>
-     * The given {@link ReceivePipelineHandlerPolicy} describes the behaviour of the Method {@link #to(Object)}, whenever
-     * an Object-Handler is registered.
-     * <p>
-     * The new {@link ReceivePipelineHandlerPolicy} takes affect at the next call of {@link #to(Object)}
-     *
-     * @param receivePipelineHandlerPolicy the {@link ReceivePipelineHandlerPolicy} to be used within this ReceivePipeline
-     */
-    void setReceivePipelineHandlerPolicy(final ReceivePipelineHandlerPolicy receivePipelineHandlerPolicy);
 
     /**
      * Removes a certain {@link OnReceive} from this ReceivePipeline.
