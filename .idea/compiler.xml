@@ -6,23 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="NetCom2" />
-        <module name="NetCom2-Asynch" />
-        <module name="NetCom2-Auto" />
-        <module name="NetCom2-Cache" />
-        <module name="NetCom2-Core" />
-        <module name="NetCom2-Logging" />
         <module name="NetCom2-Main" />
-        <module name="NetCom2-Objects" />
-        <module name="NetCom2-RMI" />
-        <module name="NetCom2-Service" />
-        <module name="NetCom2-Test" />
-        <module name="NetCom2-Util" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="NetCom2" target="1.8" />
-      <module name="NetCom2 (1)" target="1.8" />
+      <module name="NetCom2 (2)" target="1.8" />
       <module name="NetCom2-Asynch" target="1.8" />
       <module name="NetCom2-Auto" target="1.8" />
       <module name="NetCom2-Cache" target="1.8" />

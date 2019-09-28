@@ -6,7 +6,6 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 import com.github.thorbenkuck.netcom2.network.shared.Session;
-import com.github.thorbenkuck.test.generated.ClientOnlyRegistration;
 
 public class ClientMain {
 
@@ -33,7 +32,7 @@ public class ClientMain {
 		}
 	}
 
-	@Register(name = "ClientOnlyRegistration", autoLoad = false)
+	@Register(name = "ClientOnlyRegistration")
 	public void foo(Session session, TestObject testObject) {
 		System.out.println("[OK]{Client} Received");
 		clientStart.softStop();

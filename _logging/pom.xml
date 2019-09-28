@@ -1,11 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thorbenkuck</groupId>
-    <artifactId>NetCom2</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>NetCom2-Main</name>
-    <description>Default implementation</description>
+    <artifactId>NetCom2-Logging</artifactId>
+    <version>1.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>NetCom2-Logging</name>
+    <description>NetCom2 Logging is a logging base, used within NetCom2
+    </description>
     <url>https://github.com/ThorbenKuck/NetCom2</url>
     <properties>
         <project.build.sourceEncoding>
@@ -17,7 +18,7 @@
         <connection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</connection>
         <url>scm:git:git@github.com:ThorbenKuck/NetCom2.git</url>
         <developerConnection>scm:git:git@github.com:ThorbenKuck/NetCom2.git</developerConnection>
-        <tag>NetCom2-2.0.1</tag>
+        <tag>NetCom2-2.0</tag>
     </scm>
 
     <developers>
@@ -160,26 +161,6 @@
             <groupId>com.github.thorbenkuck</groupId>
             <artifactId>keller-core</artifactId>
             <version>1.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Core</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Cache</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Util</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2-Logging</artifactId>
-            <version>1.1.1</version>
         </dependency>
     </dependencies>
     <profiles>
